@@ -1,0 +1,1 @@
+export const BASE_URL = 'https://greengong.co.kr/'; //본 아이피
