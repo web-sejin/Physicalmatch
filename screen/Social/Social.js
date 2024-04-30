@@ -53,8 +53,7 @@ const Social = ({ navigation, route }) => {
 	}, [isFocused]);
 
 	useEffect(() => {
-		cardList.map((item) => {
-			
+		cardList.map((item) => {			
 		});
 	}, []);
 

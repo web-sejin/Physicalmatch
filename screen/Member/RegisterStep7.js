@@ -276,6 +276,28 @@ const RegisterStep7 = ({navigation, route}) => {
 		nextObj.qnaList = qnaList;
 		nextObj.intro = intro;
 		nextObj.qnaListData = apiQnaListData;
+		if(route['params']['step8File1']){ nextObj.step8File1 = route['params']['step8File1']; }
+		if(route['params']['step8File2']){ nextObj.step8File2 = route['params']['step8File2']; }
+		if(route['params']['step8File3']){ nextObj.step8File3 = route['params']['step8File3']; }
+		if(route['params']['step8File4']){ nextObj.step8File4 = route['params']['step8File4']; }
+		if(route['params']['step8File5']){ nextObj.step8File5 = route['params']['step8File5']; }
+		if(route['params']['step8File6']){ nextObj.step8File6 = route['params']['step8File6']; }
+		if(route['params']['step8File7']){ nextObj.step8File7 = route['params']['step8File7']; }
+		if(route['params']['step8File8']){ nextObj.step8File8 = route['params']['step8File8']; }
+		if(route['params']['step8Grade1']){ nextObj.step8Grade1 = route['params']['step8Grade1']; }
+		if(route['params']['step8Grade2']){ nextObj.step8Grade2 = route['params']['step8Grade2']; }
+		if(route['params']['step8Grade3']){ nextObj.step8Grade3 = route['params']['step8Grade3']; }
+		if(route['params']['step8Grade4']){ nextObj.step8Grade4 = route['params']['step8Grade4']; }
+		if(route['params']['step8Grade5']){ nextObj.step8Grade5 = route['params']['step8Grade5']; }
+		if(route['params']['step8Grade6']){ nextObj.step8Grade6 = route['params']['step8Grade6']; }
+		if(route['params']['step8Grade7']){ nextObj.step8Grade7 = route['params']['step8Grade7']; }
+		if(route['params']['step8Grade8']){ nextObj.step8Grade8 = route['params']['step8Grade8']; }
+		if(route['params']['step8JobFile']){ nextObj.step8JobFile = route['params']['step8JobFile']; }
+		if(route['params']['step8SchoolFile']){ nextObj.step8SchoolFile = route['params']['step8SchoolFile']; }
+		if(route['params']['step8SchoolName']){ nextObj.step8SchoolName = route['params']['step8SchoolName']; }
+		if(route['params']['step8SchoolMajor']){ nextObj.step8SchoolMajor = route['params']['step8SchoolMajor']; }
+		if(route['params']['step8MarryFile']){ nextObj.step8MarryFile = route['params']['step8MarryFile']; }
+		if(route['params']['step8MarryState']){ nextObj.step8MarryState = route['params']['step8MarryState']; }
 		navigation.navigate('RegisterStep8', nextObj);
 	}
 
@@ -342,7 +364,10 @@ const RegisterStep7 = ({navigation, route}) => {
 							<TouchableOpacity
 								style={styles.guideBtn}
 								activeOpacity={opacityVal}
-								onPress={()=>{setGuideModal(true)}}
+								onPress={()=>{
+									setGuideModal(true);									
+									setPreventBack(true);
+								}}
 							>
 								<Text style={styles.guideBtnText}>자기소개 가이드</Text>
 								<AutoHeightImage 

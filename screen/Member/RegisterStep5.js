@@ -113,6 +113,7 @@ const RegisterStep5 = ({navigation, route}) => {
   const mb_id = route['params']['mb_id'];
 	const mb_pw = route['params']['mb_pw'];
 
+	const scrollViewRef = useRef();
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
 	const navigationUse = useNavigation();
@@ -217,6 +218,7 @@ const RegisterStep5 = ({navigation, route}) => {
 	const [realRest, setRealRest] = useState(false);
 	const [realExeList, setRealExeList] = useState([]);
 	const [nextOpen, setNextOpen] = useState(false);
+	const [outerScrollEnabled, setOuterScrollEnabled] = useState(true)
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -701,7 +703,7 @@ const RegisterStep5 = ({navigation, route}) => {
 				const keyOd = (exeList.length)+1;
 				let exeAddList = {key : keyOd, period : exePeri, day : exeDay, sort : exeSport};
 				let exeAddList2 = [...exeList, exeAddList];					
-				setExeList(exeAddList2);				
+				setExeList(exeAddList2);							
 			}
 			
 			if(!exeAddSt){
@@ -713,7 +715,7 @@ const RegisterStep5 = ({navigation, route}) => {
 			setExeAddSt(false);
 			setExePeri('');
 			setExeDay('0');
-			setExeSport('');			
+			setExeSport('');
 		}
 	}	
 
@@ -721,7 +723,7 @@ const RegisterStep5 = ({navigation, route}) => {
 		if(realNick == ''){ ToastMessage('닉네임을 입력해 주세요.'); return false; }
 		if(realGender == ''){ ToastMessage('성별을 선택해 주세요.'); return false; }
 		if(realLocal1 == ''){ ToastMessage('주 활동 지역을 입력해 주세요.'); return false; }
-		if(realClass == '' || realClass2 == ''){ ToastMessage('최종학력을 선택해 주세요.'); return false; }
+		if(realClass == '' || realClass2 == ''){ ToastMessage('최종 학력을 선택해 주세요.'); return false; }
 		if(realJob == ''){ ToastMessage('직업을 압력 또는 선택해 주세요.'); return false; }
 		if(realHeight == ''){ ToastMessage('피지컬(키)을 선택해 주세요.'); return false; }
 		if(!realRest && realExeList.length < 1){ ToastMessage('운동을 선택해 주세요.'); return false; }
@@ -765,33 +767,37 @@ const RegisterStep5 = ({navigation, route}) => {
 			mb_religion:realRel
 		}
 
-		if(route['params']['file1']){
-			nextObj.file1 = route['params']['file1'];
-		}
-		if(route['params']['file2']){
-			nextObj.file2 = route['params']['file2'];
-		}
-		if(route['params']['file3']){
-			nextObj.file3 = route['params']['file3'];
-		}
-		if(route['params']['file4']){
-			nextObj.file4 = route['params']['file4'];
-		}
-		if(route['params']['file5']){
-			nextObj.file5 = route['params']['file5'];
-		}
-		if(route['params']['file6']){
-			nextObj.file6 = route['params']['file6'];
-		}
-		if(route['params']['qnaList']){
-			nextObj.qnaList = route['params']['qnaList'];
-		}
-		if(route['params']['intro']){
-			nextObj.intro = route['params']['intro'];
-		}
-		if(route['params']['qnaListData']){
-			nextObj.qnaListData = route['params']['qnaListData'];
-		}
+		if(route['params']['file1']){ nextObj.file1 = route['params']['file1']; }
+		if(route['params']['file2']){ nextObj.file2 = route['params']['file2']; }
+		if(route['params']['file3']){ nextObj.file3 = route['params']['file3']; }
+		if(route['params']['file4']){ nextObj.file4 = route['params']['file4']; }
+		if(route['params']['file5']){ nextObj.file5 = route['params']['file5']; }
+		if(route['params']['file6']){ nextObj.file6 = route['params']['file6']; }
+		if(route['params']['qnaList']){ nextObj.qnaList = route['params']['qnaList']; }
+		if(route['params']['intro']){ nextObj.intro = route['params']['intro']; }
+		if(route['params']['qnaListData']){ nextObj.qnaListData = route['params']['qnaListData']; }
+		if(route['params']['step8File1']){ nextObj.step8File1 = route['params']['step8File1']; }
+		if(route['params']['step8File2']){ nextObj.step8File2 = route['params']['step8File2']; }
+		if(route['params']['step8File3']){ nextObj.step8File3 = route['params']['step8File3']; }
+		if(route['params']['step8File4']){ nextObj.step8File4 = route['params']['step8File4']; }
+		if(route['params']['step8File5']){ nextObj.step8File5 = route['params']['step8File5']; }
+		if(route['params']['step8File6']){ nextObj.step8File6 = route['params']['step8File6']; }
+		if(route['params']['step8File7']){ nextObj.step8File7 = route['params']['step8File7']; }
+		if(route['params']['step8File8']){ nextObj.step8File8 = route['params']['step8File8']; }
+		if(route['params']['step8Grade1']){ nextObj.step8Grade1 = route['params']['step8Grade1']; }
+		if(route['params']['step8Grade2']){ nextObj.step8Grade2 = route['params']['step8Grade2']; }
+		if(route['params']['step8Grade3']){ nextObj.step8Grade3 = route['params']['step8Grade3']; }
+		if(route['params']['step8Grade4']){ nextObj.step8Grade4 = route['params']['step8Grade4']; }
+		if(route['params']['step8Grade5']){ nextObj.step8Grade5 = route['params']['step8Grade5']; }
+		if(route['params']['step8Grade6']){ nextObj.step8Grade6 = route['params']['step8Grade6']; }
+		if(route['params']['step8Grade7']){ nextObj.step8Grade7 = route['params']['step8Grade7']; }
+		if(route['params']['step8Grade8']){ nextObj.step8Grade8 = route['params']['step8Grade8']; }
+		if(route['params']['step8JobFile']){ nextObj.step8JobFile = route['params']['step8JobFile']; }
+		if(route['params']['step8SchoolFile']){ nextObj.step8SchoolFile = route['params']['step8SchoolFile']; }
+		if(route['params']['step8SchoolName']){ nextObj.step8SchoolName = route['params']['step8SchoolName']; }
+		if(route['params']['step8SchoolMajor']){ nextObj.step8SchoolMajor = route['params']['step8SchoolMajor']; }
+		if(route['params']['step8MarryFile']){ nextObj.step8MarryFile = route['params']['step8MarryFile']; }
+		if(route['params']['step8MarryState']){ nextObj.step8MarryState = route['params']['step8MarryState']; }
 
 		navigation.navigate('RegisterStep6', nextObj);
 	}
@@ -1947,7 +1953,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					</View>
 					<View style={styles.popRadioBox}>
 						<View style={[styles.popRadioTitle, styles.popRadioTitleFlex]}>
-							<Text style={styles.popRadioTitleText}>나의 운동</Text>
+							<Text style={styles.popRadioTitleText}>나의 운동({exeList.length})</Text>
 							{exeAddSt ? (
 								<TouchableOpacity
 									style={styles.exeAddBtn}
@@ -1978,15 +1984,16 @@ const RegisterStep5 = ({navigation, route}) => {
 						</View>						
 					</View>
 					{exeList.length > 0 ? (
-					<View style={styles.exeSortBox}>														
+					<View style={styles.exeSortBox}>				
 						<DraggableFlatList
 							data={exeList}
 							onDragEnd={({ data }) => {
-								setExeList(data);
+								setExeList(data);								
 							}}
 							keyExtractor={(item) => item.key}
 							renderItem={renderItem}
-						/>						
+							ref={scrollViewRef}
+						/>														
 					</View>
 					) : (
 						!exeAddSt ? (
@@ -2012,91 +2019,93 @@ const RegisterStep5 = ({navigation, route}) => {
 
 					{exeAddSt ? (
 					<ScrollView>
-						<View style={[styles.popRadioBox, styles.mgt20]}>
-							<View style={[styles.popRadioTitle]}>
-								<Text style={styles.popRadioTitleText}>주기</Text>
-							</View>						
-							<View style={styles.periFlex}>
-								<View style={styles.popRadioType2}>
-									<TouchableOpacity
-										style={[styles.popRadioBoxBtn2, styles.popRadioBoxBtn5, exePeri == '주' ? styles.popRadioBoxBtn2On : null]}
-										activeOpacity={opacityVal}
-										onPress={()=>{												
-											setExePeri('주');		
-											if(exeDay > 7){
-												setExeDay('7');
-											}
-										}}
-									>
-										<Text style={[styles.popRadioBoxBtn2Text, styles.popRadioBoxBtn5Text, exePeri == '주' ? styles.popRadioBoxBtn2TextOn : null]}>주</Text>
-									</TouchableOpacity>
-									<TouchableOpacity
-										style={[styles.popRadioBoxBtn2, styles.popRadioBoxBtn5, exePeri == '월' ? styles.popRadioBoxBtn2On : null]}
-										activeOpacity={opacityVal}
-										onPress={()=>{												
-											setExePeri('월');									
-										}}
-									>
-										<Text style={[styles.popRadioBoxBtn2Text, styles.popRadioBoxBtn5Text, exePeri == '월' ? styles.popRadioBoxBtn2TextOn : null]}>월</Text>
-									</TouchableOpacity>
-								</View>
-								<View style={styles.periDayCnt}>
-									<TouchableOpacity
-										style={styles.periDayCntBtn}
-										activeOpacity={opacityVal}
-										onPress={() => {periCount('minus')}}
-									>
-										<AutoHeightImage
-											width={18}
-											source={require("../../assets/image/icon_minus2.png")}
-										/>
-									</TouchableOpacity>
-									<TextInput
-									value={exeDay}
-									keyboardType = 'numeric'
-									onChangeText={(v) => {
-										
-										if(exePeri == '주'){
-											if(v*1 > 7){ setExeDay('7') }
-										}else{
-											if(v*1 > 30){ setExeDay('30') }
-										}
-									}}
-									style={[styles.periDayIpt]}
-								/>
-									<TouchableOpacity
-										style={styles.periDayCntBtn}
-										activeOpacity={opacityVal}
-										onPress={() => {periCount('plus')}}
-									>
-										<AutoHeightImage
-											width={18}
-											source={require("../../assets/image/icon_plus3.png")}
-										/>
-									</TouchableOpacity>
-									<Text style={styles.periDayUnit}>일</Text>
-								</View>
-							</View>
-						</View>
-						<View style={[styles.popRadioBox, styles.mgt20]}>
-							<View style={[styles.popRadioTitle]}>
-								<Text style={styles.popRadioTitleText}>종목</Text>
-							</View>						
-							<View style={styles.physicalList}>
-								{sprotList.map((item, index) => {
-									return(
+						<View onStartShouldSetResponder={() => true}>
+							<View style={[styles.popRadioBox, styles.mgt20]}>
+								<View style={[styles.popRadioTitle]}>
+									<Text style={styles.popRadioTitleText}>주기</Text>
+								</View>						
+								<View style={styles.periFlex}>
+									<View style={styles.popRadioType2}>
 										<TouchableOpacity
-											key={index}
-											style={[styles.phyBtn, exeSport == item.txt ? styles.phyBtnOn : null]}
+											style={[styles.popRadioBoxBtn2, styles.popRadioBoxBtn5, exePeri == '주' ? styles.popRadioBoxBtn2On : null]}
 											activeOpacity={opacityVal}
-											onPress={() => {
-												setExeSport(item.txt);
+											onPress={()=>{												
+												setExePeri('주');		
+												if(exeDay > 7){
+													setExeDay('7');
+												}
 											}}
 										>
-											<Text style={[styles.phyBtnText, exeSport == item.txt ? styles.phyBtnTextOn : null]}>{item.txt}</Text>
+											<Text style={[styles.popRadioBoxBtn2Text, styles.popRadioBoxBtn5Text, exePeri == '주' ? styles.popRadioBoxBtn2TextOn : null]}>주</Text>
 										</TouchableOpacity>
-									)
-								})}							
+										<TouchableOpacity
+											style={[styles.popRadioBoxBtn2, styles.popRadioBoxBtn5, exePeri == '월' ? styles.popRadioBoxBtn2On : null]}
+											activeOpacity={opacityVal}
+											onPress={()=>{												
+												setExePeri('월');									
+											}}
+										>
+											<Text style={[styles.popRadioBoxBtn2Text, styles.popRadioBoxBtn5Text, exePeri == '월' ? styles.popRadioBoxBtn2TextOn : null]}>월</Text>
+										</TouchableOpacity>
+									</View>
+									<View style={styles.periDayCnt}>
+										<TouchableOpacity
+											style={styles.periDayCntBtn}
+											activeOpacity={opacityVal}
+											onPress={() => {periCount('minus')}}
+										>
+											<AutoHeightImage
+												width={18}
+												source={require("../../assets/image/icon_minus2.png")}
+											/>
+										</TouchableOpacity>
+										<TextInput
+										value={exeDay}
+										keyboardType = 'numeric'
+										onChangeText={(v) => {
+											
+											if(exePeri == '주'){
+												if(v*1 > 7){ setExeDay('7') }
+											}else{
+												if(v*1 > 30){ setExeDay('30') }
+											}
+										}}
+										style={[styles.periDayIpt]}
+									/>
+										<TouchableOpacity
+											style={styles.periDayCntBtn}
+											activeOpacity={opacityVal}
+											onPress={() => {periCount('plus')}}
+										>
+											<AutoHeightImage
+												width={18}
+												source={require("../../assets/image/icon_plus3.png")}
+											/>
+										</TouchableOpacity>
+										<Text style={styles.periDayUnit}>일</Text>
+									</View>
+								</View>
+							</View>
+							<View style={[styles.popRadioBox, styles.mgt20]}>
+								<View style={[styles.popRadioTitle]}>
+									<Text style={styles.popRadioTitleText}>종목</Text>
+								</View>						
+								<View style={styles.physicalList}>
+									{sprotList.map((item, index) => {
+										return(
+											<TouchableOpacity
+												key={index}
+												style={[styles.phyBtn, exeSport == item.txt ? styles.phyBtnOn : null]}
+												activeOpacity={opacityVal}
+												onPress={() => {
+													setExeSport(item.txt);
+												}}
+											>
+												<Text style={[styles.phyBtnText, exeSport == item.txt ? styles.phyBtnTextOn : null]}>{item.txt}</Text>
+											</TouchableOpacity>
+										)
+									})}							
+								</View>
 							</View>
 						</View>
 					</ScrollView>
@@ -2772,7 +2781,7 @@ const styles = StyleSheet.create({
 	exeAddBtn: {flexDirection:'row',alignItems:'center'},
 	exeAddBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:18,color:'#D1913C',marginLeft:5,},
 
-	exeSortBox: {paddingBottom:20,borderBottomWidth:1,borderBottomColor:'#DBDBDB',maxHeight:142,},
+	exeSortBox: {paddingBottom:20,borderBottomWidth:1,borderBottomColor:'#DBDBDB',maxHeight:165,},
 	exeRestBox: {paddingBottom:0,paddingTop:20,marginTop:10,borderBottomWidth:0,borderTopWidth:1,borderTopColor:'#DBDBDB'},
 	exeSortCont: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:8,},
 	exeSortContBtn1: {width:22,height:22,backgroundColor:'#fff',alignItems:'center'},
@@ -2785,7 +2794,7 @@ const styles = StyleSheet.create({
 	periFlex: {flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
 	periDayCnt: {flexDirection:'row',alignItems:'center',position:'relative',top:2,},
 	periDayCntBtn: {width:18,height:18,},
-	periDayIpt: {fontFamily:Font.NotoSansMedium,width:26,height:20,backgroundColor:'#fff',paddingVertical:0,fontSize:13,lineHeight:16,color:'#1e1e1e',textAlign:'center',marginHorizontal:2,},
+	periDayIpt: {fontFamily:Font.NotoSansMedium,width:26,height:20,backgroundColor:'#fff',paddingVertical:0,fontSize:13,lineHeight:18,color:'#1e1e1e',textAlign:'center',marginHorizontal:2,},
 	periDayUnit: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:18,color:'#1e1e1e',marginLeft:10,},
 
 	restBtn: {flexDirection:'row',alignItems:'center'},

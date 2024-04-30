@@ -34,7 +34,7 @@ const Intro2 = ({navigation, route}) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			<Video
+			{/* <Video
 				source={require('../assets/video/sample.mp4')}
 				style={styles.fullScreen}
 				paused={false} // 재생/중지 여부
@@ -42,7 +42,8 @@ const Intro2 = ({navigation, route}) => {
 				onLoad={e => console.log(e)} // 미디어가 로드되고 재생할 준비가 되면 호출되는 콜백 함수입니다.
 				repeat={true} // video가 끝나면 다시 재생할 지 여부
 				onAnimatedValueUpdate={() => { }}
-			/>
+			/> */}
+			<AutoHeightImage width={widnowWidth} source={require('../assets/image/intro_bg.jpg')} />
 			<View style={styles.introBox}>
 				<TouchableOpacity
 					style={[styles.introBtn, styles.boxShadow]}
