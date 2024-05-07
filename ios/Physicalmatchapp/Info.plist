@@ -83,6 +83,11 @@
 		<string>NotoSansKR-Regular.ttf</string>
 		<string>NotoSansKR-Thin.ttf</string>
 		<string>NotoSansKR-SemiBold.ttf</string>
+		<string>Roboto-Black.ttf</string>
+		<string>Roboto-Bold.ttf</string>
+		<string>Roboto-Medium.ttf</string>
+		<string>Roboto-Regular.ttf</string>
+		<string>Roboto-Light.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

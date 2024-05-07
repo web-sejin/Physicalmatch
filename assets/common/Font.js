@@ -6,4 +6,9 @@ export default {
 	NotoSansSemiBold : 'NotoSansKR-SemiBold',
 	NotoSansMedium : 'NotoSansKR-Medium',
 	NotoSansRegular : 'NotoSansKR-Regular',	
+	RobotoBlack : 'Roboto-Black',
+	RobotoBold : 'Roboto-Bold',
+	RobotoMedium : 'Roboto-Medium',
+	RobotoRegular : 'Roboto-Regular',
+	RobotoLight : 'Roboto-Light',
 }

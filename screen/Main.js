@@ -29,6 +29,7 @@ import RegisterStep7 from './Member/RegisterStep7';
 import RegisterStep8 from './Member/RegisterStep8';
 import RegisterResult from './Member/RegisterResult';
 import BlockPeople from './Member/BlockPeople';
+import MatchDetail from './Match/MatchDetail';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -80,6 +81,7 @@ const WholeStack = () => {
       <Stack.Screen name="RegisterStep8" component={RegisterStep8} />
       <Stack.Screen name="RegisterResult" component={RegisterResult} />
       <Stack.Screen name="BlockPeople" component={BlockPeople} />
+      <Stack.Screen name="MatchDetail" component={MatchDetail} />
     </Stack.Navigator>
   );
 };
@@ -129,9 +131,7 @@ const Main = () => {
             <WholeStack />
           </NavigationContainer> 
         </PaperProvider>
-        {toastState ? (
-          <Toast config={toastConfig} />
-        ) : null}
+        {toastState ? (<Toast config={toastConfig} />) : null}
       </Provider>
     </SafeAreaView>
   );

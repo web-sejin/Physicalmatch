@@ -1513,215 +1513,217 @@ const RegisterStep5 = ({navigation, route}) => {
 						setPreventBack(false);
 					}}
 				></TouchableOpacity>
-				<View style={{...styles.prvPop, top:keyboardHeight}}>
-					<TouchableOpacity
-						style={styles.pop_x}					
-						onPress={() => {
-							setPopJob(false);
-							setPreventBack(false);
-						}}
-					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
-					</TouchableOpacity>	
-					<View style={[styles.popTitle, styles.popTitleJob]}>
-						<Text style={styles.popTitleText}>어떤 일을 하시나요?</Text>
-					</View>
-					<KeyboardAwareScrollView
-						keyboardVerticalOffset={0}
-						behavior={behavior}
-					>
-						<View style={[styles.popRadioBox, styles.popTitleJob2]}>
-							<View style={styles.popRadioTitle}>
-								<Text style={styles.popRadioTitleText}>직업</Text>
-							</View>
-							<View style={[styles.popIptBox]}>									
-								<TextInput
-									value={job}
-									onChangeText={(v) => {
-										setJob(v);
-										if(v.length >= 2){
-											setJobBtn(true);
-										}else{
-											setJobBtn(false);
-										}
-									}}
-									onFocus={()=>{
-										setCurrFocus('job1');
-									}}
-									placeholder={'한글, 숫자, 영문만 사용 가능 / 최대 15자'}
-									placeholderTextColor="#DBDBDB"
-									style={[styles.input, styles.input2]}
-									returnKyeType='done'
-									maxLength={15}
-								/>
-							</View>	
-						</View>
-
-						<View style={styles.jobBoxWrap}>
-							<View style={styles.jobBox}>
-								<View style={styles.jobBoxTitle}>
-									<Text style={styles.jobBoxTitleText}>기업·근로형태</Text>
-								</View>
-								<ScrollView>
-									<View style={styles.jobList}>
-									<TouchableOpacity
-											style={[styles.jobSelect, styles.mgt0]}
-											activeOpacity={opacityVal}
-											onPress={(v)=>{
-												setJob('대분류명1');
-												setJob1('대분류명1');
-												setJobBtn(true);
-											}}
-										>
-											<Text style={styles.jobSelectText}>대분류명1</Text>
-										</TouchableOpacity>
-										<TouchableOpacity
-											style={styles.jobSelect}
-											activeOpacity={opacityVal}
-											onPress={(v)=>{
-												setJob('대분류명2');
-												setJob1('대분류명2');
-												setJobBtn(true);
-											}}
-										>
-											<Text style={styles.jobSelectText}>대분류명2</Text>
-										</TouchableOpacity>
-										<TouchableOpacity
-											style={styles.jobSelect}
-											activeOpacity={opacityVal}
-											onPress={(v)=>{
-												setJob('대분류명3');
-												setJob1('대분류명3');
-												setJobBtn(true);
-											}}
-										>
-											<Text style={styles.jobSelectText}>대분류명3</Text>
-										</TouchableOpacity>
-										<TouchableOpacity
-											style={styles.jobSelect}
-											activeOpacity={opacityVal}
-											onPress={(v)=>{
-												setJob('대분류명4');
-												setJob1('대분류명4');
-												setJobBtn(true);
-											}}
-										>
-											<Text style={styles.jobSelectText}>대분류명4</Text>
-										</TouchableOpacity>
-										<TouchableOpacity
-											style={styles.jobSelect}
-											activeOpacity={opacityVal}
-											onPress={(v)=>{
-												setJob('대분류명5');
-												setJob1('대분류명5');
-												setJobBtn(true);
-											}}
-										>
-											<Text style={styles.jobSelectText}>대분류명5</Text>
-										</TouchableOpacity>
-										<TouchableOpacity
-											style={styles.jobSelect}
-											activeOpacity={opacityVal}
-											onPress={(v)=>{
-												setJob('대분류명6');
-												setJob1('대분류명6');
-												setJobBtn(true);
-											}}
-										>
-											<Text style={styles.jobSelectText}>대분류명6</Text>
-										</TouchableOpacity>
-										<TouchableOpacity
-											style={styles.jobSelect}
-											activeOpacity={opacityVal}
-											onPress={(v)=>{
-												setJob('대분류명7');
-												setJob1('대분류명7');
-												setJobBtn(true);
-											}}
-										>
-											<Text style={styles.jobSelectText}>대분류명7</Text>
-										</TouchableOpacity>
-										<TouchableOpacity
-											style={styles.jobSelect}
-											activeOpacity={opacityVal}
-											onPress={(v)=>{
-												setJob('대분류명8');
-												setJob1('대분류명8');
-												setJobBtn(true);
-											}}
-										>
-											<Text style={styles.jobSelectText}>대분류명8</Text>
-										</TouchableOpacity>
-									</View>
-								</ScrollView>
-							</View>
-							<View style={styles.jobBox}>
-								<View style={styles.jobBoxTitle}>
-									<Text style={styles.jobBoxTitleText}>직무</Text>
-								</View>
-								<ScrollView>
-									<View style={styles.jobList}>
-										<TouchableOpacity
-											style={[styles.jobSelect, styles.mgt0]}
-											activeOpacity={opacityVal}
-											onPress={(v)=>{
-												setJob(job1+' (업직종명1)');
-												setJob2('업직종명1');
-												setJobBtn(true);
-											}}
-										>
-											<Text style={styles.jobSelectText}>업직종명1</Text>
-										</TouchableOpacity>
-										<TouchableOpacity
-											style={styles.jobSelect}
-											activeOpacity={opacityVal}
-											onPress={(v)=>{
-												setJob(job1+' (업직종명2)');
-												setJob2('업직종명2');
-												setJobBtn(true);
-											}}
-										>
-											<Text style={styles.jobSelectText}>업직종명2</Text>
-										</TouchableOpacity>
-									</View>
-								</ScrollView>
-							</View>
-						</View>
-
-						<View style={[styles.popRadioBox, styles.mgt30, styles.pdb0, styles.popTitleJob2]}>
-							<View style={styles.popRadioTitle}>
-								<Text style={styles.popRadioTitleText}>직업 상세 입력 <Text style={styles.span}>[선택]</Text></Text>
-							</View>
-							<View style={[styles.popIptBox]}>									
-								<TextInput
-									value={jobDetail}
-									onChangeText={(v) => {
-										setJobDetail(v);
-									}}
-									onFocus={()=>{
-										setCurrFocus('job2');
-									}}
-									placeholder={'업직종, 직책, 직위, 부업, 근무형태 등'}
-									placeholderTextColor="#DBDBDB"
-									style={[styles.input, styles.input2]}
-									returnKyeType='done'
-								/>
-							</View>	
-						</View>						
-					</KeyboardAwareScrollView>					
-					<View style={styles.popBtnBox}>
-						<TouchableOpacity 
-							style={[styles.popBtn, jobBtn ? null : styles.nextBtnOff]}
-							activeOpacity={opacityVal}
-							onPress={() => {checkPopVal('job')}}
+				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+					<View style={{...styles.prvPop, top:keyboardHeight}}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {
+								setPopJob(false);
+								setPreventBack(false);
+							}}
 						>
-							<Text style={styles.popBtnText}>저장하기</Text>
-						</TouchableOpacity>
+							<AutoHeightImage
+								width={18}
+								source={require("../../assets/image/popup_x.png")}
+							/>
+						</TouchableOpacity>	
+						<View style={[styles.popTitle, styles.popTitleJob]}>
+							<Text style={styles.popTitleText}>어떤 일을 하시나요?</Text>
+						</View>
+						<KeyboardAwareScrollView
+							keyboardVerticalOffset={0}
+							behavior={behavior}
+						>
+							<View style={[styles.popRadioBox, styles.popTitleJob2]}>
+								<View style={styles.popRadioTitle}>
+									<Text style={styles.popRadioTitleText}>직업</Text>
+								</View>
+								<View style={[styles.popIptBox]}>									
+									<TextInput
+										value={job}
+										onChangeText={(v) => {
+											setJob(v);
+											if(v.length >= 2){
+												setJobBtn(true);
+											}else{
+												setJobBtn(false);
+											}
+										}}
+										onFocus={()=>{
+											setCurrFocus('job1');
+										}}
+										placeholder={'한글, 숫자, 영문만 사용 가능 / 최대 15자'}
+										placeholderTextColor="#DBDBDB"
+										style={[styles.input, styles.input2]}
+										returnKyeType='done'
+										maxLength={15}
+									/>
+								</View>	
+							</View>
+
+							<View style={styles.jobBoxWrap}>
+								<View style={styles.jobBox}>
+									<View style={styles.jobBoxTitle}>
+										<Text style={styles.jobBoxTitleText}>기업·근로형태</Text>
+									</View>
+									<ScrollView>
+										<View style={styles.jobList}>
+										<TouchableOpacity
+												style={[styles.jobSelect, styles.mgt0]}
+												activeOpacity={opacityVal}
+												onPress={(v)=>{
+													setJob('대분류명1');
+													setJob1('대분류명1');
+													setJobBtn(true);
+												}}
+											>
+												<Text style={styles.jobSelectText}>대분류명1</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												style={styles.jobSelect}
+												activeOpacity={opacityVal}
+												onPress={(v)=>{
+													setJob('대분류명2');
+													setJob1('대분류명2');
+													setJobBtn(true);
+												}}
+											>
+												<Text style={styles.jobSelectText}>대분류명2</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												style={styles.jobSelect}
+												activeOpacity={opacityVal}
+												onPress={(v)=>{
+													setJob('대분류명3');
+													setJob1('대분류명3');
+													setJobBtn(true);
+												}}
+											>
+												<Text style={styles.jobSelectText}>대분류명3</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												style={styles.jobSelect}
+												activeOpacity={opacityVal}
+												onPress={(v)=>{
+													setJob('대분류명4');
+													setJob1('대분류명4');
+													setJobBtn(true);
+												}}
+											>
+												<Text style={styles.jobSelectText}>대분류명4</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												style={styles.jobSelect}
+												activeOpacity={opacityVal}
+												onPress={(v)=>{
+													setJob('대분류명5');
+													setJob1('대분류명5');
+													setJobBtn(true);
+												}}
+											>
+												<Text style={styles.jobSelectText}>대분류명5</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												style={styles.jobSelect}
+												activeOpacity={opacityVal}
+												onPress={(v)=>{
+													setJob('대분류명6');
+													setJob1('대분류명6');
+													setJobBtn(true);
+												}}
+											>
+												<Text style={styles.jobSelectText}>대분류명6</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												style={styles.jobSelect}
+												activeOpacity={opacityVal}
+												onPress={(v)=>{
+													setJob('대분류명7');
+													setJob1('대분류명7');
+													setJobBtn(true);
+												}}
+											>
+												<Text style={styles.jobSelectText}>대분류명7</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												style={styles.jobSelect}
+												activeOpacity={opacityVal}
+												onPress={(v)=>{
+													setJob('대분류명8');
+													setJob1('대분류명8');
+													setJobBtn(true);
+												}}
+											>
+												<Text style={styles.jobSelectText}>대분류명8</Text>
+											</TouchableOpacity>
+										</View>
+									</ScrollView>
+								</View>
+								<View style={styles.jobBox}>
+									<View style={styles.jobBoxTitle}>
+										<Text style={styles.jobBoxTitleText}>직무</Text>
+									</View>
+									<ScrollView>
+										<View style={styles.jobList}>
+											<TouchableOpacity
+												style={[styles.jobSelect, styles.mgt0]}
+												activeOpacity={opacityVal}
+												onPress={(v)=>{
+													setJob(job1+' (업직종명1)');
+													setJob2('업직종명1');
+													setJobBtn(true);
+												}}
+											>
+												<Text style={styles.jobSelectText}>업직종명1</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												style={styles.jobSelect}
+												activeOpacity={opacityVal}
+												onPress={(v)=>{
+													setJob(job1+' (업직종명2)');
+													setJob2('업직종명2');
+													setJobBtn(true);
+												}}
+											>
+												<Text style={styles.jobSelectText}>업직종명2</Text>
+											</TouchableOpacity>
+										</View>
+									</ScrollView>
+								</View>
+							</View>
+
+							<View style={[styles.popRadioBox, styles.mgt30, styles.pdb0, styles.popTitleJob2]}>
+								<View style={styles.popRadioTitle}>
+									<Text style={styles.popRadioTitleText}>직업 상세 입력 <Text style={styles.span}>[선택]</Text></Text>
+								</View>
+								<View style={[styles.popIptBox]}>									
+									<TextInput
+										value={jobDetail}
+										onChangeText={(v) => {
+											setJobDetail(v);
+										}}
+										onFocus={()=>{
+											setCurrFocus('job2');
+										}}
+										placeholder={'업직종, 직책, 직위, 부업, 근무형태 등'}
+										placeholderTextColor="#DBDBDB"
+										style={[styles.input, styles.input2]}
+										returnKyeType='done'
+									/>
+								</View>	
+							</View>						
+						</KeyboardAwareScrollView>					
+						<View style={styles.popBtnBox}>
+							<TouchableOpacity 
+								style={[styles.popBtn, jobBtn ? null : styles.nextBtnOff]}
+								activeOpacity={opacityVal}
+								onPress={() => {checkPopVal('job')}}
+							>
+								<Text style={styles.popBtnText}>저장하기</Text>
+							</TouchableOpacity>
+						</View>
 					</View>
-				</View>
+				</TouchableWithoutFeedback>
 			</View>
 			) : null}
 			

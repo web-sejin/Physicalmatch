@@ -52,21 +52,16 @@ const TabBarMenu = (props) => {
           navigation.navigate('Home');
         }}
       >
-        {screenName == 'Home' ? (
-          <>
-          {/* <AutoHeightImage width={20} source={require("../assets/img/tab_icon1_on.png")} style={styles.selectArr} /> */}
-          <View style={styles.tabView}>
-            <Text style={[styles.tabViewText, styles.tabViewTextOn]}>홈</Text>
-          </View>
-          </>
-        ) : (
-          <>
-          {/* <AutoHeightImage width={20} source={require("../assets/img/tab_icon1_off.png")} style={styles.selectArr} /> */}
-          <View style={styles.tabView}>
-            <Text style={[styles.tabViewText]}>홈</Text>
-          </View>
-          </>
-        )}
+        <View style={styles.tabIcon}>
+          {screenName == 'Home' ? (
+          <AutoHeightImage width={20} source={require("../assets/image/tab1_on.png")} />
+          ) : (
+          <AutoHeightImage width={20} source={require("../assets/image/tab1_off.png")} />
+          )}
+        </View>
+        <View style={styles.tabView}>
+          <Text style={[styles.tabViewText, screenName=='Home' ? styles.tabViewTextOn : null]}>매칭</Text>
+        </View>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.TabBarBtn} 
@@ -75,21 +70,16 @@ const TabBarMenu = (props) => {
           navigation.navigate('Social');
         }}
       >
-        {screenName == 'Social' ? (
-          <>
-          {/* <AutoHeightImage width={26} source={require("../assets/img/tab_icon2_on.png")} style={styles.selectArr} /> */}
-          <View style={styles.tabView}>
-            <Text style={[styles.tabViewText, styles.tabViewTextOn]}>소셜</Text>
-          </View>
-          </>
-        ) : (
-          <>
-          {/* <AutoHeightImage width={26} source={require("../assets/img/tab_icon2_off.png")} style={styles.selectArr} /> */}
-          <View style={styles.tabView}>
-            <Text style={[styles.tabViewText]}>소셜</Text>
-          </View>
-          </>
-        )}
+        <View style={styles.tabIcon}>
+          {screenName == 'Social' ? (
+          <AutoHeightImage width={20} source={require("../assets/image/tab2_on.png")} />
+          ) : (
+          <AutoHeightImage width={20} source={require("../assets/image/tab2_off.png")} />
+          )}
+        </View>
+        <View style={styles.tabView}>
+          <Text style={[styles.tabViewText, screenName=='Social' ? styles.tabViewTextOn : null]}>소셜</Text>
+        </View>
       </TouchableOpacity>
       <TouchableOpacity 
         style={styles.TabBarBtn} 
@@ -98,25 +88,15 @@ const TabBarMenu = (props) => {
           navigation.navigate('NoticeList');
         }}
       >
-        <View style={styles.chatWrap}>
+        <View style={styles.tabIcon}>
           {screenName == 'NoticeList' ? (
-            <>
-            {/* <AutoHeightImage width={24} source={require("../assets/img/tab_icon3_on.png")} style={styles.selectArr} /> */}
-            <View style={styles.tabView}>
-              <Text style={[styles.tabViewText, styles.tabViewTextOn]}>공지사항</Text>
-            </View>          
-            </>
+          <AutoHeightImage width={20} source={require("../assets/image/tab3_on.png")} />
           ) : (
-            <>
-            {/* <AutoHeightImage width={24} source={require("../assets/img/tab_icon3_off.png")} style={styles.selectArr} /> */}
-            <View style={styles.tabView}>
-              <Text style={[styles.tabViewText]}>공지사항</Text>
-            </View>
-            </>
+          <AutoHeightImage width={20} source={require("../assets/image/tab3_off.png")} />
           )}
-          {chatInfo?.total_unread > 0 ? (
-          <View style={styles.alimCircle}><Text style={styles.alimCircleText}>{chatInfo?.total_unread}</Text></View>
-          ) : null}
+        </View>
+        <View style={styles.tabView}>
+          <Text style={[styles.tabViewText, screenName=='NoticeList' ? styles.tabViewTextOn : null]}>커뮤니티</Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity 
@@ -126,44 +106,30 @@ const TabBarMenu = (props) => {
           navigation.navigate('Mypage');
         }}
       >
-        {screenName == 'Mypage' ? (
-          <>
-          {/* <AutoHeightImage width={18} source={require("../assets/img/tab_icon4_on.png")} style={styles.selectArr} /> */}
-          <View style={styles.tabView}>
-            <Text style={[styles.tabViewText, styles.tabViewTextOn]}>마이페이지</Text>
-          </View>
-          </>
-        ) : (
-          <>
-          {/* <AutoHeightImage width={18} source={require("../assets/img/tab_icon4_off.png")} style={styles.selectArr} /> */}
-          <View style={styles.tabView}>
-            <Text style={[styles.tabViewText]}>마이페이지</Text>
-          </View>
-          </>
-        )}
-      </TouchableOpacity>
-      {/* <PushChk navigation={navigation} /> */}      
+        <View style={styles.tabIcon}>
+          {screenName == 'Mypage' ? (
+          <AutoHeightImage width={20} source={require("../assets/image/tab4_on.png")} />
+          ) : (
+          <AutoHeightImage width={20} source={require("../assets/image/tab4_off.png")} />
+          )}
+        </View>
+        <View style={styles.tabView}>
+          <Text style={[styles.tabViewText, screenName=='Mypage' ? styles.tabViewTextOn : null]}>MY</Text>
+        </View>
+      </TouchableOpacity> 
     </View>
   )
 }
 
 const TabNav = (props) => {
 	const {navigation, userInfo, chatInfo, member_chatCnt} = props;
-  const [pushVisible, setPushVisible] = useState(false);
-  const [state, setState] = useState(false);
-  const [naviIntent, setNaviIntent] = useState('');
-  const [naviProp, setNaviProp] = useState({});
-  const [content, setContent] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isSubscribed = true;
 
-		if(!isFocused){
-			if(!pageSt){}
+		if(!isFocused){			
 		}else{
-			//setRouteLoad(true);
-			//setPageSt(!pageSt);
 		}
 
 		return () => isSubscribed = false;
@@ -191,39 +157,28 @@ const styles = StyleSheet.create({
     bottom:0,
     zIndex:1,
     width:'100%',
-    height:80,
+    height:86,
     backgroundColor:'#fff',
     display:'flex',
     flexDirection:'row',
     alignItems:'center',
     justifyContent:'space-between',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 15.0,
-    elevation: 10,
+    borderTopWidth:1,
+    borderTopColor:'#F2F4F6',
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 0,
+    // },
+    // shadowOpacity: 0.2,
+    // shadowRadius: 15.0,
+    // elevation: 10,
   },
-  TabBarBtn: {width:'25%',height:80,display:'flex',justifyContent:'center',alignItems:'center'},
-  TabBarBtnText: {},
-  TabBarBtnText2: {color:'#EC5663'},
-  tabView: {marginTop:8},
-  tabViewText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:14,color:'#C5C5C6'},
-  tabViewTextOn: {fontFamily:Font.NotoSansBold,color:'#353636'},
-  chatWrap: {position:'relative'},
-  alimCircle: {alignItems:'center',justifyContent:'center',width:20,height:20,backgroundColor:'#DF4339',borderRadius:50,position:'absolute',top:-10,right:-10,},
-  alimCircleText: {fontFamily:Font.NotoSansRegular,fontSize:8,lineHeight:22,color:'#fff'},
-
-  modalBack: {width:widnowWidth,height:widnowHeight,backgroundColor:'#000',opacity:0.5},
-	modalCont: {width:innerWidth,padding:20,backgroundColor:'#fff',borderRadius:10,position:'absolute',left:20,top:((widnowHeight/2)-100)},  
-  avatarDesc: {},
-  avatarDescText: {fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:22,color:'#191919',paddingHorizontal:20,},
-	avatarBtnBox: {display:'flex',flexDirection:'row',justifyContent:'space-between',marginTop:30,},
-	avatarBtn: {width:((widnowWidth/2)-45),height:58,backgroundColor:'#C5C5C6',borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center'},
-	avatarBtn2: {backgroundColor:'#31B481'},
-	avatarBtnText: {fontFamily:Font.NotoSansBold,fontSize:15,lineHeight:58,color:'#fff'},
+  TabBarBtn: {width:'25%',height:86,display:'flex',alignItems:'center',paddingTop:14,},
+  tabIcon: {height:24,alignItems:'center',justifyContent:'center'},
+  tabView: {marginTop:5},
+  tabViewText: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:17,color:'#DBDBDB'},
+  tabViewTextOn: {color:'#243B55'},
 });
 
 export default connect(
