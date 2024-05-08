@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   
   cmWrap: {paddingVertical:30,paddingHorizontal:20},
   cmTitleBox: {},
-  cmTitleText: {fontFamily:Font.NotoSansSemiBold,fontSize:22,lineHeight:24,color:'#1e1e1e'},
+  cmTitleText: {fontFamily:Font.NotoSansSemiBold,fontSize:22,lineHeight:25,color:'#1e1e1e'},
   cmDescBox: {marginTop:8,},
   cmDescText: { fontFamily: Font.NotoSansRegular, fontSize: 14, lineHeight: 20, color: '#666' },
   

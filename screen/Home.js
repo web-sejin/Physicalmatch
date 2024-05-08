@@ -8,6 +8,7 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import FlipComponent from 'react-native-flip-component';
 import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import Toast from 'react-native-toast-message';
 
 import Font from "../assets/common/Font";
 import ToastMessage from "../components/ToastMessage";
@@ -97,8 +98,7 @@ const Home = (props) => {
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 
-	const [tabState, setTabState] = useState(1); //추천, 관심
-	const [tabStateChg, setTabStateChg] = useState(false);
+	const [tabState, setTabState] = useState(1); //추천, 관심	
 	const [tabState2, setTabState2] = useState(1); //관심[ 찜&교환, 호감, 매칭된 ]
 	const [todayFree, setTodayFree] = useState(2);
 	const [nonCollidingMultiSliderValue, setNonCollidingMultiSliderValue] = useState([]);
@@ -142,15 +142,14 @@ const Home = (props) => {
 		let isSubscribed = true;
 
 		if(!isFocused){
-			if(!pageSt){
-				//setAll(false);
-			}
+
 		}else{
-			//setWelcomePop(true);
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 		}
 
+		Keyboard.dismiss();
+		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
 
@@ -308,7 +307,7 @@ const Home = (props) => {
 			<View style={styles.header}>
 				<View style={styles.headerTop}>
 					<View style={styles.headerTitle}>
-						<AutoHeightImage width={102} source={require('../assets/image/text_matching.png')} />
+						<Text style={styles.headerTitleText}>Matching</Text>
 					</View>
 					<View style={styles.headerLnb}>
 						<TouchableOpacity
@@ -445,7 +444,7 @@ const Home = (props) => {
 									<TouchableOpacity 
 										key={item.idx}
 										style={styles.cardBtn}
-										activeOpacity={1}
+										activeOpacity={opacityVal}
 										onPress={() => {
 											if(item.isFlipped){
 												ViewDetail();
@@ -519,7 +518,7 @@ const Home = (props) => {
 									<TouchableOpacity 
 										key={item.idx}
 										style={styles.cardBtn}
-										activeOpacity={1}
+										activeOpacity={opacityVal}
 										onPress={() => {
 											if(item.isFlipped){
 												ViewDetail();
@@ -593,7 +592,7 @@ const Home = (props) => {
 									<TouchableOpacity 
 										key={item.idx}
 										style={styles.cardBtn}
-										activeOpacity={1}
+										activeOpacity={opacityVal}
 										onPress={() => {
 											if(item.isFlipped){
 												ViewDetail();
@@ -670,7 +669,7 @@ const Home = (props) => {
 											<TouchableOpacity 
 												key={item.idx}
 												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={1}
+												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
 														chgFlipped2('data1', item.idx);
@@ -734,7 +733,7 @@ const Home = (props) => {
 											<TouchableOpacity 
 												key={item.idx}
 												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={1}
+												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
 														chgFlipped2('data2', item.idx);
@@ -800,7 +799,7 @@ const Home = (props) => {
 											<TouchableOpacity 
 												key={item.idx}
 												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={1}
+												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
 														chgFlipped2('data3', item.idx);
@@ -864,7 +863,7 @@ const Home = (props) => {
 											<TouchableOpacity 
 												key={item.idx}
 												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={1}
+												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
 														chgFlipped2('data4', item.idx);
@@ -928,7 +927,7 @@ const Home = (props) => {
 											<TouchableOpacity 
 												key={item.idx}
 												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={1}
+												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
 														chgFlipped2('data5', item.idx);
@@ -992,7 +991,7 @@ const Home = (props) => {
 											<TouchableOpacity 
 												key={item.idx}
 												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={1}
+												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
 														chgFlipped2('data6', item.idx);
@@ -1056,7 +1055,7 @@ const Home = (props) => {
 											<TouchableOpacity 
 												key={item.idx}
 												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={1}
+												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
 														chgFlipped2('data7', item.idx);
@@ -1126,7 +1125,7 @@ const Home = (props) => {
 											<TouchableOpacity 
 												key={item.idx}
 												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={1}
+												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
 														chgFlipped2('data8', item.idx);
@@ -1401,46 +1400,6 @@ const Home = (props) => {
 						</View>
 						<View style={[styles.msBox, styles.mgt60]}>
 							<View style={styles.filterTitle}>
-
-								<MultiSlider								
-								selectedStyle={{
-									height:2,
-									backgroundColor: '#D1913C',
-								}}
-								unselectedStyle={{
-									height:2,
-									backgroundColor: '#DBDBDB',
-								}}
-								optionsArray={ageAryIdx}
-								values={[
-									nonCollidingMultiSliderValue[0],
-									nonCollidingMultiSliderValue[1],
-								]}
-								markerOffsetY={1}
-								sliderLength={innerWidth}
-								min={ageMaxInt}
-								max={ageMinInt}
-								step={1}
-								enableLabel={false}
-								enabledOne={true}
-								enabledTwo={true}
-								customMarker={() => (
-									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
-								)}
-								onValuesChange={(e) => {
-									const first = ageAry[e[0]];
-									const last = ageAry[e[1]];
-									
-									var yearString = first.toString();
-									yearString = yearString.substr(2,2);
-
-									var yearString2 = last.toString();
-									yearString2 = yearString2.substr(2,2);
-									
-									setAgeMin(yearString);
-									setAgeMax(yearString2);
-								}}
-							/>
 								<Text style={styles.filterTitleText}>내 카드 설정</Text>
 							</View>
 							<View style={styles.filterDesc}>
@@ -1530,8 +1489,10 @@ const Home = (props) => {
 						>
 							<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} />
 						</TouchableOpacity>		
-						<View style={[styles.popTitle, styles.popTitleFlex]}>
-							<Text style={styles.popTitleText}>탈퇴한 회원이에요</Text>
+						<View style={[styles.popTitle, styles.popTitleFlex]}>							
+							<View style={styles.popTitleFlexWrap}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>탈퇴한 회원이에요</Text>
+              </View>
 							<AutoHeightImage width={18} source={require("../assets/image/emiticon1.png")} style={styles.emoticon} />
 						</View>
 						<View style={styles.popBtnBox}>
@@ -1693,9 +1654,11 @@ const Home = (props) => {
 						<View>
 							<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
 						</View>
-						<View style={[styles.popTitle, styles.popTitleFlex, styles.mgt6]}>
-							<Text style={styles.popTitleText}>카드가 없어요</Text>
-							<AutoHeightImage width={18} source={require("../assets/image/emiticon2.png")} style={styles.emoticon} />							
+						<View style={[styles.popTitle, styles.popTitleFlex]}>							
+							<View style={styles.popTitleFlexWrap}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
+              </View>
+							<AutoHeightImage width={18} source={require("../assets/image/emiticon2.png")} style={styles.emoticon} />
 						</View>
 						<View>
 							<Text style={[styles.popTitleDesc, styles.mgt0]}>새로운 회원이 들어올때까지 커뮤니티를 즐겨보세요!</Text>
@@ -1744,9 +1707,11 @@ const Home = (props) => {
 						<View>
 							<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
 						</View>
-						<View style={[styles.popTitle, styles.popTitleFlex, styles.mgt6]}>
-							<Text style={styles.popTitleText}>카드가 없어요</Text>
-							<AutoHeightImage width={18} source={require("../assets/image/emiticon2.png")} style={styles.emoticon} />							
+						<View style={[styles.popTitle, styles.popTitleFlex]}>							
+							<View style={styles.popTitleFlexWrap}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
+              </View>
+							<AutoHeightImage width={18} source={require("../assets/image/emiticon2.png")} style={styles.emoticon} />
 						</View>
 						<View>
 							<Text style={[styles.popTitleDesc, styles.mgt0]}>추가 소개를 받고 싶다면 필터 범위를 넓혀보세요!</Text>
@@ -1798,8 +1763,9 @@ const styles = StyleSheet.create({
 	img: { marginTop: 8, height: widnowWidth, },
 
 	header: {backgroundColor:'#141E30'},
-	headerTop: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingTop:15,paddingBottom:10,paddingHorizontal:20,},
+	headerTop: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingTop:20,paddingBottom:10,paddingHorizontal:20,},
 	headerTitle: {},
+	headerTitleText: {fontFamily:Font.RobotoMedium,fontSize:24,lineHeight:26,color:'#fff'},
 	headerLnb: {flexDirection:'row',alignItems:'center',},
 	headerLnbBtn: {marginLeft:16,},
 	headerBot: {flexDirection:'row',},
@@ -1909,9 +1875,11 @@ const styles = StyleSheet.create({
 	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
 	popTitle: {paddingBottom:20,},
 	popTitleFlex: {flexDirection:'row',alignItems:'center',justifyContent:'center',flexWrap:'wrap'},
-	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E'},
+	popTitleFlexWrap: {position:'relative'},
+	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E',},
+  popTitleFlexText: {position:'relative',top:2,},	
 	popTitleDesc: {width:innerWidth-40,textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:20,},
-	emoticon: {position:'relative',top:-2,marginLeft:2,},
+	emoticon: {},
 	popIptBox: {paddingTop:10,},
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
 	popBtnBox: {marginTop:30,},

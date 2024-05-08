@@ -19,7 +19,7 @@ const Intro = (props) => {
 	useEffect(() => {
 		setTimeout(() => {
 			//navigation.navigate('Intro2');
-			navigation.navigate('TabNavigation');
+			navigation.replace('TabNavigation');
 		}, 2000);	
 	}, []);
 

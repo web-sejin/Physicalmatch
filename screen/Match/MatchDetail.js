@@ -8,6 +8,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Swiper from 'react-native-web-swiper';
 import Toast from 'react-native-toast-message';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
@@ -31,6 +32,20 @@ const MatchDetail = (props) => {
     { val: 6, txt: '기타',},
   ]
 
+  const inviteList = [
+    {idx:1, txt:'초중고 동창'},
+    {idx:2, txt:'친척'},
+    {idx:3, txt:'동호회 지인'},
+    {idx:4, txt:'대학 동기 '},
+    {idx:5, txt:'보는 눈이 높은'},
+    {idx:6, txt:'회사 동료'},
+    {idx:7, txt:'지인'},
+    {idx:8, txt:'결혼하고 싶어 하는'},
+    {idx:9, txt:'만년 솔로인'},
+    {idx:10, txt:'이별의 슬픔을 겪고 있는'},
+    {idx:11, txt:'형제'},
+  ]
+
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
@@ -50,6 +65,7 @@ const MatchDetail = (props) => {
   const [reviewScore, setReviewScore] = useState(0);
   const [report, setReport] = useState('');
   const [reportEtc, setReportEtc] = useState('');
+  const [matchState, setMatchState] = useState(0);
 
   const [dotPop, setDotPop] = useState(false);
   const [reportPop, setReportPop] = useState(false);
@@ -60,9 +76,14 @@ const MatchDetail = (props) => {
   const [sendPop, setSendPop] = useState(false);
   const [preLikePop, setPreLikePop] = useState(false);
   const [preLikeCont, setPreLikeCont] = useState('');
-  const [cashType, setCashType] = useState(0);
+  const [cashType, setCashType] = useState(0); //1:소통 보내기, 2:번호 오픈, 3:연애관 팝업
   const [cashPop, setCashPop] = useState(false);
   const [prdIdx, setPrdIdx] = useState(1);
+  const [matchPop, setMatchPop] = useState(false);
+  const [numbOpenPop, setNumbOpenPop] = useState(false);
+  const [valuesConfirm, setValuesConfirm] = useState(false);
+  const [valuesDisable, setValuesDisable] = useState(false);
+  const [valuesPop, setValuesPop] = useState(false);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -88,9 +109,10 @@ const MatchDetail = (props) => {
       //console.log('preventBack22 ::: ',preventBack);
       if (preventBack) {        
 				setReportPop(false);
-        setSotongPop(false);
-				setPreventBack(false);
+        setSotongPop(false);				
         setPreLikePop(false);
+        setMatchPop(false);
+        setPreventBack(false);
 				e.preventDefault();
       } else {
         //console.log('뒤로 가기 이벤트 발생!');								
@@ -211,8 +233,37 @@ const MatchDetail = (props) => {
   }
 
   const cashBuy = async () => {
-    
+    //1:소통 보내기, 2:번호 오픈, 3:연애관 팝업
+    console.log('cashType ::: ',cashType);
+    if(cashType == 1){
+
+    }else if(cashType == 2){
+      setMatchState(2);
+    }else if(cashType == 3){
+      
+    }
+    cashPopClose();
   }
+
+  const shareApp = () => {
+    setMatchPop(false);
+    setPreventBack(false);
+    Alert.alert('다이나믹 링크 연결!!!');
+  }
+
+  const copyToClipboard = async (v) => {
+    try {
+      await Clipboard.setString(v);
+      //ToastMessage('클립보드에 연락처가 복사되었습니다.');
+    } catch(e) {
+      //ToastMessage('복사가 실패하였습니다.');
+    }
+  };
+
+  const fetchCopiedText = async () => {
+    const text = await Clipboard.getString();
+    console.log(text);
+  };
  
   const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -243,7 +294,7 @@ const MatchDetail = (props) => {
               prevTitle: '',
               nextTitle: '',
               dotsTouchable: true,
-              DotComponent: ({ index, activeIndex, isActive, onPress }) => <View style={[styles.swiperDot, isActive ? styles.swiperDotOn : null]} onPress={console.log(onPress)}></View>              
+              DotComponent: ({ index, activeIndex, isActive, onPress }) => <View style={[styles.swiperDot, isActive ? styles.swiperDotOn : null]} onPress={onPress}></View>              
             }}
 						onIndexChanged={(e) => {
 							//console.log(e);
@@ -333,27 +384,62 @@ const MatchDetail = (props) => {
           </View>
         </View>
 
-        <View style={styles.detailInfo2}>
-          <View style={styles.detailInfo2TextBox}>
-            <Text style={styles.detailInfo2Text}>좋아요를 수락하시겠습니까?</Text>
-          </View>
-          <View style={styles.detailInfo2Text2Box}>
-            <Text style={styles.detailInfo2Text2}>2024.03.14</Text>
-            <Text style={styles.detailInfo2Text2}>12:53</Text>
-          </View>
+        <View style={styles.detailInfo2}>          
+          {matchState == 0 ? (
+            <>
+            <View style={styles.detailInfo2TextBox}>
+              <Text style={styles.detailInfo2Text}>좋아요를 수락하시겠습니까?</Text>
+            </View>
+            <View style={styles.detailInfo2Text2Box}>
+              <Text style={styles.detailInfo2Text2}>2024.03.14</Text>
+              <Text style={styles.detailInfo2Text2}>12:53</Text>
+            </View>
+            <LinearGradient
+              colors={['#D1913C', '#FFD194', '#D1913C']}
+              start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
+              style={[styles.grediant, styles.mgt20]}
+            >
+              <TouchableOpacity
+                style={styles.detailInfo2Btn}
+                activeOpacity={opacityVal}
+                onPress={() => {
+                  setMatchState(1);
+                  setMatchPop(true);
+                  setPreventBack(true);
+                }}
+              >
+                <Text style={styles.detailInfo2BtnText}>수락</Text>
+              </TouchableOpacity>
+            </LinearGradient>
+            </>
+          ) : null}
+
+          {matchState == 1 ? (
           <LinearGradient
             colors={['#D1913C', '#FFD194', '#D1913C']}
             start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
-            style={[styles.grediant, styles.mgt20]}
+            style={[styles.grediant]}
           >
             <TouchableOpacity
               style={styles.detailInfo2Btn}
               activeOpacity={opacityVal}
-              onPress={() => {}}
+              onPress={() => setNumbOpenPop(true)}
             >
-              <Text style={styles.detailInfo2BtnText}>수락</Text>
+              <Text style={styles.detailInfo2BtnText}>번호 오픈</Text>
             </TouchableOpacity>
           </LinearGradient>
+          ) : null}
+
+          {matchState == 2 ? (
+          <TouchableOpacity
+            style={[styles.detailInfo2Btn, styles.detailInfo2BtnGray]}
+            activeOpacity={opacityVal}
+            onPress={() => copyToClipboard('010-1234-1234')}
+          >
+            <Text style={styles.detailInfo2BtnText, styles.detailInfo2BtnGrayText}>010-1234-1234</Text>
+            <AutoHeightImage width={10} source={require('../../assets/image/icon_copy.png')} />
+          </TouchableOpacity>
+          ) : null}
         </View>
 
         <View style={styles.border}></View>
@@ -472,10 +558,20 @@ const MatchDetail = (props) => {
           <TouchableOpacity
             style={styles.valuesBtn}
             activeOpacity={opacityVal}
-            onPress={() => {console.log('연애 및 결혼관 페이지 만들기')}}
+            onPress={() => {
+              //상세 프로필 오픈 컨펌
+              //setValuesConfirm(true);
+
+              //나의 연애관 입력 유도 팝업
+              //setValuesDisable(true);
+
+              //포인트 구매
+              setCashType(3);
+              setCashPop(true);
+            }}
           >
             <Text style={styles.valuesBtnText}>연애 및 결혼관</Text>
-            <AutoHeightImage width={10} source={require('../../assets/image/icon_arr7.png')} />
+            <AutoHeightImage width={8} source={require('../../assets/image/icon_arr7.png')} />
           </TouchableOpacity>
           
           <View style={[styles.cmInfoBoxFlex]}>
@@ -728,8 +824,6 @@ const MatchDetail = (props) => {
         </View>
         </>
         ) : null}
-
-				<View style={styles.gapBox}></View>
       </ScrollView>
 
       <TouchableOpacity
@@ -907,12 +1001,14 @@ const MatchDetail = (props) => {
           </TouchableOpacity>
           <View style={styles.prvPopBot}>
             <View style={[styles.popTitle, styles.popTitleFlex]}>
-              <Text style={styles.popBotTitleText}>마음을 보내보세요</Text>
+              <View style={styles.popTitleFlexWrap}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>마음을 보내보세요</Text>
+              </View>
               <AutoHeightImage width={20} source={require('../../assets/image/icon_message.png')} style={styles.emoticon} />
             </View>
             <ScrollView>
               <TouchableOpacity
-                style={[styles.sotongBtn, styles.mgt0]}
+                style={[styles.sotongBtn]}
                 activeOpacity={opacityVal}
                 onPress={()=>{
                   sotongSend('호감을', 100);
@@ -1104,7 +1200,9 @@ const MatchDetail = (props) => {
 				</TouchableOpacity>
 				<View style={styles.prvPopBot}>
           <View style={styles.popInImageView}>
-            <AutoHeightImage width={100} source={require('../../assets/image/sample2.jpg')} style={styles.popInImage} />
+            <View style={styles.popInImageViewBox}>
+              <AutoHeightImage width={100} source={require('../../assets/image/sample2.jpg')} style={styles.popInImage} />
+            </View>
           </View>
 					<View style={[styles.popTitle]}>
             {cashType == 1 ? (
@@ -1180,12 +1278,341 @@ const MatchDetail = (props) => {
 					</View>
 				</View>
 			</Modal>
+
+      {/* 매칭 완료 팝업 */}      
+      {matchPop ? (
+      <>
+        <TouchableOpacity 
+          style={[styles.popBack, styles.popBack2]} 
+          activeOpacity={1} 
+        >
+        </TouchableOpacity>
+        <View style={styles.prvPopBot}>
+          <View style={[styles.popTitle, styles.popTitleFlex]}>
+            <AutoHeightImage width={20} source={require('../../assets/image/icon_match_success.png')} style={styles.emoticon} />
+            <View style={styles.popTitleFlexWrap}>
+              <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>매칭을 축하합니다!</Text>
+            </View>            
+          </View>
+          <View style={styles.popInImageView}>
+            <View style={styles.popInImageViewBox}>
+              <AutoHeightImage width={100} source={require('../../assets/image/sample.jpg')} style={styles.popInImage} />
+            </View>
+            <View style={styles.popInImageNick}>
+              <Text style={styles.popInImageNickText}>닉네임최대여덟자</Text>
+            </View>
+          </View>
+          <View style={styles.popSubTitle}>
+            <Text style={styles.popSubTitleText}>주변에 피지컬 매치의</Text>
+            <Text style={styles.popSubTitleText}>좋은 회원들을 소개해주세요!</Text>
+          </View>
+          <ScrollView>
+            <View style={styles.inviteList}>
+              {inviteList.map((item, index) => {
+                return (
+                  <View
+                    key={index}
+                    style={styles.inviteListTab}
+                  >
+                    <Text style={styles.inviteListTabText}>{item.txt}</Text>
+                  </View>
+                )
+              })}
+            </View>
+          </ScrollView>
+          <View style={styles.newProteinCnt}>
+            <View style={styles.newProteinCntWrap}>
+              <Text style={styles.newProteinCntText}>신규 회원에게 프로틴 <Text style={styles.bold}>00</Text>개 증정</Text>
+            </View>
+            <AutoHeightImage width={12} source={require('../../assets/image/icon_heart.png')} />
+          </View>
+          <View style={[styles.popBtnBox, styles.mgt20]}>    
+            <TouchableOpacity 
+							style={[styles.popBtn]}
+							activeOpacity={opacityVal}
+							onPress={() => shareApp()}
+						>
+							<Text style={styles.popBtnText}>친구 초대하기</Text>
+						</TouchableOpacity>     
+            <TouchableOpacity 
+              style={[styles.popBtn, styles.popBtnOff2]}
+              activeOpacity={opacityVal}
+              onPress={() => {
+                setMatchPop(false);
+                setPreventBack(false);
+              }}
+            >
+              <Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
+            </TouchableOpacity>						
+          </View>
+        </View>
+      </>
+      ) : null}
+
+      {/* 번호 오픈 */}
+			<Modal
+				visible={numbOpenPop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setNumbOpenPop(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>setNumbOpenPop(false)}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => setNumbOpenPop(false)}
+						>
+							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+						</TouchableOpacity>		
+						<View style={[styles.popTitle]}>
+							<Text style={styles.popTitleText}>번호를 오픈하시겠어요?</Text>							
+						</View>
+						<View style={styles.pointBox}>
+							<AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+							<Text style={styles.pointBoxText}>000</Text>
+						</View>						
+						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
+						<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
+								activeOpacity={opacityVal}
+								onPress={() => setNumbOpenPop(false)}
+							>
+								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2]}
+								activeOpacity={opacityVal}
+								onPress={() => {
+                  setCashType(2);
+                  setCashPop(true);
+									// setMatchState(2);
+                  setNumbOpenPop(false);
+								}}
+							>
+								<Text style={styles.popBtnText}>네</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+      {/* 상세 프로필 오픈 컨펌 */}
+			<Modal
+				visible={valuesConfirm}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setValuesConfirm(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>setValuesConfirm(false)}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => setValuesConfirm(false)}
+						>
+							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+						</TouchableOpacity>		
+						<View style={[styles.popTitle]}>
+							<Text style={styles.popTitleText}>매칭율을 높이는 상세 프로필</Text>			
+              <Text style={[styles.popTitleText, styles.mgt5]}>오픈하시겠어요?</Text>
+						</View>
+						<View style={styles.pointBox}>
+							<AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+							<Text style={styles.pointBoxText}>000</Text>
+						</View>						
+						<View style={[styles.popBtnBox]}>
+              <TouchableOpacity 
+                style={[styles.popBtn]}
+                activeOpacity={opacityVal}
+                onPress={() => {
+                  setValuesConfirm(false);
+                  setValuesPop(true);
+                }}
+              >
+                <Text style={styles.popBtnText}>상세 프로필 확인하기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.popBtn, styles.popBtnOff2]}
+                activeOpacity={opacityVal}
+                onPress={() => setValuesConfirm(false)}
+              >
+                <Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
+              </TouchableOpacity>						
+            </View>
+					</View>
+				</View>
+			</Modal>
+
+      {/* 나의 연애관 입력 유도 */}
+			<Modal
+				visible={valuesDisable}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setValuesDisable(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>setValuesDisable(false)}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => setValuesDisable(false)}
+						>
+							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+						</TouchableOpacity>								
+            <View style={[styles.popTitle, styles.popTitleFlex]}>
+              <View style={styles.popTitleFlexWrap}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>앗!</Text>
+              </View>
+              <AutoHeightImage width={18} source={require("../../assets/image/emiticon4.png")} style={styles.emoticon} />
+            </View>
+            <View>
+              <Text style={[styles.popTitleDesc, styles.mgt0]}>나의 연애 및 결혼관 정보를 입력해야</Text>
+              <Text style={[styles.popTitleDesc, styles.mgt5]}>프로필을 추가로 열 수 있어요</Text>
+            </View>
+
+						<View style={[styles.popBtnBox]}>
+              <TouchableOpacity 
+                style={[styles.popBtn]}
+                activeOpacity={opacityVal}
+                onPress={() => {
+                  console.log('작업해야 함');
+                }}
+              >
+                <Text style={styles.popBtnText}>프로필 수정하러 가기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.popBtn, styles.popBtnOff2]}
+                activeOpacity={opacityVal}
+                onPress={() => setValuesDisable(false)}
+              >
+                <Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
+              </TouchableOpacity>						
+            </View>
+					</View>
+				</View>
+			</Modal>
+
+      {/* 연애관 팝업 */}
+      <Modal
+				visible={valuesPop}
+				animationType={"none"}
+        onRequestClose={() => {setValuesPop(false)}}
+			>
+				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
+				<View style={styles.header}>
+        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.headerTitle}>연애 및 결혼관</Text>
+					<TouchableOpacity
+						style={styles.headerBackBtn2}
+						activeOpacity={opacityVal}
+						onPress={() => {setValuesPop(false)}}						
+					>
+            <AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+					</TouchableOpacity>
+				</View>
+				<ScrollView>
+					<View style={styles.cmWrap}>
+						<View style={styles.cmWrapTitleBox}>
+							<Text style={styles.cmWrapTitleText}>연애 및 결혼관</Text>
+						</View>
+            <View style={styles.cmWrapDescBox}>
+              <Text style={styles.cmWrapDescText}>나의 연애 및 결혼관이 입력되어야</Text>
+              <Text style={styles.cmWrapDescText}>상대방의 연애 및 결혼관을 열 수 있어요.</Text>
+            </View>
+            <View style={styles.mgt40}>
+              <View>
+                <View style={styles.valueTitle}>
+                  <Text style={styles.valueTitleText}>첫만남</Text>
+                </View>
+                <View style={styles.valueQuestion}>
+                  <Text style={styles.valueQuestionText}><Text style={styles.roboto}>Q1.</Text> 질문 내용입니다.</Text>
+                </View>                
+                <View style={styles.valueAnswer}>
+                  <TouchableOpacity
+                    style={[styles.valueAnswerBtn, styles.boxShadow3, styles.boxShadow4, styles.mgt0]}
+                    activeOpacity={1}
+                  >
+                    <Text style={[styles.valueAnswerBtnText, styles.valueAnswerBtnTextOn]}>선택지1</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.valueAnswerBtn, styles.boxShadow3]}
+                    activeOpacity={1}
+                  >
+                    <Text style={styles.valueAnswerBtnText}>선택지2</Text>
+                  </TouchableOpacity>
+                </View>                
+              </View>
+            </View>
+            <View style={styles.mgt50}>
+              <View>
+                <View style={styles.valueTitle}>
+                  <Text style={styles.valueTitleText}>연애관</Text>
+                </View>
+                <View style={styles.valueQuestion}>
+                  <Text style={styles.valueQuestionText}><Text style={styles.roboto}>Q2.</Text> 질문 내용입니다.</Text>
+                </View>
+                <View style={styles.valueQuestionDesc}>
+                  <Text style={styles.valueQuestionDescText}>해당되는 답변을 모두 선택해 주세요</Text>
+                </View>                
+                <View style={styles.valueAnswer}>
+                  <TouchableOpacity
+                    style={[styles.valueAnswerBtn, styles.boxShadow3, styles.mgt0]}
+                    activeOpacity={1}
+                  >
+                    <Text style={styles.valueAnswerBtnText}>선택지1</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.valueAnswerBtn, styles.boxShadow3]}
+                    activeOpacity={1}
+                  >
+                    <Text style={styles.valueAnswerBtnText}>선택지2</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={styles.mgt30}>
+                <View style={styles.valueQuestion}>
+                  <Text style={styles.valueQuestionText}><Text style={styles.roboto}>Q3.</Text> 질문 내용입니다.</Text>
+                </View>
+                <View style={styles.valueAnswer}>
+                  <TouchableOpacity
+                    style={[styles.valueAnswerBtn, styles.boxShadow3, styles.mgt0]}
+                    activeOpacity={1}
+                  >
+                    <Text style={styles.valueAnswerBtnText}>선택지1</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.valueAnswerBtn, styles.boxShadow3]}
+                    activeOpacity={1}
+                  >
+                    <Text style={styles.valueAnswerBtnText}>선택지2</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+					</View>
+				</ScrollView>
+			</Modal>
 		</SafeAreaView>
 	)
 }
 
 const styles = StyleSheet.create({
-	safeAreaView: { flex: 1, backgroundColor: '#fff' },
+	safeAreaView: { flex: 1, backgroundColor: '#fff' },  
 	fullScreen: { flex: 1, },
 	indicator: {height:widnowHeight-185, display:'flex', alignItems:'center', justifyContent:'center'},
 	indicator2: { marginTop: 62 },	
@@ -1218,6 +1645,8 @@ const styles = StyleSheet.create({
   detailInfo2Text2: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:16,color:'#1E1E1E',marginHorizontal:5},
   detailInfo2Btn: {alignItems:'center',justifyContent:'center',width:innerWidth,height:52,backgroundColor:'#fff',borderRadius:5,},
   detailInfo2BtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#D1913C'},
+  detailInfo2BtnGray: {flexDirection:'row',alignItems:'center',justifyContent:'center',backgroundColor:'#F8F8F8',borderWidth:0,},
+  detailInfo2BtnGrayText: {color:'#1E1E1E',marginRight:6,},
 
   detailInfoCm: {paddingVertical:30,paddingHorizontal:20,},
   detailInfoCm2: {paddingRight:0,},
@@ -1260,6 +1689,23 @@ const styles = StyleSheet.create({
   reviewDesc: {flexDirection:'row',alignItems:'center',justifyContent:'center',},
   reviewDescText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:16,color:'#888',position:'relative',top:0.5},
 
+  header: {height:48,backgroundColor:'#fff',position:'relative',display:'flex',justifyContent:'center',paddingHorizontal:40},
+	headerBackBtn2: {width:56,height:48,position:'absolute',left:0,top:0,zIndex:10,display:'flex',alignItems:'center',justifyContent:'center',},
+	headerTitle: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:48,color:'#000'},
+	headerDot: {width:43,height:48,position:'absolute',top:0,right:0,display:'flex',alignItems:'center',justifyContent:'center'},
+	headerSubmitBtn: {alignItems:'center',justifyContent:'center',width:50,height:48,position:'absolute',right:10,top:0},
+	headerSubmitBtnText: {fontFamily:Font.NotoSansMedium,fontSize:16,color:'#b8b8b8',},
+	headerSubmitBtnTextOn: {color:'#243B55'},
+  
+  cmWrap: {paddingVertical:30,paddingHorizontal:20},
+	cmWrap2: {paddingTop:0,paddingBottom:40,paddingHorizontal:20},
+	cmWrap3: {paddingTop:20,},
+	cmWrapTitleBox: {position:'relative'},
+	cmWrapTitleText: { fontFamily: Font.NotoSansSemiBold, fontSize: 22, lineHeight: 25, color: '#1e1e1e', position: 'relative', zIndex: 10, paddingLeft:1, },
+	cmWrapTitleLine: { width: 61, height: 14, backgroundColor: '#ffd194', position: 'absolute',left:0,bottom:-1,zIndex:9,opacity:0.3},
+  cmWrapDescBox: {marginTop:8,},
+  cmWrapDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},
+
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
 	input2: {width: innerWidth},
   textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,},
@@ -1271,12 +1717,15 @@ const styles = StyleSheet.create({
 	prvPop: {position:'relative',zIndex:10,width:innerWidth,maxHeight:innerHeight,paddingTop:50,paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',borderRadius:10,},	
 	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
   popInImageView: {alignItems:'center',marginBottom:20,},
-  popInImage: {borderRadius:50,},
+  popInImageViewBox: {width:100,height:100,borderRadius:50,overflow:'hidden',alignItems:'center',justifyContent:'center'},
+  popInImage: {},
 	popTitle: {paddingBottom:20,},
-	popTitleFlex: {flexDirection:'row',alignItems:'center',justifyContent:'center',flexWrap:'wrap'},
-	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E'},
+	popTitleFlex: {flexDirection:'row',alignItems:'center',justifyContent:'center',flexWrap:'wrap',},
+  popTitleFlexWrap: {position:'relative'},
+	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E',},
+  popTitleFlexText: {position:'relative',top:2,},
 	popTitleDesc: {width:innerWidth-40,textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:20,},
-	emoticon: {position:'relative',top:-2,marginLeft:2,},
+	emoticon: {},
 	popIptBox: {paddingTop:10,},
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
 	popBtnBox: {marginTop:30,},
@@ -1288,9 +1737,9 @@ const styles = StyleSheet.create({
 	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},
 	popBtnOffText: {color:'#1e1e1e'},
 
-  prvPopBot: {width:widnowWidth,paddingTop:40,paddingBottom:10,paddingHorizontal:20,backgroundColor:'#fff',borderTopLeftRadius:20,borderTopRightRadius:20,position:'absolute',bottom:0,},
+  prvPopBot: {width:widnowWidth,maxHeight:innerHeight,paddingTop:40,paddingBottom:10,paddingHorizontal:20,backgroundColor:'#fff',borderTopLeftRadius:20,borderTopRightRadius:20,position:'absolute',bottom:0,},
 	prvPopBot2: {width:widnowWidth,position:'absolute',bottom:0,},
-	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,color:'#1e1e1e',},
+	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,lineHeight:24,color:'#1e1e1e',},
   popBotTitleTextLine: {lineHeight:22,},
 	popBotTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#666',marginTop:10,},
 
@@ -1325,6 +1774,28 @@ const styles = StyleSheet.create({
 	productText3On: {color:'#1e1e1e'},
 	productText4: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
 
+  popInImageNick: {marginTop:20,},
+  popInImageNickText: {fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:22,color:'#1e1e1e'},
+  popSubTitle: {alignItems:'center',borderTopWidth:1,borderTopColor:'#ededed',paddingTop:20,marginBottom:30,},
+  popSubTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:27,color:'#1e1e1e'},
+  inviteList: {flexDirection:'row',justifyContent:'center',flexWrap:'wrap',paddingHorizontal:20,},
+  inviteListTab: {alignItems:'center',justifyContent:'center',height:33,paddingHorizontal:14,borderWidth:1,borderColor:'#ededed',borderRadius:50,marginHorizontal:4,marginBottom:8},
+  inviteListTabText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1e1e1e'},
+  newProteinCnt: {flexDirection:'row',alignItems:'center',justifyContent:'center',marginTop:22},
+  newProteinCntWrap: {position:'relative'},
+  newProteinCntText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},
+
+  valueTitle: {marginBottom:15,},
+  valueTitleText: {fontFamily:Font.NotoSansSemiBold,fontSize:18,lineHeight:21,color:'#1e1e1e'},
+  valueQuestion: {},
+  valueQuestionText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+  valueQuestionDesc: {marginTop:4,},
+  valueQuestionDescText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#666'},
+  valueAnswer: {marginTop:15,},
+  valueAnswerBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#fff',marginTop:12,},
+  valueAnswerBtnText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:17,color:'#666'},
+  valueAnswerBtnTextOn: {fontFamily:Font.NotoSansMedium,color:'#D1913C'},
+  
   bold: {fontFamily:Font.NotoSansBold,},
   roboto: {fontFamily:Font.RobotoMedium,fontSize:15,},
   grediant: {padding:1,borderRadius:5,},
@@ -1337,16 +1808,30 @@ const styles = StyleSheet.create({
       height: 0,
     },
     shadowOpacity: 0.15,
-    shadowRadius: 3,
+    shadowRadius: 5,
 		elevation: 5,
 	},
   boxShadow2: {borderRadius:35,},
+  boxShadow3: {    
+    borderRadius:5,
+		shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 1.4,
+		elevation: 3,
+	},
+  boxShadow4: {borderWidth:1,borderColor:'rgba(209,145,60,0.3)',shadowColor: "#D1913C",shadowOpacity: 0.25,shadowRadius: 4.65,elevation: 6,},
 
   mgt0: {marginTop:0},
   mgt5: {marginTop:5},
   mgt10: {marginTop:10},
   mgt20: {marginTop:20},
   mgt30: {marginTop:30},
+  mgt40: {marginTop:40},
+  mgt50: {marginTop:50},
   mgb0: {marginBottom:0,},
   mgb10: {marginBottom:10,},
   mgl0: {marginLeft:0,},

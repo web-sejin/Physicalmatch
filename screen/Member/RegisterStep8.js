@@ -1424,7 +1424,7 @@ const styles = StyleSheet.create({
 
 	cmWrap: {paddingVertical:30,paddingHorizontal:20},
 	cmTitleBox: {position:'relative'},
-	cmTitleText: { fontFamily: Font.NotoSansSemiBold, fontSize: 22, lineHeight: 24, color: '#1e1e1e', position: 'relative', zIndex: 10, paddingLeft:1, },
+	cmTitleText: { fontFamily: Font.NotoSansSemiBold, fontSize: 22, lineHeight: 25, color: '#1e1e1e', position: 'relative', zIndex: 10, paddingLeft:1, },
 	cmTitleLine: { width: 61, height: 14, backgroundColor: '#ffd194', position: 'absolute',left:0,bottom:-1,zIndex:9,opacity:0.3},
   cmDescBox: {marginTop:8,},
 	cmDescBoxFlex: {flexDirection:'row',alignItems:'center'},

@@ -12,6 +12,7 @@
   "dependencies": {
     "@actbase/react-daum-postcode": "1.0.4",
     "@ptomasroos/react-native-multi-slider": "2.2.2",
+    "@react-native-clipboard/clipboard": "^1.14.1",
     "@react-native-community/async-storage": "1.12.1",
     "@react-native-community/push-notification-ios": "1.11.0",
     "@react-navigation/bottom-tabs": "6.5.8",
