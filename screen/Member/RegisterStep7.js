@@ -726,8 +726,13 @@ const RegisterStep7 = ({navigation, route}) => {
 								</View>
 								<TextInput
 									value={ingContent}
-									onChangeText={(v) => {
-										setIngContent(v);
+									onChangeText={(v) => {				
+										if(v.length > 300){
+											let val = v.substr(0, 300);
+											setsetIngContent(val);
+										}else{
+											setsetIngContent(v);
+										}        
 									}}
 									style={[styles.textarea, styles.textarea2]}
 									placeholder="답변을 입력해 주세요."

@@ -30,6 +30,10 @@ import RegisterStep8 from './Member/RegisterStep8';
 import RegisterResult from './Member/RegisterResult';
 import BlockPeople from './Member/BlockPeople';
 import MatchDetail from './Match/MatchDetail';
+import SocialType from './Social/SocialType';
+import SocialWrite from './Social/SocialWrite';
+import SocialView from './Social/socialView';
+import MySocial from './Social/MySocial';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -82,6 +86,10 @@ const WholeStack = () => {
       <Stack.Screen name="RegisterResult" component={RegisterResult} />
       <Stack.Screen name="BlockPeople" component={BlockPeople} />
       <Stack.Screen name="MatchDetail" component={MatchDetail} />
+      <Stack.Screen name="SocialType" component={SocialType} />
+      <Stack.Screen name="SocialWrite" component={SocialWrite} />
+      <Stack.Screen name="SocialView" component={SocialView} />
+      <Stack.Screen name="MySocial" component={MySocial} />
     </Stack.Navigator>
   );
 };

@@ -84,6 +84,10 @@ const MatchDetail = (props) => {
   const [valuesConfirm, setValuesConfirm] = useState(false);
   const [valuesDisable, setValuesDisable] = useState(false);
   const [valuesPop, setValuesPop] = useState(false);
+  const [socialType, setSocialType] = useState(); //1:게스트->호스트 , 2:호스트->게스트
+  const [socialPop, setSocialPop] = useState(false);
+  const [socialPop2, setSocialPop2] = useState(false);
+  const [socialState, setSocialState] = useState(0); //1::수락, 2:거절
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -442,6 +446,125 @@ const MatchDetail = (props) => {
           ) : null}
         </View>
 
+
+        {/* 소셜에서 게스트가 호스트 프로필로 들어왔을 때 */}
+        <View style={styles.detailInfo2}>
+          <View style={styles.detailInfo2TextBox}>
+            <Text style={styles.detailInfo2Text}>최종 참여를 신청 하시겠습니까?</Text>
+          </View>
+          <View style={[styles.pointBox, styles.mgt20]}>
+            <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+            <Text style={styles.pointBoxText}>500</Text>
+          </View>
+          <TouchableOpacity 
+            style={[styles.nextBtn, styles.mgt20]}
+            activeOpacity={opacityVal}
+            onPress={() => {
+              setSocialType(1);
+              setSocialPop(true);
+            }}
+          >
+            <Text style={styles.nextBtnText}>신청하기</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* 소셜에서 게스트가 호스트 프로필로 들어왔을 때 */}
+        <View style={styles.detailInfo2}>
+          <View style={styles.detailInfo2TextBox}>
+            <Text style={styles.detailInfo2Text}>최종 참여를 수락 하시겠습니까?</Text>
+          </View>
+          <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.popBtnBoxFlex2]}>
+            <TouchableOpacity 
+              style={[styles.popBtn, styles.popBtn3]}
+              activeOpacity={opacityVal}
+              onPress={() => {
+                setSocialType(1);
+                setSocialPop2(true);
+              }}
+            >
+              <Text style={[styles.popBtnText]}>수락</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.popBtn, styles.popBtn3, styles.popBtnOff]}
+              activeOpacity={opacityVal}
+              onPress={() => {}}
+            >
+              <Text style={[styles.popBtnText, styles.popBtnOffText]}>거절</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* 소셜에서 호스트가 게스트 프로필로 들어왔을 때 */}
+        <View style={styles.detailInfo2}>                    
+          <View style={styles.detailInfo2TextBox}>
+            <Text style={styles.detailInfo2Text}>최종 참여를 초대 하시겠습니까?</Text>
+          </View>
+          <View style={[styles.pointBox, styles.mgt20]}>
+            <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+            <Text style={styles.pointBoxText}>500</Text>
+          </View>
+          <TouchableOpacity 
+            style={[styles.nextBtn, styles.mgt20]}
+            activeOpacity={opacityVal}
+            onPress={() => {
+              // setSocialType(2);
+              // setSocialPop(true);
+
+              setCashType(4);
+              setCashPop(true);
+            }}
+          >
+            <Text style={styles.nextBtnText}>초대하기</Text>
+          </TouchableOpacity>         
+        </View>
+
+        {/* 소셜에서 호스트가 게스트 프로필로 들어왔을 때 */}
+        <View style={styles.detailInfo2}>
+          <View style={styles.detailInfo2TextBox}>
+            <Text style={styles.detailInfo2Text}>최종 참여를 수락 하시겠습니까?</Text>
+          </View>
+          <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.popBtnBoxFlex2]}>
+            <TouchableOpacity 
+              style={[styles.popBtn, styles.popBtn3]}
+              activeOpacity={opacityVal}
+              onPress={() => {
+                setSocialType(2);
+                setSocialPop2(true);
+              }}
+            >
+              <Text style={[styles.popBtnText]}>수락</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.popBtn, styles.popBtn3, styles.popBtnOff]}
+              activeOpacity={opacityVal}
+              onPress={() => {}}
+            >
+              <Text style={[styles.popBtnText, styles.popBtnOffText]}>거절</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* 소셜 관련 */}
+        <View style={styles.detailInfo2}>
+          <View style={styles.detailInfo2TextBox}>
+            <Text style={styles.detailInfo2Text}>최종 참여를 초대 했어요</Text>
+            <Text style={styles.detailInfo2Text3}>응답을 기다려주세요!</Text>
+          </View>
+        </View>
+
+        {/* 소셜 관련 */}
+        <View style={styles.detailInfo2}>
+          <View style={styles.detailInfo2TextBox}>
+            <View style={styles.textFlex}>
+              <Text style={styles.detailInfo2Text}>소셜룸에 참여하지 못했어요</Text>
+              <AutoHeightImage width={20} source={require('../../assets/image/emiticon4.png')} />
+            </View>
+            <Text style={styles.detailInfo2Text3}>다른 소셜룸을 만나보세요!</Text>
+          </View>
+        </View>
+        
+
+        
         <View style={styles.border}></View>
 
         <View style={[styles.detailInfoCm]}>
@@ -1225,6 +1348,13 @@ const MatchDetail = (props) => {
 						<Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 프로필을 추가 오픈할 수 있어요</Text>
             </>
             ) : null}
+
+            {cashType == 4 ? (
+            <>
+						<Text style={[styles.popBotTitleText, styles.popBotTitleTextLine]}>즐거운 만남에 초대하세요!</Text>							
+						<Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 즉시 초대할 수 있어요</Text>
+            </>
+            ) : null}
 					</View>					
 					<View style={styles.productList}>
 						<TouchableOpacity
@@ -1378,7 +1508,7 @@ const MatchDetail = (props) => {
 							<Text style={styles.pointBoxText}>000</Text>
 						</View>						
 						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
-						<TouchableOpacity 
+						  <TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
 								activeOpacity={opacityVal}
 								onPress={() => setNumbOpenPop(false)}
@@ -1516,7 +1646,7 @@ const MatchDetail = (props) => {
 			>
 				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
 				<View style={styles.header}>
-        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.headerTitle}>연애 및 결혼관</Text>
+          <Text numberOfLines={1} ellipsizeMode='tail' style={styles.headerTitle}>연애 및 결혼관</Text>
 					<TouchableOpacity
 						style={styles.headerBackBtn2}
 						activeOpacity={opacityVal}
@@ -1607,6 +1737,113 @@ const MatchDetail = (props) => {
 					</View>
 				</ScrollView>
 			</Modal>
+
+      {/* 소셜 관련 팝업 */}
+			<Modal
+				visible={socialPop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setSocialPop(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setSocialPop(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setSocialPop(false)}}
+						>
+							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+						</TouchableOpacity>		
+						<View>
+              {socialType == 1 ? (
+							  <Text style={styles.popTitleText}>소셜에 최종 참여하시겠어요?</Text>
+              ) : (              
+                <Text style={styles.popTitleText}>최종 초대를 하시겠어요?</Text>
+              )}
+						</View>
+            
+            <View style={[styles.pointBox, styles.mgt20]}>
+							<AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+							<Text style={styles.pointBoxText}>500</Text>
+						</View>
+
+            <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
+						  <TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
+								activeOpacity={opacityVal}
+								onPress={() => {
+                  setSocialPop(false);
+                }}
+							>
+								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2]}
+								activeOpacity={opacityVal}
+								onPress={() => setSocialPop(false)}
+							>
+								<Text style={styles.popBtnText}>네</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+      {/* 소셜 관련 팝업2 */}
+			<Modal
+				visible={socialPop2}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setSocialPop2(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setSocialPop2(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setSocialPop2(false)}}
+						>
+							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+						</TouchableOpacity>		
+						<View>
+              {socialType == 1 ? (
+							  <Text style={styles.popTitleText}>최종 참여 초대에 수락하시겠어요?</Text>
+              ) : (              
+                <Text style={styles.popTitleText}>최종 참여 신청에 수락하시겠어요?</Text>
+              )}
+						</View>
+
+            <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.mgt50]}>
+						  <TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
+								activeOpacity={opacityVal}
+								onPress={() => {
+                  setSocialPop2(false);
+                }}
+							>
+								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2]}
+								activeOpacity={opacityVal}
+								onPress={() => setSocialPop2(false)}
+							>
+								<Text style={styles.popBtnText}>네</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
 		</SafeAreaView>
 	)
 }
@@ -1614,8 +1851,7 @@ const MatchDetail = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },  
 	fullScreen: { flex: 1, },
-	indicator: {height:widnowHeight-185, display:'flex', alignItems:'center', justifyContent:'center'},
-	indicator2: { marginTop: 62 },	
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
 
   DetailBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   DetailDotBtn: {width:54,height:48,position:'absolute',right:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
@@ -1643,6 +1879,7 @@ const styles = StyleSheet.create({
   detailInfo2Text: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:20,lineHeight:26,color:'#1e1e1e'},
   detailInfo2Text2Box: {flexDirection:'row',alignItems:'center',paddingHorizontal:7,paddingTop:6,paddingBottom:3,backgroundColor:'#F9FAFB',borderRadius:50,marginTop:10,},
   detailInfo2Text2: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:16,color:'#1E1E1E',marginHorizontal:5},
+  detailInfo2Text3: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:16,color:'#1E1E1E',marginTop:20},
   detailInfo2Btn: {alignItems:'center',justifyContent:'center',width:innerWidth,height:52,backgroundColor:'#fff',borderRadius:5,},
   detailInfo2BtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#D1913C'},
   detailInfo2BtnGray: {flexDirection:'row',alignItems:'center',justifyContent:'center',backgroundColor:'#F8F8F8',borderWidth:0,},
@@ -1730,8 +1967,10 @@ const styles = StyleSheet.create({
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
 	popBtnBox: {marginTop:30,},
 	popBtnBoxFlex: {flexDirection:'row',justifyContent:'space-between'},
+  popBtnBoxFlex2: {width:innerWidth},
 	popBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#243B55',borderRadius:5,},
 	popBtn2: {width:(innerWidth/2)-25,},
+  popBtn3: {width:(innerWidth/2)-5,},
 	popBtnOff: {backgroundColor:'#EDEDED',},
 	popBtnOff2: {backgroundColor:'#fff',marginTop:10,},
 	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},
@@ -1743,7 +1982,7 @@ const styles = StyleSheet.create({
   popBotTitleTextLine: {lineHeight:22,},
 	popBotTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#666',marginTop:10,},
 
-  dotPop: {width:100,backgroundColor:'#fff',borderRadius:10,overflow:'hidden',position:'absolute',top:48,right:20,alignItems:'center'},
+  dotPop: {width:100,backgroundColor:'#fff',borderRadius:10,overflow:'hidden',position:'absolute',top:48+stBarHt,right:20,alignItems:'center'},
   dotPopBtn: {padding:12,},
   dotPopBtnText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1e1e1e'},
   dotPopBtnLine: {width:80,height:1,backgroundColor:'#EDEDED',borderRadius:5,},
@@ -1758,7 +1997,7 @@ const styles = StyleSheet.create({
   sotongBtnText2: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:22,color:'#D1913C',marginLeft:4,},
 
   pointBox: {flexDirection:'row',alignItems:'center',justifyContent:'center'},
-	pointBoxText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#D1913C',marginLeft:6},
+	pointBoxText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#D1913C',marginLeft:6},
 
   help_box: {flexDirection:'row',alignItems:'center',justifyContent:'flex-end',marginTop:5,},
 	txtCntText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#b8b8b8'},
@@ -1795,6 +2034,12 @@ const styles = StyleSheet.create({
   valueAnswerBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#fff',marginTop:12,},
   valueAnswerBtnText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:17,color:'#666'},
   valueAnswerBtnTextOn: {fontFamily:Font.NotoSansMedium,color:'#D1913C'},
+
+  nextBtn: { width:innerWidth, height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
+  nextBtnOff: {backgroundColor:'#DBDBDB'},
+	nextBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:52,color:'#fff'},
+
+  textFlex: {flexDirection:'row',alignItems:'center',},
   
   bold: {fontFamily:Font.NotoSansBold,},
   roboto: {fontFamily:Font.RobotoMedium,fontSize:15,},

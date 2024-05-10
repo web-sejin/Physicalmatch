@@ -24,7 +24,7 @@ import Font from '../assets/common/Font';
 
 import Home from './Home';
 import Social from './Social/Social';
-import NoticeList from './Community/NoticeList';
+import Community from './Community/Community';
 import Mypage from './Mypage/Mypage';
 
 const Tab = createBottomTabNavigator();
@@ -85,18 +85,18 @@ const TabBarMenu = (props) => {
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
         onPress={() => {
-          navigation.navigate('NoticeList');
+          navigation.navigate('Community');
         }}
       >
         <View style={styles.tabIcon}>
-          {screenName == 'NoticeList' ? (
+          {screenName == 'Community' ? (
           <AutoHeightImage width={20} source={require("../assets/image/tab3_on.png")} />
           ) : (
           <AutoHeightImage width={20} source={require("../assets/image/tab3_off.png")} />
           )}
         </View>
         <View style={styles.tabView}>
-          <Text style={[styles.tabViewText, screenName=='NoticeList' ? styles.tabViewTextOn : null]}>커뮤니티</Text>
+          <Text style={[styles.tabViewText, screenName=='Community' ? styles.tabViewTextOn : null]}>커뮤니티</Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity 
@@ -144,7 +144,7 @@ const TabNav = (props) => {
     >
       <Tab.Screen name="Home" component={Home} options={{}} initialParams={{}} />
       <Tab.Screen name="Social" component={Social} options={{}} initialParams={{}} />
-      <Tab.Screen name="NoticeList" component={NoticeList} options={{}} initialParams={{}} />
+      <Tab.Screen name="Community" component={Community} options={{}} initialParams={{}} />
       <Tab.Screen name="Mypage" component={Mypage} options={{}} />
     </Tab.Navigator>
     </>

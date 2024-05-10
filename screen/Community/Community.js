@@ -21,7 +21,7 @@ const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
-const Social = (props) => {
+const Community = (props) => {
 	const socialData = [
 		{idx:1, cate:'1:1', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
 		{idx:2, cate:'미팅', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
@@ -57,29 +57,12 @@ const Social = (props) => {
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
+	const [refreshing, setRefreshing] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [socialList, setSocaiList] = useState(socialData);
-	const [filterMonth, setFilterMonth] = useState([5,6]);
-	const [filterCal, setFilterCal] = useState([]);
-	const [filterCal2, setFilterCal2] = useState([]);
 
-	const [overPop, setOverPop] = useState(false);
-
-	const [tabState, setTabState] = useState(1); //전체, 1:1, 미팅, 모임
-	const [socialSch, setSocialSch] = useState('');
-	const [refreshing, setRefreshing] = useState(false);
-	const [filterPop, setFilterPop] = useState(false);
-	const [ageAry, setAgeAry] = useState([]);
-	const [ageAryIdx, setAgeAryIdx] = useState([]);
-	const [ageMinInt, setAgeMinInt] = useState();
-	const [ageMaxInt, setAgeMaxInt] = useState();
-	const [ageMin, setAgeMin] = useState('');
-	const [ageMax, setAgeMax] = useState('');
-	const [nonCollidingMultiSliderValue, setNonCollidingMultiSliderValue] = useState([]);
-	const [realAgeMin, setRealAgeMin] = useState('');
-	const [realAgeMax, setRealAgeMax] = useState('');
-	const [filterGender, setFilterGender] = useState(0);
-	const [filterPickDate, setFilterPickDate] = useState([]);
+	const [tabState, setTabState] = useState(1); //자유, 운동, 프교, 셀소
+	const [sch, setSCh] = useState('');	
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -113,49 +96,6 @@ const Social = (props) => {
 
     return unsubscribe;
   }, [navigationUse, preventBack]);
-
-	useEffect(() => {
-		const date = new Date();		
-		const year = (date.getFullYear())-50;
-		const year2 = (date.getFullYear())-20;		
-		let month = date.getMonth() + 1;
-		let monthAry = [month];
-
-		for(let i=1; i<=14; i++){
-			const tomorrow = new Date(date.setDate(date.getDate() + 1));
-			const month2 = tomorrow.getMonth() + 1;
-			if(month != month2){				
-				monthAry.push(month2);
-				month = month2;
-			}
-		}
-
-		let yaerAry = [];
-		let yaerAryIdx = [];
-		let cnt = 0;
-		for(let i=year; i<=year2; i++){
-			yaerAry.unshift(i);
-			yaerAryIdx.push(cnt);
-			cnt++;
-		}
-		setAgeAry(yaerAry);
-		setAgeAryIdx(yaerAryIdx);
-
-		const yearVal = year+4;
-		const yearVal2 = year2-5;
-		
-		let yearString = yearVal.toString();
-		yearString = yearString.substr(2,2);		
-
-		let yearString2 = yearVal2.toString();
-		yearString2 = yearString2.substr(2,2);
-		
-		setAgeMin((yearString2).toString());
-		setAgeMax((yearString).toString());
-		setAgeMinInt(5);
-		setAgeMaxInt(cnt-5);
-		setNonCollidingMultiSliderValue([5, cnt-5]);
-	}, []);
 
 	const getList = ({item, index}) => (
 		<View style={styles.socialLi}>
@@ -224,89 +164,10 @@ const Social = (props) => {
 		}
 	}
 
-	const socialSearch = async () => {
-		if(socialSch.length < 2){
+	const Search = async () => {
+		if(sch.length < 2){
 			ToastMessage('검색어는 2글자 이상 입력해 주세요.');
 			return false;
-		}
-	}
-
-	useEffect(() => {
-		if(filterMonth.length == 1){			
-			let result = calendarData.filter((value) => value.monthString == filterMonth[0].toString());
-			setFilterCal(result);
-		}else if(filterMonth.length == 2){
-			let result = calendarData.filter((value) => value.monthString == filterMonth[0].toString());
-			setFilterCal(result);
-
-			let result2 = calendarData.filter((value) => value.monthString == filterMonth[1].toString());
-			setFilterCal2(result2);
-		}
-	}, [filterMonth]);	
-
-	const pickDateAry = (year, month, monthString, day, dayString, yoil, parentMonth) => {		
-		let addState = true;	
-		let selectCon = [];
-		const fullDate = year+'-'+month+'-'+day;
-		
-		filterPickDate.map((item, index) => {				
-			if(item.fullDate == fullDate){
-				addState = false;
-			}
-		});
-		
-		if(addState){
-			let ary = [...filterPickDate, {fullDate:fullDate, year:year, month:month, monthString:monthString, day:day, dayString:dayString, yoil:yoil}];
-			const asc = ary.sort((a,b) => {
-				if((a.year)+(a.month)+(a.day) > (b.year)+(b.month)+(b.day)) return 1;
-				if((a.year)+(a.month)+(a.day) < (b.year)+(b.month)+(b.day)) return -1;
-				return 0;
-			});
-			setFilterPickDate(asc);
-		}else{
-			
-			filterPickDate.map((item, index) => {
-				if(item.fullDate != fullDate){
-					let aryList = {fullDate:item.fullDate, year:item.year, month:item.month, monthString:item.monthString, day:item.day, dayString:item.dayString, yoil:item.yoil};
-					selectCon = [...selectCon, aryList];
-				}
-			});
-
-			const asc = selectCon.sort((a,b) => {
-				if((a.year)+(a.month)+(a.day) > (b.year)+(b.month)+(b.day)) return 1;
-				if((a.year)+(a.month)+(a.day) < (b.year)+(b.month)+(b.day)) return -1;
-				return 0;
-			});
-			setFilterPickDate(asc);
-		}
-
-		let actCon = [];
-		if(parentMonth == 1){
-			actCon = filterCal.map((item) => {
-				if(item.year === year && item.month === month && item.day === day){					
-					if(item.chk){			
-						return {...item, chk: false};
-					}else{
-						return {...item, chk: true};						
-					}
-				}else{
-					return {...item, chk: item.chk};
-				}
-			});
-			setFilterCal(actCon);
-		}else if(parentMonth == 2){
-			actCon = filterCal2.map((item) => {
-				if(item.year === year && item.month === month && item.day === day){					
-					if(item.chk){			
-						return {...item, chk: false};
-					}else{
-						return {...item, chk: true};						
-					}
-				}else{
-					return {...item, chk: item.chk};
-				}
-			});
-			setFilterCal2(actCon);
 		}
 	}
 
@@ -315,14 +176,14 @@ const Social = (props) => {
 			<View style={styles.header}>
 				<View style={styles.headerTop}>
 					<View style={styles.headerTitle}>
-						<Text style={styles.headerTitleText}>Social</Text>
+						<Text style={styles.headerTitleText}>Community</Text>
 					</View>
 					<View style={styles.headerLnb}>
 						<TouchableOpacity
 							activeOpacity={opacityVal}
-							onPress={() => navigation.navigate('MySocial')}
+							// onPress={() => navigation.navigate('MyCommunity')}
 						>
-							<AutoHeightImage width={24} source={require('../../assets/image/icon_mysocial.png')} />
+							<AutoHeightImage width={24} source={require('../../assets/image/icon_mycommuity.png')} />
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
@@ -347,7 +208,7 @@ const Social = (props) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setTabState(1)}}
 					>
-						<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>전체</Text>
+						<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>자유</Text>
 						{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 
@@ -356,7 +217,7 @@ const Social = (props) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setTabState(2)}}
 					>
-						<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>1:1</Text>
+						<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>운동</Text>
 						{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 
@@ -365,7 +226,7 @@ const Social = (props) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setTabState(3)}}
 					>
-						<Text style={[styles.headerTabText, tabState == 3 ? styles.headerTabTextOn : null]}>미팅</Text>
+						<Text style={[styles.headerTabText, tabState == 3 ? styles.headerTabTextOn : null]}>프교</Text>
 						{tabState == 3 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 
@@ -374,7 +235,7 @@ const Social = (props) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setTabState(4)}}
 					>
-						<Text style={[styles.headerTabText, tabState == 4 ? styles.headerTabTextOn : null]}>모임</Text>
+						<Text style={[styles.headerTabText, tabState == 4 ? styles.headerTabTextOn : null]}>셀소</Text>
 						{tabState == 4 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 				</View>
@@ -391,24 +252,17 @@ const Social = (props) => {
 					<TouchableOpacity
 						style={styles.socialSchBoxWrapBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>socialSearch()}
+						onPress={()=>Search()}
 					>
 						<AutoHeightImage width={28} source={require('../../assets/image/icon_sch.png')} />
 					</TouchableOpacity>
 					<TextInput
-						value={socialSch}
-						onChangeText={(v) => setSocialSch(v)}
+						value={sch}
+						onChangeText={(v) => setSch(v)}
 						style={[styles.socialSchBoxWrapInput]}
 						returnKyeType='done'                      
 					/>
 				</View>
-				<TouchableOpacity
-					style={styles.socialSchFilterBtn}
-					activeOpacity={opacityVal}
-					onPress={()=>setFilterPop(true)}
-				>
-					<AutoHeightImage width={28} source={require('../../assets/image/icon_option2.png')} />
-				</TouchableOpacity>
 			</View>
 			<FlatList 				
 				data={socialList}
@@ -446,258 +300,6 @@ const Social = (props) => {
       >
         <AutoHeightImage width={60} source={require('../../assets/image/icon_write.png')} />
       </TouchableOpacity>
-
-			{/* 필터 */}
-			<Modal
-				visible={filterPop}
-				animationType={"none"}
-				onRequestClose={() => setFilterPop(false)}
-			>
-				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
-				<View style={styles.modalHeader}>					
-					<TouchableOpacity
-						style={styles.headerBackBtn2}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setFilterPop(false);
-						}}						
-					>
-						<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
-					</TouchableOpacity>		
-					<TouchableOpacity 
-						style={styles.filterResetBtn}
-						activeOpacity={opacityVal}
-						onPress={()=>{console.log('초기화 작업 진행!!')}}
-					>
-						<AutoHeightImage width={13} source={require('../../assets/image/icon_refresh.png')} />	
-						<Text style={styles.filterResetText}>초기화</Text>
-					</TouchableOpacity>				
-				</View>
-				<ScrollView>
-					<View style={[styles.cmWrap, styles.cmWrap2]}>
-						<View style={styles.filterTitle}>
-							<Text style={styles.filterTitleText}>소셜 필터</Text>
-						</View>
-						<View style={[styles.msBox, styles.mgt30]}>
-							<View style={[styles.msTitleBox, styles.mgb20]}>
-								<Text style={styles.msTitleBoxText1}>호스트 성별</Text>
-							</View>
-							<View style={styles.msTitleBox}>
-								<TouchableOpacity
-									style={[styles.filterGenBtn, filterGender == 1 ? styles.filterGenBtnOn : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{
-										setFilterGender(1);
-									}}
-								>
-									<Text style={[styles.filterGenBtnText, filterGender == 1 ? styles.filterGenBtnTextOn : null]}>남자</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									style={[styles.filterGenBtn, filterGender == 2 ? styles.filterGenBtnOn : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{
-										setFilterGender(2);
-									}}
-								>
-									<Text style={[styles.filterGenBtnText, filterGender == 2 ? styles.filterGenBtnTextOn : null]}>여자</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									style={[styles.filterGenBtn, filterGender == 0 ? styles.filterGenBtnOn : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{
-										setFilterGender(0);
-									}}
-								>
-									<Text style={[styles.filterGenBtnText, filterGender == 0 ? styles.filterGenBtnTextOn : null]}>모두</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-						<View style={[styles.msBox, styles.mgt50]}>
-							<View style={[styles.msTitleBox, styles.mgb10]}>
-								<Text style={styles.msTitleBoxText1}>호스트 나이</Text>
-								<Text style={styles.msTitleBoxText2}>{ageMin}년생~{ageMax}년생+</Text>
-							</View>
-							<MultiSlider								
-								selectedStyle={{
-									height:2,
-									backgroundColor: '#D1913C',
-								}}
-								unselectedStyle={{
-									height:2,
-									backgroundColor: '#DBDBDB',
-								}}
-								optionsArray={ageAryIdx}
-								values={[
-									nonCollidingMultiSliderValue[0],
-									nonCollidingMultiSliderValue[1],
-								]}
-								markerOffsetY={1}
-								sliderLength={innerWidth}
-								min={ageMaxInt}
-								max={ageMinInt}
-								step={1}
-								enableLabel={false}
-								enabledOne={true}
-								enabledTwo={true}
-								customMarker={() => (
-									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
-								)}
-								onValuesChange={(e) => {
-									const first = ageAry[e[0]];
-									const last = ageAry[e[1]];
-									
-									let yearString = first.toString();
-									setRealAgeMin(yearString);
-									yearString = yearString.substr(2,2);
-
-									let yearString2 = last.toString();
-									setRealAgeMax(yearString2);
-									yearString2 = yearString2.substr(2,2);																	
-									
-									setAgeMin(yearString);
-									setAgeMax(yearString2);
-								}}
-							/>
-						</View>
-						<View style={[styles.msBox, styles.mgt50]}>
-							<View style={[styles.filterTitle]}>
-								<Text style={styles.filterTitleText}>만남 날짜</Text>
-							</View>							
-
-							{filterPickDate.length > 0 ? (
-							<ScrollView
-								horizontal={true}
-								showsHorizontalScrollIndicator = {false}
-								onMomentumScrollEnd ={() => {}}
-							>
-								<View style={[styles.pickDateBox, styles.mgt20]}>
-									{filterPickDate.map((item, index) => {
-										return (
-											<View key={index} style={[styles.pickDateView, index == 0 ? styles.mgl0 : null]}>
-												<Text style={styles.pickDateViewText}>{item.monthString}.{item.dayString} ({item.yoil})</Text>
-											</View>
-										)
-									})}
-								</View>
-							</ScrollView>
-							) : null}
-
-							{filterMonth.length >= 1 ? (
-							<View style={styles.mgt20}>
-								<View style={[styles.msTitleBox]}>
-									<Text style={styles.msTitleBoxText1}>{filterMonth[0]}월</Text>
-								</View>
-								<View style={[styles.filterCalBox]}>
-									{filterCal.map((item2, index2) => {
-										return (
-											<TouchableOpacity
-												key={index2}
-												style={[styles.filterCalBtn, index2%7 == 6 ? styles.mgr0 : null]}
-												activeOpacity={opacityVal}
-												onPress={()=>{
-													pickDateAry(item2.year, item2.month, item2.monthString, item2.day, item2.dayString, item2.yoil, 1);
-												}}
-											>
-												<View style={[styles.filterCalDay, item2.chk ? styles.filterCalDayOn : null]}>
-													<Text style={[styles.filterCalDayText, item2.chk ? styles.filterCalDayTextOn : null]}>{item2.dayString}</Text>
-												</View>
-												<View style={styles.filterCalYoil}>
-													<Text style={styles.filterCalYoilText}>{item2.yoil}</Text>
-												</View>
-											</TouchableOpacity>													
-										)
-									})}											
-								</View>
-							</View>
-							) : null}
-
-							{filterMonth.length > 1 ? (
-							<View style={styles.mgt20}>
-								<View style={[styles.msTitleBox]}>
-									<Text style={styles.msTitleBoxText1}>{filterMonth[1]}월</Text>
-								</View>
-								<View style={[styles.filterCalBox]}>
-									{filterCal2.map((item2, index2) => {
-										return (
-											<TouchableOpacity
-												key={index2}
-												style={[styles.filterCalBtn, index2%7 == 6 ? styles.mgr0 : null]}
-												activeOpacity={opacityVal}
-												onPress={()=>{
-													pickDateAry(item2.year, item2.month, item2.monthString, item2.day, item2.dayString, item2.yoil, 2);
-												}}
-											>
-												<View style={[styles.filterCalDay, item2.chk ? styles.filterCalDayOn : null]}>
-													<Text style={[styles.filterCalDayText, item2.chk ? styles.filterCalDayTextOn : null]}>{item2.dayString}</Text>
-												</View>
-												<View style={styles.filterCalYoil}>
-													<Text style={styles.filterCalYoilText}>{item2.yoil}</Text>
-												</View>
-											</TouchableOpacity>													
-										)
-									})}											
-								</View>
-							</View>
-							) : null}
-						</View>
-					</View>
-				</ScrollView>
-				<View style={styles.nextFix}>
-					<TouchableOpacity 
-						style={[styles.nextBtn]}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setFilterPop(false);							
-						}}
-					>
-						<Text style={styles.nextBtnText}>적용하기</Text>
-					</TouchableOpacity>
-				</View>
-			</Modal>
-
-			{/* 이미 매칭된 경우 */}
-			<Modal
-				visible={overPop}
-				transparent={true}
-				animationType={"none"}
-				onRequestClose={() => setOverPop(false)}
-			>
-				<View style={styles.cmPop}>
-					<TouchableOpacity 
-						style={styles.popBack} 
-						activeOpacity={1} 
-						onPress={()=>{setOverPop(false)}}
-					>
-					</TouchableOpacity>
-					<View style={styles.prvPop}>
-						<TouchableOpacity
-							style={styles.pop_x}					
-							onPress={() => {setOverPop(false)}}
-						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
-						</TouchableOpacity>		
-						<View>
-							<Text style={styles.popTitleText}>이미 매칭된 이성이</Text>
-							<Text style={[styles.popTitleText, styles.mgt5]}>참여한 방이예요</Text>							
-						</View>					
-						<View style={[styles.popTitleDescFlex, styles.mgt20]}>
-							<View styles={styles.popTitleDescFlexView}>
-								<Text style={[styles.popTitleDesc, styles.popTitleDescFlexDesc, styles.mgt0]}>다른 소셜에 참여 신청해주세요</Text>
-							</View>
-							<AutoHeightImage width={14} source={require('../../assets/image/emoticon5.png')} />
-						</View>
-						<View style={styles.popBtnBox}>
-							<TouchableOpacity 
-								style={[styles.popBtn]}
-								activeOpacity={opacityVal}
-								onPress={() => setOverPop(false)}
-							>
-								<Text style={styles.popBtnText}>확인</Text>
-							</TouchableOpacity>
-						</View>
-					</View>
-				</View>
-			</Modal>
 
 			{loading ? (
       <View style={[styles.indicator]}>
@@ -738,8 +340,7 @@ const styles = StyleSheet.create({
 	socialSchBox: {padding:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
 	socialSchBoxWrap: {flexDirection:'row',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
 	socialSchBoxWrapBtn: {alignItems:'center',justifyContent:'center',width:38,height:40,backgroundColor:'#F9FAFB',},
-	socialSchBoxWrapInput: {width:innerWidth-78,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},
-	socialSchFilterBtn: {justifyContent:'center',width:28,height:40,},
+	socialSchBoxWrapInput: {width:innerWidth-38,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},	
 	flatListPad: {height:20,},
 
 	cmWrap: {paddingBottom:40,paddingHorizontal:20,},
@@ -884,4 +485,4 @@ const styles = StyleSheet.create({
 	mgl0: {marginLeft:0},
 })
 
-export default Social
+export default Community

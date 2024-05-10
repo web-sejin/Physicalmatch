@@ -24,17 +24,17 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 const Home = (props) => {
 	const cardData = [
 		{ 'idx': 1, 'isFlipped':false, 'name':'닉네임최대여덟1', 'job':'CEO', 'age':'99', 'area':'서울 강남구', 'height':180, 'weight':70, 'badgeCnt':4, 'img':'man.png', 'dday':7, 'open':true },
-		{ 'idx': 2, 'isFlipped':false, 'name':'닉네임최대여덟2', 'job':'디자이너', 'age':'00', 'area':'경기 부천시', 'height':181, 'weight':71, 'badgeCnt':3, 'img':'woman.png', 'dday':7, 'open':true },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'job':'요리사', 'age':'01', 'area':'전남 곡성군', 'height':182, 'weight':72, 'badgeCnt':2, 'img':'man.png', 'dday':7, 'open':false },
-		{ 'idx': 4, 'isFlipped':false, 'name':'닉네임최대여덟4', 'job':'변호사', 'age':'02', 'area':'서울 용산구', 'height':183, 'weight':73, 'badgeCnt':1, 'img':'woman.png', 'dday':7, 'open':false },
-		{ 'idx': 5, 'isFlipped':false, 'name':'닉네임최대여덟1', 'job':'CEO', 'age':'99', 'area':'서울 강남구', 'height':180, 'weight':70, 'badgeCnt':4, 'img':'man.png', 'dday':6, 'open':false },
+		{ 'idx': 2, 'isFlipped':false, 'name':'닉네임최대여덟1', 'job':'디자이너', 'age':'00', 'area':'경기 부천시', 'height':181, 'weight':71, 'badgeCnt':3, 'img':'woman.png', 'dday':7, 'open':true },
+		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟1', 'job':'요리사', 'age':'01', 'area':'전남 곡성군', 'height':182, 'weight':72, 'badgeCnt':2, 'img':'man.png', 'dday':7, 'open':false },
+		{ 'idx': 4, 'isFlipped':false, 'name':'닉네임최대여덟1', 'job':'변호사', 'age':'02', 'area':'서울 용산구', 'height':183, 'weight':73, 'badgeCnt':1, 'img':'woman.png', 'dday':7, 'open':false },
+		{ 'idx': 5, 'isFlipped':false, 'name':'닉네임최대여덟2', 'job':'CEO', 'age':'99', 'area':'서울 강남구', 'height':180, 'weight':70, 'badgeCnt':4, 'img':'man.png', 'dday':6, 'open':false },
 		{ 'idx': 6, 'isFlipped':false, 'name':'닉네임최대여덟2', 'job':'디자이너', 'age':'00', 'area':'경기 부천시', 'height':181, 'weight':71, 'badgeCnt':3, 'img':'woman.png', 'dday':6, 'open':false },
-		{ 'idx': 7, 'isFlipped':false, 'name':'닉네임최대여덟3', 'job':'요리사', 'age':'01', 'area':'전남 곡성군', 'height':182, 'weight':72, 'badgeCnt':2, 'img':'man.png', 'dday':6, 'open':false },
-		{ 'idx': 8, 'isFlipped':false, 'name':'닉네임최대여덟4', 'job':'변호사', 'age':'02', 'area':'서울 용산구', 'height':183, 'weight':73, 'badgeCnt':1, 'img':'woman.png', 'dday':6, 'open':false },
-		{ 'idx': 9, 'isFlipped':false, 'name':'닉네임최대여덟1', 'job':'CEO', 'age':'99', 'area':'서울 강남구', 'height':180, 'weight':70, 'badgeCnt':4, 'img':'man.png', 'dday':5, 'open':false },
-		{ 'idx': 10, 'isFlipped':false, 'name':'닉네임최대여덟2', 'job':'디자이너', 'age':'00', 'area':'경기 부천시', 'height':181, 'weight':71, 'badgeCnt':3, 'img':'woman.png', 'dday':5, 'open':false },
+		{ 'idx': 7, 'isFlipped':false, 'name':'닉네임최대여덟2', 'job':'요리사', 'age':'01', 'area':'전남 곡성군', 'height':182, 'weight':72, 'badgeCnt':2, 'img':'man.png', 'dday':6, 'open':false },
+		{ 'idx': 8, 'isFlipped':false, 'name':'닉네임최대여덟2', 'job':'변호사', 'age':'02', 'area':'서울 용산구', 'height':183, 'weight':73, 'badgeCnt':1, 'img':'woman.png', 'dday':6, 'open':false },
+		{ 'idx': 9, 'isFlipped':false, 'name':'닉네임최대여덟3', 'job':'CEO', 'age':'99', 'area':'서울 강남구', 'height':180, 'weight':70, 'badgeCnt':4, 'img':'man.png', 'dday':5, 'open':false },
+		{ 'idx': 10, 'isFlipped':false, 'name':'닉네임최대여덟3', 'job':'디자이너', 'age':'00', 'area':'경기 부천시', 'height':181, 'weight':71, 'badgeCnt':3, 'img':'woman.png', 'dday':5, 'open':false },
 		{ 'idx': 11, 'isFlipped':false, 'name':'닉네임최대여덟3', 'job':'요리사', 'age':'01', 'area':'전남 곡성군', 'height':182, 'weight':72, 'badgeCnt':2, 'img':'man.png', 'dday':5, 'open':false },
-		{ 'idx': 12, 'isFlipped':false, 'name':'닉네임최대여덟4', 'job':'변호사', 'age':'02', 'area':'서울 용산구', 'height':183, 'weight':73, 'badgeCnt':1, 'img':'woman.png', 'dday':5, 'open':false },
+		{ 'idx': 12, 'isFlipped':false, 'name':'닉네임최대여덟3', 'job':'변호사', 'age':'02', 'area':'서울 용산구', 'height':183, 'weight':73, 'badgeCnt':1, 'img':'woman.png', 'dday':5, 'open':false },
 	];
 
 	const Data1 = [
@@ -97,6 +97,7 @@ const Home = (props) => {
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	const [tabState, setTabState] = useState(1); //추천, 관심	
 	const [tabState2, setTabState2] = useState(1); //관심[ 찜&교환, 호감, 매칭된 ]
@@ -111,8 +112,6 @@ const Home = (props) => {
 	const [data6List, setData6List] = useState(Data6);
 	const [data7List, setData7List] = useState(Data7);
 	const [data8List, setData8List] = useState(Data8);
-	const [animation, setAnimation] = useState(new Animated.Value(180));
-	const [animation2, setAnimation2] = useState(new Animated.Value(0));
 
 	const [welcomePop, setWelcomePop] = useState(false);
 	const [filterPop, setFilterPop] = useState(false);
@@ -131,6 +130,10 @@ const Home = (props) => {
 	const [ageMax, setAgeMax] = useState('');
 	const [ageMin2, setAgeMin2] = useState('');
 	const [ageMax2, setAgeMax2] = useState('');
+	const [realAgeMin, setRealAgeMin] = useState('');
+	const [realAgeMax, setRealAgeMax] = useState('');
+	const [realAgeMin2, setRealAgeMin2] = useState('');
+	const [realAgeMax2, setRealAgeMax2] = useState('');
 	const [distanceStandard, setDistanceStandard] = useState(1);
 	const [distance, setDistance] = useState(50);
 	const [distance2, setDistance2] = useState(50);
@@ -186,9 +189,9 @@ const Home = (props) => {
 	}, []);
 
 	useEffect(() => {
-		var date = new Date();
-		var year = (date.getFullYear())-50;
-		var year2 = (date.getFullYear())-20;
+		const date = new Date();
+		const year = (date.getFullYear())-50;
+		const year2 = (date.getFullYear())-20;
 
 		let yaerAry = [];
 		let yaerAryIdx = [];
@@ -201,13 +204,13 @@ const Home = (props) => {
 		setAgeAry(yaerAry);
 		setAgeAryIdx(yaerAryIdx);
 
-		var yearVal = year+4;
-		var yearVal2 = year2-5;
+		const yearVal = year+4;
+		const yearVal2 = year2-5;
 		
-		var yearString = yearVal.toString();
+		let yearString = yearVal.toString();
 		yearString = yearString.substr(2,2);		
 
-		var yearString2 = yearVal2.toString();
+		let yearString2 = yearVal2.toString();
 		yearString2 = yearString2.substr(2,2);
 		
 		setAgeMin((yearString2).toString());
@@ -223,7 +226,7 @@ const Home = (props) => {
 		setTabState(v);
 	}
 
-	const chgFlipped = (idx) => {		
+	const chgFlipped = (idx) => {				
 		let cont = cardList.map((item) => {
 			if (item.idx === idx) {
 				//console.log(item.idx+'///'+item.isFlipped);
@@ -241,7 +244,7 @@ const Home = (props) => {
 	}
 
 	const ViewDetail = () => {
-		//캐시 있는지 체크 후 결제 유도 or 상세페이지 이동		
+		//포인트 있는지 체크 후 결제 유도 or 상세페이지 이동		
 		navigation.navigate('MatchDetail')
 	}
 
@@ -458,16 +461,13 @@ const Home = (props) => {
 											scale={1}
 											scaleDuration= {0}
 											rotateDuration={200}
-											frontView={				
-												<>
-												<View style={[styles.cardCont, styles.boxShadow]}>																												
+											frontView={		
+												<View style={[styles.cardCont]}>																												
 													<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} />													
-												</View>			
-												</>													
+												</View>												
 											}
 											backView={
-												<>
-												<View style={[styles.cardCont, styles.boxShadow]}>													
+												<View style={[styles.cardCont]}>													
 													<View style={styles.cardFrontInfo}>
 														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} />
 														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} />
@@ -497,7 +497,6 @@ const Home = (props) => {
 														</View>
 													</View>
 												</View>
-												</>
 											}
 										/>
 									</TouchableOpacity>
@@ -532,16 +531,13 @@ const Home = (props) => {
 											scale={1}
 											scaleDuration= {0}
 											rotateDuration={200}
-											frontView={				
-												<>
-												<View style={[styles.cardCont, styles.boxShadow]}>																												
+											frontView={	
+												<View style={[styles.cardCont]}>																												
 													<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} />													
-												</View>			
-												</>													
+												</View>												
 											}
 											backView={
-												<>
-												<View style={[styles.cardCont, styles.boxShadow]}>													
+												<View style={[styles.cardCont]}>													
 													<View style={styles.cardFrontInfo}>
 														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} />
 														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} />
@@ -571,7 +567,6 @@ const Home = (props) => {
 														</View>
 													</View>
 												</View>
-												</>
 											}
 										/>
 									</TouchableOpacity>
@@ -588,7 +583,7 @@ const Home = (props) => {
 							</View>
 							{cardList.map((item, index) => {
 								return (	
-									item.dday == 6 ? (							
+									item.dday == 5 ? (							
 									<TouchableOpacity 
 										key={item.idx}
 										style={styles.cardBtn}
@@ -606,16 +601,13 @@ const Home = (props) => {
 											scale={1}
 											scaleDuration= {0}
 											rotateDuration={200}
-											frontView={				
-												<>
-												<View style={[styles.cardCont, styles.boxShadow]}>																												
+											frontView={			
+												<View style={[styles.cardCont]}>																												
 													<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} />													
-												</View>			
-												</>													
+												</View>											
 											}
 											backView={
-												<>
-												<View style={[styles.cardCont, styles.boxShadow]}>													
+												<View style={[styles.cardCont]}>													
 													<View style={styles.cardFrontInfo}>
 														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} />
 														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} />
@@ -645,7 +637,6 @@ const Home = (props) => {
 														</View>
 													</View>
 												</View>
-												</>
 											}
 										/>
 									</TouchableOpacity>
@@ -672,7 +663,7 @@ const Home = (props) => {
 												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
-														chgFlipped2('data1', item.idx);
+														//chgFlipped2('data1', item.idx);
 														setLeavePop(true);
 													}else if(!item.leave && item.isFlipped){
 														ViewDetail();
@@ -684,36 +675,38 @@ const Home = (props) => {
 													scale={1}
 													scaleDuration= {0}
 													rotateDuration={200}
-													frontView={			
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>		
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-															<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+													frontView={	
+														item.leave ? (
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
+															</View>
+														) : (
+															<View style={[styles.cardCont, styles.cardCont2]}>		
 																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
-																<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																	<View	View style={styles.cardFrontDday}>
-																		<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																	</View>
-																	<View style={styles.cardFrontNick2}>
-																		<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																	</View>
-																	<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																		<View style={styles.cardFrontContLine}></View>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
+																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																		<View	View style={styles.cardFrontDday}>
+																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																		</View>
+																		<View style={styles.cardFrontNick2}>
+																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																		</View>
+																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																			<View style={styles.cardFrontContLine}></View>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																		</View>
 																	</View>
 																</View>
 															</View>
-														</View>
-														</>																											
+														)																			
 													}
 													backView={
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
 															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
-														</View>			
-														</>
+														</View>
 													}
 												/>
 											</TouchableOpacity>
@@ -734,9 +727,9 @@ const Home = (props) => {
 												key={item.idx}
 												style={[styles.cardBtn, styles.cardBtn2]}
 												activeOpacity={opacityVal}
-												onPress={() => {
+												onPress={() => {													
 													if(item.leave && !item.isFlipped){
-														chgFlipped2('data2', item.idx);
+														//chgFlipped2('data2', item.idx);
 														setLeavePop(true);
 													}else if(!item.leave && item.isFlipped){
 														ViewDetail();
@@ -748,36 +741,38 @@ const Home = (props) => {
 													scale={1}
 													scaleDuration= {0}
 													rotateDuration={200}
-													frontView={			
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>													
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack}/>
-															<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+													frontView={		
+														item.leave ? (
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
+															</View>
+														) : (
+															<View style={[styles.cardCont, styles.cardCont2]}>		
 																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
-																<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																<View style={styles.cardFrontDday}>
-																		<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																	</View>
-																	<View style={styles.cardFrontNick2}>
-																		<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																	</View>
-																	<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																		<View style={styles.cardFrontContLine}></View>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
+																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																		<View	View style={styles.cardFrontDday}>
+																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																		</View>
+																		<View style={styles.cardFrontNick2}>
+																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																		</View>
+																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																			<View style={styles.cardFrontContLine}></View>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																		</View>
 																	</View>
 																</View>
 															</View>
-														</View>
-														</>																											
+														)																								
 													}
 													backView={
-														<>
 														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
 															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
-														</View>			
-														</>
+														</View>	
 													}
 												/>
 											</TouchableOpacity>
@@ -802,7 +797,7 @@ const Home = (props) => {
 												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
-														chgFlipped2('data3', item.idx);
+														//chgFlipped2('data3', item.idx);
 														setLeavePop(true);
 													}else if(!item.leave && item.isFlipped){
 														ViewDetail();
@@ -815,35 +810,37 @@ const Home = (props) => {
 													scaleDuration= {0}
 													rotateDuration={200}
 													frontView={			
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>		
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-															<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+														item.leave ? (
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
+															</View>
+														) : (
+															<View style={[styles.cardCont, styles.cardCont2]}>		
 																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
-																<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																	<View	View style={styles.cardFrontDday}>
-																		<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																	</View>
-																	<View style={styles.cardFrontNick2}>
-																		<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																	</View>
-																	<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																		<View style={styles.cardFrontContLine}></View>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
+																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																		<View	View style={styles.cardFrontDday}>
+																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																		</View>
+																		<View style={styles.cardFrontNick2}>
+																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																		</View>
+																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																			<View style={styles.cardFrontContLine}></View>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																		</View>
 																	</View>
 																</View>
 															</View>
-														</View>
-														</>																											
+														)																										
 													}
 													backView={
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
 															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
-														</View>			
-														</>
+														</View>	
 													}
 												/>
 											</TouchableOpacity>
@@ -866,7 +863,7 @@ const Home = (props) => {
 												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
-														chgFlipped2('data4', item.idx);
+														//chgFlipped2('data4', item.idx);
 														setLeavePop(true);
 													}else if(!item.leave && item.isFlipped){
 														ViewDetail();
@@ -879,35 +876,37 @@ const Home = (props) => {
 													scaleDuration= {0}
 													rotateDuration={200}
 													frontView={			
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>													
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack}/>
-															<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+														item.leave ? (
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
+															</View>
+														) : (
+															<View style={[styles.cardCont, styles.cardCont2]}>		
 																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
-																<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																<View style={styles.cardFrontDday}>
-																		<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																	</View>
-																	<View style={styles.cardFrontNick2}>
-																		<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																	</View>
-																	<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt6]}>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																		<View style={styles.cardFrontContLine}></View>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
+																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																		<View	View style={styles.cardFrontDday}>
+																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																		</View>
+																		<View style={styles.cardFrontNick2}>
+																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																		</View>
+																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																			<View style={styles.cardFrontContLine}></View>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																		</View>
 																	</View>
 																</View>
 															</View>
-														</View>
-														</>																											
+														)																									
 													}
 													backView={
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
 															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
-														</View>			
-														</>
+														</View>	
 													}
 												/>
 											</TouchableOpacity>
@@ -930,7 +929,7 @@ const Home = (props) => {
 												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
-														chgFlipped2('data5', item.idx);
+														//chgFlipped2('data5', item.idx);
 														setLeavePop(true);
 													}else if(!item.leave && item.isFlipped){
 														ViewDetail();
@@ -943,35 +942,37 @@ const Home = (props) => {
 													scaleDuration= {0}
 													rotateDuration={200}
 													frontView={			
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>													
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack}/>
-															<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+														item.leave ? (
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
+															</View>
+														) : (
+															<View style={[styles.cardCont, styles.cardCont2]}>		
 																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
-																<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																<View style={styles.cardFrontDday}>
-																		<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																	</View>
-																	<View style={styles.cardFrontNick2}>
-																		<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																	</View>
-																	<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt6]}>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																		<View style={styles.cardFrontContLine}></View>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
+																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																		<View	View style={styles.cardFrontDday}>
+																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																		</View>
+																		<View style={styles.cardFrontNick2}>
+																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																		</View>
+																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																			<View style={styles.cardFrontContLine}></View>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																		</View>
 																	</View>
 																</View>
 															</View>
-														</View>
-														</>																											
+														)																									
 													}
 													backView={
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
 															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
-														</View>			
-														</>
+														</View>
 													}
 												/>
 											</TouchableOpacity>
@@ -994,7 +995,7 @@ const Home = (props) => {
 												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
-														chgFlipped2('data6', item.idx);
+														//chgFlipped2('data6', item.idx);
 														setLeavePop(true);
 													}else if(!item.leave && item.isFlipped){
 														ViewDetail();
@@ -1007,35 +1008,37 @@ const Home = (props) => {
 													scaleDuration= {0}
 													rotateDuration={200}
 													frontView={			
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>													
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack}/>
-															<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+														item.leave ? (
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
+															</View>
+														) : (
+															<View style={[styles.cardCont, styles.cardCont2]}>		
 																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
-																<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																<View style={styles.cardFrontDday}>
-																		<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																	</View>
-																	<View style={styles.cardFrontNick2}>
-																		<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																	</View>
-																	<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt6]}>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																		<View style={styles.cardFrontContLine}></View>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
+																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																		<View	View style={styles.cardFrontDday}>
+																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																		</View>
+																		<View style={styles.cardFrontNick2}>
+																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																		</View>
+																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																			<View style={styles.cardFrontContLine}></View>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																		</View>
 																	</View>
 																</View>
 															</View>
-														</View>
-														</>																											
+														)																										
 													}
 													backView={
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
 															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
-														</View>			
-														</>
+														</View>	
 													}
 												/>
 											</TouchableOpacity>
@@ -1058,7 +1061,7 @@ const Home = (props) => {
 												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
-														chgFlipped2('data7', item.idx);
+														//chgFlipped2('data7', item.idx);
 														setLeavePop(true);
 													}else if(!item.leave && item.isFlipped){
 														ViewDetail();
@@ -1071,35 +1074,37 @@ const Home = (props) => {
 													scaleDuration= {0}
 													rotateDuration={200}
 													frontView={			
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>													
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack}/>
-															<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+														item.leave ? (
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
+															</View>
+														) : (
+															<View style={[styles.cardCont, styles.cardCont2]}>		
 																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
-																<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																<View style={styles.cardFrontDday}>
-																		<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																	</View>
-																	<View style={styles.cardFrontNick2}>
-																		<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																	</View>
-																	<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt6]}>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																		<View style={styles.cardFrontContLine}></View>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
+																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																		<View	View style={styles.cardFrontDday}>
+																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																		</View>
+																		<View style={styles.cardFrontNick2}>
+																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																		</View>
+																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																			<View style={styles.cardFrontContLine}></View>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																		</View>
 																	</View>
 																</View>
 															</View>
-														</View>
-														</>																											
+														)																										
 													}
 													backView={
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
 															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
-														</View>			
-														</>
+														</View>	
 													}
 												/>
 											</TouchableOpacity>
@@ -1128,7 +1133,7 @@ const Home = (props) => {
 												activeOpacity={opacityVal}
 												onPress={() => {
 													if(item.leave && !item.isFlipped){
-														chgFlipped2('data8', item.idx);
+														//chgFlipped2('data8', item.idx);
 														setLeavePop(true);
 													}else if(!item.leave && item.isFlipped){
 														ViewDetail();
@@ -1141,35 +1146,37 @@ const Home = (props) => {
 													scaleDuration= {0}
 													rotateDuration={200}
 													frontView={			
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>		
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-															<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+														item.leave ? (
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
+															</View>
+														) : (
+															<View style={[styles.cardCont, styles.cardCont2]}>		
 																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
-																<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																	<View	View style={styles.cardFrontDday}>
-																		<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																	</View>
-																	<View style={styles.cardFrontNick2}>
-																		<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																	</View>
-																	<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																		<View style={styles.cardFrontContLine}></View>
-																		<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} />
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} />
+																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																		<View	View style={styles.cardFrontDday}>
+																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																		</View>
+																		<View style={styles.cardFrontNick2}>
+																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																		</View>
+																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																			<View style={styles.cardFrontContLine}></View>
+																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																		</View>
 																	</View>
 																</View>
 															</View>
-														</View>
-														</>																											
+														)																									
 													}
 													backView={
-														<>
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
 															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} />													
-														</View>			
-														</>
+														</View>	
 													}
 												/>
 											</TouchableOpacity>
@@ -1251,10 +1258,12 @@ const Home = (props) => {
 									const first = ageAry[e[0]];
 									const last = ageAry[e[1]];
 									
-									var yearString = first.toString();
+									let yearString = first.toString();
+									setRealAgeMin(yearString);
 									yearString = yearString.substr(2,2);
 
-									var yearString2 = last.toString();
+									let yearString2 = last.toString();
+									setRealAgeMax(yearString2);
 									yearString2 = yearString2.substr(2,2);
 									
 									setAgeMin(yearString);
@@ -1440,10 +1449,12 @@ const Home = (props) => {
 										const first = ageAry[e[0]];
 										const last = ageAry[e[1]];
 										
-										var yearString = first.toString();
+										let yearString = first.toString();
+										setRealAgeMin2(yearString);
 										yearString = yearString.substr(2,2);
 
-										var yearString2 = last.toString();
+										let yearString2 = last.toString();
+										setRealAgeMax2(yearString2);
 										yearString2 = yearString2.substr(2,2);
 										
 										setAgeMin2(yearString);
@@ -1769,7 +1780,7 @@ const styles = StyleSheet.create({
 	headerLnb: {flexDirection:'row',alignItems:'center',},
 	headerLnbBtn: {marginLeft:16,},
 	headerBot: {flexDirection:'row',},
-	headerTab: {width:widnowWidth/2,height:60,alignItems:'center',justifyContent:'center',position:'relative'},
+	headerTab: {width:widnowWidth/2,height:60,alignItems:'center',justifyContent:'center',position:'relative',paddingTop:10,},
 	headerTabText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:17,color:'#fff'},
 	headerTabTextOn: {fontFamily:Font.NotoSansBold,color:'#FFD194'},
 	activeLine: {width:widnowWidth/2,height:4,backgroundColor:'#FFD194',position:'absolute',left:0,bottom:0,zIndex:10,},
@@ -1877,7 +1888,7 @@ const styles = StyleSheet.create({
 	popTitleFlex: {flexDirection:'row',alignItems:'center',justifyContent:'center',flexWrap:'wrap'},
 	popTitleFlexWrap: {position:'relative'},
 	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E',},
-  popTitleFlexText: {position:'relative',top:2,},	
+  popTitleFlexText: {position:'relative',top:0,},	
 	popTitleDesc: {width:innerWidth-40,textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:20,},
 	emoticon: {},
 	popIptBox: {paddingTop:10,},
