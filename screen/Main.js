@@ -34,6 +34,18 @@ import SocialType from './Social/SocialType';
 import SocialWrite from './Social/SocialWrite';
 import SocialView from './Social/socialView';
 import MySocial from './Social/MySocial';
+import CommunityWrite from './Community/CommunityWrite';
+import MyCommunity from './Community/MyCommunity';
+import CommunityView from './Community/CommunityView';
+import ProfieModify from './Mypage/ProfieModify';
+import MyProfile from './Mypage/MyProfile';
+import MyBadge from './Mypage/MyBadge';
+import MyCert from './Mypage/MyCert';
+import MyArea from './Mypage/MyArea';
+import MyIntro from './Mypage/MyIntro';
+import MyInfo from './Mypage/MyInfo';
+import MyDate from './Mypage/MyDate';
+import MyHobby from './Mypage/MyHobby';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -90,6 +102,18 @@ const WholeStack = () => {
       <Stack.Screen name="SocialWrite" component={SocialWrite} />
       <Stack.Screen name="SocialView" component={SocialView} />
       <Stack.Screen name="MySocial" component={MySocial} />
+      <Stack.Screen name="CommunityWrite" component={CommunityWrite} />
+      <Stack.Screen name="MyCommunity" component={MyCommunity} />
+      <Stack.Screen name="CommunityView" component={CommunityView} />
+      <Stack.Screen name="ProfieModify" component={ProfieModify} />
+      <Stack.Screen name="MyProfile" component={MyProfile} />
+      <Stack.Screen name="MyBadge" component={MyBadge} />
+      <Stack.Screen name="MyCert" component={MyCert} />
+      <Stack.Screen name="MyArea" component={MyArea} />      
+      <Stack.Screen name="MyInfo" component={MyInfo} />
+      <Stack.Screen name="MyIntro" component={MyIntro} />
+      <Stack.Screen name="MyDate" component={MyDate} />
+      <Stack.Screen name="MyHobby" component={MyHobby} />
     </Stack.Navigator>
   );
 };

@@ -107,12 +107,9 @@ const exeData = [
 	{ key : 3, period : '월', day : 20, sort : '수영' },
 ]
 
-const RegisterStep5 = ({navigation, route}) => {	
-	const prvChk4 = route['params']['prvChk4'];
-  const accessRoute = route['params']['accessRoute'];
-  const mb_id = route['params']['mb_id'];
-	const mb_pw = route['params']['mb_pw'];
-
+const MyInfo = (props) => {
+	const {navigation, userInfo, chatInfo, route} = props;
+	const {params} = route
 	const scrollViewRef = useRef();
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
@@ -121,19 +118,15 @@ const RegisterStep5 = ({navigation, route}) => {
 	const [keyboardHeight, setKeyboardHeight] = useState(0);
 	const [currFocus, setCurrFocus] = useState('');
 	const [preventBack, setPreventBack] = useState(false);
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState(false);	
+
 	const [step, setStep] = useState(1);
 	const [heightList, setHeightList] = useState([]);
 	const [weightList, setWeightList] = useState([]);
 	const [muscleList, setMuscleList] = useState([]);
 	const [fatList, setFatList] = useState([]);
 	const [exeList, setExeList] = useState([]);
-
-	const [popNick, setPopNick] = useState(false);
-	const [popGender, setPopGender] = useState(false);
-	const [popLocal, setPopLocal] = useState(false);
-	const [popLocal2, setPopLocal2] = useState(false);
-	const [localType, setLocalType] = useState(0);
+	
 	const [popClass, setPopClass] = useState(false);
 	const [popJob, setPopJob] = useState(false);
 	const [popPhysical2, setPopPhysical2] = useState(false);
@@ -142,17 +135,12 @@ const RegisterStep5 = ({navigation, route}) => {
 	const [popDrink, setPopDrink] = useState(false);
 	const [popMbti, setPopMbti] = useState(false);
 	const [popRel, setPopRel] = useState(false);
-
-	const [nickBtn, setNickBtn] = useState(false);
-	const [locBtn, setLocBtn] = useState(false);
+	
 	const [jobBtn, setJobBtn] = useState(false);
 	const [exeBtn, setExeBtn] = useState(false);
 	const [phyBtn, setPhyBtn] = useState(false);
 	const [mbtiBtn, setMbtiBtn] = useState(false);
 
-	const [nick, setNick] = useState('');
-	const [realNick, setRealNick] = useState('');
-	const [realGender, setRealGender] = useState(0);
 	const [realClass, setRealClass] = useState('');
 	const [realClass2, setRealClass2] = useState('');
 	const [job, setJob] = useState('');
@@ -192,11 +180,7 @@ const RegisterStep5 = ({navigation, route}) => {
 	const [realMbti1, setRealMbti1] = useState('');
 	const [realMbti2, setRealMbti2] = useState('');
 	const [realMbti3, setRealMbti3] = useState('');
-	const [realMbti4, setRealMbti4] = useState('');
-	const [local1, setLocal1] = useState('');
-	const [local2, setLocal2] = useState('');
-	const [realLocal1, setRealLocal1] = useState('');
-	const [realLocal2, setRealLocal2] = useState('');
+	const [realMbti4, setRealMbti4] = useState('');	
 	const [height, setHeight] = useState('170cm');
 	const [weight, setWeight] = useState('60kg');
 	const [muscle, setMuscle] = useState('25kg');
@@ -219,7 +203,7 @@ const RegisterStep5 = ({navigation, route}) => {
 	const [realRest, setRealRest] = useState(false);
 	const [realExeList, setRealExeList] = useState([]);
 	const [nextOpen, setNextOpen] = useState(false);
-	const [outerScrollEnabled, setOuterScrollEnabled] = useState(true);
+	const [outerScrollEnabled, setOuterScrollEnabled] = useState(true)
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -231,35 +215,9 @@ const RegisterStep5 = ({navigation, route}) => {
 			}
 		}else{
 			setRouteLoad(true);
-			setPageSt(!pageSt);		
-
-			if(route['params']['mb_nick']){ setRealNick(route['params']['mb_nick']);}
-			if(route['params']['mb_gender']){ setRealGender(route['params']['mb_gender']);}
-			if(route['params']['mb_local1']){ setRealLocal1(route['params']['mb_local1']);}
-			if(route['params']['mb_local2']){ setRealLocal2(route['params']['mb_local2']);}
-			if(route['params']['mb_class1']){ setRealClass(route['params']['mb_class1']);}
-			if(route['params']['mb_class2']){ setRealClass2(route['params']['mb_class2']);}
-			if(route['params']['mb_job']){ setRealJob(route['params']['mb_job']);}
-			if(route['params']['mb_jobDetail']){ setRealJobDetail(route['params']['mb_jobDetail']);}
-			if(route['params']['mb_height']){ setRealHeight(route['params']['mb_height']);}
-			if(route['params']['mb_weight']){ setRealWeight(route['params']['mb_weight']);}
-			if(route['params']['mb_muscle']){ setRealMuscle(route['params']['mb_muscle']);}
-			if(route['params']['mb_fat']){ setRealFat(route['params']['mb_fat']);}
-			if(route['params']['mb_no_weight']){ setRealNoWeight(route['params']['mb_no_weight']);}
-			if(route['params']['mb_no_muscle']){ setRealNoMuscle(route['params']['mb_no_muscle']);}
-			if(route['params']['mb_no_fat']){ setRealNoFat(route['params']['mb_no_fat']);}
-			if(route['params']['mb_rest']){ setRealRest(route['params']['mb_rest']);}
-			if(route['params']['mb_exercise']){ setRealExeList(route['params']['mb_exercise']);}
-			if(route['params']['mb_physicalType']){ setRealPhyAry(route['params']['mb_physicalType']);}
-			if(route['params']['mb_drink']){ setRealDrink(route['params']['mb_drink']);}
-			if(route['params']['mb_smoke']){ setRealSmoke(route['params']['mb_smoke']);}
-			if(route['params']['mb_smokeSort']){ setRealSmokeSort(route['params']['mb_smokeSort']);}
-			if(route['params']['mb_mbit1']){ setRealMbti1(route['params']['mb_mbit1']);}
-			if(route['params']['mb_mbit2']){ setRealMbti2(route['params']['mb_mbit2']);}
-			if(route['params']['mb_mbit3']){ setRealMbti3(route['params']['mb_mbit3']);}
-			if(route['params']['mb_mbit4']){ setRealMbti4(route['params']['mb_mbit4']);}
-			if(route['params']['mb_religion']){ setRealRel(route['params']['mb_religion']);}
+			setPageSt(!pageSt);
 		}
+
 		Keyboard.dismiss();
 		Toast.hide();
 		return () => isSubscribed = false;
@@ -271,11 +229,7 @@ const RegisterStep5 = ({navigation, route}) => {
       // 여기에 원하는 동작을 추가하세요.
       // e.preventDefault();를 사용하면 뒤로 가기를 막을 수 있습니다.
       //console.log('preventBack22 ::: ',preventBack);
-      if (preventBack) {        
-				setPopNick(false);
-				setPopGender(false);
-				setPopLocal(false);
-				setPopLocal2(false);
+      if (preventBack) {        																
 				setPopClass(false);
 				setPopJob(false);
 				setPopPhysical2(false);
@@ -349,7 +303,7 @@ const RegisterStep5 = ({navigation, route}) => {
 
 	useEffect(() => {
 		chkTotalVal();
-	}, [realNick, realGender, realLocal1, realLocal2, realJob, realJobDetail, realHeight, realWeight, realMuscle, realFat, realRest, realExeList, realPhyAryCnt, realRel, realMbti1, realMbti2, realMbti3, realMbti4]);
+	}, [realJob, realJobDetail, realHeight, realWeight, realMuscle, realFat, realRest, realExeList, realPhyAryCnt, realRel, realMbti1, realMbti2, realMbti3, realMbti4]);
 
 	useEffect(() => {		
 		if(realClass != "" && realClass2 != ""){
@@ -475,7 +429,7 @@ const RegisterStep5 = ({navigation, route}) => {
 	}, [exePeri, exeDay, exeSport, exeList]);
 
 	const chkTotalVal = () => {
-		if(realNick && realGender && realLocal1 && realJob && realHeight && (realRest || realExeList.length > 0) && realPhyAryCnt > 0 && realRel && realClass && realClass2 && realDrink && realSmoke && realMbti1 && realMbti2 && realMbti3 && realMbti4){
+		if(realJob && realHeight && (realRest || realExeList.length > 0) && realPhyAryCnt > 0 && realRel && realClass && realClass2 && realDrink && realSmoke && realMbti1 && realMbti2 && realMbti3 && realMbti4){
 			setNextOpen(true);
 		}else{
 			setNextOpen(false);
@@ -591,40 +545,7 @@ const RegisterStep5 = ({navigation, route}) => {
 	}
 
 	const checkPopVal = (v) => {
-		if(v == 'nick'){
-			if(nick == ''){
-				ToastMessage('닉네임을 입력해 주세요.');
-				return false;
-			}
-
-			const spe = nick.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
-			if(spe >= 0){
-				ToastMessage('닉네임은 한글, 숫자, 영문만 사용 가능합니다.');
-				return false;
-			}
-
-			if(nick.length < 2 || nick.length > 8){
-				ToastMessage('닉네임은 2~8자리 입력이 가능합니다.');
-				return false;
-			}
-
-			setPopNick(false);
-			setRealNick(nick);
-			setPreventBack(false);
-		}else if(v == 'local'){
-			if(local1 == ''){
-				ToastMessage('주 활동 지역을 입력해 주세요.');
-				return false;
-			}
-
-			setPopLocal(false);
-			setRealLocal1(local1);
-			if(local2 != ''){
-				setRealLocal2(local2);
-			}
-			setPreventBack(false);
-
-		}else if(v == 'job'){
+		if(v == 'job'){
 			if(job == ''){
 				ToastMessage('직업을 입력 또는 선택해 주세요.');
 				return false;
@@ -718,98 +639,6 @@ const RegisterStep5 = ({navigation, route}) => {
 			setExeDay('0');
 			setExeSport('');
 		}
-	}	
-
-	const nextStep = () => {
-		if(realNick == ''){ ToastMessage('닉네임을 입력해 주세요.'); return false; }
-		if(realGender == ''){ ToastMessage('성별을 선택해 주세요.'); return false; }
-		if(realLocal1 == ''){ ToastMessage('주 활동 지역을 입력해 주세요.'); return false; }
-		if(realClass == '' || realClass2 == ''){ ToastMessage('최종 학력을 선택해 주세요.'); return false; }
-		if(realJob == ''){ ToastMessage('직업을 압력 또는 선택해 주세요.'); return false; }
-		if(realHeight == ''){ ToastMessage('피지컬(키)을 선택해 주세요.'); return false; }
-		if(!realRest && realExeList.length < 1){ ToastMessage('운동을 선택해 주세요.'); return false; }
-		if(realPhyAryCnt < 1){ ToastMessage('체형을 2~5개를 선택해 주세요.'); return false; }
-		if(realDrink == '' || realSmoke == ''){ ToastMessage('음주 · 흡연을 선택해 주세요.'); return false; }
-		if(realMbti1 == '' || realMbti2 == '' || realMbti3 == '' || realMbti4 == ''){
-			ToastMessage('MBTI를 선택해 주세요.'); return false;
-		}
-		if(realRel == ''){ ToastMessage('종교를 선택해 주세요.'); return false; }
-
-		const nextObj = {
-			prvChk4:prvChk4,
-			accessRoute:accessRoute,
-			mb_id:mb_id,
-			mb_pw:mb_pw,
-			mb_nick:realNick,
-			mb_gender:realGender,
-			mb_local1:realLocal1,
-			mb_local2:realLocal2,
-			mb_class1:realClass,
-			mb_class2:realClass2,
-			mb_job:realJob,
-			mb_jobDetail:realJobDetail,
-			mb_height:realHeight,
-			mb_weight:realWeight,
-			mb_muscle:realMuscle,
-			mb_fat:realFat,
-			mb_no_weight:realNoWeight,
-			mb_no_muscle:realNoMuscle,
-			mb_no_fat:realFat,
-			mb_rest:realRest,
-			mb_exercise:realExeList,
-			mb_physicalType:realPhyAry,
-			mb_drink:realDrink,
-			mb_smoke:realSmoke,
-			mb_smokeSort:realSmokeSort,
-			mb_mbit1:realMbti1,
-			mb_mbit2:realMbti2,
-			mb_mbit3:realMbti3,
-			mb_mbit4:realMbti4,
-			mb_religion:realRel
-		}
-
-		if(route['params']['file1']){ nextObj.file1 = route['params']['file1']; }
-		if(route['params']['file2']){ nextObj.file2 = route['params']['file2']; }
-		if(route['params']['file3']){ nextObj.file3 = route['params']['file3']; }
-		if(route['params']['file4']){ nextObj.file4 = route['params']['file4']; }
-		if(route['params']['file5']){ nextObj.file5 = route['params']['file5']; }
-		if(route['params']['file6']){ nextObj.file6 = route['params']['file6']; }
-		if(route['params']['qnaList']){ nextObj.qnaList = route['params']['qnaList']; }
-		if(route['params']['intro']){ nextObj.intro = route['params']['intro']; }
-		if(route['params']['qnaListData']){ nextObj.qnaListData = route['params']['qnaListData']; }
-		if(route['params']['step8File1']){ nextObj.step8File1 = route['params']['step8File1']; }
-		if(route['params']['step8File2']){ nextObj.step8File2 = route['params']['step8File2']; }
-		if(route['params']['step8File3']){ nextObj.step8File3 = route['params']['step8File3']; }
-		if(route['params']['step8File4']){ nextObj.step8File4 = route['params']['step8File4']; }
-		if(route['params']['step8File5']){ nextObj.step8File5 = route['params']['step8File5']; }
-		if(route['params']['step8File6']){ nextObj.step8File6 = route['params']['step8File6']; }
-		if(route['params']['step8File7']){ nextObj.step8File7 = route['params']['step8File7']; }
-		if(route['params']['step8File8']){ nextObj.step8File8 = route['params']['step8File8']; }
-		if(route['params']['step8Grade1']){ nextObj.step8Grade1 = route['params']['step8Grade1']; }
-		if(route['params']['step8Grade2']){ nextObj.step8Grade2 = route['params']['step8Grade2']; }
-		if(route['params']['step8Grade3']){ nextObj.step8Grade3 = route['params']['step8Grade3']; }
-		if(route['params']['step8Grade4']){ nextObj.step8Grade4 = route['params']['step8Grade4']; }
-		if(route['params']['step8Grade5']){ nextObj.step8Grade5 = route['params']['step8Grade5']; }
-		if(route['params']['step8Grade6']){ nextObj.step8Grade6 = route['params']['step8Grade6']; }
-		if(route['params']['step8Grade7']){ nextObj.step8Grade7 = route['params']['step8Grade7']; }
-		if(route['params']['step8Grade8']){ nextObj.step8Grade8 = route['params']['step8Grade8']; }
-		if(route['params']['step8JobFile']){ nextObj.step8JobFile = route['params']['step8JobFile']; }
-		if(route['params']['step8SchoolFile']){ nextObj.step8SchoolFile = route['params']['step8SchoolFile']; }
-		if(route['params']['step8SchoolName']){ nextObj.step8SchoolName = route['params']['step8SchoolName']; }
-		if(route['params']['step8SchoolMajor']){ nextObj.step8SchoolMajor = route['params']['step8SchoolMajor']; }
-		if(route['params']['step8MarryFile']){ nextObj.step8MarryFile = route['params']['step8MarryFile']; }
-		if(route['params']['step8MarryState']){ nextObj.step8MarryState = route['params']['step8MarryState']; }
-
-		navigation.navigate('RegisterStep6', nextObj);
-	}
-
-	const chkNick = (v) => {
-		const spe = v.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
-		if(spe >= 0 || v.length < 2 || v.length > 8){
-			setNickBtn(false);
-		}else{
-			setNickBtn(true);
-		}
 	}
 
 	const headerHeight = 48;
@@ -818,116 +647,10 @@ const RegisterStep5 = ({navigation, route}) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			<Header navigation={navigation} headertitle={'회원가입'} />
-
-			<View style={styles.regiStateBarBox}>
-				<View style={styles.regiStateBar}>
-					<View style={[styles.regiStateCircel, step >= 1 ? styles.regiStateCircelOn : null]}>
-						<View style={styles.regiStateCircel2}></View>
-						<Text style={[styles.regiStateText, step >= 1 ? styles.regiStateTexOn : null]}>기본 정보</Text>
-					</View>
-					<View style={[styles.regiStateCircel, step >= 2 ? styles.regiStateCircelOn : null]}>
-						<View style={styles.regiStateCircel2}></View>
-						<Text style={[styles.regiStateText, step >= 2 ? styles.regiStateTexOn : null]}>프로필 등록</Text>
-					</View>
-					<View style={[styles.regiStateCircel, step >= 3 ? styles.regiStateCircelOn : null]}>
-						<View style={styles.regiStateCircel2}></View>
-						<Text style={[styles.regiStateText, step >= 3 ? styles.regiStateTexOn : null]}>소개글</Text>
-					</View>
-					<View style={[styles.regiStateCircel, step >= 4 ? styles.regiStateCircelOn : null]}>
-						<View style={styles.regiStateCircel2}></View>
-						<Text style={[styles.regiStateText, step >= 4 ? styles.regiStateTexOn : null]}>인증</Text>
-					</View>
-				</View>
-			</View>
+			<Header navigation={navigation} headertitle={'기본 정보'} />
 
 			<ScrollView>		
 				<View style={styles.regiStepList}>
-					<TouchableOpacity
-						style={styles.regiStep5Btn}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setPopNick(true);
-							setNick(realNick);
-							setPreventBack(true);
-						}}
-					>
-						<View style={styles.regiStep5BtnLeft}>
-							{realNick ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon1_2.png")} style={styles.introArr} />
-							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon1.png")} style={styles.introArr} />
-							)}
-							<Text style={styles.regiStep5BtnLeftText}>닉네임</Text>
-						</View>
-						<View style={styles.regiStep5BtnRight}>
-							<Text style={styles.regiStep5BtnRightText}>{realNick}</Text>
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
-						</View>
-					</TouchableOpacity>
-
-					<TouchableOpacity
-						style={styles.regiStep5Btn}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setPopGender(true);
-							setPreventBack(true);
-						}}
-					>
-						<View style={styles.regiStep5BtnLeft}>
-							{realGender == 1 || realGender == 2 ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon2_2.png")} style={styles.introArr} />
-							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon2.png")} style={styles.introArr} />
-							)}
-							<Text style={styles.regiStep5BtnLeftText}>성별</Text>
-						</View>
-						<View style={styles.regiStep5BtnRight}>
-							{realGender == 0 ? null : (
-								realGender == 1 ? (
-									<Text style={styles.regiStep5BtnRightText}>남자</Text>
-								) : (
-									<Text style={styles.regiStep5BtnRightText}>여자</Text>
-								)
-							)}
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
-						</View>
-					</TouchableOpacity>
-
-					<TouchableOpacity
-						style={styles.regiStep5Btn}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setPopLocal(true);
-							setPreventBack(true);
-						}}
-					>
-						<View style={styles.regiStep5BtnLeft}>
-							{realLocal1 ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon3_2.png")} style={styles.introArr} />
-							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon3.png")} style={styles.introArr} />
-							)}
-							<Text style={styles.regiStep5BtnLeftText}>지역</Text>
-						</View>
-						<View style={styles.regiStep5BtnRight}>
-							<Text style={styles.regiStep5BtnRightText}>{realLocal1}</Text>
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
-						</View>
-					</TouchableOpacity>
-
 					<TouchableOpacity
 						style={styles.regiStep5Btn}
 						activeOpacity={opacityVal}
@@ -941,7 +664,7 @@ const RegisterStep5 = ({navigation, route}) => {
 								<AutoHeightImage width={24} source={require("../../assets/image/icon4_2.png")} style={styles.introArr} />
 							) : (
 								<AutoHeightImage width={24} source={require("../../assets/image/icon4.png")} style={styles.introArr} />
-							)}
+							)}	
 							<Text style={styles.regiStep5BtnLeftText}>최종학력</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
@@ -1174,259 +897,15 @@ const RegisterStep5 = ({navigation, route}) => {
 				</View>		
 			</ScrollView>
 
-      <View style={styles.nextFix}>
+			<View style={styles.nextFix}>
         <TouchableOpacity 
 					style={[styles.nextBtn, nextOpen ? null : styles.nextBtnOff]}
 					activeOpacity={opacityVal}
 					onPress={() => nextStep()}
 				>
-					<Text style={styles.nextBtnText}>다음</Text>
+					<Text style={styles.nextBtnText}>저장하기</Text>
 				</TouchableOpacity>
 			</View>
-						
-			{/* 닉네임 */}
-			{popNick ? (
-			<View style={styles.cmPop}>
-				<TouchableOpacity 
-					style={styles.popBack} 
-					activeOpacity={1} 
-					onPress={()=>{
-						Keyboard.dismiss();
-					}}
-				>
-				</TouchableOpacity>
-				<KeyboardAvoidingView
-					keyboardVerticalOffset={0}
-					behavior={behavior}
-				>
-					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-						<View style={{...styles.prvPop, top:keyboardHeight}}>
-							<TouchableOpacity
-								style={styles.pop_x}					
-								onPress={() => {
-									setPopNick(false);
-									setPreventBack(false);
-								}}
-							>
-								<AutoHeightImage
-									width={18}
-									source={require("../../assets/image/popup_x.png")}
-								/>
-							</TouchableOpacity>		
-							<View style={styles.popTitle}>
-								<Text style={styles.popTitleText}>닉네임을 입력해 주세요</Text>
-								<Text style={styles.popTitleDesc}>프로필 작성 후 변경이 불가합니다.</Text>
-							</View>
-							<View style={[styles.popIptBox]}>									
-								<TextInput
-									value={nick}
-									onChangeText={(v) => {
-										setNick(v);
-										chkNick(v);
-									}}
-									onFocus={()=>{
-										setCurrFocus('nick');
-									}}
-									placeholder={'한글, 숫자, 영문만 사용 가능 / 2~8자'}
-									placeholderTextColor="#DBDBDB"
-									style={[styles.input]}
-									returnKyeType='done'
-								/>
-								<Text style={styles.alertText}>* 이미 존재하는 닉네임입니다.</Text>
-							</View>															
-							<View style={styles.popBtnBox}>
-								<TouchableOpacity 
-									style={[styles.popBtn, nickBtn ? null : styles.nextBtnOff]}
-									activeOpacity={opacityVal}
-									onPress={() => {checkPopVal('nick')}}
-								>
-									<Text style={styles.popBtnText}>저장하기</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-					</TouchableWithoutFeedback>
-				</KeyboardAvoidingView>
-			</View>
-			) : null}
-
-			{/*성별*/}
-			{popGender ? (
-			<View style={styles.cmPop}>
-				<TouchableOpacity 
-					style={styles.popBack} 
-					activeOpacity={1} 
-					onPress={()=>{
-						Keyboard.dismiss();
-						setPopGender(false);
-					}}
-				>
-				</TouchableOpacity>
-				<View style={styles.prvPop}>
-					<TouchableOpacity
-						style={styles.pop_x}					
-						onPress={() => {
-							setPopGender(false);
-							setPreventBack(false);
-						}}
-					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
-					</TouchableOpacity>			
-					<View style={styles.popTitle}>
-						<Text style={styles.popTitleText}>성별을 선택해 주세요</Text>
-					</View>
-					<ScrollView>
-						<View style={styles.popRadioBox}>
-							<TouchableOpacity
-								style={[styles.popRadioBoxBtn, realGender == 1 ? styles.popRadioBoxBtnOn : null]}
-								activeOpacity={opacityVal}
-								onPress={()=>{
-									setPopGender(false);
-									setRealGender(1);
-									setPreventBack(false);
-								}}
-							>
-								<Text style={[styles.popRadioBoxBtnText, realGender == 1 ? styles.popRadioBoxBtnTextOn : null]}>남자</Text>
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={[styles.popRadioBoxBtn,  realGender == 2 ? styles.popRadioBoxBtnOn : null]}
-								activeOpacity={opacityVal}
-								onPress={()=>{
-									setPopGender(false);
-									setRealGender(2);
-									setPreventBack(false);
-								}}
-							>
-								<Text style={[styles.popRadioBoxBtnText, realGender == 2 ? styles.popRadioBoxBtnTextOn : null]}>여자</Text>
-							</TouchableOpacity>
-						</View>
-					</ScrollView>
-				</View>
-			</View>
-			) : null}
-
-			{/*지역*/}
-			{popLocal ? (
-			<View style={styles.cmPop}>
-				<TouchableOpacity 
-					style={styles.popBack} 
-					activeOpacity={1} 
-					onPress={()=>{
-						Keyboard.dismiss();
-					}}
-				>
-				</TouchableOpacity>
-				<View style={{...styles.prvPop}}>
-					<TouchableOpacity
-						style={styles.pop_x}					
-						onPress={() => {
-							setPopLocal(false);
-							setPreventBack(false);
-						}}
-					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
-					</TouchableOpacity>		
-					<View style={styles.popTitle}>
-						<Text style={styles.popTitleText}>활동 지역을 입력해 주세요</Text>
-					</View>
-					<View style={[styles.popIptBox]}>									
-						<View style={styles.popRadioTitle}>
-							<Text style={styles.popRadioTitleText}>주 활동 지역 <Text style={styles.red}>*</Text></Text>
-						</View>
-						<TouchableOpacity
-							style={styles.localBtn}
-							activeOpacity={opacityVal}
-							onPress={() => {
-								setLocalType(1);
-								setPopLocal2(true);
-							}}
-						>
-							{local1 != '' ? (
-								<Text style={[styles.localBtnText, styles.localBtnText2]}>{local1}</Text>
-							) : (
-								<Text style={styles.localBtnText}>구까지만 표시 돼요</Text>
-							)}
-						</TouchableOpacity>
-					</View>			
-					<View style={[styles.popIptBox, styles.mgt20]}>
-						<View	style={styles.popRadioTitle}>
-							<Text style={styles.popRadioTitleText}>부 활동 지역 <Text style={styles.gray}>[선택]</Text></Text>
-						</View>
-						<TouchableOpacity
-							style={styles.localBtn}
-							activeOpacity={opacityVal}
-							onPress={() => {
-								setLocalType(2);
-								setPopLocal2(true);
-							}}
-						>
-							{local2 != '' ? (
-								<Text style={[styles.localBtnText, styles.localBtnText2]}>{local2}</Text>
-							) : (
-								<Text style={styles.localBtnText}>주 활동 지역과 겹치면 안 적어도 돼요</Text>
-							)}							
-						</TouchableOpacity>
-					</View>												
-					<View style={styles.popBtnBox}>
-						<TouchableOpacity 
-							style={[styles.popBtn, locBtn ? null : styles.nextBtnOff]}
-							activeOpacity={opacityVal}
-							onPress={() => {checkPopVal('local')}}
-						>
-							<Text style={styles.popBtnText}>저장하기</Text>
-						</TouchableOpacity>
-					</View>
-				</View>
-			</View>
-			) : null}
-
-			{popLocal2 ? (
-			<>
-			<TouchableOpacity 
-				style={styles.popBack} 
-				activeOpacity={1} 
-				onPress={()=>{
-					Keyboard.dismiss();
-				}}
-			>
-			</TouchableOpacity>	
-			<View style={{...styles.prvPop, ...styles.prvPop3}}>
-				<TouchableOpacity
-					style={styles.pop_x}					
-					onPress={() => {
-						setPopLocal2(false);
-						setPreventBack(false);
-					}}
-				>
-					<AutoHeightImage
-						width={18}
-						source={require("../../assets/image/popup_x.png")}
-					/>
-				</TouchableOpacity>
-				<Postcode
-					style={{ width: innerWidth-40, height: innerHeight-90, }}
-					jsOptions={{ animation: true }}
-					onSelected={data => {
-						//console.log(JSON.stringify(data))
-						const kakaoAddr = data;
-						//console.log(data);				
-						if(localType == 1){
-							setLocal1(kakaoAddr.sido+' '+kakaoAddr.sigungu);
-							setLocBtn(true);
-						}else if(localType == 2){
-							setLocal2(kakaoAddr.sido+' '+kakaoAddr.sigungu);
-						}
-						setPopLocal2(false);
-					}}
-				/>
-			</View>
-			</>
-			) : null}
 
 			{/*학력*/}
 			{popClass ? (
@@ -2652,16 +2131,15 @@ const RegisterStep5 = ({navigation, route}) => {
         <ActivityIndicator size="large" color="#D1913C" />
       </View>
       ) : null}
-
 		</SafeAreaView>
 	)
 }
 
 const styles = StyleSheet.create({
-	safeAreaView: {flex:1,backgroundColor:'#fff'},
-	gapBox: {height:80,backgroundColor:'#fff'},
+	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
+	gapBox: {height:86,},
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
-  
+
 	regiStateBarBox: {paddingTop:30,paddingBottom:56,paddingHorizontal:55,overflow:'hidden'},
   regiStateBar: {height:18,backgroundColor:'#eee',borderRadius:20,flexDirection:'row',justifyContent:'space-between'},
 	regiStateCircel: {width:18,height:18,backgroundColor:'#eee',borderRadius:50,position:'relative'},
@@ -2690,7 +2168,6 @@ const styles = StyleSheet.create({
 	popBack: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,},
 	prvPop: {position:'relative',zIndex:10,width:innerWidth,maxHeight:innerHeight,paddingTop:50,paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',borderRadius:10,},
 	prvPop2: {height:innerHeight,},
-	prvPop3: {position:'absolute',left:20,top:20+(stBarHt/2),},
 	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
 	popTitle: {paddingBottom:20,},
 	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E'},
@@ -2827,4 +2304,4 @@ const styles = StyleSheet.create({
 	pdb0: {paddingBottom:0},
 })
 
-export default RegisterStep5
+export default MyInfo

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
+import {ActivityIndicator, Alert, Animated, Button, Image, Dimensions, ImageBackground, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -7,7 +7,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import Swiper from 'react-native-web-swiper';
 
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
@@ -23,42 +23,26 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const Community = (props) => {
 	const socialData = [
-		{idx:1, cate:'1:1', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:2, cate:'미팅', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:3, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:4, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:5, cate:'1:1', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:6, cate:'미팅', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:7, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:8, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-	];
-
-	const calendarData = [
-		{year:'2024', month:'05', monthString:'5', day:'26', dayString:'26', yoil:'일', chk:false},
-		{year:'2024', month:'05', monthString:'5', day:'27', dayString:'27', yoil:'월', chk:false},
-		{year:'2024', month:'05', monthString:'5', day:'28', dayString:'28', yoil:'화', chk:false},
-		{year:'2024', month:'05', monthString:'5', day:'29', dayString:'29', yoil:'수', chk:false},
-		{year:'2024', month:'05', monthString:'5', day:'30', dayString:'30', yoil:'목', chk:false},
-		{year:'2024', month:'05', monthString:'5', day:'31', dayString:'31', yoil:'금', chk:false},
-
-		{year:'2024', month:'06', monthString:'6', day:'01', dayString:'1', yoil:'토', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'02', dayString:'2', yoil:'일', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'03', dayString:'3', yoil:'월', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'04', dayString:'4', yoil:'화', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'05', dayString:'5', yoil:'수', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'06', dayString:'6', yoil:'목', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'07', dayString:'7', yoil:'금', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'08', dayString:'8', yoil:'토', chk:false},	
+		{idx:1, cate:'자유', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
+		{idx:2, cate:'운동', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
+		{idx:3, cate:'프교', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
+		{idx:4, cate:'셀소', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
+		{idx:5, cate:'자유', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
+		{idx:6, cate:'운동', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
+		{idx:7, cate:'프교', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
+		{idx:8, cate:'셀소', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
 	];
 
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
+	const swiperRef = useRef(null);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [socialList, setSocaiList] = useState(socialData);
 
 	const [tabState, setTabState] = useState(1); //자유, 운동, 프교, 셀소
@@ -97,48 +81,65 @@ const Community = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+	useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', (e) => {			
+			setKeyboardStatus(1);
+			setTimeout(function(){
+				setKeyboardStatus(2);
+			}, 300);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+			setKeyboardStatus(0);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
 	const getList = ({item, index}) => (
-		<View style={styles.socialLi}>
+		<View style={[styles.commLi, index == 0 ? styles.mgt0 : null]}>
 			<TouchableOpacity
-				style={[styles.socialLiBtn, index == 0 ? styles.pdt0 : null]}
+				style={[styles.commLiBtn, index == 0 ? styles.pdt0 : null]}
 				activeOpacity={opacityVal}
 				onPress={()=>{
-					if(index == 0){
-						setOverPop(true);
-					}else if(index == 1){
-						navigation.navigate('SocialView', {idx:item.idx})
-					}
+					navigation.navigate('CommunityView', {idx:item.idx, cateName:item.cate});
 				}}
 			>
-				<View style={styles.socialLiThumb}>
-					<AutoHeightImage width={65} source={require('../../assets/image/social_basic1.jpg')} />
+				<View style={styles.commLiProfile}>
+					<AutoHeightImage width={40} source={require('../../assets/image/profile_sample.png')} />
 				</View>
-				<View style={styles.socialLiInfo}>
-					<View style={styles.socialLiInfo1}>
-						<View style={styles.socialLiInfoCate}>
-							<Text style={styles.socialLiInfoCateText}>{item.cate}</Text>
-						</View>
-						<View style={styles.socialLiInfoDate}>
-							<Text style={styles.socialLiInfoDateText}>{item.date}</Text>
-						</View>
+				<View style={[styles.commLiInfo, item.idx == 4 ? styles.commLiInfo2 : null]}>
+					<View style={styles.commLiInfoSubject}>
+						<Text style={styles.commLiInfoSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.subject}</Text>
+						{item.blur ? (<AutoHeightImage width={13} source={require('../../assets/image/icon_alert2.png')} style={styles.commLiInfoAlert} />) : null}						
 					</View>
-					<View style={styles.socialLiInfo2}>
-						<Text style={styles.socialSubject} numberOfLines={1} ellipsizeMode='tail'>{item.subject}</Text>
-					</View>
-					<View style={styles.socialLiInfo3}>
-						<View style={styles.socialLiInfo3Flex}>
-							<AutoHeightImage width={10} source={require('../../assets/image/icon_local.png')} />
-							<Text style={styles.socialLiInfo3Text}>{item.loc}</Text>
+					<View style={styles.commLiSubInfo}>
+						<View style={styles.commLiSubView}>
+							<AutoHeightImage width={16} source={require('../../assets/image/icon_view.png')} />
+							<Text style={styles.commLiSubViewText}>{item.viewCnt}</Text>
 						</View>
-						<View style={styles.socialLiInfo3Line}></View>
-						<View style={styles.socialLiInfo3Flex}>
-							<View style={styles.socialLiInfoProfile}>
-								<AutoHeightImage width={20} source={require('../../assets/image/profile_sample.png')} />
-							</View>
-							<Text style={styles.socialLiInfo3Text}>{item.age}·{item.gender}</Text>
+						<View style={[styles.commLiSubView, styles.commLiSubView2]}>
+							<AutoHeightImage width={16} source={require('../../assets/image/icon_review.png')} />
+							<Text style={styles.commLiSubViewText}>{item.reviewCnt}</Text>
+						</View>
+						<View style={styles.commLiSubLine}></View>
+						<View style={styles.commLiSubView}>
+							<Text style={styles.commLiSubViewText}>{item.date}</Text>
 						</View>
 					</View>
 				</View>
+				{item.idx != 4 ? (
+				<ImageBackground
+					style={styles.commLiThumb}
+					source={require('../../assets/image/social_basic1.jpg')}
+					resizeMode='cover'
+					blurRadius={item.blur ? 6 : 0}
+				>
+					{item.blur ? (<AutoHeightImage width={20} source={require('../../assets/image/icon_blurview.png')} />) : null}					
+				</ImageBackground>
+				) : null}
 			</TouchableOpacity>
 		</View>
 	)
@@ -181,7 +182,7 @@ const Community = (props) => {
 					<View style={styles.headerLnb}>
 						<TouchableOpacity
 							activeOpacity={opacityVal}
-							// onPress={() => navigation.navigate('MyCommunity')}
+							onPress={() => navigation.navigate('MyCommunity')}
 						>
 							<AutoHeightImage width={24} source={require('../../assets/image/icon_mycommuity.png')} />
 						</TouchableOpacity>
@@ -240,13 +241,43 @@ const Community = (props) => {
 					</TouchableOpacity>
 				</View>
 			</View>
-			<TouchableOpacity 
-				style={styles.socialBanner}
-				activeOpacity={opacityVal}
-				onPress={()=>{}}
-			>
-				<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
-			</TouchableOpacity>
+
+			<View style={styles.swiperView}>
+				<Swiper					
+					ref={swiperRef}	
+					autoplay={true}
+					showsPagination={false}
+					controlsProps={{
+						prevTitle: '',
+						nextTitle: '',
+						dotsTouchable: true,
+						DotComponent: ({ index, activeIndex, isActive, onPress }) => null              
+					}}
+					onIndexChanged={(e) => {
+						//console.log(e);
+						//setActiveDot(e);
+					}}
+				>
+					<TouchableOpacity 
+						style={styles.commuBanner}
+						activeOpacity={opacityVal}
+						onPress={()=>{}}
+					>
+						<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+					</TouchableOpacity>
+					<TouchableOpacity 
+						style={styles.commuBanner}
+						activeOpacity={opacityVal}
+						onPress={()=>{}}
+					>
+						<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+					</TouchableOpacity>
+				</Swiper>
+			</View>	
+			
+			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+				<View style={styles.flatListPad}></View>
+			</TouchableWithoutFeedback>
 			<View style={styles.socialSchBox}>
 				<View style={styles.socialSchBoxWrap}>
 					<TouchableOpacity
@@ -293,13 +324,15 @@ const Community = (props) => {
 			/>
 			<View style={styles.gapBox}></View>
 
+			{keyboardStatus == 0 || keyboardStatus == 1 ? (
 			<TouchableOpacity
-        style={[styles.wrtBtn, styles.wrtBtnBoxShadow]}
+				style={[styles.wrtBtn, styles.wrtBtnBoxShadow, keyboardStatus == 1 ? styles.wrtBtnHide : null]}
         activeOpacity={opacityVal}
-        onPress={()=>{navigation.navigate('SocialType')}}
+        onPress={()=>{navigation.navigate('CommunityWrite')}}
       >
         <AutoHeightImage width={60} source={require('../../assets/image/icon_write.png')} />
       </TouchableOpacity>
+			) : null}
 
 			{loading ? (
       <View style={[styles.indicator]}>
@@ -337,15 +370,18 @@ const styles = StyleSheet.create({
 	filterResetBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',paddingHorizontal:20,height:48,backgroundColor:'#fff',position:'absolute',top:0,right:0,zIndex:10,},
 	filterResetText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#1E1E1E',marginLeft:6,},
 
-	socialSchBox: {padding:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
+	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
 	socialSchBoxWrap: {flexDirection:'row',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
 	socialSchBoxWrapBtn: {alignItems:'center',justifyContent:'center',width:38,height:40,backgroundColor:'#F9FAFB',},
 	socialSchBoxWrapInput: {width:innerWidth-38,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},	
 	flatListPad: {height:20,},
 
+	swiperView: {height: widnowWidth/4.9,backgroundColor:'#fff'},
+
 	cmWrap: {paddingBottom:40,paddingHorizontal:20,},
 	cmWrap2: {paddingTop:30,},
 	wrtBtn: {position:'absolute',right:20,bottom:96,width:60,height:60,zIndex:100,backgroundColor:'#fff'},
+	wrtBtnHide: {opacity:0,},
 	wrtBtnBoxShadow: {
     borderRadius:50,
 		shadowColor: "#000",
@@ -358,22 +394,21 @@ const styles = StyleSheet.create({
 		elevation: 1,
 	},
 
-	socialLi: {paddingHorizontal:20,},
-	socialLiBtn: {flexDirection:'row',paddingVertical:18,borderBottomWidth:1,borderColor:'#EDEDED'},
-	socialLiThumb: {alignItems:'center',justifyContent:'center',width:60,height:60,borderRadius:50,overflow:'hidden'},
-	socialLiInfo: {width:innerWidth-60,paddingLeft:20,},
-	socialLiInfo1: {flexDirection:'row',alignItems:'center',},
-	socialLiInfoCate: {alignItems:'center',justifyContent:'center',width:32,height:16,backgroundColor:'#243B55',borderRadius:10,},
-	socialLiInfoCateText: {fontFamily:Font.NotoSansMedium,fontSize:10,lineHeight:13,color:'#fff'},
-	socialLiInfoDate: {marginLeft:4,},
-	socialLiInfoDateText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:13,color:'#888'},
-	socialLiInfo2: {marginVertical:8,},
-	socialSubject: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:16,color:'#1e1e1e'},
-	socialLiInfo3: {flexDirection:'row',alignItems:'center',},
-	socialLiInfo3Flex: {flexDirection:'row',alignItems:'center',},
-	socialLiInfoProfile: {alignItems:'center',justifyContent:'center',width:20,height:20,borderRadius:50,overflow:'hidden'},
-	socialLiInfo3Text: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:13,color:'#1e1e1e',marginLeft:4,},
-	socialLiInfo3Line: {width:1,height:12,backgroundColor:'#EDEDED',marginHorizontal:12},
+	commLi: {marginTop:5,},
+	commLiBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:20,paddingVertical:20,},
+	commLiProfile: {alignItems:'center',justifyContent:'center',width:38,height:38,borderRadius:50,overflow:'hidden'},
+	commLiInfo: {width:innerWidth-80,paddingHorizontal:10,},
+	commLiInfo2: {width:innerWidth-38,paddingRight:0,},
+	commLiInfoSubject: {flexDirection:'row',alignItems:'center',},
+	commLiInfoSubjectText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1e1e1e'},
+	commLiInfoAlert: {marginLeft:4,},
+	commLiSubInfo: {flexDirection:'row',alignItems:'center',marginTop:3},
+	commLiSubView: {flexDirection:'row',alignItems:'center',},
+	commLiSubView2: {marginLeft:4,},
+	commLiSubViewText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:14,color:'#B8B8B8'},
+	commLiSubLine: {width:1,height:6,backgroundColor:'#EDEDED',marginHorizontal:7,position:'relative',top:1,},
+	commLiThumb : {alignItems:'center',justifyContent:'center',width:42,height:42,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,overflow:'hidden'},
+	
 
 	filterTitle: {},
 	filterTitleText: {fontFamily:Font.NotoSansSemiBold,fontSize:16,lineHeight:18,color:'#1e1e1e'},

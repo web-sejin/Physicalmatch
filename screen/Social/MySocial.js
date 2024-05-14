@@ -84,6 +84,10 @@ const MySocial = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+	useEffect(() => {
+		getSocialList();
+	}, [tabSt, tabSt2])
+
   const getSocialList = async (v) => {
     //console.log(tabSt+'///'+tabSt2);
   }
@@ -181,34 +185,26 @@ const MySocial = (props) => {
         <TouchableOpacity
           style={[styles.viewTabBtn, tabSt == 1 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>{
-            setTabSt(1);
-            getSocialList();
-          }}
+          onPress={()=>setTabSt(1)}
         >
           <Text style={[styles.viewTabBtnText, tabSt == 1 ? styles.viewTabBtnTextOn : null]}>참여한 소셜</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.viewTabBtn, tabSt == 2 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>{
-            setTabSt(2);
-            getSocialList();
-          }}
+          onPress={()=>setTabSt(2)}
         >
           <Text style={[styles.viewTabBtnText, tabSt == 2 ? styles.viewTabBtnTextOn : null]}>내 소셜</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.viewTabBtn, tabSt == 3 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>{
-            setTabSt(3);
-            getSocialList();
-          }}
+          onPress={()=>setTabSt(3)}
         >
           <Text style={[styles.viewTabBtnText, tabSt == 3 ? styles.viewTabBtnTextOn : null]}>찜한 소셜</Text>
         </TouchableOpacity>
       </View>
+			
       {tabSt == 1 ? (
         <View style={styles.viewTab2}>
           <TouchableOpacity
@@ -329,9 +325,9 @@ const styles = StyleSheet.create({
   cmDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},
 
   viewTab: {flexDirection:'row',borderBottomWidth:1,borderBottomColor:'#F2F4F6',},
-  viewTabBtn: {alignItems:'center',justifyContent:'center',width:widnowWidth/3,height:60,paddingTop:10,borderBottomWidth:2,borderBottomColor:'#fff'},
+  viewTabBtn: {alignItems:'center',justifyContent:'center',width:widnowWidth/3,height:60,paddingTop:12,borderBottomWidth:2,borderBottomColor:'#fff'},
   viewTabBtnOn: {borderBottomColor:'#141E30'},
-  viewTabBtnText: {fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:18,color:'#141E30',},
+  viewTabBtnText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:18,color:'#141E30',},
   viewTabBtnTextOn: {fontFamily:Font.NotoSansSemiBold},
   viewTab2: {flexDirection:'row',alignItems:'center',justifyContent:'center',borderBottomWidth:1,borderBottomColor:'#F2F4F6'},
   viewTab2Btn: {padding:20,marginLeft:30,},

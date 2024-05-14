@@ -7,6 +7,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
+import Swiper from 'react-native-web-swiper';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 import Font from "../../assets/common/Font";
@@ -53,11 +54,13 @@ const Social = (props) => {
 
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, chatInfo, route} = props;
-	const {params} = route	
+	const {params} = route;	
 	const [routeLoad, setRouteLoad] = useState(false);
+	const swiperRef = useRef(null);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState(false);	
+	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [socialList, setSocaiList] = useState(socialData);
 	const [filterMonth, setFilterMonth] = useState([5,6]);
 	const [filterCal, setFilterCal] = useState([]);
@@ -113,6 +116,23 @@ const Social = (props) => {
 
     return unsubscribe;
   }, [navigationUse, preventBack]);
+
+	useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', (e) => {			
+			setKeyboardStatus(1);
+			setTimeout(function(){
+				setKeyboardStatus(2);
+			}, 300);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+			setKeyboardStatus(0);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
 	useEffect(() => {
 		const date = new Date();		
@@ -379,13 +399,43 @@ const Social = (props) => {
 					</TouchableOpacity>
 				</View>
 			</View>
-			<TouchableOpacity 
-				style={styles.socialBanner}
-				activeOpacity={opacityVal}
-				onPress={()=>{}}
-			>
-				<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
-			</TouchableOpacity>
+
+			<View style={styles.swiperView}>
+				<Swiper					
+					ref={swiperRef}	
+					autoplay={true}
+					showsPagination={false}
+					controlsProps={{
+						prevTitle: '',
+						nextTitle: '',
+						dotsTouchable: true,
+						DotComponent: ({ index, activeIndex, isActive, onPress }) => null              
+					}}
+					onIndexChanged={(e) => {
+						//console.log(e);
+						//setActiveDot(e);
+					}}
+				>
+					<TouchableOpacity 
+						style={styles.commuBanner}
+						activeOpacity={opacityVal}
+						onPress={()=>{}}
+					>
+						<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+					</TouchableOpacity>
+					<TouchableOpacity 
+						style={styles.commuBanner}
+						activeOpacity={opacityVal}
+						onPress={()=>{}}
+					>
+						<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+					</TouchableOpacity>
+				</Swiper>
+			</View>
+
+			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+				<View style={styles.flatListPad}></View>
+			</TouchableWithoutFeedback>
 			<View style={styles.socialSchBox}>
 				<View style={styles.socialSchBoxWrap}>
 					<TouchableOpacity
@@ -397,7 +447,7 @@ const Social = (props) => {
 					</TouchableOpacity>
 					<TextInput
 						value={socialSch}
-						onChangeText={(v) => setSocialSch(v)}
+						onChangeText={(v) => setSocialSch(v)}						
 						style={[styles.socialSchBoxWrapInput]}
 						returnKyeType='done'                      
 					/>
@@ -439,13 +489,15 @@ const Social = (props) => {
 			/>
 			<View style={styles.gapBox}></View>
 
+			{keyboardStatus == 0 || keyboardStatus == 1 ? (
 			<TouchableOpacity
-        style={[styles.wrtBtn, styles.wrtBtnBoxShadow]}
+        style={[styles.wrtBtn, styles.wrtBtnBoxShadow, keyboardStatus == 1 ? styles.wrtBtnHide : null]}
         activeOpacity={opacityVal}
         onPress={()=>{navigation.navigate('SocialType')}}
       >
         <AutoHeightImage width={60} source={require('../../assets/image/icon_write.png')} />
       </TouchableOpacity>
+			) : null}
 
 			{/* 필터 */}
 			<Modal
@@ -735,16 +787,19 @@ const styles = StyleSheet.create({
 	filterResetBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',paddingHorizontal:20,height:48,backgroundColor:'#fff',position:'absolute',top:0,right:0,zIndex:10,},
 	filterResetText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#1E1E1E',marginLeft:6,},
 
-	socialSchBox: {padding:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
+	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
 	socialSchBoxWrap: {flexDirection:'row',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
 	socialSchBoxWrapBtn: {alignItems:'center',justifyContent:'center',width:38,height:40,backgroundColor:'#F9FAFB',},
 	socialSchBoxWrapInput: {width:innerWidth-78,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},
 	socialSchFilterBtn: {justifyContent:'center',width:28,height:40,},
 	flatListPad: {height:20,},
 
+	swiperView: {height: widnowWidth/4.9,backgroundColor:'#fff'},
+
 	cmWrap: {paddingBottom:40,paddingHorizontal:20,},
 	cmWrap2: {paddingTop:30,},
 	wrtBtn: {position:'absolute',right:20,bottom:96,width:60,height:60,zIndex:100,backgroundColor:'#fff'},
+	wrtBtnHide: {opacity:0,},
 	wrtBtnBoxShadow: {
     borderRadius:50,
 		shadowColor: "#000",

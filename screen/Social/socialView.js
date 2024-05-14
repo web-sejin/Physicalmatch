@@ -1812,7 +1812,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 5,
-		elevation: 6,
+		elevation: 4,
 	},
 
   boxShadow3: {

@@ -242,7 +242,11 @@ const SocialWrite = (props) => {
       return false;
     }
 
+    Keyboard.dismiss;
     setLoading(true);
+    setTimeout(function(){
+      setLoading(false);
+    }, 1000)
   }
 
   const headerHeight = 48;
@@ -251,7 +255,7 @@ const SocialWrite = (props) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-      <Header navigation={navigation} />
+      <Header navigation={navigation} headertitle={'글쓰기'} />
       <KeyboardAvoidingView
         keyboardVerticalOffset={0}
         behavior={behavior}
@@ -739,7 +743,7 @@ const styles = StyleSheet.create({
   cmDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},
 
   iptTit: {},  
-  iptTitText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:16,color:'#1e1e1e'},
+  iptTitText: {fontFamily:Font.NotoSansSemiBold,fontSize:16,lineHeight:18,color:'#1e1e1e'},
 	iptSubTit: {},
 	iptSubTitText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:14,color:'#666'},
   loginIptBox: {marginTop:20,},
@@ -747,7 +751,7 @@ const styles = StyleSheet.create({
   infoChkBtn: {alignItems:'center',justifyContent:'center',width:45,height:30,backgroundColor:'#243B55',borderRadius:5,},
   infoChkBtnText: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:18,color:'#fff', },
   
-  infoLen: {},
+  infoLen: {position:'relative',top:-3,},
   infoLenText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#B8B8B8'},
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },

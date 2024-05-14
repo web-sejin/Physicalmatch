@@ -88,6 +88,8 @@ const MatchDetail = (props) => {
   const [socialPop, setSocialPop] = useState(false);
   const [socialPop2, setSocialPop2] = useState(false);
   const [socialState, setSocialState] = useState(0); //1::수락, 2:거절
+  const [numberTradePop, setNumberTradePop] = useState(false);
+  const [numberTradePop2, setNumberTradePop2] = useState(false);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -258,9 +260,13 @@ const MatchDetail = (props) => {
   const copyToClipboard = async (v) => {
     try {
       await Clipboard.setString(v);
-      //ToastMessage('클립보드에 연락처가 복사되었습니다.');
+      if(Platform.OS == 'ios'){
+        ToastMessage('클립보드에 복사되었습니다.');
+      }
     } catch(e) {
-      //ToastMessage('복사가 실패하였습니다.');
+      if(Platform.OS == 'ios'){
+        ToastMessage('복사가 실패하였습니다.');
+      }
     }
   };
 
@@ -563,6 +569,49 @@ const MatchDetail = (props) => {
           </View>
         </View>
         
+
+
+        {/* 커뮤니티 - 번호 교환 수락(한 쪽이 신청한 상황) */}
+        <View style={styles.detailInfo2}>
+          <View style={styles.detailInfo2TextBox}>
+            <Text style={styles.detailInfo2Text}>번호 교환을 수락 하시겠습니까?</Text>
+          </View>
+          <TouchableOpacity 
+            style={[styles.nextBtn, styles.mgt20]}
+            activeOpacity={opacityVal}
+            onPress={() => {
+              setNumberTradePop(true);
+            }}
+          >
+            <Text style={styles.nextBtnText}>수락</Text>
+          </TouchableOpacity> 
+        </View>
+
+        {/* 커뮤니티 - 번호 교환 수락(양쪽 모두 신청하지 않은 상황) */}
+        <View style={styles.detailInfo2}>
+          <View style={styles.detailInfo2TextBox}>
+            <Text style={styles.detailInfo2Text}>번호를 교환 하시겠습니까?</Text>
+          </View>
+          <View style={[styles.pointBox, styles.mgt20]}>
+            <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+            <Text style={styles.pointBoxText}>500</Text>
+          </View>
+          <TouchableOpacity 
+            style={[styles.nextBtn, styles.mgt20]}
+            activeOpacity={opacityVal}
+            onPress={() => {
+              //캐시 부족
+              //setCashType(1);
+              //setCashPop(true);
+
+              //교환 가능
+              setNumberTradePop2(true);
+            }}
+          >
+            <Text style={styles.nextBtnText}>번호 교환 신청하기</Text>
+          </TouchableOpacity> 
+        </View>
+
 
         
         <View style={styles.border}></View>
@@ -1837,6 +1886,103 @@ const MatchDetail = (props) => {
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
 								onPress={() => setSocialPop2(false)}
+							>
+								<Text style={styles.popBtnText}>네</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+      {/* 커뮤니티 관련 팝업 */}
+			<Modal
+				visible={numberTradePop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setNumberTradePop(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setNumberTradePop(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setNumberTradePop(false)}}
+						>
+							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+						</TouchableOpacity>		
+						<View>
+            <Text style={styles.popTitleText}>번호 교환을 수락하시겠어요?</Text>
+						</View>
+
+            <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.mgt50]}>
+						  <TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
+								activeOpacity={opacityVal}
+								onPress={() => {
+                  setNumberTradePop(false);
+                }}
+							>
+								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2]}
+								activeOpacity={opacityVal}
+								onPress={() => setNumberTradePop(false)}
+							>
+								<Text style={styles.popBtnText}>네</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+      {/* 커뮤니티 관련 팝업2 */}
+			<Modal
+				visible={numberTradePop2}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setNumberTradePop2(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setNumberTradePop2(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setNumberTradePop2(false)}}
+						>
+							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+						</TouchableOpacity>		
+						<View>
+            <Text style={styles.popTitleText}>번호를 교환 하시겠어요?</Text>
+						</View>
+            <View style={[styles.pointBox, styles.mgt20]}>
+              <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+              <Text style={styles.pointBoxText}>500</Text>
+            </View>
+            <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
+						  <TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
+								activeOpacity={opacityVal}
+								onPress={() => {
+                  setNumberTradePop2(false);
+                }}
+							>
+								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2]}
+								activeOpacity={opacityVal}
+								onPress={() => setNumberTradePop2(false)}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>

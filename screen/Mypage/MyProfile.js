@@ -12,67 +12,35 @@ import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-han
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 
 import Font from "../../assets/common/Font";
-import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import Header from '../../components/Header';
 
-const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
+const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
+const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
-const RegisterStep6 = ({navigation, route}) => {		
-	const nextObj = {
-		prvChk4:route['params']['prvChk4'],
-		accessRoute:route['params']['accessRoute'],
-		mb_id:route['params']['mb_id'],
-		mb_pw:route['params']['mb_pw'],
-		mb_nick:route['params']['mb_nick'],
-		mb_gender:route['params']['mb_gender'],
-		mb_local1:route['params']['mb_local1'],
-		mb_local2:route['params']['mb_local2'],
-		mb_class1:route['params']['mb_class1'],
-		mb_class2:route['params']['mb_class2'],
-		mb_job:route['params']['mb_job'],
-		mb_jobDetail:route['params']['mb_jobDetail'],
-		mb_height:route['params']['mb_height'],
-		mb_weight:route['params']['mb_weight'],
-		mb_muscle:route['params']['mb_muscle'],
-		mb_fat:route['params']['mb_fat'],
-		mb_no_weight:route['params']['mb_no_weight'],
-		mb_no_muscle:route['params']['mb_no_muscle'],
-		mb_no_fat:route['params']['mb_no_fat'],
-		mb_rest:route['params']['mb_rest'],
-		mb_exercise:route['params']['mb_exercise'],
-		mb_physicalType:route['params']['mb_physicalType'],
-		mb_drink:route['params']['mb_drink'],
-		mb_smoke:route['params']['mb_smoke'],
-		mb_smokeSort:route['params']['mb_smokeSort'],
-		mb_mbit1:route['params']['mb_mbit1'],
-		mb_mbit2:route['params']['mb_mbit2'],
-		mb_mbit3:route['params']['mb_mbit3'],
-		mb_mbit4:route['params']['mb_mbit4'],
-		mb_religion:route['params']['mb_religion'],
-	}
-
-	const [routeLoad, setRouteLoad] = useState(false);
-  const [pageSt, setPageSt] = useState(false);
+const MyProfile = (props) => {
 	const navigationUse = useNavigation();
-	const [keyboardStatus, setKeyboardStatus] = useState(false);
-	const [keyboardHeight, setKeyboardHeight] = useState(0);
-	const [currFocus, setCurrFocus] = useState('');
+	const {navigation, userInfo, chatInfo, route} = props;
+	const {params} = route
+	const [routeLoad, setRouteLoad] = useState(false);
+	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
-	const [loading, setLoading] = useState(false);
-	const [file1, setFile1] = useState({});
+	const [loading, setLoading] = useState(false);	
+	const [keyboardStatus, setKeyboardStatus] = useState(0);
+
+  const [file1, setFile1] = useState({});
 	const [file2, setFile2] = useState({});
 	const [file3, setFile3] = useState({});
 	const [file4, setFile4] = useState({});
 	const [file5, setFile5] = useState({});
 	const [file6, setFile6] = useState({});
+  const [file7, setFile7] = useState({});
 	const [guideModal, setGuideModal] = useState(false);
-
-	const [nextOpen, setNextOpen] = useState(false);	
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -85,43 +53,14 @@ const RegisterStep6 = ({navigation, route}) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
-
-			if(route['params']['file1']){
-				let selectObj = {idx: route['params']['file1']['idx'], path: route['params']['file1']['path'], mime: route['params']['file1']['mime']}
-				setFile1(selectObj);
-			}
-	
-			if(route['params']['file2']){
-				let selectObj = {idx: route['params']['file2']['idx'], path: route['params']['file2']['path'], mime: route['params']['file2']['mime']}
-				setFile2(selectObj);
-			}
-	
-			if(route['params']['file3']){
-				let selectObj = {idx: route['params']['file3']['idx'], path: route['params']['file3']['path'], mime: route['params']['file3']['mime']}
-				setFile3(selectObj);
-			}
-	
-			if(route['params']['file4']){
-				let selectObj = {idx: route['params']['file4']['idx'], path: route['params']['file4']['path'], mime: route['params']['file4']['mime']}
-				setFile4(selectObj);
-			}
-			
-			if(route['params']['file5']){
-				let selectObj = {idx: route['params']['file5']['idx'], path: route['params']['file5']['path'], mime: route['params']['file5']['mime']}
-				setFile5(selectObj);
-			}
-	
-			if(route['params']['file6']){
-				let selectObj = {idx: route['params']['file6']['idx'], path: route['params']['file6']['path'], mime: route['params']['file6']['mime']}
-				setFile6(selectObj);
-			}
 		}
-		Keyboard.dismiss();
+
+    Keyboard.dismiss();
 		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
 
-	useEffect(() => {
+  useEffect(() => {
     const unsubscribe = navigationUse.addListener('beforeRemove', (e) => {
       // 뒤로 가기 이벤트가 발생했을 때 실행할 로직을 작성합니다.
       // 여기에 원하는 동작을 추가하세요.
@@ -159,6 +98,8 @@ const RegisterStep6 = ({navigation, route}) => {
 				setFile5(selectObj);
 			}else if(v == 6){
 				setFile6(selectObj);
+			}else if(v == 7){
+				setFile7(selectObj);
 			}
 		})
 		.finally(() => {
@@ -166,44 +107,23 @@ const RegisterStep6 = ({navigation, route}) => {
 		});
   };
 
-	const nextStep = () => {
+	const submit = () => {
+    const nextObj = {};
+
 		if(!file1.path || !file2.path || !file3.path){
 			ToastMessage('대표 및 필수 영역의 사진을 등록해 주세요.');
 			return false;
 		}		
 		
-		if(file1.path){ nextObj.file1 = file1; }
+    if(file1.path){ nextObj.file1 = file1; }
 		if(file2.path){ nextObj.file2 = file2; }
     if(file3.path){ nextObj.file3 = file3; }
     if(file4.path){ nextObj.file4 = file4; }
     if(file5.path){ nextObj.file5 = file5; }
     if(file6.path){ nextObj.file6 = file6; }
-		if(route['params']['qnaList']){ nextObj.qnaList = route['params']['qnaList']; }
-		if(route['params']['intro']){ nextObj.intro = route['params']['intro']; }
-		if(route['params']['qnaListData']){ nextObj.qnaListData = route['params']['qnaListData']; }
-		if(route['params']['step8File1']){ nextObj.step8File1 = route['params']['step8File1']; }
-		if(route['params']['step8File2']){ nextObj.step8File2 = route['params']['step8File2']; }
-		if(route['params']['step8File3']){ nextObj.step8File3 = route['params']['step8File3']; }
-		if(route['params']['step8File4']){ nextObj.step8File4 = route['params']['step8File4']; }
-		if(route['params']['step8File5']){ nextObj.step8File5 = route['params']['step8File5']; }
-		if(route['params']['step8File6']){ nextObj.step8File6 = route['params']['step8File6']; }
-		if(route['params']['step8File7']){ nextObj.step8File7 = route['params']['step8File7']; }
-		if(route['params']['step8File8']){ nextObj.step8File8 = route['params']['step8File8']; }
-		if(route['params']['step8Grade1']){ nextObj.step8Grade1 = route['params']['step8Grade1']; }
-		if(route['params']['step8Grade2']){ nextObj.step8Grade2 = route['params']['step8Grade2']; }
-		if(route['params']['step8Grade3']){ nextObj.step8Grade3 = route['params']['step8Grade3']; }
-		if(route['params']['step8Grade4']){ nextObj.step8Grade4 = route['params']['step8Grade4']; }
-		if(route['params']['step8Grade5']){ nextObj.step8Grade5 = route['params']['step8Grade5']; }
-		if(route['params']['step8Grade6']){ nextObj.step8Grade6 = route['params']['step8Grade6']; }
-		if(route['params']['step8Grade7']){ nextObj.step8Grade7 = route['params']['step8Grade7']; }
-		if(route['params']['step8Grade8']){ nextObj.step8Grade8 = route['params']['step8Grade8']; }
-		if(route['params']['step8JobFile']){ nextObj.step8JobFile = route['params']['step8JobFile']; }
-		if(route['params']['step8SchoolFile']){ nextObj.step8SchoolFile = route['params']['step8SchoolFile']; }
-		if(route['params']['step8SchoolName']){ nextObj.step8SchoolName = route['params']['step8SchoolName']; }
-		if(route['params']['step8SchoolMajor']){ nextObj.step8SchoolMajor = route['params']['step8SchoolMajor']; }
-		if(route['params']['step8MarryFile']){ nextObj.step8MarryFile = route['params']['step8MarryFile']; }
-		if(route['params']['step8MarryState']){ nextObj.step8MarryState = route['params']['step8MarryState']; }
-		navigation.navigate('RegisterStep7', nextObj);
+    if(file7.path){ nextObj.file7 = file7; }
+		
+		console.log(nextObj);
 	}
 
 	const headerHeight = 48;
@@ -212,52 +132,16 @@ const RegisterStep6 = ({navigation, route}) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			<Header navigation={navigation} headertitle={'프로필 등록'} />
+			<Header navigation={navigation} headertitle={'프로필 사진'} />
 
-			<View style={styles.regiStateBarBox}>
-				<View style={styles.regiStateBar}>
-					<TouchableOpacity 
-            style={[styles.regiStateCircel, styles.regiStateCircelOn]}
-            onPress={()=>{
-							nextObj.file1 = file1;
-							nextObj.file2 = file2;
-							nextObj.file3 = file3;
-							nextObj.file4 = file4;
-							nextObj.file5 = file5;
-							nextObj.file6 = file6;
-							if(route['params']['qnaList']){
-								nextObj.qnaList = route['params']['qnaList'];
-							}
-							if(route['params']['intro']){
-								nextObj.intro = route['params']['intro'];
-							}
-							if(route['params']['qnaListData']){
-								nextObj.qnaListData = route['params']['qnaListData'];
-							}
+      <View style={styles.reject}>
+       <View style={styles.rejectBox}>
+          <Text style={styles.rejectText}>반려 사유 메세지</Text>
+        </View>
+      </View>
 
-							navigation.navigate('RegisterStep5', nextObj);
-            }}
-          >
-						<View style={styles.regiStateCircel2}></View>
-						<Text style={[styles.regiStateText, styles.regiStateTexOn]}>기본 정보</Text>
-					</TouchableOpacity>
-          <View style={[styles.regiStateCircel, styles.regiStateCircelOn]}>
-						<View style={styles.regiStateCircel2}></View>
-						<Text style={[styles.regiStateText, styles.regiStateTexOn]}>프로필 등록</Text>
-					</View>
-          <View style={[styles.regiStateCircel]}>
-						<View style={styles.regiStateCircel2}></View>
-						<Text style={[styles.regiStateText]}>소개글</Text>
-					</View>
-          <View style={[styles.regiStateCircel]}>
-						<View style={styles.regiStateCircel2}></View>
-						<Text style={[styles.regiStateText]}>인증</Text>
-					</View>
-				</View>
-			</View>
-
-			<ScrollView>		
-				<View style={styles.cmWrap}>
+			<ScrollView>
+        <View style={styles.cmWrap}>
 					<View style={styles.regiTypingView}>
 						<View style={styles.cmTitleBox}>
 							<Text style={styles.cmTitleText}>사진을 등록해 주세요!</Text>
@@ -377,15 +261,51 @@ const RegisterStep6 = ({navigation, route}) => {
 						/>
 					</TouchableOpacity>
 
-					<View style={styles.alertBox}>
-						<AutoHeightImage 
-							width={19}
-							source={require("../../assets/image/icon_alert.png")}
-						/>
-						<Text style={styles.alertTxt}>주의해주세요</Text>
-						<Text style={styles.alertTxt2}>타인의 사진을 무단 도용 시,</Text>
-						<Text style={styles.alertTxt2}>관련 법에 따라 처벌을 받을 수 있습니다.</Text>
-					</View>
+          <View style={styles.mgt50}>
+            <View style={styles.miniTitle}>
+              <Text style={styles.miniTitleText1}>미니 프로필 등록</Text>
+              <Text style={styles.miniTitleText2}>[선택]</Text>
+            </View>
+            <View style={styles.miniDesc}>
+              <Text style={styles.miniDescText}>얼굴이 잘 보이는 사진으로 등록해 주세요</Text>
+            </View>
+            <View style={styles.reqUl}>                  
+              <View style={[styles.reqLi, styles.boxShadow2]}>
+                <TouchableOpacity
+                  style={styles.reqUser}
+                  activeOpacity={opacityVal}
+                  onPress={()=>chooseImage(7)}
+                >
+                  {file7.path ? (
+                    <AutoHeightImage width={46} source={{ uri: file7.path }} />                    
+                  ) : (
+                    <AutoHeightImage width={46} source={require("../../assets/image/img_back2.png")} />
+                  )}		                  
+                </TouchableOpacity>
+                <View style={styles.reqUserInfo}>
+                  <View style={styles.tradeState}>
+                    <View style={styles.tradeStateView}>
+                      <Text style={styles.tradeStateText}>프로필 교환이 도착했어요</Text>
+                    </View>
+                    <AutoHeightImage width={12} source={require('../../assets/image/icon_profile_msg.png')} />
+                  </View>
+                  <View style={styles.reqUserNick}>
+                    <Text style={styles.reqUserNickText}>자동생성닉네임</Text>                          
+                  </View>
+                  <View style={styles.reqUserDetail}>
+                    <Text style={styles.reqUserDetailText}>수락까지 잠시 기다려주세요!</Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  style={styles.reqOkBtn}
+                  activeOpacity={opacityVal}
+                  onPress={() => setFile7({})}
+                >
+                  <AutoHeightImage width={25} source={require('../../assets/image/icon_trash.png')} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
 				</View>
 			</ScrollView>
 
@@ -393,13 +313,13 @@ const RegisterStep6 = ({navigation, route}) => {
         <TouchableOpacity 
 					style={[styles.nextBtn, file1.path && file2.path && file3.path ? null : styles.nextBtnOff]}
 					activeOpacity={opacityVal}
-					onPress={() => nextStep()}
+					onPress={() => submit()}
 				>
-					<Text style={styles.nextBtnText}>저장하기</Text>
+					<Text style={styles.nextBtnText}>심사등록</Text>
 				</TouchableOpacity>
 			</View>
 
-			<Modal
+      <Modal
 				visible={guideModal}
 				animationType={"none"}
 				onRequestClose={() => {setGuideModal(false)}}
@@ -427,17 +347,20 @@ const RegisterStep6 = ({navigation, route}) => {
         <ActivityIndicator size="large" color="#D1913C" />
       </View>
       ) : null}
-
 		</SafeAreaView>
 	)
 }
 
 const styles = StyleSheet.create({
-	safeAreaView: {flex:1,backgroundColor:'#fff'},
-	gapBox: {height:80,backgroundColor:'#fff'},
+	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
+	gapBox: {height:80,},
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
-	cmWrap: {paddingVertical:30,paddingHorizontal:20},
+  reject: {paddingHorizontal:20,paddingBottom:10,},
+  rejectBox: {padding:15,backgroundColor:'rgba(255,120,122,0.1)',borderRadius:5,},
+  rejectText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#DE282A'},
+
+  cmWrap: {paddingTop:30,paddingBottom:50,paddingHorizontal:20},
 	cmTitleBox: {position:'relative'},
 	cmTitleText: { fontFamily: Font.NotoSansSemiBold, fontSize: 22, lineHeight: 25, color: '#1e1e1e', position: 'relative', zIndex: 10, paddingLeft:1, },
 	cmTitleLine: { width: 61, height: 14, backgroundColor: '#ffd194', position: 'absolute',left:0,bottom:-1,zIndex:9,opacity:0.3},
@@ -451,6 +374,27 @@ const styles = StyleSheet.create({
 	regiStateCircel2: {width:6,height:6,backgroundColor:'#fff',borderRadius:50,position:'absolute',left:6,top:6,},
 	regiStateText: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:13,color:'#dbdbdb',width:60,position:'absolute',left:-20,bottom:-28,textAlign:'center',},
 	regiStateTexOn: {color:'#243B55'},
+
+  miniTitle: {flexDirection:'row',},
+  miniTitleText1: {fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:19,color:'#1e1e1e'},
+  miniTitleText2: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:17,color:'#B8B8B8',marginLeft:2,},
+  miniDesc: {marginTop:8,},
+  miniDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:17,color:'#1e1e1e'},
+  reqUl: {marginTop:20,},
+  reqLi: {flexDirection:'row',alignItems:'center',paddingHorizontal:15,paddingVertical:13,paddingRight:75,backgroundColor:'#fff',borderRadius:5,},
+  reqUser: {alignItems:'center',justifyContent:'center',width:46,height:46,borderRadius:50,overflow:'hidden',borderWidth:1,borderColor:'#ededed'},
+  reqUserInfo: {width:innerWidth-137,paddingLeft:15,},
+  reqUserInfo2: {width:innerWidth-91},
+  tradeState: {flexDirection:'row',alignItems:'center',marginBottom:5,},
+  tradeStateView: {position:'relative',top:0.5},
+  tradeStateText: {fontFamily:Font.NotoSansSemiBold,fontSize:12,lineHeight:17,color:'#1e1e1e'},
+  reqUserNick: {},
+  reqUserNickText: {fontFamily:Font.NotoSansSemiBold,fontSize:14,lineHeight:17,color:'#D1913C'},
+  reqUserDetail: {flexDirection:'row',alignItems:'center',marginTop:4,},
+  reqUserDetailText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:17,color:'#666',},
+  reqDtLine: {width:1,height:8,backgroundColor:'#EDEDED',marginHorizontal:6,position:'relative',top:-0.5},
+  reqOkBtn: {alignItems:'center',justifyContent:'center',width:35,height:35,position:'absolute',right:5,},
+  reqOkBtnText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:17,color:'#243B55'},
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
@@ -479,10 +423,6 @@ const styles = StyleSheet.create({
 	guideBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',width:140,height:37,backgroundColor:'#fff',borderWidth:1,borderColor:'#EDEDED',borderRadius:50,marginTop:20,},
 	guideBtnText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:15,color:'#1e1e1e',marginRight:8,position:'relative',top:1,},
 
-	alertBox: {alignItems:'center',marginTop:50,},
-	alertTxt: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:13,lineHeight:18,color:'#D1913C',marginTop:5,marginBottom:10,},
-	alertTxt2: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:18,color:'#666',},
-
 	header: {height:48,backgroundColor:'#fff',position:'relative',display:'flex',justifyContent:'center',paddingHorizontal:40},
 	headerBackBtn2: {width:56,height:48,position:'absolute',left:0,top:0,zIndex:10,display:'flex',alignItems:'center',justifyContent:'center',},
 	headerTitle: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:48,color:'#000'},
@@ -495,12 +435,47 @@ const styles = StyleSheet.create({
 	gray: {color:'#B8B8B8'},
 	gray2: {color:'#DBDBDB'},
 
-	mgt0: { marginTop: 0, },
-	mgt8: { marginTop: 8, },
-  mgt10: { marginTop: 10, },
-	mgt20: { marginTop: 20, },
-	mgt30: { marginTop: 30, },
-	pdb0: {paddingBottom:0},
+  boxShadow2: {
+    borderRadius:5,
+		shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+		elevation: 4,
+	},
+
+	lineView: {height:6,backgroundColor:'#F2F4F6'},
+	pdt0: {paddingTop:0},
+  pdt10: {paddingTop:10},
+  pdt15: {paddingTop:15},
+  pdt20: {paddingTop:20},
+  pdt30: {paddingTop:30},
+  pdt40: {paddingTop:40},
+  pdb0: {paddingBottom:0},
+  pdb10: {paddingBottom:10},
+  pdb20: {paddingBottom:20},
+  pdb30: {paddingBottom:30},
+  pdb40: {paddingBottom:40},
+	mgt0: {marginTop:0},
+	mgt5: {marginTop:5},
+	mgt10: {marginTop:10},
+  mgt15: {marginTop:15},
+	mgt20: {marginTop:20},
+	mgt30: {marginTop:30},
+	mgt40: {marginTop:40},
+	mgt50: {marginTop:50},
+	mgb10: {marginBottom:10},
+	mgb20: {marginBottom:20},
+	mgr0: {marginRight:0},
+  mgr10: {marginRight:10},
+  mgr15: {marginRight:15},
+	mgl0: {marginLeft:0},
+  mgl4: {marginLeft:4},
+  mgl10: {marginLeft:10},
+  mgl15: {marginLeft:15},
 })
 
-export default RegisterStep6
+export default MyProfile

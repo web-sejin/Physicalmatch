@@ -20,7 +20,7 @@ const Header = (props) => {
 	return (
 		<View style={styles.header}>
 			<>			
-			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.headerTitle}>{headertitle}</Text>
+			<Text numberOfLines={1} ellipsizeMode='tail' style={[styles.headerTitle, headertitle == 'MY PAGE' ? styles.robotoMd : null]}>{headertitle}</Text>
 			{backType == 'close' ? (
 			<TouchableOpacity
 				style={styles.headerBackBtn2}
@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
 	headerBackBtn2: {width:56,height:48,position:'absolute',right:0,top:0,zIndex:10,display:'flex',alignItems:'center',justifyContent:'center',},
 	headerTitle: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:48,color:'#000'},
 	headerDot: {width:43,height:48,position:'absolute',top:0,right:0,display:'flex',alignItems:'center',justifyContent:'center'},
+	robotoMd: {fontFamily:Font.RobotoMedium},
 });
 
 export default Header;

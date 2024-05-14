@@ -22,7 +22,7 @@ const widnowHeight = Dimensions.get('window').height;
 const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 
-const RegisterStep7 = ({navigation, route}) => {	
+const MyIntro = (props) => {
 	const qnaData = [
 		{key:1, subject:'', content:'', listIdx:''},
 		{key:2, subject:'', content:'', listIdx:''},
@@ -54,45 +54,8 @@ const RegisterStep7 = ({navigation, route}) => {
 		{idx:13, subject:'질문13 제목', best:false, chk:false},
 	]
 
-	const nextObj = {
-		prvChk4:route['params']['prvChk4'],
-		accessRoute:route['params']['accessRoute'],
-		mb_id:route['params']['mb_id'],
-		mb_pw:route['params']['mb_pw'],
-		mb_nick:route['params']['mb_nick'],
-		mb_gender:route['params']['mb_gender'],
-		mb_local1:route['params']['mb_local1'],
-		mb_local2:route['params']['mb_local2'],
-		mb_class1:route['params']['mb_class1'],
-		mb_class2:route['params']['mb_class2'],
-		mb_job:route['params']['mb_job'],
-		mb_jobDetail:route['params']['mb_jobDetail'],
-		mb_height:route['params']['mb_height'],
-		mb_weight:route['params']['mb_weight'],
-		mb_muscle:route['params']['mb_muscle'],
-		mb_fat:route['params']['mb_fat'],
-		mb_no_weight:route['params']['mb_no_weight'],
-		mb_no_muscle:route['params']['mb_no_muscle'],
-		mb_no_fat:route['params']['mb_no_fat'],
-		mb_rest:route['params']['mb_rest'],
-		mb_exercise:route['params']['mb_exercise'],
-		mb_physicalType:route['params']['mb_physicalType'],
-		mb_drink:route['params']['mb_drink'],
-		mb_smoke:route['params']['mb_smoke'],
-		mb_smokeSort:route['params']['mb_smokeSort'],
-		mb_mbit1:route['params']['mb_mbit1'],
-		mb_mbit2:route['params']['mb_mbit2'],
-		mb_mbit3:route['params']['mb_mbit3'],
-		mb_mbit4:route['params']['mb_mbit4'],
-		mb_religion:route['params']['mb_religion'],
-		file1:route['params']['file1'],
-		file2:route['params']['file2'],
-		file3:route['params']['file3'],
-		file4:route['params']['file4'],
-		file5:route['params']['file5'],
-		file6:route['params']['file6'],
-	}
-
+	const {navigation, userInfo, chatInfo, route} = props;
+  const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
 	const navigationUse = useNavigation();
@@ -134,16 +97,6 @@ const RegisterStep7 = ({navigation, route}) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
-
-			if(route['params']['qnaList']){
-				setQnaList(route['params']['qnaList']);
-			}
-			if(route['params']['intro']){
-				setIntro(route['params']['intro']);
-			}
-			if(route['params']['qnaListData']){
-				setapiQnaListData(route['params']['qnaListData']);
-			}
 		}
 		Keyboard.dismiss();
 		Toast.hide();
@@ -264,6 +217,8 @@ const RegisterStep7 = ({navigation, route}) => {
 	}
 
 	const nextStep = () => {		
+		const nextObj = {};
+
 		if(intro.length < 50){
 			ToastMessage('자기소개를 50자 이상 작성해 주세요.');
 			return false;
@@ -277,29 +232,7 @@ const RegisterStep7 = ({navigation, route}) => {
 		nextObj.qnaList = qnaList;
 		nextObj.intro = intro;
 		nextObj.qnaListData = apiQnaListData;
-		if(route['params']['step8File1']){ nextObj.step8File1 = route['params']['step8File1']; }
-		if(route['params']['step8File2']){ nextObj.step8File2 = route['params']['step8File2']; }
-		if(route['params']['step8File3']){ nextObj.step8File3 = route['params']['step8File3']; }
-		if(route['params']['step8File4']){ nextObj.step8File4 = route['params']['step8File4']; }
-		if(route['params']['step8File5']){ nextObj.step8File5 = route['params']['step8File5']; }
-		if(route['params']['step8File6']){ nextObj.step8File6 = route['params']['step8File6']; }
-		if(route['params']['step8File7']){ nextObj.step8File7 = route['params']['step8File7']; }
-		if(route['params']['step8File8']){ nextObj.step8File8 = route['params']['step8File8']; }
-		if(route['params']['step8Grade1']){ nextObj.step8Grade1 = route['params']['step8Grade1']; }
-		if(route['params']['step8Grade2']){ nextObj.step8Grade2 = route['params']['step8Grade2']; }
-		if(route['params']['step8Grade3']){ nextObj.step8Grade3 = route['params']['step8Grade3']; }
-		if(route['params']['step8Grade4']){ nextObj.step8Grade4 = route['params']['step8Grade4']; }
-		if(route['params']['step8Grade5']){ nextObj.step8Grade5 = route['params']['step8Grade5']; }
-		if(route['params']['step8Grade6']){ nextObj.step8Grade6 = route['params']['step8Grade6']; }
-		if(route['params']['step8Grade7']){ nextObj.step8Grade7 = route['params']['step8Grade7']; }
-		if(route['params']['step8Grade8']){ nextObj.step8Grade8 = route['params']['step8Grade8']; }
-		if(route['params']['step8JobFile']){ nextObj.step8JobFile = route['params']['step8JobFile']; }
-		if(route['params']['step8SchoolFile']){ nextObj.step8SchoolFile = route['params']['step8SchoolFile']; }
-		if(route['params']['step8SchoolName']){ nextObj.step8SchoolName = route['params']['step8SchoolName']; }
-		if(route['params']['step8SchoolMajor']){ nextObj.step8SchoolMajor = route['params']['step8SchoolMajor']; }
-		if(route['params']['step8MarryFile']){ nextObj.step8MarryFile = route['params']['step8MarryFile']; }
-		if(route['params']['step8MarryState']){ nextObj.step8MarryState = route['params']['step8MarryState']; }
-		navigation.navigate('RegisterStep8', nextObj);
+		console.log(nextObj);
 	}
 
 	const headerHeight = 48;
@@ -308,46 +241,10 @@ const RegisterStep7 = ({navigation, route}) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			<Header navigation={navigation} headertitle={'소개글'} />
+			<Header navigation={navigation} headertitle={'내 소개'} />
+
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-			<>
-				<View style={styles.regiStateBarBox}>
-					<View style={styles.regiStateBar}>
-						<TouchableOpacity 
-							style={[styles.regiStateCircel, styles.regiStateCircelOn]}
-							onPress={()=>{
-								nextObj.qnaList = qnaList;
-								nextObj.intro = intro;
-								nextObj.qnaListData = apiQnaListData;
-								navigation.navigate('RegisterStep5', nextObj)
-							}}
-						>
-							<View style={styles.regiStateCircel2}></View>
-							<Text style={[styles.regiStateText, styles.regiStateTexOn]}>기본 정보</Text>
-						</TouchableOpacity>
-						<TouchableOpacity 
-							style={[styles.regiStateCircel, styles.regiStateCircelOn]}
-							onPress={()=>{
-								nextObj.qnaList = qnaList;
-								nextObj.intro = intro;
-								nextObj.qnaListData = apiQnaListData;
-								navigation.navigate('RegisterStep6', nextObj)
-							}}
-						>
-							<View style={styles.regiStateCircel2}></View>
-							<Text style={[styles.regiStateText, styles.regiStateTexOn]}>프로필 등록</Text>
-						</TouchableOpacity>
-						<View style={[styles.regiStateCircel, styles.regiStateCircelOn]}>
-							<View style={styles.regiStateCircel2}></View>
-							<Text style={[styles.regiStateText, styles.regiStateTexOn]}>소개글</Text>
-						</View>
-						<View style={[styles.regiStateCircel]}>
-							<View style={styles.regiStateCircel2}></View>
-							<Text style={[styles.regiStateText]}>인증</Text>
-						</View>
-					</View>
-				</View>
-				
+			<>				
 				<KeyboardAvoidingView
 					keyboardVerticalOffset={0}
 					behavior={behavior}
@@ -683,73 +580,71 @@ const RegisterStep7 = ({navigation, route}) => {
 
 			{writeModal ? (
 			<View style={[styles.cmPop]}>
-				<View style={styles.prvPop}>
+				<View style={styles.prvPop}>								
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-						<>
-						<View style={styles.header}>
-							<TouchableOpacity
-								style={styles.headerBackBtn2}
-								activeOpacity={opacityVal}
-								onPress={WritePopOff}
-							>
-								<AutoHeightImage width={16} source={require("../../assets/image/icon_close2.png")} />
-							</TouchableOpacity>
+					<View style={styles.header}>
+						<TouchableOpacity
+							style={styles.headerBackBtn2}
+							activeOpacity={opacityVal}
+							onPress={WritePopOff}
+						>
+							<AutoHeightImage width={16} source={require("../../assets/image/icon_close2.png")} />
+						</TouchableOpacity>
 
-							<TouchableOpacity
-								style={[styles.headerSubmitBtn]}
-								activeOpacity={opacityVal}
-								onPress={() => {qnaSuccess()}}
-							>
-								<Text style={[styles.headerSubmitBtnText, ingContent.length >=5 ? styles.headerSubmitBtnTextOn : null]}>완료</Text>
-							</TouchableOpacity>
-						</View>
-						<KeyboardAwareScrollView
-							keyboardShouldPersistTaps="always"
-						>				
-							<View style={[styles.cmWrap, styles.cmWrap3]}>
-								<View style={styles.ingBox}>
-									<TextInput
-										value={ingSubject}
-										placeholder={'질문 제목을 입력해 주세요.'}
-										placeholderTextColor="#DBDBDB"
-										style={[styles.input2]}
-										returnKyeType='done'
-										readOnly={true}
-									/>
-									<TouchableOpacity
-										style={styles.inputChg}
-										activeOpacity={opacityVal}
-										onPress={WritePopOff}
-									>
-										<AutoHeightImage width={12} source={require("../../assets/image/icon_pen.png")} />
-										<Text style={styles.inputChgText}>변경</Text>
-									</TouchableOpacity>
-								</View>
-								<TextInput
-									value={ingContent}
-									onChangeText={(v) => {				
-										if(v.length > 300){
-											let val = v.substr(0, 300);
-											setIngContent(val);
-										}else{
-											setIngContent(v);
-										}        
-									}}
-									style={[styles.textarea, styles.textarea2]}
-									placeholder="답변을 입력해 주세요."
-									placeholderTextColor="#DBDBDB"
-									multiline={true}
-									returnKyeType='done'
-									maxLength={300}
-								/>
-								<View style={styles.help_box}>
-									<Text style={styles.alertText}>최소 5자 이상 입력해 주세요.</Text>
-									<Text style={styles.txtCntText}>{ingContent.length}/300</Text>
-								</View>
-							</View>
-						</KeyboardAwareScrollView>
-						</>
+						<TouchableOpacity
+							style={[styles.headerSubmitBtn]}
+							activeOpacity={opacityVal}
+							onPress={() => {qnaSuccess()}}
+						>
+							<Text style={[styles.headerSubmitBtnText, ingContent.length >=5 ? styles.headerSubmitBtnTextOn : null]}>완료</Text>
+						</TouchableOpacity>
+					</View>
 					</TouchableWithoutFeedback>
+					<KeyboardAwareScrollView
+						keyboardShouldPersistTaps="always"
+					>				
+						<View style={[styles.cmWrap, styles.cmWrap3]}>
+							<View style={styles.ingBox}>
+								<TextInput
+									value={ingSubject}
+									placeholder={'질문 제목을 입력해 주세요.'}
+									placeholderTextColor="#DBDBDB"
+									style={[styles.input2]}
+									returnKyeType='done'
+									readOnly={true}
+								/>
+								<TouchableOpacity
+									style={styles.inputChg}
+									activeOpacity={opacityVal}
+									onPress={WritePopOff}
+								>
+									<AutoHeightImage width={12} source={require("../../assets/image/icon_pen.png")} />
+									<Text style={styles.inputChgText}>변경</Text>
+								</TouchableOpacity>
+							</View>
+							<TextInput
+								value={ingContent}
+								onChangeText={(v) => {				
+									if(v.length > 300){
+										let val = v.substr(0, 300);
+										setIngContent(val);
+									}else{
+										setIngContent(v);
+									}        
+								}}
+								style={[styles.textarea, styles.textarea2]}
+								placeholder="답변을 입력해 주세요."
+								placeholderTextColor="#DBDBDB"
+								multiline={true}
+								returnKyeType='done'
+								maxLength={300}
+							/>
+							<View style={styles.help_box}>
+								<Text style={styles.alertText}>최소 5자 이상 입력해 주세요.</Text>
+								<Text style={styles.txtCntText}>{ingContent.length}/300</Text>
+							</View>
+						</View>
+					</KeyboardAwareScrollView>											
 				</View>
 			</View>
 			) : null}
@@ -759,14 +654,13 @@ const RegisterStep7 = ({navigation, route}) => {
         <ActivityIndicator size="large" color="#D1913C" />
       </View>
       ) : null}
-
 		</SafeAreaView>
 	)
 }
 
 const styles = StyleSheet.create({
-	safeAreaView: {flex:1,backgroundColor:'#fff'},
-	gapBox: {height:80,backgroundColor:'#fff'},
+	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
+	gapBox: {height:86,},
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
 	cmWrap: {paddingVertical:30,paddingHorizontal:20},
@@ -776,15 +670,7 @@ const styles = StyleSheet.create({
 	cmTitleText: { fontFamily: Font.NotoSansSemiBold, fontSize: 22, lineHeight: 25, color: '#1e1e1e', position: 'relative', zIndex: 10, paddingLeft:1, },
 	cmTitleLine: { width: 61, height: 14, backgroundColor: '#ffd194', position: 'absolute',left:0,bottom:-1,zIndex:9,opacity:0.3},
   cmDescBox: {marginTop:8,},
-  cmDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},
-  
-	regiStateBarBox: {paddingTop:30,paddingBottom:56,paddingHorizontal:55,overflow:'hidden'},
-  regiStateBar: {height:18,backgroundColor:'#eee',borderRadius:20,flexDirection:'row',justifyContent:'space-between'},
-	regiStateCircel: {width:18,height:18,backgroundColor:'#eee',borderRadius:50,position:'relative'},
-	regiStateCircelOn: {backgroundColor:'#243B55',},
-	regiStateCircel2: {width:6,height:6,backgroundColor:'#fff',borderRadius:50,position:'absolute',left:6,top:6,},
-	regiStateText: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:13,color:'#dbdbdb',width:60,position:'absolute',left:-20,bottom:-28,textAlign:'center',},
-	regiStateTexOn: {color:'#243B55'},
+  cmDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},	
 
 	input: {},
 	textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,},
@@ -866,9 +752,9 @@ const styles = StyleSheet.create({
 		elevation: 8,
 	},
 
-	ingBox: {flexDirection:'row',borderBottomWidth:1,borderColor:'#DBDBDB',marginBottom:10,},
-	input2: {width:innerWidth-40,height:40,backgroundColor:'#fff',fontFamily:Font.NotoSansMedium,fontSize:16,},
-	inputChg: {flexDirection:'row',alignItems:'center',width:40,height:37,},
+	ingBox: {flexDirection:'row',alignItems:'center',borderBottomWidth:1,borderColor:'#DBDBDB',marginBottom:10,},
+	input2: {width:innerWidth-40,paddingVertical:4,backgroundColor:'#fff',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:20},
+	inputChg: {flexDirection:'row',alignItems:'center',width:40,height:37,backgroundColor:'#fff'},
 	inputChgText: {fontFamily:Font.NotoSansRegular,fontSize:13,color:'#b8b8b8',marginLeft:3,},
 	textarea2: {height:180,borderWidth:0,borderRadius:0,paddingHorizontal:0},
 
@@ -896,4 +782,4 @@ const styles = StyleSheet.create({
 	pdb0: {paddingBottom:0},
 })
 
-export default RegisterStep7
+export default MyIntro
