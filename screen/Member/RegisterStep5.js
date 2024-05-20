@@ -724,7 +724,7 @@ const RegisterStep5 = ({navigation, route}) => {
 		if(realNick == ''){ ToastMessage('닉네임을 입력해 주세요.'); return false; }
 		if(realGender == ''){ ToastMessage('성별을 선택해 주세요.'); return false; }
 		if(realLocal1 == ''){ ToastMessage('주 활동 지역을 입력해 주세요.'); return false; }
-		if(realClass == '' || realClass2 == ''){ ToastMessage('최종 학력을 선택해 주세요.'); return false; }
+		if(realClass == '' || realClass2 == ''){ ToastMessage('최종학력을 선택해 주세요.'); return false; }
 		if(realJob == ''){ ToastMessage('직업을 압력 또는 선택해 주세요.'); return false; }
 		if(realHeight == ''){ ToastMessage('피지컬(키)을 선택해 주세요.'); return false; }
 		if(!realRest && realExeList.length < 1){ ToastMessage('운동을 선택해 주세요.'); return false; }

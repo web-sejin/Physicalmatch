@@ -175,7 +175,7 @@ const MatchDetail = (props) => {
 
   const reviewConfirm = async () => {
     setReviewState(false);
-    setReviewScore(0);
+    //setReviewScore(0);
     setReviewPop(false);    
   }
 
@@ -923,9 +923,7 @@ const MatchDetail = (props) => {
             </ScrollView>
           </View>
         </View>
-        
-        {reviewState ? (
-        <>
+ 
         <View style={styles.border}></View>
 
         <View style={[styles.detailInfoCm, styles.detailInfoCm3]}>
@@ -935,8 +933,8 @@ const MatchDetail = (props) => {
           <View style={styles.starArea}>
             <TouchableOpacity
               style={styles.starBtn}
-              activeOpacity={opacityVal}
-              onPress={() => {fnReview(1)}}
+              activeOpacity={reviewState ? opacityVal : 1}
+              onPress={() => reviewState ? fnReview(1) : null}
             >
               {reviewScore > 0 ? (
                 <AutoHeightImage width={50} source={require('../../assets/image/star_on.png')} />
@@ -946,8 +944,8 @@ const MatchDetail = (props) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.starBtn}
-              activeOpacity={opacityVal}
-              onPress={() => {fnReview(2)}}
+              activeOpacity={reviewState ? opacityVal : 1}
+              onPress={() => reviewState ? fnReview(2) : null}
             >
               {reviewScore > 1 ? (
                 <AutoHeightImage width={50} source={require('../../assets/image/star_on.png')} />
@@ -957,8 +955,8 @@ const MatchDetail = (props) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.starBtn}
-              activeOpacity={opacityVal}
-              onPress={() => {fnReview(3)}}
+              activeOpacity={reviewState ? opacityVal : 1}
+              onPress={() => reviewState ? fnReview(3) : null}
             >
               {reviewScore > 2 ? (
                 <AutoHeightImage width={50} source={require('../../assets/image/star_on.png')} />
@@ -968,8 +966,8 @@ const MatchDetail = (props) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.starBtn}
-              activeOpacity={opacityVal}
-              onPress={() => {fnReview(4)}}
+              activeOpacity={reviewState ? opacityVal : 1}
+              onPress={() => reviewState ? fnReview(4) : null}
             >
               {reviewScore > 3 ? (
                 <AutoHeightImage width={50} source={require('../../assets/image/star_on.png')} />
@@ -979,8 +977,8 @@ const MatchDetail = (props) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.starBtn, styles.mgr0]}
-              activeOpacity={opacityVal}
-              onPress={() => {fnReview(5)}}
+              activeOpacity={reviewState ? opacityVal : 1}
+              onPress={() => reviewState ? fnReview(5) : null}
             >
               {reviewScore > 4 ? (
                 <AutoHeightImage width={50} source={require('../../assets/image/star_on.png')} />
@@ -994,8 +992,6 @@ const MatchDetail = (props) => {
             <AutoHeightImage width={13} source={require('../../assets/image/emiticon3.png')} />
           </View>
         </View>
-        </>
-        ) : null}
       </ScrollView>
 
       <TouchableOpacity
@@ -2192,6 +2188,7 @@ const styles = StyleSheet.create({
   grediant: {padding:1,borderRadius:5,},
   border: {height:6,backgroundColor:'#F2F4F6'},
   boxShadow: {
+    backgroundColor:'#fff',
     borderRadius:5,
 		shadowColor: "#000",
     shadowOffset: {
@@ -2204,6 +2201,7 @@ const styles = StyleSheet.create({
 	},
   boxShadow2: {borderRadius:35,},
   boxShadow3: {    
+    backgroundColor:'#fff',
     borderRadius:5,
 		shadowColor: "#000",
     shadowOffset: {

@@ -61,7 +61,7 @@ const Social = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
-	const [socialList, setSocaiList] = useState(socialData);
+	const [socialList, setSocialList] = useState(socialData);
 	const [filterMonth, setFilterMonth] = useState([5,6]);
 	const [filterCal, setFilterCal] = useState([]);
 	const [filterCal2, setFilterCal2] = useState([]);
@@ -143,12 +143,16 @@ const Social = (props) => {
 
 		for(let i=1; i<=14; i++){
 			const tomorrow = new Date(date.setDate(date.getDate() + 1));
+			const tomorrowYear = tomorrow.getFullYear();
 			const month2 = tomorrow.getMonth() + 1;
+			console.log('tomorrow ::: ',tomorrowYear+'-'+month2);
 			if(month != month2){				
 				monthAry.push(month2);
 				month = month2;
 			}
 		}
+
+		//console.log('monthAry ::: ',monthAry);
 
 		let yaerAry = [];
 		let yaerAryIdx = [];
@@ -347,14 +351,14 @@ const Social = (props) => {
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {}}							
+							onPress={() => {navigation.navigate('Shop')}}					
 						>
 							<AutoHeightImage width={24} source={require('../../assets/image/icon_shop.png')} />
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {}}
+							onPress={() => {navigation.navigate('Alim')}}
 						>
 							<AutoHeightImage width={24} source={require('../../assets/image/icon_alim_off.png')} />
 							{/* <AutoHeightImage width={24} source={require('../assets/image/icon_alim_on.png')} /> */}

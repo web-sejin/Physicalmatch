@@ -189,14 +189,14 @@ const Community = (props) => {
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {}}							
+							onPress={() => {navigation.navigate('Shop')}}		
 						>
 							<AutoHeightImage width={24} source={require('../../assets/image/icon_shop.png')} />
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {}}
+							onPress={() => {navigation.navigate('Alim')}}
 						>
 							<AutoHeightImage width={24} source={require('../../assets/image/icon_alim_off.png')} />
 							{/* <AutoHeightImage width={24} source={require('../assets/image/icon_alim_on.png')} /> */}

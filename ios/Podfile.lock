@@ -369,12 +369,17 @@ PODS:
   - React-jsinspector (0.71.18)
   - React-logger (0.71.18):
     - glog
+  - react-native-blur (4.4.0):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
   - react-native-safe-area-context (4.5.0):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
     - React-Core
     - ReactCommon/turbomodule/core
+  - react-native-version-check (3.4.7):
+    - React-Core
   - react-native-video (5.2.1):
     - React-Core
     - react-native-video/Video (= 5.2.1)
@@ -497,6 +502,8 @@ PODS:
   - RNScreens (3.20.0):
     - React-Core
     - React-RCTImage
+  - RNSVG (15.2.0):
+    - React-Core
   - SocketRocket (0.6.1)
   - TOCropViewController (2.7.4)
   - Yoga (1.14.0)
@@ -569,7 +576,9 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-version-check (from `../node_modules/react-native-version-check`)
   - react-native-video (from `../node_modules/react-native-video`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -595,6 +604,7 @@ DEPENDENCIES:
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -697,8 +707,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-blur:
+    :path: "../node_modules/@react-native-community/blur"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-version-check:
+    :path: "../node_modules/react-native-version-check"
   react-native-video:
     :path: "../node_modules/react-native-video"
   react-native-webview:
@@ -749,6 +763,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -806,7 +822,9 @@ SPEC CHECKSUMS:
   React-jsiexecutor: a60e1117c011cbb6a95418f4bf67d6dfbbf81772
   React-jsinspector: 7218c92923292e20326a1eed3104fe90393ca449
   React-logger: 166cf6649b5ea9e26ab816073dd0e68020561d65
+  react-native-blur: 69ecfe61d81b32ee7baae10f5d17aeb4e2594b10
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
+  react-native-version-check: 6cd36aad4e30b8e3216747e3b4ddeb09e0647af8
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   react-native-webview: a987704e6cd3f5a21d372ef316e43f7b442d59ca
   React-perflogger: c8849042b03392681ebd5d99a0775dbadfad2c74
@@ -832,11 +850,12 @@ SPEC CHECKSUMS:
   RNPermissions: f1b49dd05fa9b83993cd05a9ee115247944d8f1a
   RNReanimated: 4943d1e286130877c0539f053c3f36a22d8c66f5
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
+  RNSVG: b537a7f29aedd9025c7024b80832c796ca87cf95
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
   Yoga: e407d2e8cc6cf5170a1dddf459f9fc612f85fcac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 86e74e866599ae5f95cca39733a982c616fcb402
+PODFILE CHECKSUM: 470fbf0611a96060fb99c77d1028190a2d46ae56
 
 COCOAPODS: 1.11.3

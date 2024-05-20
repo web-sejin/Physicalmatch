@@ -139,6 +139,7 @@ const Home = (props) => {
 	const [distance2, setDistance2] = useState(50);
 	const [recentAccess, setRecentAccess] = useState(7);
 	const [prdIdx, setPrdIdx] = useState(1);
+	const [myAccount, setMyAccount] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -147,6 +148,12 @@ const Home = (props) => {
 		if(!isFocused){
 
 		}else{
+			if(params['account'] && params['account'] == 'off'){
+				setMyAccount(false);
+			}else{
+				setMyAccount(true);
+			}
+
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 		}
@@ -303,1123 +310,943 @@ const Home = (props) => {
 			setData8List(cont);
 		}	
 	} 
+
+	const accountReset = async () => {
+		setLoading(true);
+		setTimeout(function(){
+			setLoading(false);
+			setMyAccount(true);
+		}, 1000);		
+	}
 	
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			<View style={styles.header}>
-				<View style={styles.headerTop}>
-					<View style={styles.headerTitle}>
-						<Text style={styles.headerTitleText}>Matching</Text>
+
+			{myAccount ? (
+			<>
+				<View style={styles.header}>
+					<View style={styles.headerTop}>
+						<View style={styles.headerTitle}>
+							<Text style={styles.headerTitleText}>Matching</Text>
+						</View>
+						<View style={styles.headerLnb}>
+							<TouchableOpacity
+								activeOpacity={opacityVal}
+								onPress={() => {setFilterPop(true)}}
+							>
+								<AutoHeightImage width={24} source={require('../assets/image/icon_option.png')} resizeMethod='resize' />
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={styles.headerLnbBtn}
+								activeOpacity={opacityVal}
+								onPress={() => {navigation.navigate('Shop')}}
+							>
+								<AutoHeightImage width={24} source={require('../assets/image/icon_shop.png')} resizeMethod='resize' />
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={styles.headerLnbBtn}
+								activeOpacity={opacityVal}
+								onPress={() => {navigation.navigate('Alim')}}
+							>
+								{/* <AutoHeightImage width={24} source={require('../assets/image/icon_alim_off.png')} resizeMethod='resize' /> */}
+								<AutoHeightImage width={24} source={require('../assets/image/icon_alim_on.png')} resizeMethod='resize' />
+							</TouchableOpacity>
+						</View>
 					</View>
-					<View style={styles.headerLnb}>
+					<View style={styles.headerBot}>
 						<TouchableOpacity
+							style={styles.headerTab}
 							activeOpacity={opacityVal}
-							onPress={() => {setFilterPop(true)}}
+							onPress={() => {getMatchCard(1)}}
 						>
-							<AutoHeightImage width={24} source={require('../assets/image/icon_option.png')} resizeMethod='resize' />
+							<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>추천카드</Text>
+							{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
 						</TouchableOpacity>
 						<TouchableOpacity
-							style={styles.headerLnbBtn}
+							style={styles.headerTab}
 							activeOpacity={opacityVal}
-							onPress={() => {}}							
+							onPress={() => {getMatchCard(2)}}
 						>
-							<AutoHeightImage width={24} source={require('../assets/image/icon_shop.png')} resizeMethod='resize' />
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={styles.headerLnbBtn}
-							activeOpacity={opacityVal}
-							onPress={() => {}}
-						>
-							<AutoHeightImage width={24} source={require('../assets/image/icon_alim_off.png')} resizeMethod='resize' />
-							{/* <AutoHeightImage width={24} source={require('../assets/image/icon_alim_on.png')} resizeMethod='resize' /> */}
+							<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>관심카드</Text>
+							{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
 						</TouchableOpacity>
 					</View>
 				</View>
-				<View style={styles.headerBot}>
+
+				{tabState == 2 ? (
+				<View style={styles.state2Tab}>
 					<TouchableOpacity
-						style={styles.headerTab}
+						style={styles.state2TabBtn}
 						activeOpacity={opacityVal}
-						onPress={() => {getMatchCard(1)}}
+						onPress={()=>{getInterest(1)}}
 					>
-						<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>추천카드</Text>
-						{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
+						<Text style={[styles.state2TabBtnText, tabState2 == 1 ? styles.state2TabBtnTextOn : null]}>찜&교환한 카드</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
-						style={styles.headerTab}
+						style={styles.state2TabBtn}
 						activeOpacity={opacityVal}
-						onPress={() => {getMatchCard(2)}}
+						onPress={()=>{getInterest(2)}}
 					>
-						<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>관심카드</Text>
-						{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
+						<Text style={[styles.state2TabBtnText, tabState2 == 2 ? styles.state2TabBtnTextOn : null]}>호감 카드</Text>
+					</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.state2TabBtn}
+						activeOpacity={opacityVal}
+						onPress={()=>{getInterest(3)}}
+					>
+						<Text style={[styles.state2TabBtnText, tabState2 == 3 ? styles.state2TabBtnTextOn : null]}>매칭된 카드</Text>
 					</TouchableOpacity>
 				</View>
-			</View>
+				) : null}
 
-			{tabState == 2 ? (
-			<View style={styles.state2Tab}>
-				<TouchableOpacity
-					style={styles.state2TabBtn}
-					activeOpacity={opacityVal}
-					onPress={()=>{getInterest(1)}}
-				>
-					<Text style={[styles.state2TabBtnText, tabState2 == 1 ? styles.state2TabBtnTextOn : null]}>찜&교환한 카드</Text>
-				</TouchableOpacity>
-				<TouchableOpacity
-					style={styles.state2TabBtn}
-					activeOpacity={opacityVal}
-					onPress={()=>{getInterest(2)}}
-				>
-					<Text style={[styles.state2TabBtnText, tabState2 == 2 ? styles.state2TabBtnTextOn : null]}>호감 카드</Text>
-				</TouchableOpacity>
-				<TouchableOpacity
-					style={styles.state2TabBtn}
-					activeOpacity={opacityVal}
-					onPress={()=>{getInterest(3)}}
-				>
-					<Text style={[styles.state2TabBtnText, tabState2 == 3 ? styles.state2TabBtnTextOn : null]}>매칭된 카드</Text>
-				</TouchableOpacity>
-			</View>
-			) : null}
+				<ScrollView>
+					<View style={[styles.cmWrap, tabState == 1 ? styles.cmWrap2 : null]}>					
+						<View style={tabState == 2 ? styles.displayNone : null}>
+							<View style={styles.todayFreeArea}>
+								<View style={[styles.todayFreeAreaWrap, styles.boxShadow]}>
+									<LinearGradient
+										colors={['#D1913C', '#FFD194', '#D1913C']}
+										start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
+										style={[styles.grediant]}
+									>
+										{todayFree > 0 ? (
+											<TouchableOpacity
+												style={[styles.todayFreeBtn]}
+												activeOpacity={opacityVal}
+												onPress={() => {
+													// if(todayFree < 1){
+													// 	ToastMessage('이미 모두 사용했습니다.');
+													// 	return false;
+													// }
+													setTodayFree(todayFree - 1);
+												}}
+											>
+												<Text style={styles.todayFreeBtnText}>무료 소개 받기 ({todayFree}/2)</Text>
+											</TouchableOpacity>
+										) : (
+											<>
+											<TouchableOpacity
+												style={[styles.todayFreeBtn]}
+												activeOpacity={opacityVal}
+												onPress={() => setAddIntroPop(true)}
+											>
+												<Text style={styles.todayFreeBtnText}>추가 소개 받기 (00개)</Text>
+											</TouchableOpacity>
 
-			<ScrollView>
-				<View style={[styles.cmWrap, tabState == 1 ? styles.cmWrap2 : null]}>					
-					<View style={tabState == 2 ? styles.displayNone : null}>
-						<View style={styles.todayFreeArea}>
-							<View style={[styles.todayFreeAreaWrap, styles.boxShadow]}>
-								<LinearGradient
-									colors={['#D1913C', '#FFD194', '#D1913C']}
-									start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
-									style={[styles.grediant]}
-								>
-									{todayFree > 0 ? (
-										<TouchableOpacity
-											style={[styles.todayFreeBtn]}
+											<TouchableOpacity
+												style={[styles.todayFreeBtn, styles.mgt10]}
+												activeOpacity={opacityVal}
+												onPress={() => {
+													if(filterSave){
+														setUnAddIntroPop2(true);
+													}else{
+														setUnAddIntroPop1(true);
+													}
+												}}
+											>
+												<Text style={styles.todayFreeBtnText}>추가 소개 받기 불가</Text>
+											</TouchableOpacity>
+											</>
+										)}
+									</LinearGradient>
+								</View>
+							</View>
+
+							{/* D-7 */}
+							<View style={styles.cardView}>
+								<View style={styles.dday}>
+									<View style={styles.ddayLine}></View>
+									<Text style={styles.ddayText}>D-7</Text>
+								</View>
+								{cardList.map((item, index) => {
+									return (	
+										item.dday == 7 ? (							
+										<TouchableOpacity 
+											key={item.idx}
+											style={styles.cardBtn}
 											activeOpacity={opacityVal}
 											onPress={() => {
-												// if(todayFree < 1){
-												// 	ToastMessage('이미 모두 사용했습니다.');
-												// 	return false;
-												// }
-												setTodayFree(todayFree - 1);
-											}}
-										>
-											<Text style={styles.todayFreeBtnText}>무료 소개 받기 ({todayFree}/2)</Text>
-										</TouchableOpacity>
-									) : (
-										<>
-										<TouchableOpacity
-											style={[styles.todayFreeBtn]}
-											activeOpacity={opacityVal}
-											onPress={() => setAddIntroPop(true)}
-										>
-											<Text style={styles.todayFreeBtnText}>추가 소개 받기 (00개)</Text>
-										</TouchableOpacity>
-
-										<TouchableOpacity
-											style={[styles.todayFreeBtn, styles.mgt10]}
-											activeOpacity={opacityVal}
-											onPress={() => {
-												if(filterSave){
-													setUnAddIntroPop2(true);
+												if(item.isFlipped){
+													ViewDetail();
 												}else{
-													setUnAddIntroPop1(true);
+													chgFlipped(item.idx);
 												}
 											}}
 										>
-											<Text style={styles.todayFreeBtnText}>추가 소개 받기 불가</Text>
+											<FlipComponent
+												isFlipped={item.isFlipped}
+												scale={1}
+												scaleDuration= {0}
+												rotateDuration={200}
+												frontView={		
+													<View style={[styles.cardCont]}>																												
+														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} resizeMethod='resize' />													
+													</View>												
+												}
+												backView={
+													<View style={[styles.cardCont]}>													
+														<View style={styles.cardFrontInfo}>
+															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} resizeMethod='resize' />
+															<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
+																<View style={styles.cardFrontNick}>
+																	<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
+																	{item.badgeCnt == 1 ? (<AutoHeightImage width={26} source={require('../assets/image/b_1.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 2 ? (<AutoHeightImage width={26} source={require('../assets/image/b_2.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 3 ? (<AutoHeightImage width={26} source={require('../assets/image/b_3.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 4 ? (<AutoHeightImage width={26} source={require('../assets/image/b_4.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 5 ? (<AutoHeightImage width={26} source={require('../assets/image/b_5.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 6 ? (<AutoHeightImage width={26} source={require('../assets/image/b_6.png')} resizeMethod='resize' />) : null}
+																</View>
+																<View style={styles.cardFrontJob}>
+																	<Text style={styles.cardFrontJobText}>{item.job}</Text>
+																</View>
+																<View style={styles.cardFrontContBox}>
+																	<Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{item.age}</Text>
+																	<View style={styles.cardFrontContLine}></View>
+																	<Text style={styles.cardFrontContText}>{item.area}</Text>
+																</View>
+																<View style={[styles.cardFrontContBox, styles.mgt4]}>
+																	<Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{item.height}cm</Text>
+																	<View style={styles.cardFrontContLine}></View>
+																	<Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{item.weight}kg</Text>
+																</View>
+															</View>
+														</View>
+													</View>
+												}
+											/>
 										</TouchableOpacity>
-										</>
-									)}
-								</LinearGradient>
+										) : null				
+									)
+								})}
 							</View>
-						</View>
 
-						{/* D-7 */}
-						<View style={styles.cardView}>
-							<View style={styles.dday}>
-								<View style={styles.ddayLine}></View>
-								<Text style={styles.ddayText}>D-7</Text>
-							</View>
-							{cardList.map((item, index) => {
-								return (	
-									item.dday == 7 ? (							
-									<TouchableOpacity 
-										key={item.idx}
-										style={styles.cardBtn}
-										activeOpacity={opacityVal}
-										onPress={() => {
-											if(item.isFlipped){
-												ViewDetail();
-											}else{
-												chgFlipped(item.idx);
-											}
-										}}
-									>
-										<FlipComponent
-											isFlipped={item.isFlipped}
-											scale={1}
-											scaleDuration= {0}
-											rotateDuration={200}
-											frontView={		
-												<View style={[styles.cardCont]}>																												
-													<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} resizeMethod='resize' />													
-												</View>												
-											}
-											backView={
-												<View style={[styles.cardCont]}>													
-													<View style={styles.cardFrontInfo}>
-														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} resizeMethod='resize' />
-														<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
-															<View style={styles.cardFrontNick}>
-																<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
-																{item.badgeCnt == 1 ? (<AutoHeightImage width={26} source={require('../assets/image/b_1.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 2 ? (<AutoHeightImage width={26} source={require('../assets/image/b_2.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 3 ? (<AutoHeightImage width={26} source={require('../assets/image/b_3.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 4 ? (<AutoHeightImage width={26} source={require('../assets/image/b_4.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 5 ? (<AutoHeightImage width={26} source={require('../assets/image/b_5.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 6 ? (<AutoHeightImage width={26} source={require('../assets/image/b_6.png')} resizeMethod='resize' />) : null}
-															</View>
-															<View style={styles.cardFrontJob}>
-																<Text style={styles.cardFrontJobText}>{item.job}</Text>
-															</View>
-															<View style={styles.cardFrontContBox}>
-																<Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{item.age}</Text>
-																<View style={styles.cardFrontContLine}></View>
-																<Text style={styles.cardFrontContText}>{item.area}</Text>
-															</View>
-															<View style={[styles.cardFrontContBox, styles.mgt4]}>
-																<Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{item.height}cm</Text>
-																<View style={styles.cardFrontContLine}></View>
-																<Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{item.weight}kg</Text>
+							{/* D-6 */}
+							<View style={styles.cardView}>
+								<View style={styles.dday}>
+									<View style={styles.ddayLine}></View>
+									<Text style={styles.ddayText}>D-6</Text>
+								</View>
+								{cardList.map((item, index) => {
+									return (	
+										item.dday == 6 ? (							
+										<TouchableOpacity 
+											key={item.idx}
+											style={styles.cardBtn}
+											activeOpacity={opacityVal}
+											onPress={() => {
+												if(item.isFlipped){
+													ViewDetail();
+												}else{
+													chgFlipped(item.idx);
+												}
+											}}
+										>
+											<FlipComponent
+												isFlipped={item.isFlipped}
+												scale={1}
+												scaleDuration= {0}
+												rotateDuration={200}
+												frontView={	
+													<View style={[styles.cardCont]}>																												
+														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} resizeMethod='resize' />													
+													</View>												
+												}
+												backView={
+													<View style={[styles.cardCont]}>													
+														<View style={styles.cardFrontInfo}>
+															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} resizeMethod='resize' />
+															<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
+																<View style={styles.cardFrontNick}>
+																	<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
+																	{item.badgeCnt == 1 ? (<AutoHeightImage width={26} source={require('../assets/image/b_1.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 2 ? (<AutoHeightImage width={26} source={require('../assets/image/b_2.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 3 ? (<AutoHeightImage width={26} source={require('../assets/image/b_3.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 4 ? (<AutoHeightImage width={26} source={require('../assets/image/b_4.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 5 ? (<AutoHeightImage width={26} source={require('../assets/image/b_5.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 6 ? (<AutoHeightImage width={26} source={require('../assets/image/b_6.png')} resizeMethod='resize' />) : null}
+																</View>
+																<View style={styles.cardFrontJob}>
+																	<Text style={styles.cardFrontJobText}>{item.job}</Text>
+																</View>
+																<View style={styles.cardFrontContBox}>
+																	<Text style={styles.cardFrontContText}>{item.age}</Text>
+																	<View style={styles.cardFrontContLine}></View>
+																	<Text style={styles.cardFrontContText}>{item.area}</Text>
+																</View>
+																<View style={styles.cardFrontContBox}>
+																	<Text style={styles.cardFrontContText}>{item.height}cm</Text>
+																	<View style={styles.cardFrontContLine}></View>
+																	<Text style={styles.cardFrontContText}>{item.weight}kg</Text>
+																</View>
 															</View>
 														</View>
 													</View>
-												</View>
-											}
-										/>
-									</TouchableOpacity>
-									) : null				
-								)
-							})}
-						</View>
-
-						{/* D-6 */}
-						<View style={styles.cardView}>
-							<View style={styles.dday}>
-								<View style={styles.ddayLine}></View>
-								<Text style={styles.ddayText}>D-6</Text>
+												}
+											/>
+										</TouchableOpacity>
+										) : null				
+									)
+								})}
 							</View>
-							{cardList.map((item, index) => {
-								return (	
-									item.dday == 6 ? (							
-									<TouchableOpacity 
-										key={item.idx}
-										style={styles.cardBtn}
-										activeOpacity={opacityVal}
-										onPress={() => {
-											if(item.isFlipped){
-												ViewDetail();
-											}else{
-												chgFlipped(item.idx);
-											}
-										}}
-									>
-										<FlipComponent
-											isFlipped={item.isFlipped}
-											scale={1}
-											scaleDuration= {0}
-											rotateDuration={200}
-											frontView={	
-												<View style={[styles.cardCont]}>																												
-													<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} resizeMethod='resize' />													
-												</View>												
-											}
-											backView={
-												<View style={[styles.cardCont]}>													
-													<View style={styles.cardFrontInfo}>
-														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} resizeMethod='resize' />
-														<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
-															<View style={styles.cardFrontNick}>
-																<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
-																{item.badgeCnt == 1 ? (<AutoHeightImage width={26} source={require('../assets/image/b_1.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 2 ? (<AutoHeightImage width={26} source={require('../assets/image/b_2.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 3 ? (<AutoHeightImage width={26} source={require('../assets/image/b_3.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 4 ? (<AutoHeightImage width={26} source={require('../assets/image/b_4.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 5 ? (<AutoHeightImage width={26} source={require('../assets/image/b_5.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 6 ? (<AutoHeightImage width={26} source={require('../assets/image/b_6.png')} resizeMethod='resize' />) : null}
-															</View>
-															<View style={styles.cardFrontJob}>
-																<Text style={styles.cardFrontJobText}>{item.job}</Text>
-															</View>
-															<View style={styles.cardFrontContBox}>
-																<Text style={styles.cardFrontContText}>{item.age}</Text>
-																<View style={styles.cardFrontContLine}></View>
-																<Text style={styles.cardFrontContText}>{item.area}</Text>
-															</View>
-															<View style={styles.cardFrontContBox}>
-																<Text style={styles.cardFrontContText}>{item.height}cm</Text>
-																<View style={styles.cardFrontContLine}></View>
-																<Text style={styles.cardFrontContText}>{item.weight}kg</Text>
+
+							{/* D-5 */}
+							<View style={styles.cardView}>
+								<View style={styles.dday}>
+									<View style={styles.ddayLine}></View>
+									<Text style={styles.ddayText}>D-5</Text>
+								</View>
+								{cardList.map((item, index) => {
+									return (	
+										item.dday == 5 ? (							
+										<TouchableOpacity 
+											key={item.idx}
+											style={styles.cardBtn}
+											activeOpacity={opacityVal}
+											onPress={() => {
+												if(item.isFlipped){
+													ViewDetail();
+												}else{
+													chgFlipped(item.idx);
+												}
+											}}
+										>
+											<FlipComponent
+												isFlipped={item.isFlipped}
+												scale={1}
+												scaleDuration= {0}
+												rotateDuration={200}
+												frontView={			
+													<View style={[styles.cardCont]}>																												
+														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} resizeMethod='resize' />													
+													</View>											
+												}
+												backView={
+													<View style={[styles.cardCont]}>													
+														<View style={styles.cardFrontInfo}>
+															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} resizeMethod='resize' />
+															<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
+																<View style={styles.cardFrontNick}>
+																	<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
+																	{item.badgeCnt == 1 ? (<AutoHeightImage width={26} source={require('../assets/image/b_1.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 2 ? (<AutoHeightImage width={26} source={require('../assets/image/b_2.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 3 ? (<AutoHeightImage width={26} source={require('../assets/image/b_3.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 4 ? (<AutoHeightImage width={26} source={require('../assets/image/b_4.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 5 ? (<AutoHeightImage width={26} source={require('../assets/image/b_5.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 6 ? (<AutoHeightImage width={26} source={require('../assets/image/b_6.png')} resizeMethod='resize' />) : null}
+																</View>
+																<View style={styles.cardFrontJob}>
+																	<Text style={styles.cardFrontJobText}>{item.job}</Text>
+																</View>
+																<View style={styles.cardFrontContBox}>
+																	<Text style={styles.cardFrontContText}>{item.age}</Text>
+																	<View style={styles.cardFrontContLine}></View>
+																	<Text style={styles.cardFrontContText}>{item.area}</Text>
+																</View>
+																<View style={styles.cardFrontContBox}>
+																	<Text style={styles.cardFrontContText}>{item.height}cm</Text>
+																	<View style={styles.cardFrontContLine}></View>
+																	<Text style={styles.cardFrontContText}>{item.weight}kg</Text>
+																</View>
 															</View>
 														</View>
 													</View>
-												</View>
-											}
-										/>
-									</TouchableOpacity>
-									) : null				
-								)
-							})}
+												}
+											/>
+										</TouchableOpacity>
+										) : null				
+									)
+								})}
+							</View>
+
 						</View>
-
-						{/* D-5 */}
-						<View style={styles.cardView}>
-							<View style={styles.dday}>
-								<View style={styles.ddayLine}></View>
-								<Text style={styles.ddayText}>D-5</Text>
-							</View>
-							{cardList.map((item, index) => {
-								return (	
-									item.dday == 5 ? (							
-									<TouchableOpacity 
-										key={item.idx}
-										style={styles.cardBtn}
-										activeOpacity={opacityVal}
-										onPress={() => {
-											if(item.isFlipped){
-												ViewDetail();
-											}else{
-												chgFlipped(item.idx);
-											}
-										}}
-									>
-										<FlipComponent
-											isFlipped={item.isFlipped}
-											scale={1}
-											scaleDuration= {0}
-											rotateDuration={200}
-											frontView={			
-												<View style={[styles.cardCont]}>																												
-													<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} resizeMethod='resize' />													
-												</View>											
-											}
-											backView={
-												<View style={[styles.cardCont]}>													
-													<View style={styles.cardFrontInfo}>
-														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} resizeMethod='resize' />
-														<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
-															<View style={styles.cardFrontNick}>
-																<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
-																{item.badgeCnt == 1 ? (<AutoHeightImage width={26} source={require('../assets/image/b_1.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 2 ? (<AutoHeightImage width={26} source={require('../assets/image/b_2.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 3 ? (<AutoHeightImage width={26} source={require('../assets/image/b_3.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 4 ? (<AutoHeightImage width={26} source={require('../assets/image/b_4.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 5 ? (<AutoHeightImage width={26} source={require('../assets/image/b_5.png')} resizeMethod='resize' />) : null}
-																{item.badgeCnt == 6 ? (<AutoHeightImage width={26} source={require('../assets/image/b_6.png')} resizeMethod='resize' />) : null}
-															</View>
-															<View style={styles.cardFrontJob}>
-																<Text style={styles.cardFrontJobText}>{item.job}</Text>
-															</View>
-															<View style={styles.cardFrontContBox}>
-																<Text style={styles.cardFrontContText}>{item.age}</Text>
-																<View style={styles.cardFrontContLine}></View>
-																<Text style={styles.cardFrontContText}>{item.area}</Text>
-															</View>
-															<View style={styles.cardFrontContBox}>
-																<Text style={styles.cardFrontContText}>{item.height}cm</Text>
-																<View style={styles.cardFrontContLine}></View>
-																<Text style={styles.cardFrontContText}>{item.weight}kg</Text>
-															</View>
-														</View>
-													</View>
-												</View>
-											}
-										/>
-									</TouchableOpacity>
-									) : null				
-								)
-							})}
-						</View>
-
-					</View>
-					
-					<View style={tabState == 1 ? styles.displayNone : null}>
-						<View style={tabState2 != 1 ? styles.displayNone : null}>			
-							{/* 찜한 카드	*/}
-							<View style={styles.interestBox}>
-								<View style={styles.interestBoxTitle}>
-									<Text style={styles.interestBoxTitleText}>찜한 카드</Text>
-								</View>
-								<View style={styles.cardView}>
-									{data1List.map((item, index) => {
-										return (
-											<TouchableOpacity 
-												key={item.idx}
-												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={opacityVal}
-												onPress={() => {
-													if(item.leave && !item.isFlipped){
-														//chgFlipped2('data1', item.idx);
-														setLeavePop(true);
-													}else if(!item.leave && item.isFlipped){
-														ViewDetail();
-													}
-												}}
-											>
-												<FlipComponent
-													isFlipped={item.isFlipped}
-													scale={1}
-													scaleDuration= {0}
-													rotateDuration={200}
-													frontView={	
-														item.leave ? (
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-															</View>
-														) : (
-															<View style={[styles.cardCont, styles.cardCont2]}>		
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+						
+						<View style={tabState == 1 ? styles.displayNone : null}>
+							<View style={tabState2 != 1 ? styles.displayNone : null}>			
+								{/* 찜한 카드	*/}
+								<View style={styles.interestBox}>
+									<View style={styles.interestBoxTitle}>
+										<Text style={styles.interestBoxTitleText}>찜한 카드</Text>
+									</View>
+									<View style={styles.cardView}>
+										{data1List.map((item, index) => {
+											return (
+												<TouchableOpacity 
+													key={item.idx}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal}
+													onPress={() => {
+														if(item.leave && !item.isFlipped){
+															//chgFlipped2('data1', item.idx);
+															setLeavePop(true);
+														}else if(!item.leave && item.isFlipped){
+															ViewDetail();
+														}
+													}}
+												>
+													<FlipComponent
+														isFlipped={item.isFlipped}
+														scale={1}
+														scaleDuration= {0}
+														rotateDuration={200}
+														frontView={	
+															item.leave ? (
+																<View style={[styles.cardCont, styles.cardCont2]}>																												
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																</View>
+															) : (
+																<View style={[styles.cardCont, styles.cardCont2]}>		
 																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
-																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																		<View	View style={styles.cardFrontDday}>
-																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																		</View>
-																		<View style={styles.cardFrontNick2}>
-																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																		</View>
-																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																			<View style={styles.cardFrontContLine}></View>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																			<View	View style={styles.cardFrontDday}>
+																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																			</View>
+																			<View style={styles.cardFrontNick2}>
+																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																			</View>
+																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																				<View style={styles.cardFrontContLine}></View>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																			</View>
 																		</View>
 																	</View>
 																</View>
+															)																			
+														}
+														backView={
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
 															</View>
-														)																			
-													}
-													backView={
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-														</View>
-													}
-												/>
-											</TouchableOpacity>
-										)
-									})}
+														}
+													/>
+												</TouchableOpacity>
+											)
+										})}
+									</View>
+								</View>
+
+								{/* 교환한 프로필 */}
+								<View style={[styles.interestBox, styles.mgt50]}>
+									<View style={styles.interestBoxTitle}>
+										<Text style={styles.interestBoxTitleText}>교환한 프로필</Text>
+									</View>
+									<View style={styles.cardView}>
+										{data2List.map((item, index) => {
+											return (
+												<TouchableOpacity 
+													key={item.idx}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal}
+													onPress={() => {													
+														if(item.leave && !item.isFlipped){
+															//chgFlipped2('data2', item.idx);
+															setLeavePop(true);
+														}else if(!item.leave && item.isFlipped){
+															ViewDetail();
+														}
+													}}
+												>
+													<FlipComponent
+														isFlipped={item.isFlipped}
+														scale={1}
+														scaleDuration= {0}
+														rotateDuration={200}
+														frontView={		
+															item.leave ? (
+																<View style={[styles.cardCont, styles.cardCont2]}>																												
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																</View>
+															) : (
+																<View style={[styles.cardCont, styles.cardCont2]}>		
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																			<View	View style={styles.cardFrontDday}>
+																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																			</View>
+																			<View style={styles.cardFrontNick2}>
+																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																			</View>
+																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																				<View style={styles.cardFrontContLine}></View>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																			</View>
+																		</View>
+																	</View>
+																</View>
+															)																								
+														}
+														backView={
+															<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />
+															</View>	
+														}
+													/>
+												</TouchableOpacity>
+											)
+										})}
+									</View>
 								</View>
 							</View>
 
-							{/* 교환한 프로필 */}
-							<View style={[styles.interestBox, styles.mgt50]}>
-								<View style={styles.interestBoxTitle}>
-									<Text style={styles.interestBoxTitleText}>교환한 프로필</Text>
-								</View>
-								<View style={styles.cardView}>
-									{data2List.map((item, index) => {
-										return (
-											<TouchableOpacity 
-												key={item.idx}
-												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={opacityVal}
-												onPress={() => {													
-													if(item.leave && !item.isFlipped){
-														//chgFlipped2('data2', item.idx);
-														setLeavePop(true);
-													}else if(!item.leave && item.isFlipped){
-														ViewDetail();
-													}
-												}}
-											>
-												<FlipComponent
-													isFlipped={item.isFlipped}
-													scale={1}
-													scaleDuration= {0}
-													rotateDuration={200}
-													frontView={		
-														item.leave ? (
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-															</View>
-														) : (
-															<View style={[styles.cardCont, styles.cardCont2]}>		
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+							<View style={tabState2 != 2 ? styles.displayNone : null}>				
+								{/* 받은 좋아요 */}
+								<View style={styles.interestBox}>
+									<View style={styles.interestBoxTitle}>
+										<Text style={styles.interestBoxTitleText}>받은 좋아요</Text>
+									</View>
+									<View style={styles.cardView}>
+										{data3List.map((item, index) => {
+											return (
+												<TouchableOpacity 
+													key={item.idx}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal}
+													onPress={() => {
+														if(item.leave && !item.isFlipped){
+															//chgFlipped2('data3', item.idx);
+															setLeavePop(true);
+														}else if(!item.leave && item.isFlipped){
+															ViewDetail();
+														}
+													}}
+												>
+													<FlipComponent
+														isFlipped={item.isFlipped}
+														scale={1}
+														scaleDuration= {0}
+														rotateDuration={200}
+														frontView={			
+															item.leave ? (
+																<View style={[styles.cardCont, styles.cardCont2]}>																												
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																</View>
+															) : (
+																<View style={[styles.cardCont, styles.cardCont2]}>		
 																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
-																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																		<View	View style={styles.cardFrontDday}>
-																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																		</View>
-																		<View style={styles.cardFrontNick2}>
-																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																		</View>
-																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																			<View style={styles.cardFrontContLine}></View>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																			<View	View style={styles.cardFrontDday}>
+																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																			</View>
+																			<View style={styles.cardFrontNick2}>
+																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																			</View>
+																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																				<View style={styles.cardFrontContLine}></View>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																			</View>
 																		</View>
 																	</View>
 																</View>
-															</View>
-														)																								
-													}
-													backView={
-														<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />
-														</View>	
-													}
-												/>
-											</TouchableOpacity>
-										)
-									})}
+															)																										
+														}
+														backView={
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+															</View>	
+														}
+													/>
+												</TouchableOpacity>
+											)
+										})}
+									</View>
 								</View>
-							</View>
-						</View>
+								
+								{/* 보낸 좋아요 */}
+								<View style={[styles.interestBox, styles.mgt50]}>
+									<View style={styles.interestBoxTitle}>
+										<Text style={styles.interestBoxTitleText}>보낸 좋아요</Text>
+									</View>
+									<View style={styles.cardView}>
+										{data4List.map((item, index) => {
+											return (
+												<TouchableOpacity 
+													key={item.idx}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal}
+													onPress={() => {
+														if(item.leave && !item.isFlipped){
+															//chgFlipped2('data4', item.idx);
+															setLeavePop(true);
+														}else if(!item.leave && item.isFlipped){
+															ViewDetail();
+														}
+													}}
+												>
+													<FlipComponent
+														isFlipped={item.isFlipped}
+														scale={1}
+														scaleDuration= {0}
+														rotateDuration={200}
+														frontView={			
+															item.leave ? (
+																<View style={[styles.cardCont, styles.cardCont2]}>																												
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																</View>
+															) : (
+																<View style={[styles.cardCont, styles.cardCont2]}>		
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																			<View	View style={styles.cardFrontDday}>
+																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																			</View>
+																			<View style={styles.cardFrontNick2}>
+																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																			</View>
+																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																				<View style={styles.cardFrontContLine}></View>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																			</View>
+																		</View>
+																	</View>
+																</View>
+															)																									
+														}
+														backView={
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+															</View>	
+														}
+													/>
+												</TouchableOpacity>
+											)
+										})}
+									</View>
+								</View>
 
-						<View style={tabState2 != 2 ? styles.displayNone : null}>				
-							{/* 받은 좋아요 */}
-							<View style={styles.interestBox}>
-								<View style={styles.interestBoxTitle}>
-									<Text style={styles.interestBoxTitleText}>받은 좋아요</Text>
-								</View>
-								<View style={styles.cardView}>
-									{data3List.map((item, index) => {
-										return (
-											<TouchableOpacity 
-												key={item.idx}
-												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={opacityVal}
-												onPress={() => {
-													if(item.leave && !item.isFlipped){
-														//chgFlipped2('data3', item.idx);
-														setLeavePop(true);
-													}else if(!item.leave && item.isFlipped){
-														ViewDetail();
-													}
-												}}
-											>
-												<FlipComponent
-													isFlipped={item.isFlipped}
-													scale={1}
-													scaleDuration= {0}
-													rotateDuration={200}
-													frontView={			
-														item.leave ? (
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-															</View>
-														) : (
-															<View style={[styles.cardCont, styles.cardCont2]}>		
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+								{/* 주고받은 호감 */}
+								<View style={[styles.interestBox, styles.mgt50]}>
+									<View style={styles.interestBoxTitle}>
+										<Text style={styles.interestBoxTitleText}>주고받은 호감</Text>
+									</View>
+									<View style={styles.cardView}>
+										{data5List.map((item, index) => {
+											return (
+												<TouchableOpacity 
+													key={item.idx}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal}
+													onPress={() => {
+														if(item.leave && !item.isFlipped){
+															//chgFlipped2('data5', item.idx);
+															setLeavePop(true);
+														}else if(!item.leave && item.isFlipped){
+															ViewDetail();
+														}
+													}}
+												>
+													<FlipComponent
+														isFlipped={item.isFlipped}
+														scale={1}
+														scaleDuration= {0}
+														rotateDuration={200}
+														frontView={			
+															item.leave ? (
+																<View style={[styles.cardCont, styles.cardCont2]}>																												
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																</View>
+															) : (
+																<View style={[styles.cardCont, styles.cardCont2]}>		
 																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
-																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																		<View	View style={styles.cardFrontDday}>
-																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																		</View>
-																		<View style={styles.cardFrontNick2}>
-																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																		</View>
-																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																			<View style={styles.cardFrontContLine}></View>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																			<View	View style={styles.cardFrontDday}>
+																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																			</View>
+																			<View style={styles.cardFrontNick2}>
+																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																			</View>
+																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																				<View style={styles.cardFrontContLine}></View>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																			</View>
 																		</View>
 																	</View>
 																</View>
-															</View>
-														)																										
-													}
-													backView={
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-														</View>	
-													}
-												/>
-											</TouchableOpacity>
-										)
-									})}
-								</View>
-							</View>
-							
-							{/* 보낸 좋아요 */}
-							<View style={[styles.interestBox, styles.mgt50]}>
-								<View style={styles.interestBoxTitle}>
-									<Text style={styles.interestBoxTitleText}>보낸 좋아요</Text>
-								</View>
-								<View style={styles.cardView}>
-									{data4List.map((item, index) => {
-										return (
-											<TouchableOpacity 
-												key={item.idx}
-												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={opacityVal}
-												onPress={() => {
-													if(item.leave && !item.isFlipped){
-														//chgFlipped2('data4', item.idx);
-														setLeavePop(true);
-													}else if(!item.leave && item.isFlipped){
-														ViewDetail();
-													}
-												}}
-											>
-												<FlipComponent
-													isFlipped={item.isFlipped}
-													scale={1}
-													scaleDuration= {0}
-													rotateDuration={200}
-													frontView={			
-														item.leave ? (
+															)																									
+														}
+														backView={
 															<View style={[styles.cardCont, styles.cardCont2]}>																												
 																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
 															</View>
-														) : (
-															<View style={[styles.cardCont, styles.cardCont2]}>		
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
-																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																		<View	View style={styles.cardFrontDday}>
-																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																		</View>
-																		<View style={styles.cardFrontNick2}>
-																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																		</View>
-																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																			<View style={styles.cardFrontContLine}></View>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-																		</View>
-																	</View>
-																</View>
-															</View>
-														)																									
-													}
-													backView={
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-														</View>	
-													}
-												/>
-											</TouchableOpacity>
-										)
-									})}
+														}
+													/>
+												</TouchableOpacity>
+											)
+										})}
+									</View>
 								</View>
-							</View>
 
-							{/* 주고받은 호감 */}
-							<View style={[styles.interestBox, styles.mgt50]}>
-								<View style={styles.interestBoxTitle}>
-									<Text style={styles.interestBoxTitleText}>주고받은 호감</Text>
-								</View>
-								<View style={styles.cardView}>
-									{data5List.map((item, index) => {
-										return (
-											<TouchableOpacity 
-												key={item.idx}
-												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={opacityVal}
-												onPress={() => {
-													if(item.leave && !item.isFlipped){
-														//chgFlipped2('data5', item.idx);
-														setLeavePop(true);
-													}else if(!item.leave && item.isFlipped){
-														ViewDetail();
-													}
-												}}
-											>
-												<FlipComponent
-													isFlipped={item.isFlipped}
-													scale={1}
-													scaleDuration= {0}
-													rotateDuration={200}
-													frontView={			
-														item.leave ? (
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-															</View>
-														) : (
-															<View style={[styles.cardCont, styles.cardCont2]}>		
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+								{/* 받은 호감 */}
+								<View style={[styles.interestBox, styles.mgt50]}>
+									<View style={styles.interestBoxTitle}>
+										<Text style={styles.interestBoxTitleText}>받은 호감</Text>
+									</View>
+									<View style={styles.cardView}>
+										{data6List.map((item, index) => {
+											return (
+												<TouchableOpacity 
+													key={item.idx}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal}
+													onPress={() => {
+														if(item.leave && !item.isFlipped){
+															//chgFlipped2('data6', item.idx);
+															setLeavePop(true);
+														}else if(!item.leave && item.isFlipped){
+															ViewDetail();
+														}
+													}}
+												>
+													<FlipComponent
+														isFlipped={item.isFlipped}
+														scale={1}
+														scaleDuration= {0}
+														rotateDuration={200}
+														frontView={			
+															item.leave ? (
+																<View style={[styles.cardCont, styles.cardCont2]}>																												
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																</View>
+															) : (
+																<View style={[styles.cardCont, styles.cardCont2]}>		
 																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
-																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																		<View	View style={styles.cardFrontDday}>
-																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																		</View>
-																		<View style={styles.cardFrontNick2}>
-																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																		</View>
-																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																			<View style={styles.cardFrontContLine}></View>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																			<View	View style={styles.cardFrontDday}>
+																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																			</View>
+																			<View style={styles.cardFrontNick2}>
+																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																			</View>
+																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																				<View style={styles.cardFrontContLine}></View>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																			</View>
 																		</View>
 																	</View>
 																</View>
-															</View>
-														)																									
-													}
-													backView={
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-														</View>
-													}
-												/>
-											</TouchableOpacity>
-										)
-									})}
+															)																										
+														}
+														backView={
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+															</View>	
+														}
+													/>
+												</TouchableOpacity>
+											)
+										})}
+									</View>
 								</View>
-							</View>
 
-							{/* 받은 호감 */}
-							<View style={[styles.interestBox, styles.mgt50]}>
-								<View style={styles.interestBoxTitle}>
-									<Text style={styles.interestBoxTitleText}>받은 호감</Text>
-								</View>
-								<View style={styles.cardView}>
-									{data6List.map((item, index) => {
-										return (
-											<TouchableOpacity 
-												key={item.idx}
-												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={opacityVal}
-												onPress={() => {
-													if(item.leave && !item.isFlipped){
-														//chgFlipped2('data6', item.idx);
-														setLeavePop(true);
-													}else if(!item.leave && item.isFlipped){
-														ViewDetail();
-													}
-												}}
-											>
-												<FlipComponent
-													isFlipped={item.isFlipped}
-													scale={1}
-													scaleDuration= {0}
-													rotateDuration={200}
-													frontView={			
-														item.leave ? (
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-															</View>
-														) : (
-															<View style={[styles.cardCont, styles.cardCont2]}>		
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+								{/* 보낸 호감 */}
+								<View style={[styles.interestBox, styles.mgt50]}>
+									<View style={styles.interestBoxTitle}>
+										<Text style={styles.interestBoxTitleText}>보낸 호감</Text>
+									</View>
+									<View style={styles.cardView}>
+										{data7List.map((item, index) => {
+											return (
+												<TouchableOpacity 
+													key={item.idx}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal}
+													onPress={() => {
+														if(item.leave && !item.isFlipped){
+															//chgFlipped2('data7', item.idx);
+															setLeavePop(true);
+														}else if(!item.leave && item.isFlipped){
+															ViewDetail();
+														}
+													}}
+												>
+													<FlipComponent
+														isFlipped={item.isFlipped}
+														scale={1}
+														scaleDuration= {0}
+														rotateDuration={200}
+														frontView={			
+															item.leave ? (
+																<View style={[styles.cardCont, styles.cardCont2]}>																												
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																</View>
+															) : (
+																<View style={[styles.cardCont, styles.cardCont2]}>		
 																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
-																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																		<View	View style={styles.cardFrontDday}>
-																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																		</View>
-																		<View style={styles.cardFrontNick2}>
-																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																		</View>
-																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																			<View style={styles.cardFrontContLine}></View>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																			<View	View style={styles.cardFrontDday}>
+																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																			</View>
+																			<View style={styles.cardFrontNick2}>
+																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																			</View>
+																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																				<View style={styles.cardFrontContLine}></View>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																			</View>
 																		</View>
 																	</View>
 																</View>
-															</View>
-														)																										
-													}
-													backView={
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-														</View>	
-													}
-												/>
-											</TouchableOpacity>
-										)
-									})}
-								</View>
+															)																										
+														}
+														backView={
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+															</View>	
+														}
+													/>
+												</TouchableOpacity>
+											)
+										})}
+									</View>
+								</View>							
 							</View>
 
-							{/* 보낸 호감 */}
-							<View style={[styles.interestBox, styles.mgt50]}>
-								<View style={styles.interestBoxTitle}>
-									<Text style={styles.interestBoxTitleText}>보낸 호감</Text>
-								</View>
-								<View style={styles.cardView}>
-									{data7List.map((item, index) => {
-										return (
-											<TouchableOpacity 
-												key={item.idx}
-												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={opacityVal}
-												onPress={() => {
-													if(item.leave && !item.isFlipped){
-														//chgFlipped2('data7', item.idx);
-														setLeavePop(true);
-													}else if(!item.leave && item.isFlipped){
-														ViewDetail();
-													}
-												}}
-											>
-												<FlipComponent
-													isFlipped={item.isFlipped}
-													scale={1}
-													scaleDuration= {0}
-													rotateDuration={200}
-													frontView={			
-														item.leave ? (
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-															</View>
-														) : (
-															<View style={[styles.cardCont, styles.cardCont2]}>		
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+							<View style={tabState2 != 3 ? styles.displayNone : null}>			
+								{/* 매칭된 이성 */}
+								<View style={styles.interestBox}>
+									<View style={styles.interestBoxTitle}>
+										<Text style={styles.interestBoxTitleText}>매칭된 이성</Text>
+									</View>
+									<View style={styles.interestBoxDesc}>
+										<Text style={styles.interestBoxDescText}>매칭을 축하합니다!</Text>
+										<AutoHeightImage width={12} source={require('../assets/image/icon_pang.png')} resizeMethod='resize' />
+									</View>
+									<View style={styles.cardView}>
+										{data8List.map((item, index) => {
+											return (
+												<TouchableOpacity 
+													key={item.idx}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal}
+													onPress={() => {
+														if(item.leave && !item.isFlipped){
+															//chgFlipped2('data8', item.idx);
+															setLeavePop(true);
+														}else if(!item.leave && item.isFlipped){
+															ViewDetail();
+														}
+													}}
+												>
+													<FlipComponent
+														isFlipped={item.isFlipped}
+														scale={1}
+														scaleDuration= {0}
+														rotateDuration={200}
+														frontView={			
+															item.leave ? (
+																<View style={[styles.cardCont, styles.cardCont2]}>																												
+																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																</View>
+															) : (
+																<View style={[styles.cardCont, styles.cardCont2]}>		
 																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
-																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																		<View	View style={styles.cardFrontDday}>
-																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																		</View>
-																		<View style={styles.cardFrontNick2}>
-																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																		</View>
-																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																			<View style={styles.cardFrontContLine}></View>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
+																			<View	View style={styles.cardFrontDday}>
+																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
+																			</View>
+																			<View style={styles.cardFrontNick2}>
+																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
+																			</View>
+																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
+																				<View style={styles.cardFrontContLine}></View>
+																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
+																			</View>
 																		</View>
 																	</View>
 																</View>
-															</View>
-														)																										
-													}
-													backView={
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-														</View>	
-													}
-												/>
-											</TouchableOpacity>
-										)
-									})}
-								</View>
-							</View>							
-						</View>
-
-						<View style={tabState2 != 3 ? styles.displayNone : null}>			
-							{/* 매칭된 이성 */}
-							<View style={styles.interestBox}>
-								<View style={styles.interestBoxTitle}>
-									<Text style={styles.interestBoxTitleText}>매칭된 이성</Text>
-								</View>
-								<View style={styles.interestBoxDesc}>
-									<Text style={styles.interestBoxDescText}>매칭을 축하합니다!</Text>
-									<AutoHeightImage width={12} source={require('../assets/image/icon_pang.png')} resizeMethod='resize' />
-								</View>
-								<View style={styles.cardView}>
-									{data8List.map((item, index) => {
-										return (
-											<TouchableOpacity 
-												key={item.idx}
-												style={[styles.cardBtn, styles.cardBtn2]}
-												activeOpacity={opacityVal}
-												onPress={() => {
-													if(item.leave && !item.isFlipped){
-														//chgFlipped2('data8', item.idx);
-														setLeavePop(true);
-													}else if(!item.leave && item.isFlipped){
-														ViewDetail();
-													}
-												}}
-											>
-												<FlipComponent
-													isFlipped={item.isFlipped}
-													scale={1}
-													scaleDuration= {0}
-													rotateDuration={200}
-													frontView={			
-														item.leave ? (
+															)																									
+														}
+														backView={
 															<View style={[styles.cardCont, styles.cardCont2]}>																												
 																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-															</View>
-														) : (
-															<View style={[styles.cardCont, styles.cardCont2]}>		
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
-																	<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																		<View	View style={styles.cardFrontDday}>
-																			<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																		</View>
-																		<View style={styles.cardFrontNick2}>
-																			<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																		</View>
-																		<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																			<View style={styles.cardFrontContLine}></View>
-																			<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-																		</View>
-																	</View>
-																</View>
-															</View>
-														)																									
-													}
-													backView={
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
-														</View>	
-													}
-												/>
-											</TouchableOpacity>
-										)
-									})}
+															</View>	
+														}
+													/>
+												</TouchableOpacity>
+											)
+										})}
+									</View>
 								</View>
 							</View>
 						</View>
 					</View>
-				</View>
-			</ScrollView>
-			<View style={styles.gapBox}></View>			
+				</ScrollView>
+				<View style={styles.gapBox}></View>			
 
-			{/* 필터 */}
-			<Modal
-				visible={filterPop}
-				animationType={"none"}
-				onRequestClose={() => setFilterPop(false)}
-			>
-				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
-				<View style={styles.modalHeader}>					
-					<TouchableOpacity
-						style={styles.headerBackBtn2}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setFilterPop(false);
-						}}						
-					>
-						<AutoHeightImage width={8} source={require("../assets/image/icon_header_back.png")} resizeMethod='resize' />
-					</TouchableOpacity>		
-					<TouchableOpacity 
-						style={styles.filterResetBtn}
-						activeOpacity={opacityVal}
-						onPress={()=>{console.log('초기화 작업 진행!!')}}
-					>
-						<AutoHeightImage width={13} source={require('../assets/image/icon_refresh.png')} resizeMethod='resize' />	
-						<Text style={styles.filterResetText}>초기화</Text>
-					</TouchableOpacity>				
-				</View>
-				<ScrollView>
-					<View style={[styles.cmWrap, styles.cmWrap2]}>
-						<View style={styles.filterTitle}>
-							<Text style={styles.filterTitleText}>선호 카드 설정</Text>
-						</View>
-						<View style={styles.filterDesc}>
-							<Text style={styles.filterDescText}>나에게 소개 될 카드를 설정합니다.</Text>
-						</View>
-						<View style={[styles.msBox, styles.mgt30]}>
-							<View style={[styles.msTitleBox, styles.mgb10]}>
-								<Text style={styles.msTitleBoxText1}>나이</Text>
-								<Text style={styles.msTitleBoxText2}>{ageMin}년생~{ageMax}년생+</Text>
-							</View>
-							<MultiSlider								
-								selectedStyle={{
-									height:2,
-									backgroundColor: '#D1913C',
-								}}
-								unselectedStyle={{
-									height:2,
-									backgroundColor: '#DBDBDB',
-								}}
-								optionsArray={ageAryIdx}
-								values={[
-									nonCollidingMultiSliderValue[0],
-									nonCollidingMultiSliderValue[1],
-								]}
-								markerOffsetY={1}
-								sliderLength={innerWidth}
-								min={ageMaxInt}
-								max={ageMinInt}
-								step={1}
-								enableLabel={false}
-								enabledOne={true}
-								enabledTwo={true}
-								customMarker={() => (
-									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
-								)}
-								onValuesChange={(e) => {
-									const first = ageAry[e[0]];
-									const last = ageAry[e[1]];
-									
-									let yearString = first.toString();
-									setRealAgeMin(yearString);
-									yearString = yearString.substr(2,2);
-
-									let yearString2 = last.toString();
-									setRealAgeMax(yearString2);
-									yearString2 = yearString2.substr(2,2);
-									
-									setAgeMin(yearString);
-									setAgeMax(yearString2);
-								}}
-							/>
-						</View>
-						<View style={[styles.msBox, styles.mgt50]}>
-							<View style={[styles.msTitleBox, styles.mgb25]}>
-								<Text style={styles.msTitleBoxText1}>거리</Text>
-							</View>
-							<View style={[styles.msTitleBox]}>
-								<TouchableOpacity 
-									style={styles.msCheckBox}
-									activeOpacity={opacityVal}
-									onPress={()=>{setDistanceStandard(1)}}
-								>
-									{distanceStandard == 1 ? (
-										<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
-											<View style={styles.msCheckBoxCircleIn}></View>
-										</View>
-									) : (
-										<View style={styles.msCheckBoxCircle}></View>
-									)}
-									
-									<Text style={styles.msCheckBoxText}>주활동 지역 기준</Text>
-								</TouchableOpacity>
-								<Text style={styles.msTitleBoxText2}>{distance}km 이내</Text>
-							</View>
-							<MultiSlider								
-								selectedStyle={{
-									height:2,
-									backgroundColor: '#D1913C',
-								}}
-								unselectedStyle={{
-									height:2,
-									backgroundColor: '#DBDBDB',
-								}}
-								optionsArray={[10, 15, 20, 25, 30, 50, 70, 100, 150, 200, 300, 500]}
-								values={[distance]}
-								markerOffsetY={1}
-								sliderLength={innerWidth}
-								value={[0]}
-								min={10}
-								max={500}
-								step={1}
-								enableLabel={false}
-								enabledOne={true}
-								enabledTwo={false}
-								allowOverlap={true}
-								customMarker={() => (
-									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
-								)}
-								onValuesChange={(e) => {
-									//console.log(e);
-									setDistance(e[0]);
-								}}
-							/>
-						</View>
-						<View style={[styles.msBox, styles.mgt30]}>
-							<View style={[styles.msTitleBox]}>
-								<TouchableOpacity 
-									style={styles.msCheckBox}
-									activeOpacity={opacityVal}
-									onPress={()=>{setDistanceStandard(2)}}
-								>
-									{distanceStandard == 2 ? (
-										<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
-											<View style={styles.msCheckBoxCircleIn}></View>
-										</View>
-									) : (
-										<View style={styles.msCheckBoxCircle}></View>
-									)}
-									
-									<Text style={styles.msCheckBoxText}>부활동 지역 기준</Text>
-								</TouchableOpacity>
-								<Text style={styles.msTitleBoxText2}>{distance2}km 이내</Text>
-							</View>
-							<MultiSlider								
-								selectedStyle={{
-									height:2,
-									backgroundColor: '#D1913C',
-								}}
-								unselectedStyle={{
-									height:2,
-									backgroundColor: '#DBDBDB',
-								}}
-								optionsArray={[10, 15, 20, 25, 30, 50, 70, 100, 150, 200, 300, 500]}
-								values={[distance2]}
-								markerOffsetY={1}
-								sliderLength={innerWidth}
-								value={[0]}
-								min={10}
-								max={500}
-								step={1}
-								enableLabel={false}
-								enabledOne={true}
-								enabledTwo={false}
-								allowOverlap={true}
-								customMarker={() => (
-									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
-								)}
-								onValuesChange={(e) => {
-									//console.log(e);
-									setDistance2(e[0]);
-								}}
-							/>
-						</View>
-						<View style={[styles.msBox, styles.mgt50]}>
-							<View style={[styles.msTitleBox, styles.mgb25]}>
-								<Text style={styles.msTitleBoxText1}>최근 접속일 수</Text>
-								<Text style={styles.msTitleBoxText2}>{recentAccess}일 이내 접속자</Text>
-							</View>
-							<View style={styles.multiSliderCustom}>
-								<View style={styles.multiSliderDotBack}>
-									<View style={[styles.multiSliderDotBackOn, recentAccess == 14 ? styles.w33p : null, recentAccess == 21 ? styles.w66p : null, recentAccess == 28 ? styles.w100p : null]}></View>
-								</View>
-								<TouchableOpacity 
-									style={[styles.multiSliderDot, styles.boxShadow]}
-									activeOpacity={1}
-									onPress={()=>{setRecentAccess(7)}}
-								>
-								</TouchableOpacity>
-								<TouchableOpacity 
-									style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 14 ? styles.multiSliderDotOff : null]}
-									activeOpacity={1}
-									onPress={()=>{setRecentAccess(14)}}
-								>									
-								</TouchableOpacity>
-								<TouchableOpacity 
-									style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 21 ? styles.multiSliderDotOff : null]}
-									activeOpacity={1}
-									onPress={()=>{setRecentAccess(21)}}
-								>									
-								</TouchableOpacity>
-								<TouchableOpacity 
-									style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 28 ? styles.multiSliderDotOff : null]}
-									activeOpacity={1}
-									onPress={()=>{setRecentAccess(28)}}
-								>									
-								</TouchableOpacity>
-							</View>
-						</View>
-						<View style={[styles.msBox, styles.mgt60]}>
+				{/* 필터 */}
+				<Modal
+					visible={filterPop}
+					animationType={"none"}
+					onRequestClose={() => setFilterPop(false)}
+				>
+					{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
+					<View style={styles.modalHeader}>					
+						<TouchableOpacity
+							style={styles.headerBackBtn2}
+							activeOpacity={opacityVal}
+							onPress={() => {
+								setFilterPop(false);
+							}}						
+						>
+							<AutoHeightImage width={8} source={require("../assets/image/icon_header_back.png")} resizeMethod='resize' />
+						</TouchableOpacity>		
+						<TouchableOpacity 
+							style={styles.filterResetBtn}
+							activeOpacity={opacityVal}
+							onPress={()=>{console.log('초기화 작업 진행!!')}}
+						>
+							<AutoHeightImage width={13} source={require('../assets/image/icon_refresh.png')} resizeMethod='resize' />	
+							<Text style={styles.filterResetText}>초기화</Text>
+						</TouchableOpacity>				
+					</View>
+					<ScrollView>
+						<View style={[styles.cmWrap, styles.cmWrap2]}>
 							<View style={styles.filterTitle}>
-								<Text style={styles.filterTitleText}>내 카드 설정</Text>
+								<Text style={styles.filterTitleText}>선호 카드 설정</Text>
 							</View>
 							<View style={styles.filterDesc}>
-								<Text style={styles.filterDescText}>내 카드가 소개 될 카드를 설정합니다.</Text>
+								<Text style={styles.filterDescText}>나에게 소개 될 카드를 설정합니다.</Text>
 							</View>
 							<View style={[styles.msBox, styles.mgt30]}>
 								<View style={[styles.msTitleBox, styles.mgb10]}>
 									<Text style={styles.msTitleBoxText1}>나이</Text>
-									<Text style={styles.msTitleBoxText2}>{ageMin2}년생~{ageMax2}년생+</Text>
+									<Text style={styles.msTitleBoxText2}>{ageMin}년생~{ageMax}년생+</Text>
 								</View>
-
 								<MultiSlider								
 									selectedStyle={{
 										height:2,
@@ -1436,8 +1263,8 @@ const Home = (props) => {
 									]}
 									markerOffsetY={1}
 									sliderLength={innerWidth}
-									min={ageMinInt}
-									max={ageMaxInt}
+									min={ageMaxInt}
+									max={ageMinInt}
 									step={1}
 									enableLabel={false}
 									enabledOne={true}
@@ -1450,316 +1277,577 @@ const Home = (props) => {
 										const last = ageAry[e[1]];
 										
 										let yearString = first.toString();
-										setRealAgeMin2(yearString);
+										setRealAgeMin(yearString);
 										yearString = yearString.substr(2,2);
 
 										let yearString2 = last.toString();
-										setRealAgeMax2(yearString2);
+										setRealAgeMax(yearString2);
 										yearString2 = yearString2.substr(2,2);
 										
-										setAgeMin2(yearString);
-										setAgeMax2(yearString2);
+										setAgeMin(yearString);
+										setAgeMax(yearString2);
 									}}
 								/>
 							</View>
-						</View>
-					</View>
-				</ScrollView>
-				<View style={styles.nextFix}>
-					<TouchableOpacity 
-						style={[styles.nextBtn]}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setFilterPop(false);
-							setFilterSave(true);
-						}}
-					>
-						<Text style={styles.nextBtnText}>저장하기</Text>
-					</TouchableOpacity>
-				</View>
-			</Modal>
+							<View style={[styles.msBox, styles.mgt50]}>
+								<View style={[styles.msTitleBox, styles.mgb25]}>
+									<Text style={styles.msTitleBoxText1}>거리</Text>
+								</View>
+								<View style={[styles.msTitleBox]}>
+									<TouchableOpacity 
+										style={styles.msCheckBox}
+										activeOpacity={opacityVal}
+										onPress={()=>{setDistanceStandard(1)}}
+									>
+										{distanceStandard == 1 ? (
+											<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
+												<View style={styles.msCheckBoxCircleIn}></View>
+											</View>
+										) : (
+											<View style={styles.msCheckBoxCircle}></View>
+										)}
+										
+										<Text style={styles.msCheckBoxText}>주활동 지역 기준</Text>
+									</TouchableOpacity>
+									<Text style={styles.msTitleBoxText2}>{distance}km 이내</Text>
+								</View>
+								<MultiSlider								
+									selectedStyle={{
+										height:2,
+										backgroundColor: '#D1913C',
+									}}
+									unselectedStyle={{
+										height:2,
+										backgroundColor: '#DBDBDB',
+									}}
+									optionsArray={[10, 15, 20, 25, 30, 50, 70, 100, 150, 200, 300, 500]}
+									values={[distance]}
+									markerOffsetY={1}
+									sliderLength={innerWidth}
+									value={[0]}
+									min={10}
+									max={500}
+									step={1}
+									enableLabel={false}
+									enabledOne={true}
+									enabledTwo={false}
+									allowOverlap={true}
+									customMarker={() => (
+										<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
+									)}
+									onValuesChange={(e) => {
+										//console.log(e);
+										setDistance(e[0]);
+									}}
+								/>
+							</View>
+							<View style={[styles.msBox, styles.mgt30]}>
+								<View style={[styles.msTitleBox]}>
+									<TouchableOpacity 
+										style={styles.msCheckBox}
+										activeOpacity={opacityVal}
+										onPress={()=>{setDistanceStandard(2)}}
+									>
+										{distanceStandard == 2 ? (
+											<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
+												<View style={styles.msCheckBoxCircleIn}></View>
+											</View>
+										) : (
+											<View style={styles.msCheckBoxCircle}></View>
+										)}
+										
+										<Text style={styles.msCheckBoxText}>부활동 지역 기준</Text>
+									</TouchableOpacity>
+									<Text style={styles.msTitleBoxText2}>{distance2}km 이내</Text>
+								</View>
+								<MultiSlider								
+									selectedStyle={{
+										height:2,
+										backgroundColor: '#D1913C',
+									}}
+									unselectedStyle={{
+										height:2,
+										backgroundColor: '#DBDBDB',
+									}}
+									optionsArray={[10, 15, 20, 25, 30, 50, 70, 100, 150, 200, 300, 500]}
+									values={[distance2]}
+									markerOffsetY={1}
+									sliderLength={innerWidth}
+									value={[0]}
+									min={10}
+									max={500}
+									step={1}
+									enableLabel={false}
+									enabledOne={true}
+									enabledTwo={false}
+									allowOverlap={true}
+									customMarker={() => (
+										<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
+									)}
+									onValuesChange={(e) => {
+										//console.log(e);
+										setDistance2(e[0]);
+									}}
+								/>
+							</View>
+							<View style={[styles.msBox, styles.mgt50]}>
+								<View style={[styles.msTitleBox, styles.mgb25]}>
+									<Text style={styles.msTitleBoxText1}>최근 접속일 수</Text>
+									<Text style={styles.msTitleBoxText2}>{recentAccess}일 이내 접속자</Text>
+								</View>
+								<View style={styles.multiSliderCustom}>
+									<View style={styles.multiSliderDotBack}>
+										<View style={[styles.multiSliderDotBackOn, recentAccess == 14 ? styles.w33p : null, recentAccess == 21 ? styles.w66p : null, recentAccess == 28 ? styles.w100p : null]}></View>
+									</View>
+									<TouchableOpacity 
+										style={[styles.multiSliderDot, styles.boxShadow]}
+										activeOpacity={1}
+										onPress={()=>{setRecentAccess(7)}}
+									>
+									</TouchableOpacity>
+									<TouchableOpacity 
+										style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 14 ? styles.multiSliderDotOff : null]}
+										activeOpacity={1}
+										onPress={()=>{setRecentAccess(14)}}
+									>									
+									</TouchableOpacity>
+									<TouchableOpacity 
+										style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 21 ? styles.multiSliderDotOff : null]}
+										activeOpacity={1}
+										onPress={()=>{setRecentAccess(21)}}
+									>									
+									</TouchableOpacity>
+									<TouchableOpacity 
+										style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 28 ? styles.multiSliderDotOff : null]}
+										activeOpacity={1}
+										onPress={()=>{setRecentAccess(28)}}
+									>									
+									</TouchableOpacity>
+								</View>
+							</View>
+							<View style={[styles.msBox, styles.mgt60]}>
+								<View style={styles.filterTitle}>
+									<Text style={styles.filterTitleText}>내 카드 설정</Text>
+								</View>
+								<View style={styles.filterDesc}>
+									<Text style={styles.filterDescText}>내 카드가 소개 될 카드를 설정합니다.</Text>
+								</View>
+								<View style={[styles.msBox, styles.mgt30]}>
+									<View style={[styles.msTitleBox, styles.mgb10]}>
+										<Text style={styles.msTitleBoxText1}>나이</Text>
+										<Text style={styles.msTitleBoxText2}>{ageMin2}년생~{ageMax2}년생+</Text>
+									</View>
 
-			{/* 탈퇴 회원 알림 */}
-			<Modal
-				visible={leavePop}
-				transparent={true}
-				animationType={"none"}
-				onRequestClose={() => setLeavePop(false)}
-			>
-				<View style={styles.cmPop}>
-					<TouchableOpacity 
-						style={styles.popBack} 
-						activeOpacity={1} 
-						onPress={()=>{setLeavePop(false)}}
-					>
-					</TouchableOpacity>
-					<View style={styles.prvPop}>
-						<TouchableOpacity
-							style={styles.pop_x}					
-							onPress={() => {setLeavePop(false)}}
-						>
-							<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
-						</TouchableOpacity>		
-						<View style={[styles.popTitle, styles.popTitleFlex]}>							
-							<View style={styles.popTitleFlexWrap}>
-                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>탈퇴한 회원이에요</Text>
-              </View>
-							<AutoHeightImage width={18} source={require("../assets/image/emiticon1.png")} style={styles.emoticon} resizeMethod='resize' />
+									<MultiSlider								
+										selectedStyle={{
+											height:2,
+											backgroundColor: '#D1913C',
+										}}
+										unselectedStyle={{
+											height:2,
+											backgroundColor: '#DBDBDB',
+										}}
+										optionsArray={ageAryIdx}
+										values={[
+											nonCollidingMultiSliderValue[0],
+											nonCollidingMultiSliderValue[1],
+										]}
+										markerOffsetY={1}
+										sliderLength={innerWidth}
+										min={ageMinInt}
+										max={ageMaxInt}
+										step={1}
+										enableLabel={false}
+										enabledOne={true}
+										enabledTwo={true}
+										customMarker={() => (
+											<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
+										)}
+										onValuesChange={(e) => {
+											const first = ageAry[e[0]];
+											const last = ageAry[e[1]];
+											
+											let yearString = first.toString();
+											setRealAgeMin2(yearString);
+											yearString = yearString.substr(2,2);
+
+											let yearString2 = last.toString();
+											setRealAgeMax2(yearString2);
+											yearString2 = yearString2.substr(2,2);
+											
+											setAgeMin2(yearString);
+											setAgeMax2(yearString2);
+										}}
+									/>
+								</View>
+							</View>
 						</View>
-						<View style={styles.popBtnBox}>
-							<TouchableOpacity 
-								style={[styles.popBtn]}
-								activeOpacity={opacityVal}
+					</ScrollView>
+					<View style={styles.nextFix}>
+						<TouchableOpacity 
+							style={[styles.nextBtn]}
+							activeOpacity={opacityVal}
+							onPress={() => {
+								setFilterPop(false);
+								setFilterSave(true);
+							}}
+						>
+							<Text style={styles.nextBtnText}>저장하기</Text>
+						</TouchableOpacity>
+					</View>
+				</Modal>
+
+				{/* 탈퇴 회원 알림 */}
+				<Modal
+					visible={leavePop}
+					transparent={true}
+					animationType={"none"}
+					onRequestClose={() => setLeavePop(false)}
+				>
+					<View style={styles.cmPop}>
+						<TouchableOpacity 
+							style={styles.popBack} 
+							activeOpacity={1} 
+							onPress={()=>{setLeavePop(false)}}
+						>
+						</TouchableOpacity>
+						<View style={styles.prvPop}>
+							<TouchableOpacity
+								style={styles.pop_x}					
 								onPress={() => {setLeavePop(false)}}
 							>
-								<Text style={styles.popBtnText}>확인</Text>
-							</TouchableOpacity>
+								<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
+							</TouchableOpacity>		
+							<View style={[styles.popTitle, styles.popTitleFlex]}>							
+								<View style={styles.popTitleFlexWrap}>
+									<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>탈퇴한 회원이에요</Text>
+								</View>
+								<AutoHeightImage width={18} source={require("../assets/image/emiticon1.png")} style={styles.emoticon} resizeMethod='resize' />
+							</View>
+							<View style={styles.popBtnBox}>
+								<TouchableOpacity 
+									style={[styles.popBtn]}
+									activeOpacity={opacityVal}
+									onPress={() => {setLeavePop(false)}}
+								>
+									<Text style={styles.popBtnText}>확인</Text>
+								</TouchableOpacity>
+							</View>
 						</View>
 					</View>
-				</View>
-			</Modal>
+				</Modal>
 
-			{/* 추가 소개 알림 */}
-			<Modal
-				visible={addIntroPop}
-				transparent={true}
-				animationType={"none"}
-				onRequestClose={() => setAddIntroPop(false)}
-			>
-				<View style={styles.cmPop}>
-					<TouchableOpacity 
-						style={styles.popBack} 
-						activeOpacity={1} 
-						onPress={()=>{setAddIntroPop(false)}}
-					>
-					</TouchableOpacity>
-					<View style={styles.prvPop}>
-						<TouchableOpacity
-							style={styles.pop_x}					
-							onPress={() => {setAddIntroPop(false)}}
-						>
-							<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
-						</TouchableOpacity>		
-						<View style={[styles.popTitle]}>
-							<Text style={styles.popTitleText}>추가 소개 받으시겠어요?</Text>							
-						</View>
-						<View style={styles.pointBox}>
-							<AutoHeightImage width={24} source={require('../assets/image/coin.png')} resizeMethod='resize' />
-							<Text style={styles.pointBoxText}>100</Text>
-						</View>						
-						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
+				{/* 추가 소개 알림 */}
+				<Modal
+					visible={addIntroPop}
+					transparent={true}
+					animationType={"none"}
+					onRequestClose={() => setAddIntroPop(false)}
+				>
+					<View style={styles.cmPop}>
 						<TouchableOpacity 
-								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
-								activeOpacity={opacityVal}
+							style={styles.popBack} 
+							activeOpacity={1} 
+							onPress={()=>{setAddIntroPop(false)}}
+						>
+						</TouchableOpacity>
+						<View style={styles.prvPop}>
+							<TouchableOpacity
+								style={styles.pop_x}					
 								onPress={() => {setAddIntroPop(false)}}
 							>
-								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
-							</TouchableOpacity>
+								<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
+							</TouchableOpacity>		
+							<View style={[styles.popTitle]}>
+								<Text style={styles.popTitleText}>추가 소개 받으시겠어요?</Text>							
+							</View>
+							<View style={styles.pointBox}>
+								<AutoHeightImage width={24} source={require('../assets/image/coin.png')} resizeMethod='resize' />
+								<Text style={styles.pointBoxText}>100</Text>
+							</View>						
+							<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
 							<TouchableOpacity 
-								style={[styles.popBtn, styles.popBtn2]}
-								activeOpacity={opacityVal}
-								onPress={() => {
-									setAddIntroPop(false);
-									setCashPop(true);
-								}}
-							>
-								<Text style={styles.popBtnText}>네</Text>
-							</TouchableOpacity>
+									style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
+									activeOpacity={opacityVal}
+									onPress={() => {setAddIntroPop(false)}}
+								>
+									<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
+								</TouchableOpacity>
+								<TouchableOpacity 
+									style={[styles.popBtn, styles.popBtn2]}
+									activeOpacity={opacityVal}
+									onPress={() => {
+										setAddIntroPop(false);
+										setCashPop(true);
+									}}
+								>
+									<Text style={styles.popBtnText}>네</Text>
+								</TouchableOpacity>
+							</View>
 						</View>
 					</View>
-				</View>
-			</Modal>
+				</Modal>
 
-			{/* 포인트 구매 팝업 */}
-			<Modal
-				visible={cashPop}
-				transparent={true}
-				animationType={"none"}
-				onRequestClose={() => setCashPop(false)}
-			>
-				<TouchableOpacity 
-					style={[styles.popBack, styles.popBack2]} 
-					activeOpacity={1} 
-					onPress={()=>{setCashPop(false)}}
+				{/* 포인트 구매 팝업 */}
+				<Modal
+					visible={cashPop}
+					transparent={true}
+					animationType={"none"}
+					onRequestClose={() => setCashPop(false)}
 				>
-				</TouchableOpacity>
-				<View style={styles.prvPopBot}>
-					<View style={[styles.popTitle]}>
-						<Text style={styles.popBotTitleText}>더 많은 인연을 만나보세요</Text>							
-						<Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 즉시 다음 인연을!</Text>
-					</View>					
-					<View style={styles.productList}>
-						<TouchableOpacity
-							style={[styles.productBtn, prdIdx==1 ? styles.productBtnOn : null]}
-							activeOpacity={opacityVal}
-							onPress={()=>{setPrdIdx(1)}}
-						>
-							<Text style={styles.productText1}>000</Text>
-							<View style={styles.productBest}></View>							
-							<Text style={[styles.productText3, prdIdx==1 ? styles.productText3On : null]}>개당 ￦000</Text>
-							<Text style={styles.productText4}>￦50,000</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={[styles.productBtn, prdIdx==2 ? styles.productBtnOn : null]}
-							activeOpacity={opacityVal}
-							onPress={()=>{setPrdIdx(2)}}
-						>
-							<Text style={styles.productText1}>000</Text>
-							<View style={[styles.productBest, styles.productBest2]}>
-								<Text style={styles.productText2}>BEST</Text>
-							</View>
-							<Text style={[styles.productText3, prdIdx==2 ? styles.productText3On : null]}>개당 ￦000</Text>
-							<Text style={styles.productText4}>￦50,000</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={[styles.productBtn, prdIdx==3 ? styles.productBtnOn : null]}
-							activeOpacity={opacityVal}
-							onPress={()=>{setPrdIdx(3)}}
-						>
-							<Text style={styles.productText1}>000</Text>
-							<View style={styles.productBest}></View>
-							<Text style={[styles.productText3, prdIdx==3 ? styles.productText3On : null]}>개당 ￦000</Text>
-							<Text style={styles.productText4}>￦50,000</Text>
-						</TouchableOpacity>
-					</View>
-					<View style={[styles.popBtnBox]}>
-						<TouchableOpacity 
-							style={[styles.popBtn]}
-							activeOpacity={opacityVal}
-							onPress={() => {setCashPop(false)}}
-						>
-							<Text style={styles.popBtnText}>지금 구매하기</Text>
-						</TouchableOpacity>
-						<TouchableOpacity 
-							style={[styles.popBtn, styles.popBtnOff2]}
-							activeOpacity={opacityVal}
-							onPress={() => {setCashPop(false)}}
-						>
-							<Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
-						</TouchableOpacity>						
-					</View>
-				</View>
-			</Modal>
-
-			{/* 소개 카드 없음 - 필터 미사용 */}
-			<Modal
-				visible={unAddIntroPop1}
-				transparent={true}
-				animationType={"none"}
-				onRequestClose={() => setUnAddIntroPop1(false)}
-			>
-				<View style={styles.cmPop}>
 					<TouchableOpacity 
-						style={styles.popBack} 
+						style={[styles.popBack, styles.popBack2]} 
 						activeOpacity={1} 
-						onPress={()=>{setUnAddIntroPop1(false)}}
+						onPress={()=>{setCashPop(false)}}
 					>
 					</TouchableOpacity>
-					<View style={styles.prvPop}>
-						<TouchableOpacity
-							style={styles.pop_x}					
-							onPress={() => {setUnAddIntroPop1(false)}}
-						>
-							<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
-						</TouchableOpacity>		
-						<View>
-							<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
+					<View style={styles.prvPopBot}>
+						<View style={[styles.popTitle]}>
+							<Text style={styles.popBotTitleText}>더 많은 인연을 만나보세요</Text>							
+							<Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 즉시 다음 인연을!</Text>
+						</View>					
+						<View style={styles.productList}>
+							<TouchableOpacity
+								style={[styles.productBtn, prdIdx==1 ? styles.productBtnOn : null]}
+								activeOpacity={opacityVal}
+								onPress={()=>{setPrdIdx(1)}}
+							>
+								<Text style={styles.productText1}>000</Text>
+								<View style={styles.productBest}></View>							
+								<Text style={[styles.productText3, prdIdx==1 ? styles.productText3On : null]}>개당 ￦000</Text>
+								<Text style={styles.productText4}>￦50,000</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.productBtn, prdIdx==2 ? styles.productBtnOn : null]}
+								activeOpacity={opacityVal}
+								onPress={()=>{setPrdIdx(2)}}
+							>
+								<Text style={styles.productText1}>000</Text>
+								<View style={[styles.productBest, styles.productBest2]}>
+									<Text style={styles.productText2}>BEST</Text>
+								</View>
+								<Text style={[styles.productText3, prdIdx==2 ? styles.productText3On : null]}>개당 ￦000</Text>
+								<Text style={styles.productText4}>￦50,000</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.productBtn, prdIdx==3 ? styles.productBtnOn : null]}
+								activeOpacity={opacityVal}
+								onPress={()=>{setPrdIdx(3)}}
+							>
+								<Text style={styles.productText1}>000</Text>
+								<View style={styles.productBest}></View>
+								<Text style={[styles.productText3, prdIdx==3 ? styles.productText3On : null]}>개당 ￦000</Text>
+								<Text style={styles.productText4}>￦50,000</Text>
+							</TouchableOpacity>
 						</View>
-						<View style={[styles.popTitle, styles.popTitleFlex]}>							
-							<View style={styles.popTitleFlexWrap}>
-                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
-              </View>
-							<AutoHeightImage width={18} source={require("../assets/image/emiticon2.png")} style={styles.emoticon} resizeMethod='resize' />
-						</View>
-						<View>
-							<Text style={[styles.popTitleDesc, styles.mgt0]}>새로운 회원이 들어올때까지 커뮤니티를 즐겨보세요!</Text>
-						</View>
-						<View style={styles.popBtnBox}>
+						<View style={[styles.popBtnBox]}>
 							<TouchableOpacity 
 								style={[styles.popBtn]}
 								activeOpacity={opacityVal}
-								onPress={() => {}}
+								onPress={() => {setCashPop(false)}}
 							>
-								<Text style={styles.popBtnText}>커뮤니티 바로가기</Text>
+								<Text style={styles.popBtnText}>지금 구매하기</Text>
 							</TouchableOpacity>
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtnOff2]}
 								activeOpacity={opacityVal}
-								onPress={() => {setUnAddIntroPop1(false)}}
+								onPress={() => {setCashPop(false)}}
 							>
 								<Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
-							</TouchableOpacity>
+							</TouchableOpacity>						
 						</View>
 					</View>
-				</View>
-			</Modal>
+				</Modal>
 
-			{/* 소개 카드 없음 - 필터 사용 */}
-			<Modal
-				visible={unAddIntroPop2}
-				transparent={true}
-				animationType={"none"}
-				onRequestClose={() => setUnAddIntroPop2(false)}
-			>
-				<View style={styles.cmPop}>
+				{/* 소개 카드 없음 - 필터 미사용 */}
+				<Modal
+					visible={unAddIntroPop1}
+					transparent={true}
+					animationType={"none"}
+					onRequestClose={() => setUnAddIntroPop1(false)}
+				>
+					<View style={styles.cmPop}>
+						<TouchableOpacity 
+							style={styles.popBack} 
+							activeOpacity={1} 
+							onPress={()=>{setUnAddIntroPop1(false)}}
+						>
+						</TouchableOpacity>
+						<View style={styles.prvPop}>
+							<TouchableOpacity
+								style={styles.pop_x}					
+								onPress={() => {setUnAddIntroPop1(false)}}
+							>
+								<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
+							</TouchableOpacity>		
+							<View>
+								<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
+							</View>
+							<View style={[styles.popTitle, styles.popTitleFlex]}>							
+								<View style={styles.popTitleFlexWrap}>
+									<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
+								</View>
+								<AutoHeightImage width={18} source={require("../assets/image/emiticon2.png")} style={styles.emoticon} resizeMethod='resize' />
+							</View>
+							<View>
+								<Text style={[styles.popTitleDesc, styles.mgt0]}>새로운 회원이 들어올때까지 커뮤니티를 즐겨보세요!</Text>
+							</View>
+							<View style={styles.popBtnBox}>
+								<TouchableOpacity 
+									style={[styles.popBtn]}
+									activeOpacity={opacityVal}
+									onPress={() => {navigation.navigate('Community')}}
+								>
+									<Text style={styles.popBtnText}>커뮤니티 바로가기</Text>
+								</TouchableOpacity>
+								<TouchableOpacity 
+									style={[styles.popBtn, styles.popBtnOff2]}
+									activeOpacity={opacityVal}
+									onPress={() => {setUnAddIntroPop1(false)}}
+								>
+									<Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
+								</TouchableOpacity>
+							</View>
+						</View>
+					</View>
+				</Modal>
+
+				{/* 소개 카드 없음 - 필터 사용 */}
+				<Modal
+					visible={unAddIntroPop2}
+					transparent={true}
+					animationType={"none"}
+					onRequestClose={() => setUnAddIntroPop2(false)}
+				>
+					<View style={styles.cmPop}>
+						<TouchableOpacity 
+							style={styles.popBack} 
+							activeOpacity={1} 
+							onPress={()=>{setUnAddIntroPop2(false)}}
+						>
+						</TouchableOpacity>
+						<View style={styles.prvPop}>
+							<TouchableOpacity
+								style={styles.pop_x}					
+								onPress={() => {setUnAddIntroPop2(false)}}
+							>
+								<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
+							</TouchableOpacity>		
+							<View>
+								<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
+							</View>
+							<View style={[styles.popTitle, styles.popTitleFlex]}>							
+								<View style={styles.popTitleFlexWrap}>
+									<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
+								</View>
+								<AutoHeightImage width={18} source={require("../assets/image/emiticon2.png")} style={styles.emoticon} resizeMethod='resize' />
+							</View>
+							<View>
+								<Text style={[styles.popTitleDesc, styles.mgt0]}>추가 소개를 받고 싶다면 필터 범위를 넓혀보세요!</Text>
+							</View>
+							<View style={styles.popBtnBox}>
+								<TouchableOpacity 
+									style={[styles.popBtn]}
+									activeOpacity={opacityVal}
+									onPress={() => {
+										setUnAddIntroPop2(false);
+										setFilterPop(true);
+									}}
+								>
+									<Text style={styles.popBtnText}>필터 설정 바로가기</Text>
+								</TouchableOpacity>
+							</View>
+						</View>
+					</View>
+				</Modal>
+
+				{/* 회원가입 축하 */}
+				<Modal
+					visible={welcomePop}
+					transparent={true}
+					animationType={"none"}
+					onRequestClose={() => setWelcomePop(false)}
+				>
 					<TouchableOpacity 
-						style={styles.popBack} 
+						style={[styles.popBack, styles.popBack2]} 
 						activeOpacity={1} 
-						onPress={()=>{setUnAddIntroPop2(false)}}
+						onPress={()=>{setWelcomePop(false)}}
 					>
 					</TouchableOpacity>
-					<View style={styles.prvPop}>
-						<TouchableOpacity
-							style={styles.pop_x}					
-							onPress={() => {setUnAddIntroPop2(false)}}
-						>
-							<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
-						</TouchableOpacity>		
-						<View>
-							<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
-						</View>
-						<View style={[styles.popTitle, styles.popTitleFlex]}>							
-							<View style={styles.popTitleFlexWrap}>
-                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
-              </View>
-							<AutoHeightImage width={18} source={require("../assets/image/emiticon2.png")} style={styles.emoticon} resizeMethod='resize' />
-						</View>
-						<View>
-							<Text style={[styles.popTitleDesc, styles.mgt0]}>추가 소개를 받고 싶다면 필터 범위를 넓혀보세요!</Text>
-						</View>
-						<View style={styles.popBtnBox}>
-							<TouchableOpacity 
-								style={[styles.popBtn]}
-								activeOpacity={opacityVal}
-								onPress={() => {
-									setUnAddIntroPop2(false);
-									setFilterPop(true);
-								}}
-							>
-								<Text style={styles.popBtnText}>필터 설정 바로가기</Text>
-							</TouchableOpacity>
+					<View style={styles.prvPopBot2}>
+						<AutoHeightImage width={widnowWidth} source={require('../assets/image/welcome.png')} resizeMethod='resize' />
+					</View>
+				</Modal>
+
+				{loading ? (
+				<View style={[styles.indicator]}>
+					<ActivityIndicator size="large" color="#D1913C" />
+				</View>
+				) : null}
+			</>
+
+			) : (
+			<Modal
+				visible={true}
+				animationType={"none"}
+			>
+				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
+				<ScrollView>
+					<View style={styles.accImg}>
+						<AutoHeightImage width={42} source={require('../assets/image/logo_navy.png')} />
+						<View style={styles.accCircle}>
+							<AutoHeightImage width={84} source={require('../assets/image/account_off.jpg')} />
 						</View>
 					</View>
-				</View>
-			</Modal>
+					<View style={styles.accInfo}>
+						<View style={styles.accInfoNick}>
+							<Text style={styles.accInfoNickText}>닉네임최대여덟자</Text>
+						</View>
+						<View style={styles.accInfoTitle}>
+							<Text style={styles.accInfoTitleText}>비활성화 상태입니다.</Text>
+						</View>
+						<View style={styles.accInfoDesc}>
+							<Text style={styles.accInfoDescText}>피지컬 매치의 육각형 회원들이</Text>
+						</View>
+						<View style={styles.accInfoDesc}>
+							<Text style={styles.accInfoDescText}>회원님을 기다리고 있어요!</Text>
+						</View>
+						<View style={styles.accInfoDesc}>
+							<Text style={styles.accInfoDescText}>좋은 인연과 커뮤니티를</Text>
+						</View>
+						<View style={styles.accInfoDesc}>
+							<Text style={styles.accInfoDescText}>다시 만나보세요</Text>
+							<AutoHeightImage width={24} source={require('../assets/image/icon_heart2.png')} style={{position:'relative',top:2,}} />
+						</View>
+					</View>
+				</ScrollView>
 
-			{/* 회원가입 축하 */}
-			<Modal
-				visible={welcomePop}
-				transparent={true}
-				animationType={"none"}
-				onRequestClose={() => setWelcomePop(false)}
-			>
-				<TouchableOpacity 
-					style={[styles.popBack, styles.popBack2]} 
-					activeOpacity={1} 
-					onPress={()=>{setWelcomePop(false)}}
-				>
-				</TouchableOpacity>
-				<View style={styles.prvPopBot2}>
-					<AutoHeightImage width={widnowWidth} source={require('../assets/image/welcome.png')} resizeMethod='resize' />
+				<View style={[styles.popBtnBox, styles.popBtnBox2]}>
+					<TouchableOpacity 
+						style={[styles.popBtn]}
+						activeOpacity={opacityVal}
+						onPress={() => {accountReset()}}
+					>
+						<Text style={styles.popBtnText}>비활성화 해제</Text>
+					</TouchableOpacity>
+					<TouchableOpacity 
+						style={[styles.popBtn, styles.popBtnOff2]}
+						activeOpacity={opacityVal}
+						onPress={() => {}}
+					>
+						<Text style={[styles.popBtnText, styles.popBtnOffText]}>로그아웃</Text>
+					</TouchableOpacity>
 				</View>
+
+				{loading ? (
+				<View style={[styles.indicator]}>
+					<ActivityIndicator size="large" color="#D1913C" />
+				</View>
+				) : null}
 			</Modal>
+			)}
+
+
 			
 		</SafeAreaView>
 	)
@@ -1768,10 +1856,7 @@ const Home = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },
 	gapBox: {height:86,},
-	indicator: {height:widnowHeight-185, display:'flex', alignItems:'center', justifyContent:'center'},
-	indicator2: { marginTop: 62 },
-	text: {padding:8, color : 'black'},
-	img: { marginTop: 8, height: widnowWidth, },
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
 
 	header: {backgroundColor:'#141E30'},
 	headerTop: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingTop:20,paddingBottom:10,paddingHorizontal:20,},
@@ -1894,6 +1979,7 @@ const styles = StyleSheet.create({
 	popIptBox: {paddingTop:10,},
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
 	popBtnBox: {marginTop:30,},
+	popBtnBox2: {paddingHorizontal:20,paddingTop:30,paddingBottom:50,marginTop:0},
 	popBtnBoxFlex: {flexDirection:'row',justifyContent:'space-between'},
 	popBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#243B55',borderRadius:5,},
 	popBtn2: {width:(innerWidth/2)-25,},
@@ -1932,6 +2018,16 @@ const styles = StyleSheet.create({
 	productText3: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
 	productText3On: {color:'#1e1e1e'},
 	productText4: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
+
+	accImg: {alignItems:'center',justifyContent:'center',width:widnowWidth,height:180,backgroundColor:'#F2F4F6',position:'relative'},
+	accCircle: {alignItems:'center',justifyContent:'center',width:80,height:80,borderWidth:2,borderColor:'#EDEDED',borderRadius:50,overflow:'hidden',position:'absolute',bottom:-40},
+	accInfo: {paddingTop:55,paddingBottom:10,paddingHorizontal:20,},
+	accInfoNick: {},
+	accInfoNickText: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:18,lineHeight:21,color:'#1e1e1e'},
+	accInfoTitle: {marginTop:50,marginBottom:15,},
+	accInfoTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#666'},
+	accInfoDesc: {flexDirection:'row',alignItems:'center',justifyContent:'center'},
+	accInfoDescText: {fontFamily:Font.NotoSansRegular,fontSize:16,lineHeight:28,color:'#666'},
 
 	boxShadow: {
 		shadowColor: "#000",

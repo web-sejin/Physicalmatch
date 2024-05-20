@@ -8,6 +8,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
 import Swiper from 'react-native-web-swiper';
+import { BlurView } from "@react-native-community/blur";
 
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
@@ -612,60 +613,25 @@ const CommunityView = (props) => {
 
               <View style={styles.lineView}></View>
 
-              <View style={[styles.cmView, styles.pdt40, styles.pdb30]}>
-                <View style={styles.cmViewTitle}>
+              <View style={[styles.pdt40, styles.pdb30]}>
+                <View style={[styles.cmViewTitle, styles.cmView, styles.mgb0]}>
                   <Text style={styles.cmViewTitleText}>댓글</Text>
                 </View>
                 
-                <View style={[styles.reviewDepth, styles.mgt0]}>
-                  <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />                
-                  <View style={styles.reviewInfo}>
-                    <View style={styles.reviewNickDate}>
-                      <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
-                      <Text style={styles.reviewDateText}>12.31 22:22</Text>
-                      <TouchableOpacity
-                        style={styles.reviewTradeBtn}
-                        activeOpacity={opacityVal}
-                        onPress={()=>{
-
-                        }}
-                      >
-                        <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.reviewCont}>
-                      <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
-                    </View>
-                    <View style={styles.reviewBtnBox}>
-                      <TouchableOpacity
-                        style={styles.reviewBtn}
-                        activeOpacity={opacityVal}
-                        onPress={()=>{
-                          setReviewCont('');
-                          setReviewType(2);
-                          scrollRef.current?.scrollTo({y:layout3.y});
-                        }}
-                      >
-                        <Text style={styles.reviewBtnText}>대댓글달기</Text>
-                      </TouchableOpacity>
-                      <View style={styles.reviewBtnLine}></View>
-                      <TouchableOpacity
-                        style={styles.reviewBtn}
-                        activeOpacity={opacityVal}
-                        onPress={()=>{
-                          setReportType(2);
-                          setReportPop(true);
-                          setDotPop(false);
-                          setPreventBack(true);
-                        }}
-                      >
-                        <Text style={styles.reviewBtnText}>신고하기</Text>
-                      </TouchableOpacity>
-                    </View>
-
-                    <View style={[styles.reviewDepth, styles.reviewDepth2]}>
-                      <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />
-                      <View style={[styles.reviewInfo, styles.reviewInfo2]}>
+                <View style={styles.reviewWrap}>
+                  {/* <BlurView 
+                    style={styles.blurView}
+                    blurType="light"
+                    blurAmount={3}
+                  />
+                  <View style={styles.blurAlert}>
+                    <Text style={styles.blurAlertText}>댓글은 정회원만</Text>
+                    <Text style={styles.blurAlertText}>작성 및 열람이 가능합니다.</Text>
+                  </View> */}
+                  <View style={styles.cmView}>
+                    <View style={[styles.reviewDepth, styles.mgt0]}>
+                      <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />                
+                      <View style={styles.reviewInfo}>
                         <View style={styles.reviewNickDate}>
                           <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
                           <Text style={styles.reviewDateText}>12.31 22:22</Text>
@@ -687,7 +653,102 @@ const CommunityView = (props) => {
                             style={styles.reviewBtn}
                             activeOpacity={opacityVal}
                             onPress={()=>{
-                              setReportType(3);
+                              setReviewCont('');
+                              setReviewType(2);
+                              scrollRef.current?.scrollTo({y:layout3.y});
+                            }}
+                          >
+                            <Text style={styles.reviewBtnText}>대댓글달기</Text>
+                          </TouchableOpacity>
+                          <View style={styles.reviewBtnLine}></View>
+                          <TouchableOpacity
+                            style={styles.reviewBtn}
+                            activeOpacity={opacityVal}
+                            onPress={()=>{
+                              setReportType(2);
+                              setReportPop(true);
+                              setDotPop(false);
+                              setPreventBack(true);
+                            }}
+                          >
+                            <Text style={styles.reviewBtnText}>신고하기</Text>
+                          </TouchableOpacity>
+                        </View>
+
+                        <View style={[styles.reviewDepth, styles.reviewDepth2]}>
+                          <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />
+                          <View style={[styles.reviewInfo, styles.reviewInfo2]}>
+                            <View style={styles.reviewNickDate}>
+                              <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
+                              <Text style={styles.reviewDateText}>12.31 22:22</Text>
+                              <TouchableOpacity
+                                style={styles.reviewTradeBtn}
+                                activeOpacity={opacityVal}
+                                onPress={()=>{
+
+                                }}
+                              >
+                                <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
+                              </TouchableOpacity>
+                            </View>
+                            <View style={styles.reviewCont}>
+                              <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
+                            </View>
+                            <View style={styles.reviewBtnBox}>
+                              <TouchableOpacity
+                                style={styles.reviewBtn}
+                                activeOpacity={opacityVal}
+                                onPress={()=>{
+                                  setReportType(3);
+                                  setReportPop(true);
+                                  setDotPop(false);
+                                  setPreventBack(true);
+                                }}
+                              >
+                                <Text style={styles.reviewBtnText}>신고하기</Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        </View>
+                      </View>            
+                    </View>
+                    <View style={[styles.reviewDepth]}>
+                      <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />
+                      <View style={styles.reviewInfo}>
+                        <View style={styles.reviewNickDate}>
+                          <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
+                          <Text style={styles.reviewDateText}>12.31 22:22</Text>
+                          <TouchableOpacity
+                            style={styles.reviewTradeBtn}
+                            activeOpacity={opacityVal}
+                            onPress={()=>{
+
+                            }}
+                          >
+                            <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
+                          </TouchableOpacity>
+                        </View>
+                        <View style={styles.reviewCont}>
+                          <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
+                        </View>
+                        <View style={styles.reviewBtnBox}>
+                          <TouchableOpacity
+                            style={styles.reviewBtn}
+                            activeOpacity={opacityVal}
+                            onPress={()=>{
+                              setReviewCont('');
+                              setReviewType(2);
+                              scrollRef.current?.scrollTo({y:layout3.y});
+                            }}
+                          >
+                            <Text style={styles.reviewBtnText}>대댓글달기</Text>
+                          </TouchableOpacity>
+                          <View style={styles.reviewBtnLine}></View>
+                          <TouchableOpacity
+                            style={styles.reviewBtn}
+                            activeOpacity={opacityVal}
+                            onPress={()=>{
+                              setReportType(2);
                               setReportPop(true);
                               setDotPop(false);
                               setPreventBack(true);
@@ -697,83 +758,36 @@ const CommunityView = (props) => {
                           </TouchableOpacity>
                         </View>
                       </View>
-                    </View>
-                  </View>            
-                </View>
-                <View style={[styles.reviewDepth]}>
-                  <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />
-                  <View style={styles.reviewInfo}>
-                    <View style={styles.reviewNickDate}>
-                      <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
-                      <Text style={styles.reviewDateText}>12.31 22:22</Text>
-                      <TouchableOpacity
-                        style={styles.reviewTradeBtn}
-                        activeOpacity={opacityVal}
-                        onPress={()=>{
+                    </View>          
+                    <View style={[styles.reviewDepth]}>
+                      <AutoHeightImage width={28} source={require("../../assets/image/profile_sample.png")} />
+                      <View style={styles.reviewInfo}>
+                        <View style={styles.reviewNickDate}>
+                          <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
+                          <Text style={styles.reviewDateText}>12.31 22:22</Text>
+                          <TouchableOpacity
+                            style={styles.reviewTradeBtn}
+                            activeOpacity={opacityVal}
+                            onPress={()=>{
 
-                        }}
-                      >
-                        <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.reviewCont}>
-                      <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
-                    </View>
-                    <View style={styles.reviewBtnBox}>
-                      <TouchableOpacity
-                        style={styles.reviewBtn}
-                        activeOpacity={opacityVal}
-                        onPress={()=>{
-                          setReviewCont('');
-                          setReviewType(2);
-                          scrollRef.current?.scrollTo({y:layout3.y});
-                        }}
-                      >
-                        <Text style={styles.reviewBtnText}>대댓글달기</Text>
-                      </TouchableOpacity>
-                      <View style={styles.reviewBtnLine}></View>
-                      <TouchableOpacity
-                        style={styles.reviewBtn}
-                        activeOpacity={opacityVal}
-                        onPress={()=>{
-                          setReportType(2);
-                          setReportPop(true);
-                          setDotPop(false);
-                          setPreventBack(true);
-                        }}
-                      >
-                        <Text style={styles.reviewBtnText}>신고하기</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>          
-                <View style={[styles.reviewDepth]}>
-                  <AutoHeightImage width={28} source={require("../../assets/image/profile_sample.png")} />
-                  <View style={styles.reviewInfo}>
-                    <View style={styles.reviewNickDate}>
-                      <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
-                      <Text style={styles.reviewDateText}>12.31 22:22</Text>
-                      <TouchableOpacity
-                        style={styles.reviewTradeBtn}
-                        activeOpacity={opacityVal}
-                        onPress={()=>{
-
-                        }}
-                      >
-                        <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.reviewCont}>
-                      <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
-                    </View>
-                    <View style={styles.reviewBtnBox}>
-                      <TouchableOpacity
-                        style={styles.reviewBtn}
-                        activeOpacity={opacityVal}
-                        onPress={()=>{}}
-                      >
-                        <Text style={styles.reviewBtnText}>삭제하기</Text>
-                      </TouchableOpacity>
+                            }}
+                          >
+                            <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
+                          </TouchableOpacity>
+                        </View>
+                        <View style={styles.reviewCont}>
+                          <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
+                        </View>
+                        <View style={styles.reviewBtnBox}>
+                          <TouchableOpacity
+                            style={styles.reviewBtn}
+                            activeOpacity={opacityVal}
+                            onPress={()=>{}}
+                          >
+                            <Text style={styles.reviewBtnText}>삭제하기</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
                     </View>
                   </View>
                 </View>
@@ -1236,6 +1250,10 @@ const styles = StyleSheet.create({
   reqOkBtn: {alignItems:'center',justifyContent:'center',width:46,height:30,backgroundColor:'#F2F4F6',borderRadius:5,position:'absolute',right:15,},
   reqOkBtnText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:17,color:'#243B55'},
   
+  reviewWrap: {alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',paddingTop:20,},
+  blurView: {width:widnowWidth,height:widnowHeight,position:'absolute',left:0,top:0,zIndex:100,},
+  blurAlert: {position:'absolute',zIndex:101},
+  blurAlertText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:28,color:'#243B55'},
   reviewDepth: {flexDirection:'row',flexWrap:'wrap',marginTop:30,},
   reviewDepth2: {width:innerWidth-34,marginTop:20,},
   reviewInfo: {width:innerWidth-28,paddingLeft:6,},
@@ -1433,7 +1451,8 @@ const styles = StyleSheet.create({
 	mgt30: {marginTop:30},
 	mgt40: {marginTop:40},
 	mgt50: {marginTop:50},
-	mgb10: {marginBottom:10},
+	mgb0: {marginBottom:0},
+  mgb10: {marginBottom:10},
 	mgb20: {marginBottom:20},
 	mgr0: {marginRight:0},
   mgr15: {marginRight:15},

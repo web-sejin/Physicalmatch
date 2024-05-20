@@ -192,7 +192,7 @@ const MyHobby = (props) => {
 								useNativeAndroidPickerStyle={false}
 								multiline={false}
 								style={{
-									placeholder: {color: '#666'},
+									placeholder: {fontFamily:Font.NotoSansRegular,color: '#666'},
 									inputAndroid: styles.select,
 									inputAndroidContainer: styles.selectCont,
 									inputIOS: styles.select,

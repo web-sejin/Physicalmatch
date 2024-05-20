@@ -13,6 +13,7 @@ import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 
+const padding_top = Platform.OS === 'ios' ? 10 : 15;
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
@@ -48,9 +49,25 @@ const Mypage = (props) => {
 		return () => isSubscribed = false;
 	}, [isFocused]);
 
+	const notMember = () => {
+		ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+	}
+ 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'MY PAGE'} />
+
+			<View style={{...styles.screening, paddingTop:padding_top}}>
+				<View style={styles.screeningTitle}>
+					<AutoHeightImage width={16} source={require('../../assets/image/icon_screening.png')} />
+					<View style={styles.screeningView}>
+						<Text style={styles.screeningText}>프로필이 심사 중에 있습니다.</Text>
+					</View>
+				</View>
+				<View style={styles.screeningDesc}>
+					<Text style={styles.screeningDescText}>심사 완료까지 1~2일이 소요됩니다.</Text>
+				</View>
+			</View>			
 
 			<ScrollView>
 				<View style={styles.myProfInfo}>
@@ -70,6 +87,7 @@ const Mypage = (props) => {
 						onPress={()=>{navigation.navigate('ProfieModify')}}						
 					>
 						<AutoHeightImage width={36} source={require('../../assets/image/icon_my_pencel.png')} />
+						{/* <AutoHeightImage width={36} source={require('../../assets/image/icon_eraser.png')} /> */}
 					</TouchableOpacity>
 
 					<View style={styles.myProfInfoNick}>
@@ -83,9 +101,7 @@ const Mypage = (props) => {
 					<TouchableOpacity
 						style={styles.mypageMenuBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{
-
-						}}
+						onPress={()=>{navigation.navigate('MyPoint')}}
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
@@ -103,9 +119,7 @@ const Mypage = (props) => {
 					<TouchableOpacity
 						style={styles.mypageMenuBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{
-
-						}}
+						onPress={()=>{navigation.navigate('MyCharm')}}
 					>						
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
@@ -123,9 +137,7 @@ const Mypage = (props) => {
 					<TouchableOpacity
 						style={styles.mypageMenuBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{
-
-						}}
+						onPress={()=>{navigation.navigate('NewMember')}}
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
@@ -146,9 +158,7 @@ const Mypage = (props) => {
 					<TouchableOpacity
 						style={styles.mypageMenuBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{
-
-						}}
+						onPress={()=>{navigation.navigate('MyInvite')}}
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
@@ -169,9 +179,7 @@ const Mypage = (props) => {
 					<TouchableOpacity
 						style={styles.mypageMenuBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{
-
-						}}
+						onPress={()=>{navigation.navigate('BoardMenu')}}
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
@@ -189,9 +197,7 @@ const Mypage = (props) => {
 					<TouchableOpacity
 						style={styles.mypageMenuBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{
-
-						}}
+						onPress={()=>{navigation.navigate('SettingMenu')}}
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
@@ -205,6 +211,23 @@ const Mypage = (props) => {
 							<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
 						</View>
 					</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.mypageMenuBtn}
+						activeOpacity={opacityVal}
+						onPress={()=>notMember()}
+					>
+						<View style={styles.mypageMenuBtnLeft}>
+							<View style={styles.mypageMenuBtnIcon}>
+								<AutoHeightImage width={20} source={require('../../assets/image/mypage_menu6.png')} />
+							</View>
+							<View style={styles.mypageMenuBtnName}>
+								<Text style={styles.mypageMenuBtnNameText}>비회원용 토스트 메세지</Text>
+							</View>
+						</View>
+						<View style={styles.mypageMenuBtnRight}>
+							<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+						</View>
+					</TouchableOpacity>					
 				</View>
 
 				<View style={styles.swiperView}>
@@ -273,7 +296,14 @@ const styles = StyleSheet.create({
 	mypageMenuBtnRightView: {marginRight:20,},
 	mypageMenuBtnRightViewText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:15,color:'#888'},
 	
-	swiperView: {height: widnowWidth/4.9,backgroundColor:'#fff'},	
+	swiperView: {height: widnowWidth/4.9,backgroundColor:'#fff'},
+
+	screening: {alignItems:'center',justifyContent:'center',paddingVertical:10,paddingHorizontal:20,backgroundColor:'#243B55'},
+	screeningTitle: {flexDirection:'row',alignItems:'center',justifyContent:'center'},
+	screeningView: {marginLeft:7,},
+	screeningText: {fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:19,color:'#fff'},
+	screeningDesc: {marginTop:2,},
+	screeningDescText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:21,color:'#fff',opacity:0.5},
 
 	lineView: {height:6,backgroundColor:'#F2F4F6'},
 	pdt0: {paddingTop:0},

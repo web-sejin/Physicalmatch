@@ -331,6 +331,17 @@ const ProfieModify = (props) => {
         </View>        
 			</ScrollView>
 
+      {/* 비회원이라면 노출 */}
+      <View style={styles.nextFix}>
+        <TouchableOpacity 
+          style={[styles.nextBtn]}
+          activeOpacity={opacityVal}
+          onPress={() => {}}
+        >
+          <Text style={styles.nextBtnText}>[비회원용]프로필 재심사 등록</Text>
+        </TouchableOpacity>
+      </View>
+
 			{loading ? (
       <View style={[styles.indicator]}>
         <ActivityIndicator size="large" color="#D1913C" />
@@ -347,6 +358,11 @@ const styles = StyleSheet.create({
 	
 	swiperView: {height: widnowWidth/4.9,backgroundColor:'#fff'},	
   cmWrap: {paddingHorizontal:20,paddingTop:5,},
+
+  nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
+  nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
+  nextBtnOff: {backgroundColor:'#DBDBDB'},
+	nextBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:52,color:'#fff'},
 
   modiBtn: {paddingVertical:25,borderBottomWidth:1,borderBottomColor:'#EDEDED'},
   modiBtn2: {borderBottomWidth:0,},

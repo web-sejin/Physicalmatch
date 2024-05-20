@@ -121,6 +121,7 @@ const RegisterStep4 = ({navigation, route}) => {
 									placeholder={'영문, 숫자, 특수문자 6~16자'}
 									placeholderTextColor="#DBDBDB"
 									style={[styles.input]}
+									maxLength={16}
 									returnKyeType='done'
 									onSubmitEditing={nextStep}
 								/>
@@ -135,6 +136,7 @@ const RegisterStep4 = ({navigation, route}) => {
 									placeholder={'비밀번호 확인'}
 									placeholderTextColor="#DBDBDB"
 									style={[styles.input]}
+									maxLength={16}
 									returnKyeType='done'
 									onSubmitEditing={nextStep}
 								/>

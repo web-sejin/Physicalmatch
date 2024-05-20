@@ -141,8 +141,8 @@ const RegisterStep6 = ({navigation, route}) => {
 
 	const chooseImage = (v) => {
     ImagePicker.openPicker({
-      //width: 300,
-      //height: 400,
+      width: widnowWidth,
+      height: widnowWidth*1.355,
       cropping: true,
     })
 		.then(image => {

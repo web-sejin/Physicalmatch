@@ -46,6 +46,25 @@ import MyIntro from './Mypage/MyIntro';
 import MyInfo from './Mypage/MyInfo';
 import MyDate from './Mypage/MyDate';
 import MyHobby from './Mypage/MyHobby';
+import MyPoint from './Mypage/MyPoint';
+import MyCharm from './Mypage/MyCharm';
+import NewMember from './Mypage/NewMember';
+import MyInvite from './Mypage/MyInvite';
+import BoardMenu from './Mypage/BoardMenu';
+import SettingMenu from './Mypage/SettingMenu';
+import Notice from './Mypage/Notice';
+import UseGuide from './Mypage/UseGuide';
+import About from './Mypage/About';
+import Qna from './Mypage/Qna';
+import CsCenter from './Mypage/CsCenter';
+import Privacy from './Mypage/Privacy';
+import CsCenterWrite from './Mypage/CsCenterWrite';
+import PushSet from './Mypage/PushSet';
+import AccoutSet from './Mypage/PushSet';
+import AccountSet from './Mypage/AccountSet';
+import ModifyLogin from './Mypage/ModifyLogin';
+import Alim from './Mypage/Alim';
+import Shop from './Shop';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -114,6 +133,24 @@ const WholeStack = () => {
       <Stack.Screen name="MyIntro" component={MyIntro} />
       <Stack.Screen name="MyDate" component={MyDate} />
       <Stack.Screen name="MyHobby" component={MyHobby} />
+      <Stack.Screen name="MyPoint" component={MyPoint} />
+      <Stack.Screen name="MyCharm" component={MyCharm} />
+      <Stack.Screen name="NewMember" component={NewMember} />
+      <Stack.Screen name="MyInvite" component={MyInvite} />
+      <Stack.Screen name="BoardMenu" component={BoardMenu} />
+      <Stack.Screen name="Notice" component={Notice} />
+      <Stack.Screen name="UseGuide" component={UseGuide} />
+      <Stack.Screen name="Qna" component={Qna} />
+      <Stack.Screen name="About" component={About} />      
+      <Stack.Screen name="CsCenter" component={CsCenter} />
+      <Stack.Screen name="CsCenterWrite" component={CsCenterWrite} />
+      <Stack.Screen name="Privacy" component={Privacy} />      
+      <Stack.Screen name="SettingMenu" component={SettingMenu} />
+      <Stack.Screen name="PushSet" component={PushSet} />
+      <Stack.Screen name="AccountSet" component={AccountSet} />
+      <Stack.Screen name="ModifyLogin" component={ModifyLogin} />
+      <Stack.Screen name="Alim" component={Alim} />
+      <Stack.Screen name="Shop" component={Shop} />
     </Stack.Navigator>
   );
 };

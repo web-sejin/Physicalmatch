@@ -87,4 +87,5 @@ target 'Physicalmatchapp' do
   pod 'Permission-LocationAccuracy', :path => "#{permissions_path}/LocationAccuracy"
   pod 'Permission-LocationAlways', :path => "#{permissions_path}/LocationAlways"
   pod 'Permission-LocationWhenInUse', :path => "#{permissions_path}/LocationWhenInUse"
+  pod 'react-native-version-check', :path => '../node_modules/react-native-version-check'
 end

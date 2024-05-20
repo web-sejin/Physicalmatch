@@ -79,9 +79,15 @@ const MyProfile = (props) => {
   }, [navigationUse, preventBack]);
 
 	const chooseImage = (v) => {
+		let imgWidth = widnowWidth;
+		let imgHeight = widnowWidth*1.355;
+		if(v == 7){
+			imgHeight = widnowWidth;
+		}
+
     ImagePicker.openPicker({
-      //width: 300,
-      //height: 400,
+      width: imgWidth,
+      height: imgHeight,
       cropping: true,
     })
 		.then(image => {
