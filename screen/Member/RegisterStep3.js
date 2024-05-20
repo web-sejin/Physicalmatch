@@ -197,8 +197,8 @@ const styles = StyleSheet.create({
   loginIptBox: {marginTop:10,position:'relative',},
 	input: { fontFamily: Font.NotoSansRegular, width: innerWidth, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
   inputWithBtn: { paddingRight: 70 },
-  infoChkBtn: { width:60, height:30, backgroundColor:'#243B55',borderRadius:5, position: 'absolute', right:0, bottom:5,},
-  infoChkBtnText: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:30,color:'#fff', },
+  infoChkBtn: { alignItems:'center',justifyContent:'center',width:60, height:30, backgroundColor:'#243B55',borderRadius:5, position: 'absolute', right:0, bottom:5,},
+  infoChkBtnText: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:15,color:'#fff', },
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },

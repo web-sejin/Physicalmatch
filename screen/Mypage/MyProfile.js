@@ -79,10 +79,10 @@ const MyProfile = (props) => {
   }, [navigationUse, preventBack]);
 
 	const chooseImage = (v) => {
-		let imgWidth = widnowWidth;
-		let imgHeight = widnowWidth*1.355;
+		let imgWidth = 992;
+		let imgHeight = 992*1.355;
 		if(v == 7){
-			imgHeight = widnowWidth;
+			imgHeight = 992;
 		}
 
     ImagePicker.openPicker({

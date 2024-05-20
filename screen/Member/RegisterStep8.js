@@ -359,6 +359,7 @@ const RegisterStep8 = ({navigation, route}) => {
 				<View style={styles.regiStateBar}>
 					<TouchableOpacity 
 						style={[styles.regiStateCircel, styles.regiStateCircelOn]}
+						activeOpacity={opacityVal}
 						onPress={()=>{
 							nextObj.step8File1 = realFile1;
 							nextObj.step8File2 = realFile2;
@@ -390,6 +391,7 @@ const RegisterStep8 = ({navigation, route}) => {
 					</TouchableOpacity>
 					<TouchableOpacity 
 						style={[styles.regiStateCircel, styles.regiStateCircelOn]}
+						activeOpacity={opacityVal}
 						onPress={()=>{
 							nextObj.step8File1 = realFile1;
 							nextObj.step8File2 = realFile2;
@@ -421,6 +423,7 @@ const RegisterStep8 = ({navigation, route}) => {
 					</TouchableOpacity>
           <TouchableOpacity 
 						style={[styles.regiStateCircel, styles.regiStateCircelOn]}
+						activeOpacity={opacityVal}
 						onPress={()=>{
 							nextObj.step8File1 = realFile1;
 							nextObj.step8File2 = realFile2;

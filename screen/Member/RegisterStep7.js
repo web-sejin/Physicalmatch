@@ -315,6 +315,7 @@ const RegisterStep7 = ({navigation, route}) => {
 					<View style={styles.regiStateBar}>
 						<TouchableOpacity 
 							style={[styles.regiStateCircel, styles.regiStateCircelOn]}
+							activeOpacity={opacityVal}
 							onPress={()=>{
 								nextObj.qnaList = qnaList;
 								nextObj.intro = intro;
@@ -327,6 +328,7 @@ const RegisterStep7 = ({navigation, route}) => {
 						</TouchableOpacity>
 						<TouchableOpacity 
 							style={[styles.regiStateCircel, styles.regiStateCircelOn]}
+							activeOpacity={opacityVal}
 							onPress={()=>{
 								nextObj.qnaList = qnaList;
 								nextObj.intro = intro;

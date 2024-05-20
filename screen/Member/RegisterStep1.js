@@ -136,7 +136,9 @@ const RegisterStep1 = ({navigation, route}) => {
 										}
 									}}
 								>
-									<View style={[styles.chkBox, styles.boxShadow]}>{allChk ? (<View style={styles.chkBoxCont}></View>) : null}</View>
+									<View style={[styles.chkBox, styles.boxShadow]}>
+										{allChk ? (<View style={[styles.chkBoxCont, Platform.OS == 'ios' ? styles.chkBoxCont2 : null]}></View>) : null}
+									</View>
 									<Text style={styles.allChkLabel}>전체 동의</Text>
 								</TouchableOpacity>
 							</View>
@@ -160,7 +162,9 @@ const RegisterStep1 = ({navigation, route}) => {
 											}
 										}}
 									>
-										<View style={styles.chkBox}>{chk1 ? (<View style={styles.chkBoxCont}></View>) : null}</View>
+										<View style={styles.chkBox}>
+											{chk1 ? (<View style={[styles.chkBoxCont, Platform.OS == 'ios' ? styles.chkBoxCont2 : null]}></View>) : null}
+										</View>
 										<Text style={styles.etcChkLabel}><Text style={styles.req}>[필수]</Text> 서비스 이용약관</Text>
 									</TouchableOpacity>
 									<TouchableOpacity
@@ -321,6 +325,7 @@ const styles = StyleSheet.create({
 	chkboxBtn: {flexDirection:'row',alignItems:'center'},
 	chkBox: { width: 21, height: 21, backgroundColor: '#fff', borderWidth: 1, borderColor: '#dbdbdb', borderRadius: 2, position: 'relative' },
 	chkBoxCont: {width:12,height:12,backgroundColor:'#D1913C',borderRadius:2,position:'absolute',left:3,top:3,},
+	chkBoxCont2: {left:3.5,top:3.5},
 	allChkLabel: {fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:20,color:'#1E1E1E',marginLeft:8, position:'relative',top:LabelTop},
 	etcChkLabel: {fontFamily: Font.NotoSansRegular, fontSize: 15, lineHeight: 20, color: '#1E1E1E',marginLeft:8 },
 	req: { color: '#D1913C', },

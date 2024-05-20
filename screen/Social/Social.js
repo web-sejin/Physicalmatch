@@ -62,7 +62,8 @@ const Social = (props) => {
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [socialList, setSocialList] = useState(socialData);
-	const [filterMonth, setFilterMonth] = useState([5,6]);
+	const [filterMonth, setFilterMonth] = useState([]);
+	const [calendarList, setCalendarList] = useState([]);
 	const [filterCal, setFilterCal] = useState([]);
 	const [filterCal2, setFilterCal2] = useState([]);
 
@@ -140,19 +141,45 @@ const Social = (props) => {
 		const year2 = (date.getFullYear())-20;		
 		let month = date.getMonth() + 1;
 		let monthAry = [month];
+		let dateAry = [];
 
 		for(let i=1; i<=14; i++){
 			const tomorrow = new Date(date.setDate(date.getDate() + 1));
 			const tomorrowYear = tomorrow.getFullYear();
 			const month2 = tomorrow.getMonth() + 1;
-			console.log('tomorrow ::: ',tomorrowYear+'-'+month2);
+			const month2String = ('0' + month2).slice(-2);
+			const day2 = tomorrow.getDate();
+			const day2String = ('0' + day2).slice(-2);
+
+			//0:일, 1:월, 2:화, 3:수, 4:목, 5:금, 6:토
+			let dayYoil = '';
+			const dayOfWeek = new Date(tomorrowYear+'-'+month2String+'-'+day2String).getDay(); 
+			if(dayOfWeek == 0){
+				dayYoil = '일';
+			}else if(dayOfWeek == 1){
+				dayYoil = '월';
+			}else if(dayOfWeek == 2){
+				dayYoil = '화';
+			}else if(dayOfWeek == 3){
+				dayYoil = '수';
+			}else if(dayOfWeek == 4){
+				dayYoil = '목';
+			}else if(dayOfWeek == 5){
+				dayYoil = '금';
+			}else if(dayOfWeek == 6){
+				dayYoil = '토';
+			}
 			if(month != month2){				
 				monthAry.push(month2);
 				month = month2;
 			}
+
+			const dateObj = {year:tomorrowYear, month:month2, monthString:month2String, day:day2, dayString:day2String, yoil:dayYoil, chk:false};
+			dateAry.push(dateObj);
 		}
 
-		//console.log('monthAry ::: ',monthAry);
+		setFilterMonth(monthAry);
+		setCalendarList(dateAry);		
 
 		let yaerAry = [];
 		let yaerAryIdx = [];
@@ -257,16 +284,22 @@ const Social = (props) => {
 
 	useEffect(() => {
 		if(filterMonth.length == 1){			
-			let result = calendarData.filter((value) => value.monthString == filterMonth[0].toString());
-			setFilterCal(result);
+			setFilterCal(calendarList);
 		}else if(filterMonth.length == 2){
-			let result = calendarData.filter((value) => value.monthString == filterMonth[0].toString());
-			setFilterCal(result);
+			let obj1Ary = [];
+			let obj2Ary = [];
+			calendarList.map((item, index) => {
+				if(filterMonth[0] == item.month){
+					obj1Ary.push({year:item.year, month:item.month, monthString:item.monthString, day:item.day, dayString:item.dayString, yoil:item.yoil, chk:item.chk});
+				}else if(filterMonth[1] == item.month){
+					obj2Ary.push({year:item.year, month:item.month, monthString:item.monthString, day:item.day, dayString:item.dayString, yoil:item.yoil, chk:item.chk});
+				}
+			})
 
-			let result2 = calendarData.filter((value) => value.monthString == filterMonth[1].toString());
-			setFilterCal2(result2);
+			setFilterCal(obj1Ary);
+			setFilterCal2(obj2Ary);
 		}
-	}, [filterMonth]);	
+	}, [filterMonth, calendarList]);
 
 	const pickDateAry = (year, month, monthString, day, dayString, yoil, parentMonth) => {		
 		let addState = true;	
@@ -402,68 +435,8 @@ const Social = (props) => {
 						{tabState == 4 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 				</View>
-			</View>
+			</View>			
 
-			<View style={styles.swiperView}>
-				<Swiper					
-					ref={swiperRef}	
-					autoplay={true}
-					showsPagination={false}
-					controlsProps={{
-						prevTitle: '',
-						nextTitle: '',
-						dotsTouchable: true,
-						DotComponent: ({ index, activeIndex, isActive, onPress }) => null              
-					}}
-					onIndexChanged={(e) => {
-						//console.log(e);
-						//setActiveDot(e);
-					}}
-				>
-					<TouchableOpacity 
-						style={styles.commuBanner}
-						activeOpacity={opacityVal}
-						onPress={()=>{}}
-					>
-						<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
-					</TouchableOpacity>
-					<TouchableOpacity 
-						style={styles.commuBanner}
-						activeOpacity={opacityVal}
-						onPress={()=>{}}
-					>
-						<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
-					</TouchableOpacity>
-				</Swiper>
-			</View>
-
-			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-				<View style={styles.flatListPad}></View>
-			</TouchableWithoutFeedback>
-			<View style={styles.socialSchBox}>
-				<View style={styles.socialSchBoxWrap}>
-					<TouchableOpacity
-						style={styles.socialSchBoxWrapBtn}
-						activeOpacity={opacityVal}
-						onPress={()=>socialSearch()}
-					>
-						<AutoHeightImage width={28} source={require('../../assets/image/icon_sch.png')} />
-					</TouchableOpacity>
-					<TextInput
-						value={socialSch}
-						onChangeText={(v) => setSocialSch(v)}						
-						style={[styles.socialSchBoxWrapInput]}
-						returnKyeType='done'                      
-					/>
-				</View>
-				<TouchableOpacity
-					style={styles.socialSchFilterBtn}
-					activeOpacity={opacityVal}
-					onPress={()=>setFilterPop(true)}
-				>
-					<AutoHeightImage width={28} source={require('../../assets/image/icon_option2.png')} />
-				</TouchableOpacity>
-			</View>
 			<FlatList 				
 				data={socialList}
 				renderItem={(getList)}
@@ -475,9 +448,70 @@ const Social = (props) => {
 				onEndReached={moreData}
 				onRefresh={onRefresh}
 				ListHeaderComponent={
+					<>
+					<View style={styles.swiperView}>
+						<Swiper					
+							ref={swiperRef}	
+							autoplay={true}
+							showsPagination={false}
+							controlsProps={{
+								prevTitle: '',
+								nextTitle: '',
+								dotsTouchable: true,
+								DotComponent: ({ index, activeIndex, isActive, onPress }) => null              
+							}}
+							onIndexChanged={(e) => {
+								//console.log(e);
+								//setActiveDot(e);
+							}}
+						>
+							<TouchableOpacity 
+								style={styles.commuBanner}
+								activeOpacity={opacityVal}
+								onPress={()=>{}}
+							>
+								<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={styles.commuBanner}
+								activeOpacity={opacityVal}
+								onPress={()=>{}}
+							>
+								<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+							</TouchableOpacity>
+						</Swiper>
+					</View>
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 						<View style={styles.flatListPad}></View>
 					</TouchableWithoutFeedback>
+					<View style={styles.socialSchBox}>
+						<View style={styles.socialSchBoxWrap}>
+							<TouchableOpacity
+								style={styles.socialSchBoxWrapBtn}
+								activeOpacity={opacityVal}
+								onPress={()=>socialSearch()}
+							>
+								<AutoHeightImage width={28} source={require('../../assets/image/icon_sch.png')} />
+							</TouchableOpacity>
+							<TextInput
+								value={socialSch}
+								onChangeText={(v) => setSocialSch(v)}						
+								style={[styles.socialSchBoxWrapInput]}
+								returnKyeType='done'                      
+							/>
+						</View>
+						<TouchableOpacity
+							style={styles.socialSchFilterBtn}
+							activeOpacity={opacityVal}
+							onPress={()=>setFilterPop(true)}
+						>
+							<AutoHeightImage width={28} source={require('../../assets/image/icon_option2.png')} />
+						</TouchableOpacity>
+					</View>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View style={styles.flatListPad}></View>
+					</TouchableWithoutFeedback>
+					</>
 				}
 				// ListEmptyComponent={
 				// 	isLoading ? (

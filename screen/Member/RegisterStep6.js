@@ -141,8 +141,8 @@ const RegisterStep6 = ({navigation, route}) => {
 
 	const chooseImage = (v) => {
     ImagePicker.openPicker({
-      width: widnowWidth,
-      height: widnowWidth*1.355,
+      width: 992,
+      height: 992*1.355,
       cropping: true,
     })
 		.then(image => {
@@ -218,6 +218,7 @@ const RegisterStep6 = ({navigation, route}) => {
 				<View style={styles.regiStateBar}>
 					<TouchableOpacity 
             style={[styles.regiStateCircel, styles.regiStateCircelOn]}
+						activeOpacity={opacityVal}
             onPress={()=>{
 							nextObj.file1 = file1;
 							nextObj.file2 = file2;

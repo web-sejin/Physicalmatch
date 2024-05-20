@@ -241,60 +241,7 @@ const Community = (props) => {
 					</TouchableOpacity>
 				</View>
 			</View>
-
-			<View style={styles.swiperView}>
-				<Swiper					
-					ref={swiperRef}	
-					autoplay={true}
-					showsPagination={false}
-					controlsProps={{
-						prevTitle: '',
-						nextTitle: '',
-						dotsTouchable: true,
-						DotComponent: ({ index, activeIndex, isActive, onPress }) => null              
-					}}
-					onIndexChanged={(e) => {
-						//console.log(e);
-						//setActiveDot(e);
-					}}
-				>
-					<TouchableOpacity 
-						style={styles.commuBanner}
-						activeOpacity={opacityVal}
-						onPress={()=>{}}
-					>
-						<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
-					</TouchableOpacity>
-					<TouchableOpacity 
-						style={styles.commuBanner}
-						activeOpacity={opacityVal}
-						onPress={()=>{}}
-					>
-						<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
-					</TouchableOpacity>
-				</Swiper>
-			</View>	
 			
-			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-				<View style={styles.flatListPad}></View>
-			</TouchableWithoutFeedback>
-			<View style={styles.socialSchBox}>
-				<View style={styles.socialSchBoxWrap}>
-					<TouchableOpacity
-						style={styles.socialSchBoxWrapBtn}
-						activeOpacity={opacityVal}
-						onPress={()=>Search()}
-					>
-						<AutoHeightImage width={28} source={require('../../assets/image/icon_sch.png')} />
-					</TouchableOpacity>
-					<TextInput
-						value={sch}
-						onChangeText={(v) => setSch(v)}
-						style={[styles.socialSchBoxWrapInput]}
-						returnKyeType='done'                      
-					/>
-				</View>
-			</View>
 			<FlatList 				
 				data={socialList}
 				renderItem={(getList)}
@@ -306,9 +253,64 @@ const Community = (props) => {
 				onEndReached={moreData}
 				onRefresh={onRefresh}
 				ListHeaderComponent={
+					<>
+					<View style={styles.swiperView}>
+						<Swiper					
+							ref={swiperRef}	
+							autoplay={true}
+							showsPagination={false}
+							controlsProps={{
+								prevTitle: '',
+								nextTitle: '',
+								dotsTouchable: true,
+								DotComponent: ({ index, activeIndex, isActive, onPress }) => null              
+							}}
+							onIndexChanged={(e) => {
+								//console.log(e);
+								//setActiveDot(e);
+							}}
+						>
+							<TouchableOpacity 
+								style={styles.commuBanner}
+								activeOpacity={opacityVal}
+								onPress={()=>{}}
+							>
+								<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={styles.commuBanner}
+								activeOpacity={opacityVal}
+								onPress={()=>{}}
+							>
+								<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+							</TouchableOpacity>
+						</Swiper>
+					</View>	
+					
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 						<View style={styles.flatListPad}></View>
 					</TouchableWithoutFeedback>
+					<View style={styles.socialSchBox}>
+						<View style={styles.socialSchBoxWrap}>
+							<TouchableOpacity
+								style={styles.socialSchBoxWrapBtn}
+								activeOpacity={opacityVal}
+								onPress={()=>Search()}
+							>
+								<AutoHeightImage width={28} source={require('../../assets/image/icon_sch.png')} />
+							</TouchableOpacity>
+							<TextInput
+								value={sch}
+								onChangeText={(v) => setSch(v)}
+								style={[styles.socialSchBoxWrapInput]}
+								returnKyeType='done'                      
+							/>
+						</View>
+					</View>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View style={styles.flatListPad}></View>
+					</TouchableWithoutFeedback>
+					</>					
 				}
 				// ListEmptyComponent={
 				// 	isLoading ? (

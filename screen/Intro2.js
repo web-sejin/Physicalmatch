@@ -46,14 +46,14 @@ const Intro2 = ({navigation, route}) => {
 			<AutoHeightImage width={widnowWidth} source={require('../assets/image/intro_bg.jpg')} />
 			<View style={styles.introBox}>
 				<TouchableOpacity
-					style={[styles.introBtn, styles.boxShadow]}
+					style={[styles.introBtn]}
 					activeOpacity={opacityVal}
 					onPress={() => {navigation.navigate('RegisterStep1')}}
 				>
 					<Text style={styles.introBtnText}>피지컬 매치 시작하기</Text>
 				</TouchableOpacity>
 				<TouchableOpacity
-					style={[styles.introBtn, styles.boxShadow, styles.mgt15]}
+					style={[styles.introBtn, styles.mgt15]}
 					activeOpacity={opacityVal}
 					onPress={() => {navigation.navigate('Login')}}
 				>
@@ -62,7 +62,7 @@ const Intro2 = ({navigation, route}) => {
 				<TouchableOpacity
 					style={[styles.introBtn, styles.introBtn2, styles.mgt15]}
 					activeOpacity={opacityVal}
-					onPress={() => {console.log('ccccc')}}
+					onPress={() => {navigation.navigate('CsCenter')}}
 				>
 					<Text style={styles.introBtnText}>피지컬 매치 알아보기</Text>
 					<AutoHeightImage
