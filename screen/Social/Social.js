@@ -62,7 +62,7 @@ const Social = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
-	const [socialList, setSocialList] = useState(socialData);
+	const [socialList, setSocialList] = useState([]);
 	const [filterMonth, setFilterMonth] = useState([]);
 	const [calendarList, setCalendarList] = useState([]);
 	const [filterCal, setFilterCal] = useState([]);
@@ -209,6 +209,14 @@ const Social = (props) => {
 		setNonCollidingMultiSliderValue([5, cnt-5]);
 	}, []);
 
+	useEffect(() => {
+		setLoading(true);		
+		setTimeout(() => {
+			setSocialList(socialData);
+			setLoading(false);
+		}, 1000);
+	}, [])
+
 	const getList = ({item, index}) => (
 		<View style={styles.socialLi}>
 			<TouchableOpacity
@@ -305,7 +313,7 @@ const Social = (props) => {
 	const pickDateAry = (year, month, monthString, day, dayString, yoil, parentMonth) => {		
 		let addState = true;	
 		let selectCon = [];
-		const fullDate = year+'-'+month+'-'+day;
+		const fullDate = year+'-'+monthString+'-'+dayString;
 		
 		filterPickDate.map((item, index) => {				
 			if(item.fullDate == fullDate){
@@ -316,8 +324,8 @@ const Social = (props) => {
 		if(addState){
 			let ary = [...filterPickDate, {fullDate:fullDate, year:year, month:month, monthString:monthString, day:day, dayString:dayString, yoil:yoil}];
 			const asc = ary.sort((a,b) => {
-				if((a.year)+(a.month)+(a.day) > (b.year)+(b.month)+(b.day)) return 1;
-				if((a.year)+(a.month)+(a.day) < (b.year)+(b.month)+(b.day)) return -1;
+				if((a.year)+(a.monthString)+(a.dayString) > (b.year)+(b.monthString)+(b.dayString)) return 1;
+				if((a.year)+(a.monthString)+(a.dayString) < (b.year)+(b.monthString)+(b.dayString)) return -1;
 				return 0;
 			});
 			setFilterPickDate(asc);
@@ -331,10 +339,10 @@ const Social = (props) => {
 			});
 
 			const asc = selectCon.sort((a,b) => {
-				if((a.year)+(a.month)+(a.day) > (b.year)+(b.month)+(b.day)) return 1;
-				if((a.year)+(a.month)+(a.day) < (b.year)+(b.month)+(b.day)) return -1;
+				if((a.year)+(a.monthString)+(a.dayString) > (b.year)+(b.monthString)+(b.dayString)) return 1;
+				if((a.year)+(a.monthString)+(a.dayString) < (b.year)+(b.monthString)+(b.dayString)) return -1;
 				return 0;
-			});
+			});			
 			setFilterPickDate(asc);
 		}
 
@@ -471,14 +479,14 @@ const Social = (props) => {
 								activeOpacity={opacityVal}
 								onPress={()=>{}}
 							>
-								<ImgDomain fileWidth={widnowWidth} fileName={'social_banner.png'}/>
+								<AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/social_banner.png'}} resizeMethod='resize' />
 							</TouchableOpacity>
 							<TouchableOpacity 
 								style={styles.commuBanner}
 								activeOpacity={opacityVal}
 								onPress={()=>{}}
 							>
-								<ImgDomain fileWidth={widnowWidth} fileName={'social_banner.png'}/>
+								<AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/social_banner.png'}} resizeMethod='resize' />
 							</TouchableOpacity>
 						</Swiper>
 					</View>

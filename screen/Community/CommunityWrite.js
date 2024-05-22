@@ -15,6 +15,7 @@ import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -273,10 +274,7 @@ const CommunityWrite = (props) => {
                     onPress={()=>{navigation.navigate('UseGuide')}}
                   >
                     <Text style={styles.guideBtnText}>자기소개 가이드</Text>
-                    <AutoHeightImage 
-                      width={5}
-                      source={require("../../assets/image/icon_arr2.png")}
-                    />
+                    <ImgDomain fileWidth={5} fileName={'icon_arr2.png'}/>
                   </TouchableOpacity>
                 </View>
 
@@ -297,7 +295,7 @@ const CommunityWrite = (props) => {
                       {phoneImage.path != '' && phoneImage.path != undefined ? (
                         <AutoHeightImage width={62} source={{ uri: phoneImage.path }} />
                       ) : (
-                        <AutoHeightImage width={62} source={require("../../assets/image/img_back2.png")} />
+                        <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
                       )}
                     </TouchableOpacity>
                   </View>                  
@@ -310,7 +308,7 @@ const CommunityWrite = (props) => {
                     onPress={()=>setChk(!chk)}
                   >
                     <View style={[styles.wrtChk, chk ? styles.wrtChkOn : null]}>
-                      <AutoHeightImage width={10} source={require('../../assets/image/icon_chk1.png')} />
+                      <ImgDomain fileWidth={10} fileName={'icon_chk1.png'}/>
                     </View>
                     <View style={[styles.wrtChkBtnView]}>
                       <Text style={[styles.wrtChkBtnText]}>민감한 내용의 사진, 글이 포함되어 있어요.</Text>  
@@ -352,7 +350,7 @@ const CommunityWrite = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setBackConfirm(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>작성된 내용이 삭제돼요</Text>

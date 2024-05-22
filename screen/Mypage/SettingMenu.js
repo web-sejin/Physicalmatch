@@ -12,6 +12,7 @@ import VersionCheck from 'react-native-version-check';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -94,8 +95,8 @@ const SettingMenu = (props) => {
             activeOpacity={opacityVal}
             onPress={()=>{navigation.navigate('PushSet')}}
           >
-            <Text style={styles.btnText}>PUSH 설정</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <Text style={styles.btnText}>PUSH 설정</Text>            
+						<ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnLine]}
@@ -103,7 +104,7 @@ const SettingMenu = (props) => {
             onPress={()=>{navigation.navigate('BlockPeople')}}
           >
             <Text style={styles.btnText}>지인 차단</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnLine]}
@@ -111,7 +112,7 @@ const SettingMenu = (props) => {
             onPress={()=>{navigation.navigate('AccountSet')}}
           >
             <Text style={styles.btnText}>계정관리</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
         </View>
 			</ScrollView>
@@ -152,7 +153,7 @@ const SettingMenu = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setModal(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>사용 중인 앱 버전</Text>							
@@ -190,7 +191,7 @@ const SettingMenu = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setModal2(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>최신 버전</Text>

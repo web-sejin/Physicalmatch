@@ -11,6 +11,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -107,9 +108,9 @@ const Notice = (props) => {
           </View>
         </View>
         {item.open ? (
-          <AutoHeightImage width={10} source={require('../../assets/image/icon_arr4.png')} />
+					<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
         ) : (
-          <AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} />
+					<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
         )}
       </TouchableOpacity>
       {item.open ? (

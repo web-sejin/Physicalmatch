@@ -11,6 +11,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -112,15 +113,15 @@ const CsCenter = (props) => {
           </View>
         </View>
         {item.open ? (
-          <AutoHeightImage width={10} source={require('../../assets/image/icon_arr4.png')} />
+          <ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
         ) : (
-          <AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} />
+          <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
         )}
       </TouchableOpacity>
       {item.open ? (
         <>
         <View style={styles.csContent}>
-          <AutoHeightImage width={innerWidth} source={require('../../assets/image/commu_sample.jpg')} style={styles.csContImg} />
+          <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/commu_sample.jpg'}} resizeMethod='resize' style={styles.csContImg} />
           <View style={styles.csContentView}>
             <Text style={styles.csContentViewText}>{item.content}</Text>
           </View>

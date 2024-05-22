@@ -11,7 +11,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
-import AccoutSet from './PushSet';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -202,8 +202,8 @@ const AccountSet = (props) => {
             activeOpacity={opacityVal}
             onPress={()=>{navigation.navigate('ModifyLogin')}}
           >
-            <Text style={styles.btnText}>로그인 정보 변경</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <Text style={styles.btnText}>로그인 정보 변경</Text>            
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnLine]}
@@ -211,7 +211,7 @@ const AccountSet = (props) => {
             onPress={()=>{setModal(true)}}
           >
             <Text style={styles.btnText}>로그아웃</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
         </View>
 
@@ -258,7 +258,7 @@ const AccountSet = (props) => {
             onPress={()=>setModal4(true)}
           >
             <Text style={styles.btnText}>회원탈퇴</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
         </View>
 			</ScrollView>
@@ -281,8 +281,8 @@ const AccountSet = (props) => {
 						<TouchableOpacity
 							style={styles.pop_x}					
 							onPress={() => {setModal(false)}}
-						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+						>							
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>로그아웃 하시겠어요?</Text>
@@ -329,7 +329,7 @@ const AccountSet = (props) => {
               setCardOffVal();
             }}
           >
-            <AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+            <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
           </TouchableOpacity>
           <ScrollView>
             <View style={styles.popScrWrap}>
@@ -398,7 +398,7 @@ const AccountSet = (props) => {
               setAccountOffVal();
             }}
           >
-            <AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+            <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
           </TouchableOpacity>
           <ScrollView>
             <View style={styles.popScrWrap}>
@@ -465,7 +465,7 @@ const AccountSet = (props) => {
               setLeaveVal();
             }}
           >
-            <AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+            <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
           </TouchableOpacity>
           <ScrollView>
             <View style={styles.popScrWrap}>
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
 	popIptBox: {paddingTop:10,},
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
 	popBtnBox: {paddingHorizontal:20,marginTop:30,},
-	popBtnBoxFlex: {flexDirection:'row',justifyContent:'space-between'},
+	popBtnBoxFlex: {flexDirection:'row',justifyContent:'space-between',paddingHorizontal:0,},
 	popBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#243B55',borderRadius:5,},
 	popBtn2: {width:(innerWidth/2)-25,},
 	popBtnOff: {backgroundColor:'#EDEDED',},

@@ -14,7 +14,6 @@ import Font from '../assets/common/Font';
 import Intro from './Intro';
 import Intro2 from './Intro2';
 import TabNavigation from './TabNavigation';
-import Home from './Home';
 import Login from './Member/Login';
 import FindId from './Member/FindId';
 import IdResult from './Member/IdResult';

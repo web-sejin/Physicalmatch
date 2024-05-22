@@ -14,6 +14,7 @@ import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -166,10 +167,7 @@ const MyProfile = (props) => {
 							{file1.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file1.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}							
 							<Text style={styles.imgText}>대표</Text>
 						</TouchableOpacity>
@@ -182,10 +180,7 @@ const MyProfile = (props) => {
 							{file2.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file2.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}
 							<Text style={styles.imgText}>필수</Text>
 						</TouchableOpacity>
@@ -198,10 +193,7 @@ const MyProfile = (props) => {
 							{file3.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file3.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}
 							<Text style={styles.imgText}>필수</Text>
 						</TouchableOpacity>
@@ -214,10 +206,7 @@ const MyProfile = (props) => {
 							{file4.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file4.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}
 						</TouchableOpacity>
 
@@ -229,10 +218,7 @@ const MyProfile = (props) => {
 							{file5.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file5.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}
 						</TouchableOpacity>
 
@@ -244,10 +230,7 @@ const MyProfile = (props) => {
 							{file6.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file6.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}
 						</TouchableOpacity>
 					</View>
@@ -257,14 +240,10 @@ const MyProfile = (props) => {
 						activeOpacity={opacityVal}
 						onPress={()=>{
 							setGuideModal(true);
-							setPreventBack(true);
 						}}
 					>
 						<Text style={styles.guideBtnText}>사진 등록 가이드</Text>
-						<AutoHeightImage 
-							width={5}
-							source={require("../../assets/image/icon_arr2.png")}
-						/>
+						<ImgDomain fileWidth={5} fileName={'icon_arr2.png'}/>
 					</TouchableOpacity>
 
           <View style={styles.mgt50}>
@@ -285,7 +264,7 @@ const MyProfile = (props) => {
                   {file7.path ? (
                     <AutoHeightImage width={46} source={{ uri: file7.path }} />                    
                   ) : (
-                    <AutoHeightImage width={46} source={require("../../assets/image/img_back2.png")} />
+										<ImgDomain fileWidth={46} fileName={'img_back2.png'}/>
                   )}		                  
                 </TouchableOpacity>
                 <View style={styles.reqUserInfo}>
@@ -293,7 +272,7 @@ const MyProfile = (props) => {
                     <View style={styles.tradeStateView}>
                       <Text style={styles.tradeStateText}>프로필 교환이 도착했어요</Text>
                     </View>
-                    <AutoHeightImage width={12} source={require('../../assets/image/icon_profile_msg.png')} />
+										<ImgDomain fileWidth={12} fileName={'icon_profile_msg.png'}/>
                   </View>
                   <View style={styles.reqUserNick}>
                     <Text style={styles.reqUserNickText}>자동생성닉네임</Text>                          
@@ -307,7 +286,7 @@ const MyProfile = (props) => {
                   activeOpacity={opacityVal}
                   onPress={() => setFile7({})}
                 >
-                  <AutoHeightImage width={25} source={require('../../assets/image/icon_trash.png')} />
+									<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
                 </TouchableOpacity>
               </View>
             </View>
@@ -338,7 +317,7 @@ const MyProfile = (props) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setGuideModal(false)}}						
 					>
-						<AutoHeightImage width={16} source={require("../../assets/image/icon_close2.png")} />
+						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
 				<ScrollView>

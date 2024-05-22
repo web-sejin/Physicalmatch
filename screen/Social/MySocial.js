@@ -12,6 +12,7 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const line = Platform.OS === 'ios' ? 15 : 14;
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
@@ -118,8 +119,8 @@ const MySocial = (props) => {
           }
 				}}
 			>
-				<View style={[styles.socialLiThumb, item.delete == 'yes' ? styles.socialOPacity : null]}>
-					<AutoHeightImage width={65} source={require('../../assets/image/social_basic1.jpg')} />
+				<View style={[styles.socialLiThumb, item.delete == 'yes' ? styles.socialOPacity : null]}>					
+					<ImgDomain fileWidth={65} fileName={'social_basic1.jpg'}/>
 				</View>
 				<View style={[styles.socialLiInfo, item.delete == 'yes' ? styles.socialOPacity : null, item.before == 'no' ? styles.socialCnt : null]}>
 					<View style={styles.socialLiInfo1}>
@@ -134,14 +135,14 @@ const MySocial = (props) => {
 						<Text style={styles.socialSubject} numberOfLines={1} ellipsizeMode='tail'>{item.subject}</Text>
 					</View>
 					<View style={styles.socialLiInfo3}>
-						<View style={styles.socialLiInfo3Flex}>
-							<AutoHeightImage width={10} source={require('../../assets/image/icon_local.png')} />
+						<View style={styles.socialLiInfo3Flex}>							
+							<ImgDomain fileWidth={10} fileName={'icon_local.png'}/>
 							<Text style={styles.socialLiInfo3Text}>{item.loc}</Text>
 						</View>
 						<View style={styles.socialLiInfo3Line}></View>
 						<View style={styles.socialLiInfo3Flex}>
 							<View style={styles.socialLiInfoProfile}>
-								<AutoHeightImage width={20} source={require('../../assets/image/profile_sample.png')} />
+								<ImgDomain fileWidth={20} fileName={'profile_sample.png'}/>
 							</View>
 							<Text style={styles.socialLiInfo3Text}>{item.age}·{item.gender}</Text>
 						</View>
@@ -277,8 +278,8 @@ const MySocial = (props) => {
 						<TouchableOpacity
 							style={styles.pop_x}					
 							onPress={() => {setOverPop(false)}}
-						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+						>							
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>이미 매칭된 이성이</Text>
@@ -288,7 +289,7 @@ const MySocial = (props) => {
 							<View styles={styles.popTitleDescFlexView}>
 								<Text style={[styles.popTitleDesc, styles.popTitleDescFlexDesc, styles.mgt0]}>다른 소셜에 참여 신청해주세요</Text>
 							</View>
-							<AutoHeightImage width={14} source={require('../../assets/image/emoticon5.png')} />
+							<ImgDomain fileWidth={14} fileName={'emoticon5.png'}/>
 						</View>
 						<View style={styles.popBtnBox}>
 							<TouchableOpacity 

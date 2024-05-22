@@ -12,6 +12,7 @@ import Swiper from 'react-native-web-swiper';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const padding_top = Platform.OS === 'ios' ? 10 : 15;
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
@@ -58,8 +59,8 @@ const Mypage = (props) => {
 			<Header navigation={navigation} headertitle={'MY PAGE'} />
 
 			<View style={{...styles.screening, paddingTop:padding_top}}>
-				<View style={styles.screeningTitle}>
-					<AutoHeightImage width={16} source={require('../../assets/image/icon_screening.png')} />
+				<View style={styles.screeningTitle}>					
+					<ImgDomain fileWidth={16} fileName={'icon_screening.png'}/>
 					<View style={styles.screeningView}>
 						<Text style={styles.screeningText}>프로필이 심사 중에 있습니다.</Text>
 					</View>
@@ -76,18 +77,19 @@ const Mypage = (props) => {
 						activeOpacity={opacityVal}
 						onPress={()=>{navigation.navigate('MatchDetail')}}
 					>
-						<AutoHeightImage width={36} source={require('../../assets/image/icon_my_sch.png')} />
+						<ImgDomain fileWidth={36} fileName={'icon_my_sch.png'}/>
 					</TouchableOpacity>
 					<View style={styles.myProfInfoThumb}>
-						<AutoHeightImage width={104} source={require('../../assets/image/my_basic_prof.jpg')} />
+						{/* <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' /> */}
+						<ImgDomain fileWidth={104} fileName={'my_basic_prof.jpg'}/>
 					</View>				
 					<TouchableOpacity
 						style={styles.myProfInfoBtn}
 						activeOpacity={opacityVal}
 						onPress={()=>{navigation.navigate('ProfieModify')}}						
 					>
-						<AutoHeightImage width={36} source={require('../../assets/image/icon_my_pencel.png')} />
-						{/* <AutoHeightImage width={36} source={require('../../assets/image/icon_eraser.png')} /> */}
+						<ImgDomain fileWidth={36} fileName={'icon_my_pencel.png'}/>
+						{/* <ImgDomain fileWidth={36} fileName={'icon_eraser.png'}/> */}
 					</TouchableOpacity>
 
 					<View style={styles.myProfInfoNick}>
@@ -105,14 +107,14 @@ const Mypage = (props) => {
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
-								<AutoHeightImage width={32} source={require('../../assets/image/mypage_menu1.png')} />
+								<ImgDomain fileWidth={32} fileName={'mypage_menu1.png'}/>
 							</View>
 							<View style={styles.mypageMenuBtnName}>
 								<Text style={styles.mypageMenuBtnNameText}>내 프로틴</Text>
 							</View>
 						</View>
 						<View style={styles.mypageMenuBtnRight}>
-							<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 						</View>
 					</TouchableOpacity>
 					<View style={styles.mypageMenuLine}></View>
@@ -123,14 +125,14 @@ const Mypage = (props) => {
 					>						
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
-								<AutoHeightImage width={16} source={require('../../assets/image/mypage_menu2.png')} />
+								<ImgDomain fileWidth={16} fileName={'mypage_menu2.png'}/>
 							</View>
 							<View style={styles.mypageMenuBtnName}>
 								<Text style={styles.mypageMenuBtnNameText}>내 매력지수</Text>
 							</View>
 						</View>
 						<View style={styles.mypageMenuBtnRight}>
-							<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 						</View>
 					</TouchableOpacity>
 					<View style={styles.mypageMenuLine}></View>
@@ -141,7 +143,7 @@ const Mypage = (props) => {
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
-								<AutoHeightImage width={20} source={require('../../assets/image/mypage_menu3.png')} />
+								<ImgDomain fileWidth={20} fileName={'mypage_menu3.png'}/>
 							</View>
 							<View style={styles.mypageMenuBtnName}>
 								<Text style={styles.mypageMenuBtnNameText}>새로운 회원 평가하기</Text>
@@ -151,7 +153,7 @@ const Mypage = (props) => {
 							<View style={styles.mypageMenuBtnRightView}>
 								<Text style={styles.mypageMenuBtnRightViewText}>프로틴 00개 혜택</Text>
 							</View>
-							<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 						</View>
 					</TouchableOpacity>
 					<View style={styles.mypageMenuLine}></View>
@@ -162,7 +164,7 @@ const Mypage = (props) => {
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
-								<AutoHeightImage width={20} source={require('../../assets/image/mypage_menu4.png')} />
+								<ImgDomain fileWidth={20} fileName={'mypage_menu4.png'}/>
 							</View>
 							<View style={styles.mypageMenuBtnName}>
 								<Text style={styles.mypageMenuBtnNameText}>지인 초대하기</Text>
@@ -172,7 +174,7 @@ const Mypage = (props) => {
 							<View style={styles.mypageMenuBtnRightView}>
 								<Text style={styles.mypageMenuBtnRightViewText}>프로틴 00개 혜택</Text>
 							</View>
-							<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 						</View>
 					</TouchableOpacity>
 					<View style={styles.mypageMenuLine}></View>
@@ -183,14 +185,14 @@ const Mypage = (props) => {
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
-								<AutoHeightImage width={20} source={require('../../assets/image/mypage_menu5.png')} />
+								<ImgDomain fileWidth={20} fileName={'mypage_menu5.png'}/>
 							</View>
 							<View style={styles.mypageMenuBtnName}>
 								<Text style={styles.mypageMenuBtnNameText}>공지/안내</Text>
 							</View>
 						</View>
 						<View style={styles.mypageMenuBtnRight}>
-							<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 						</View>
 					</TouchableOpacity>
 					<View style={styles.mypageMenuLine}></View>
@@ -201,14 +203,14 @@ const Mypage = (props) => {
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
-								<AutoHeightImage width={20} source={require('../../assets/image/mypage_menu6.png')} />
+								<ImgDomain fileWidth={20} fileName={'mypage_menu6.png'}/>
 							</View>
 							<View style={styles.mypageMenuBtnName}>
 								<Text style={styles.mypageMenuBtnNameText}>설정</Text>
 							</View>
 						</View>
 						<View style={styles.mypageMenuBtnRight}>
-							<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 						</View>
 					</TouchableOpacity>
 					<TouchableOpacity
@@ -218,14 +220,14 @@ const Mypage = (props) => {
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
-								<AutoHeightImage width={20} source={require('../../assets/image/mypage_menu6.png')} />
+								<ImgDomain fileWidth={20} fileName={'mypage_menu6.png'}/>
 							</View>
 							<View style={styles.mypageMenuBtnName}>
 								<Text style={styles.mypageMenuBtnNameText}>비회원용 토스트 메세지</Text>
 							</View>
 						</View>
 						<View style={styles.mypageMenuBtnRight}>
-							<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 						</View>
 					</TouchableOpacity>					
 				</View>
@@ -251,14 +253,14 @@ const Mypage = (props) => {
 							activeOpacity={opacityVal}
 							onPress={()=>{}}
 						>
-							<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+							<AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/social_banner.png'}} resizeMethod='resize' />
 						</TouchableOpacity>
 						<TouchableOpacity 
 							style={styles.commuBanner}
 							activeOpacity={opacityVal}
 							onPress={()=>{}}
 						>
-							<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+							<AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/social_banner.png'}} resizeMethod='resize' />
 						</TouchableOpacity>
 					</Swiper>
 				</View>

@@ -1,11 +1,8 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {ActivityIndicator, Alert, Animated, Button, Dimensions, ImageBackground, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
+import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
+import {ActivityIndicator, Alert, Button, Dimensions, ImageBackground, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import FlipComponent from 'react-native-flip-component';
 import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
@@ -13,14 +10,16 @@ import Toast from 'react-native-toast-message';
 import Font from "../assets/common/Font";
 import ToastMessage from "../components/ToastMessage";
 import ImgDomain from '../assets/common/ImgDomain';
+import Card from '../components/Card';
+import Card2 from '../components/Card2';
 
-const imgDomain = 'https://cnj02.cafe24.com/appImg/';
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
+const opacityVal2 = 0.95;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const Home = (props) => {
@@ -106,15 +105,15 @@ const Home = (props) => {
 	const [todayFree, setTodayFree] = useState(2);
 	const [nonCollidingMultiSliderValue, setNonCollidingMultiSliderValue] = useState([]);
 	const [nonCollidingMultiSliderValue2, setNonCollidingMultiSliderValue2] = useState([]);
-	const [cardList, setCardList] = useState(cardData);	
-	const [data1List, setData1List] = useState(Data1);
-	const [data2List, setData2List] = useState(Data2);
-	const [data3List, setData3List] = useState(Data3);
-	const [data4List, setData4List] = useState(Data4);
-	const [data5List, setData5List] = useState(Data5);
-	const [data6List, setData6List] = useState(Data6);
-	const [data7List, setData7List] = useState(Data7);
-	const [data8List, setData8List] = useState(Data8);
+	const [cardList, setCardList] = useState([]);	
+	const [data1List, setData1List] = useState([]);
+	const [data2List, setData2List] = useState([]);
+	const [data3List, setData3List] = useState([]);
+	const [data4List, setData4List] = useState([]);
+	const [data5List, setData5List] = useState([]);
+	const [data6List, setData6List] = useState([]);
+	const [data7List, setData7List] = useState([]);
+	const [data8List, setData8List] = useState([]);
 
 	const [welcomePop, setWelcomePop] = useState(false);
 	const [filterPop, setFilterPop] = useState(false);
@@ -149,14 +148,13 @@ const Home = (props) => {
 		let isSubscribed = true;
 
 		if(!isFocused){
-
+			
 		}else{
 			if(params['account'] && params['account'] == 'off'){
 				setMyAccount(false);
 			}else{
 				setMyAccount(true);
-			}
-
+			}						
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 		}
@@ -165,38 +163,6 @@ const Home = (props) => {
 		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
-
-	useEffect(() => {
-    const unsubscribe = navigationUse.addListener('beforeRemove', (e) => {
-      // 뒤로 가기 이벤트가 발생했을 때 실행할 로직을 작성합니다.
-      // 여기에 원하는 동작을 추가하세요.
-      // e.preventDefault();를 사용하면 뒤로 가기를 막을 수 있습니다.
-      //console.log('preventBack22 ::: ',preventBack);
-      if (preventBack) {  
-				e.preventDefault();
-      } else {
-        //console.log('뒤로 가기 이벤트 발생!');								
-      }
-    });
-
-    return unsubscribe;
-  }, [navigationUse, preventBack]);
-
-	useEffect(() => {
-		if(tabState == 1){
-			let cont = cardList.map((item) => {				
-				if (item.open) {
-					return { ...item, isFlipped: true };					
-				}else{
-					return {...item, isFlipped: item.isFlipped};
-				}
-			});
-			
-			setTimeout(function(){
-				setCardList(cont);		
-			}, 700);
-		}
-	}, []);
 
 	useEffect(() => {
 		const date = new Date();
@@ -237,87 +203,63 @@ const Home = (props) => {
 		setNonCollidingMultiSliderValue2([5, cnt-5]);		
 	}, []);
 
+	useEffect(() => {
+		setLoading(true);		
+		setTimeout(() => {
+			setCardList(cardData);
+			setLoading(false);
+		}, 300);
+	}, [])
+
 	const getMatchCard = async(v) => {
 		setTabState(v);
-	}
+		setLoading(true);
+		if(v == 1){			
+			setTimeout(() => {
+				setCardList(cardData);
+				setLoading(false);
+			}, 300);
 
-	const chgFlipped = (idx) => {				
-		let cont = cardList.map((item) => {
-			if (item.idx === idx) {
-				//console.log(item.idx+'///'+item.isFlipped);
-				if(item.isFlipped){
-					return { ...item, isFlipped: false };
-				}else{
-					return { ...item, isFlipped: true };
+		}else if(v == 2){			
+			setTimeout(() => {							
+				if(tabState2 == 1){
+					setData1List(Data1);
+					setData2List(Data2);
+				}else if(tabState2 == 2){
+					setData3List(Data3);
+					setData4List(Data4);
+					setData5List(Data5);
+					setData5List(Data6);
+					setData5List(Data7);
+				}else if(tabState2 == 3){
+					setData8List(Data8);
 				}
-			}else{
-				return {...item, isFlipped: item.isFlipped};
-			}
-		});
-		//console.log(cont);
-		setCardList(cont);		
-	}
-
-	const ViewDetail = () => {
-		//포인트 있는지 체크 후 결제 유도 or 상세페이지 이동		
-		navigation.navigate('MatchDetail')
-	}
-
-	const getInterest = async(v) => {
-		setTabState2(v);
-	}
-
-	const chgFlipped2 = (list, idx) => {
-		let db = '';
-		if(list == 'data1'){
-			db = data1List;
-		}else if(list == 'data2'){
-			db = data2List;
-		}else if(list == 'data3'){
-			db = data3List;
-		}else if(list == 'data4'){
-			db = data4List;
-		}else if(list == 'data5'){
-			db = data5List;
-		}else if(list == 'data6'){
-			db = data6List;
-		}else if(list == 'data7'){
-			db = data7List;
-		}else if(list == 'data8'){
-			db = data8List;
+				setLoading(false);
+			}, 300);
 		}
+	}
 
-		let cont = db.map((item) => {
-			if (item.idx === idx) {
-				//console.log(item.idx+'///'+item.isFlipped);
-				if(item.isFlipped){
-					return { ...item, isFlipped: false };
-				}else{
-					return { ...item, isFlipped: true };
-				}
-			}else{
-				return {...item, isFlipped: item.isFlipped};
+	const getInterest = async (v) => {
+		setTabState2(v);
+		setLoading(true);
+		setTimeout(() => {							
+			if(v == 1){
+				setData1List(Data1);
+				setData2List(Data2);
+			}else if(v == 2){
+				setData3List(Data3);
+				setData4List(Data4);
+				setData5List(Data5);
+				setData5List(Data6);
+				setData5List(Data7);
+			}else if(v == 3){
+				setData8List(Data8);
 			}
-		});
+			setLoading(false);
+		}, 300);
 		
-		if(list == 'data1'){
-			setData1List(cont);
-		}else if(list == 'data2'){
-			setData2List(cont);
-		}else if(list == 'data3'){
-			setData3List(cont);
-		}else if(list == 'data4'){
-			setData4List(cont);
-		}else if(list == 'data5'){
-			setData5List(cont);
-		}else if(list == 'data6'){
-			setData6List(cont);
-		}else if(list == 'data7'){
-			setData7List(cont);
-		}else if(list == 'data8'){
-			setData8List(cont);
-		}	
-	} 
+		
+	}
 
 	const accountReset = async () => {
 		setLoading(true);
@@ -366,7 +308,6 @@ const Home = (props) => {
 		),
   };
 	
-
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
 
@@ -448,8 +389,9 @@ const Home = (props) => {
 				) : null}
 
 				<ScrollView>
-					<View style={[styles.cmWrap, tabState == 1 ? styles.cmWrap2 : null]}>					
-						<View style={tabState == 2 ? styles.displayNone : null}>
+					<View style={[styles.cmWrap, tabState == 1 ? styles.cmWrap2 : null]}>
+						{tabState == 1 && cardList.length > 0 ? (
+						<View>
 							<View style={styles.todayFreeArea}>
 								<View style={[styles.todayFreeAreaWrap, styles.boxShadow]}>
 									<LinearGradient
@@ -498,7 +440,7 @@ const Home = (props) => {
 										)}
 									</LinearGradient>
 								</View>
-							</View>
+							</View>								
 
 							{/* D-7 */}
 							<View style={styles.cardView}>
@@ -508,65 +450,20 @@ const Home = (props) => {
 								</View>
 								{cardList.map((item, index) => {
 									return (	
-										item.dday == 7 ? (							
-										<TouchableOpacity 
-											key={item.idx}
-											style={styles.cardBtn}
-											activeOpacity={opacityVal}
-											onPress={() => {
-												if(item.isFlipped){
-													ViewDetail();
-												}else{
-													chgFlipped(item.idx);
-												}
-											}}
-										>
-											<FlipComponent
-												isFlipped={item.isFlipped}
-												scale={1}
-												scaleDuration= {0}
-												rotateDuration={200}
-												frontView={		
-													<View style={[styles.cardCont]}>														
-														<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
-													</View>												
-												}
-												backView={
-													<View style={[styles.cardCont]}>													
-														<View style={styles.cardFrontInfo}>															
-															<View style={styles.peopleImgBack}>
-																<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
-															</View>															
-															<AutoHeightImage width={(innerWidth/2)-10} source={{uri:imgDomain+'man.png'}} resizeMethod='resize' style={styles.peopleImg} />
-															<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
-																<View style={styles.cardFrontNick}>
-																	<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
-																	{item.badgeCnt == 1 ? (<ImgDomain fileWidth={26} fileName={'b_1.png'} />) : null}
-																	{item.badgeCnt == 2 ? (<ImgDomain fileWidth={26} fileName={'b_2.png'} />) : null}
-																	{item.badgeCnt == 3 ? (<ImgDomain fileWidth={26} fileName={'b_3.png'} />) : null}
-																	{item.badgeCnt == 4 ? (<ImgDomain fileWidth={26} fileName={'b_4.png'} />) : null}
-																	{item.badgeCnt == 5 ? (<ImgDomain fileWidth={26} fileName={'b_5.png'} />) : null}
-																	{item.badgeCnt == 6 ? (<ImgDomain fileWidth={26} fileName={'b_6.png'} />) : null}
-																</View>
-																<View style={styles.cardFrontJob}>
-																	<Text style={styles.cardFrontJobText}>{item.job}</Text>
-																</View>
-																<View style={styles.cardFrontContBox}>
-																	<Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{item.age}</Text>
-																	<View style={styles.cardFrontContLine}></View>
-																	<Text style={styles.cardFrontContText}>{item.area}</Text>
-																</View>
-																<View style={[styles.cardFrontContBox, styles.mgt4]}>
-																	<Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{item.height}cm</Text>
-																	<View style={styles.cardFrontContLine}></View>
-																	<Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{item.weight}kg</Text>
-																</View>
-															</View>
-														</View>
-													</View>
-												}
+										item.dday == 7 ? (
+											<Card 
+												navigation={navigation}
+												key={index}
+												propsNick={item.name}
+												propsJob={item.job}
+												propsAge={item.age}
+												propsArea={item.area}
+												propsHeight={item.height}
+												propsWeight={item.weight}
+												propsBadgeCnt={item.badgeCnt}
+												propsFlip={item.isFlipped}
+												propsOpen={item.open}
 											/>
-										</TouchableOpacity>
 										) : null				
 									)
 								})}
@@ -580,65 +477,20 @@ const Home = (props) => {
 								</View>
 								{cardList.map((item, index) => {
 									return (	
-										item.dday == 6 ? (							
-										<TouchableOpacity 
-											key={item.idx}
-											style={styles.cardBtn}
-											activeOpacity={opacityVal}
-											onPress={() => {
-												if(item.isFlipped){
-													ViewDetail();
-												}else{
-													chgFlipped(item.idx);
-												}
-											}}
-										>
-											<FlipComponent
-												isFlipped={item.isFlipped}
-												scale={1}
-												scaleDuration= {0}
-												rotateDuration={200}
-												frontView={	
-													<View style={[styles.cardCont]}>
-														<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
-													</View>												
-												}
-												backView={
-													<View style={[styles.cardCont]}>													
-														<View style={styles.cardFrontInfo}>
-															<View style={styles.peopleImgBack}>
-																<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
-															</View>
-															<AutoHeightImage width={(innerWidth/2)-10} source={{uri:imgDomain+'man.png'}} resizeMethod='resize' style={styles.peopleImg} />
-															<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
-																<View style={styles.cardFrontNick}>
-																	<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
-																	{item.badgeCnt == 1 ? (<ImgDomain fileWidth={26} fileName={'b_1.png'} />) : null}
-																	{item.badgeCnt == 2 ? (<ImgDomain fileWidth={26} fileName={'b_2.png'} />) : null}
-																	{item.badgeCnt == 3 ? (<ImgDomain fileWidth={26} fileName={'b_3.png'} />) : null}
-																	{item.badgeCnt == 4 ? (<ImgDomain fileWidth={26} fileName={'b_4.png'} />) : null}
-																	{item.badgeCnt == 5 ? (<ImgDomain fileWidth={26} fileName={'b_5.png'} />) : null}
-																	{item.badgeCnt == 6 ? (<ImgDomain fileWidth={26} fileName={'b_6.png'} />) : null}
-																</View>
-																<View style={styles.cardFrontJob}>
-																	<Text style={styles.cardFrontJobText}>{item.job}</Text>
-																</View>
-																<View style={styles.cardFrontContBox}>
-																	<Text style={styles.cardFrontContText}>{item.age}</Text>
-																	<View style={styles.cardFrontContLine}></View>
-																	<Text style={styles.cardFrontContText}>{item.area}</Text>
-																</View>
-																<View style={styles.cardFrontContBox}>
-																	<Text style={styles.cardFrontContText}>{item.height}cm</Text>
-																	<View style={styles.cardFrontContLine}></View>
-																	<Text style={styles.cardFrontContText}>{item.weight}kg</Text>
-																</View>
-															</View>
-														</View>
-													</View>
-												}
+										item.dday == 6 ? (
+											<Card 
+												navigation={navigation}
+												key={index}
+												propsNick={item.name}
+												propsJob={item.job}
+												propsAge={item.age}
+												propsArea={item.area}
+												propsHeight={item.height}
+												propsWeight={item.weight}
+												propsBadgeCnt={item.badgeCnt}
+												propsFlip={item.isFlipped}
+												propsOpen={item.open}
 											/>
-										</TouchableOpacity>
 										) : null				
 									)
 								})}
@@ -652,569 +504,329 @@ const Home = (props) => {
 								</View>
 								{cardList.map((item, index) => {
 									return (	
-										item.dday == 5 ? (							
-										<TouchableOpacity 
-											key={item.idx}
-											style={styles.cardBtn}
-											activeOpacity={opacityVal}
-											onPress={() => {
-												if(item.isFlipped){
-													ViewDetail();
-												}else{
-													chgFlipped(item.idx);
-												}
-											}}
-										>
-											<FlipComponent
-												isFlipped={item.isFlipped}
-												scale={1}
-												scaleDuration= {0}
-												rotateDuration={200}
-												frontView={			
-													<View style={[styles.cardCont]}>
-														<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
-													</View>											
-												}
-												backView={
-													<View style={[styles.cardCont]}>													
-														<View style={styles.cardFrontInfo}>
-															<View style={styles.peopleImgBack}>
-																<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
-															</View>
-															<AutoHeightImage width={(innerWidth/2)-10} source={{uri:imgDomain+'man.png'}} style={styles.peopleImg} resizeMethod='resize' />
-															<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
-																<View style={styles.cardFrontNick}>
-																	<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
-																	{item.badgeCnt == 1 ? (<ImgDomain fileWidth={26} fileName={'b_1.png'} />) : null}
-																	{item.badgeCnt == 2 ? (<ImgDomain fileWidth={26} fileName={'b_2.png'} />) : null}
-																	{item.badgeCnt == 3 ? (<ImgDomain fileWidth={26} fileName={'b_3.png'} />) : null}
-																	{item.badgeCnt == 4 ? (<ImgDomain fileWidth={26} fileName={'b_4.png'} />) : null}
-																	{item.badgeCnt == 5 ? (<ImgDomain fileWidth={26} fileName={'b_5.png'} />) : null}
-																	{item.badgeCnt == 6 ? (<ImgDomain fileWidth={26} fileName={'b_6.png'} />) : null}																	
-																</View>
-																<View style={styles.cardFrontJob}>
-																	<Text style={styles.cardFrontJobText}>{item.job}</Text>
-																</View>
-																<View style={styles.cardFrontContBox}>
-																	<Text style={styles.cardFrontContText}>{item.age}</Text>
-																	<View style={styles.cardFrontContLine}></View>
-																	<Text style={styles.cardFrontContText}>{item.area}</Text>
-																</View>
-																<View style={styles.cardFrontContBox}>
-																	<Text style={styles.cardFrontContText}>{item.height}cm</Text>
-																	<View style={styles.cardFrontContLine}></View>
-																	<Text style={styles.cardFrontContText}>{item.weight}kg</Text>
-																</View>
-															</View>
-														</View>
-													</View>
-												}
+										item.dday == 5 ? (
+											<Card 
+												navigation={navigation}
+												key={index}
+												propsNick={item.name}
+												propsJob={item.job}
+												propsAge={item.age}
+												propsArea={item.area}
+												propsHeight={item.height}
+												propsWeight={item.weight}
+												propsBadgeCnt={item.badgeCnt}
+												propsFlip={item.isFlipped}
+												propsOpen={item.open}
 											/>
-										</TouchableOpacity>
 										) : null				
 									)
 								})}
 							</View>
 
 						</View>
-						
-						<View style={tabState == 1 ? styles.displayNone : null}>
-							<View style={tabState2 != 1 ? styles.displayNone : null}>			
+						) : null}
+
+						{tabState == 2 ? (
+						<View>
+							{tabState2 == 1 ? (
+							<View>			
 								{/* 찜한 카드	*/}
+								{data1List.length > 0 ? (
 								<View style={styles.interestBox}>
 									<View style={styles.interestBoxTitle}>
 										<Text style={styles.interestBoxTitleText}>찜한 카드</Text>
 									</View>
 									<View style={styles.cardView}>
 										{data1List.map((item, index) => {
-											return (
-												<TouchableOpacity 
-													key={item.idx}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal}
-													onPress={() => {
-														if(item.leave && !item.isFlipped){
-															//chgFlipped2('data1', item.idx);
+											if(item.leave && !item.isFlipped){
+												return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2]}
+														activeOpacity={opacityVal2}
+														onPress={() => {													
 															setLeavePop(true);
-														}else if(!item.leave && item.isFlipped){
-															ViewDetail();
-														}
-													}}
-												>
-													<FlipComponent
-														isFlipped={item.isFlipped}
-														scale={1}
-														scaleDuration= {0}
-														rotateDuration={200}
-														frontView={	
-															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																																													
-																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																</View>
-															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>																			
-																	<View style={styles.peopleImgBack}>
-																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																	</View>
-																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<View style={styles.peopleImgBack}>
-																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																		</View>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />
-																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																			<View	View style={styles.cardFrontDday}>
-																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																			</View>
-																			<View style={styles.cardFrontNick2}>
-																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																			</View>
-																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																				<View style={styles.cardFrontContLine}></View>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-																			</View>
-																		</View>
-																	</View>
-																</View>
-															)																			
-														}
-														backView={
-															<View style={[styles.cardCont, styles.cardCont2]}>																																												
-																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />																
-															</View>
-														}
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>
+													</TouchableOpacity>
+												)
+											}else{
+												return (
+													<Card2 
+														navigation={navigation}
+														key={index}
+														propsNick={item.name}													
+														propsAge={item.age}													
+														propsHeight={item.height}													
+														propsFlip={item.isFlipped}
+														propsDday={item.dday}
 													/>
-												</TouchableOpacity>
-											)
+												)
+											}
 										})}
 									</View>
 								</View>
+								) : null}
 
 								{/* 교환한 프로필 */}
+								{data2List.length > 0 ? (
 								<View style={[styles.interestBox, styles.mgt50]}>
 									<View style={styles.interestBoxTitle}>
 										<Text style={styles.interestBoxTitleText}>교환한 프로필</Text>
 									</View>
 									<View style={styles.cardView}>
 										{data2List.map((item, index) => {
-											return (
-												<TouchableOpacity 
-													key={item.idx}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal}
-													onPress={() => {													
-														if(item.leave && !item.isFlipped){
-															//chgFlipped2('data2', item.idx);
+											if(item.leave && !item.isFlipped){
+												return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2]}
+														activeOpacity={opacityVal2}
+														onPress={() => {													
 															setLeavePop(true);
-														}else if(!item.leave && item.isFlipped){
-															ViewDetail();
-														}
-													}}
-												>
-													<FlipComponent
-														isFlipped={item.isFlipped}
-														scale={1}
-														scaleDuration= {0}
-														rotateDuration={200}
-														frontView={		
-															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																</View>
-															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>																			
-																	<View style={styles.peopleImgBack}>
-																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																	</View>
-																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<View style={styles.peopleImgBack}>
-																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																		</View>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />																																																																							
-																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																			<View	View style={styles.cardFrontDday}>
-																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																			</View>
-																			<View style={styles.cardFrontNick2}>
-																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																			</View>
-																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																				<View style={styles.cardFrontContLine}></View>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-																			</View>
-																		</View>
-																	</View>
-																</View>
-															)																								
-														}
-														backView={
-															<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																			
-																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-															</View>	
-														}
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>
+													</TouchableOpacity>
+												)
+											}else{
+												return (
+													<Card2 
+														navigation={navigation}
+														key={index}
+														propsNick={item.name}													
+														propsAge={item.age}													
+														propsHeight={item.height}													
+														propsFlip={item.isFlipped}
+														propsDday={item.dday}
 													/>
-												</TouchableOpacity>
-											)
+												)
+											}
 										})}
 									</View>
 								</View>
+								) : null}
 							</View>
+							) : null}
 
-							<View style={tabState2 != 2 ? styles.displayNone : null}>				
+							{tabState2 == 2 ? (
+							<View>				
 								{/* 받은 좋아요 */}
+								{data3List.length > 0 ? (
 								<View style={styles.interestBox}>
 									<View style={styles.interestBoxTitle}>
 										<Text style={styles.interestBoxTitleText}>받은 좋아요</Text>
 									</View>
 									<View style={styles.cardView}>
 										{data3List.map((item, index) => {
-											return (
-												<TouchableOpacity 
-													key={item.idx}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal}
-													onPress={() => {
-														if(item.leave && !item.isFlipped){
-															//chgFlipped2('data3', item.idx);
+											if(item.leave && !item.isFlipped){
+												return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2]}
+														activeOpacity={opacityVal2}
+														onPress={() => {													
 															setLeavePop(true);
-														}else if(!item.leave && item.isFlipped){
-															ViewDetail();
-														}
-													}}
-												>
-													<FlipComponent
-														isFlipped={item.isFlipped}
-														scale={1}
-														scaleDuration= {0}
-														rotateDuration={200}
-														frontView={			
-															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																</View>
-															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<View style={styles.peopleImgBack}>
-																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																	</View>
-																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>																																		
-																		<View style={styles.peopleImgBack}>
-																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																		</View>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
-																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																			<View	View style={styles.cardFrontDday}>
-																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																			</View>
-																			<View style={styles.cardFrontNick2}>
-																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																			</View>
-																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																				<View style={styles.cardFrontContLine}></View>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-																			</View>
-																		</View>
-																	</View>
-																</View>
-															)																										
-														}
-														backView={
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-															</View>	
-														}
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>
+													</TouchableOpacity>
+												)
+											}else{
+												return (
+													<Card2 
+														navigation={navigation}
+														key={index}
+														propsNick={item.name}													
+														propsAge={item.age}													
+														propsHeight={item.height}													
+														propsFlip={item.isFlipped}
+														propsDday={item.dday}
 													/>
-												</TouchableOpacity>
-											)
+												)
+											}
 										})}
 									</View>
 								</View>
+								) : null}
 								
 								{/* 보낸 좋아요 */}
+								{data4List.length > 0 ? (
 								<View style={[styles.interestBox, styles.mgt50]}>
 									<View style={styles.interestBoxTitle}>
 										<Text style={styles.interestBoxTitleText}>보낸 좋아요</Text>
 									</View>
 									<View style={styles.cardView}>
 										{data4List.map((item, index) => {
-											return (
-												<TouchableOpacity 
-													key={item.idx}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal}
-													onPress={() => {
-														if(item.leave && !item.isFlipped){
-															//chgFlipped2('data4', item.idx);
+											if(item.leave && !item.isFlipped){
+												return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2]}
+														activeOpacity={opacityVal2}
+														onPress={() => {													
 															setLeavePop(true);
-														}else if(!item.leave && item.isFlipped){
-															ViewDetail();
-														}
-													}}
-												>
-													<FlipComponent
-														isFlipped={item.isFlipped}
-														scale={1}
-														scaleDuration= {0}
-														rotateDuration={200}
-														frontView={			
-															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																</View>
-															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>	
-																	<View style={styles.peopleImgBack}>
-																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																	</View>
-																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<View style={styles.peopleImgBack}>
-																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																		</View>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />
-																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																			<View	View style={styles.cardFrontDday}>
-																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																			</View>
-																			<View style={styles.cardFrontNick2}>
-																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																			</View>
-																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																				<View style={styles.cardFrontContLine}></View>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-																			</View>
-																		</View>
-																	</View>
-																</View>
-															)																									
-														}
-														backView={
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-															</View>	
-														}
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>
+													</TouchableOpacity>
+												)
+											}else{
+												return (
+													<Card2 
+														navigation={navigation}
+														key={index}
+														propsNick={item.name}													
+														propsAge={item.age}													
+														propsHeight={item.height}													
+														propsFlip={item.isFlipped}
+														propsDday={item.dday}
 													/>
-												</TouchableOpacity>
-											)
+												)
+											}
 										})}
 									</View>
 								</View>
+								) : null}
 
 								{/* 주고받은 호감 */}
+								{data5List.length > 0 ? (
 								<View style={[styles.interestBox, styles.mgt50]}>
 									<View style={styles.interestBoxTitle}>
 										<Text style={styles.interestBoxTitleText}>주고받은 호감</Text>
 									</View>
 									<View style={styles.cardView}>
 										{data5List.map((item, index) => {
-											return (
-												<TouchableOpacity 
-													key={item.idx}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal}
-													onPress={() => {
-														if(item.leave && !item.isFlipped){
-															//chgFlipped2('data5', item.idx);
+											if(item.leave && !item.isFlipped){
+												return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2]}
+														activeOpacity={opacityVal2}
+														onPress={() => {													
 															setLeavePop(true);
-														}else if(!item.leave && item.isFlipped){
-															ViewDetail();
-														}
-													}}
-												>
-													<FlipComponent
-														isFlipped={item.isFlipped}
-														scale={1}
-														scaleDuration= {0}
-														rotateDuration={200}
-														frontView={			
-															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																														
-																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																</View>
-															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<View style={styles.peopleImgBack}>
-																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																	</View>
-																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<View style={styles.peopleImgBack}>
-																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																		</View>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />																																																																							
-																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																			<View	View style={styles.cardFrontDday}>
-																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																			</View>
-																			<View style={styles.cardFrontNick2}>
-																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																			</View>
-																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																				<View style={styles.cardFrontContLine}></View>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-																			</View>
-																		</View>
-																	</View>
-																</View>
-															)																									
-														}
-														backView={
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-															</View>
-														}
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>
+													</TouchableOpacity>
+												)
+											}else{
+												return (
+													<Card2 
+														navigation={navigation}
+														key={index}
+														propsNick={item.name}													
+														propsAge={item.age}													
+														propsHeight={item.height}													
+														propsFlip={item.isFlipped}
+														propsDday={item.dday}
 													/>
-												</TouchableOpacity>
-											)
+												)
+											}
 										})}
 									</View>
 								</View>
+								) : null}
 
 								{/* 받은 호감 */}
+								{data6List.length > 0 ? (
 								<View style={[styles.interestBox, styles.mgt50]}>
 									<View style={styles.interestBoxTitle}>
 										<Text style={styles.interestBoxTitleText}>받은 호감</Text>
 									</View>
 									<View style={styles.cardView}>
 										{data6List.map((item, index) => {
-											return (
-												<TouchableOpacity 
-													key={item.idx}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal}
-													onPress={() => {
-														if(item.leave && !item.isFlipped){
-															//chgFlipped2('data6', item.idx);
+											if(item.leave && !item.isFlipped){
+												return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2]}
+														activeOpacity={opacityVal2}
+														onPress={() => {													
 															setLeavePop(true);
-														}else if(!item.leave && item.isFlipped){
-															ViewDetail();
-														}
-													}}
-												>
-													<FlipComponent
-														isFlipped={item.isFlipped}
-														scale={1}
-														scaleDuration= {0}
-														rotateDuration={200}
-														frontView={			
-															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																														
-																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																</View>
-															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<View style={styles.peopleImgBack}>
-																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																	</View>
-																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<View style={styles.peopleImgBack}>
-																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																		</View>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />																																																																						
-																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																			<View	View style={styles.cardFrontDday}>
-																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																			</View>
-																			<View style={styles.cardFrontNick2}>
-																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																			</View>
-																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																				<View style={styles.cardFrontContLine}></View>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-																			</View>
-																		</View>
-																	</View>
-																</View>
-															)																										
-														}
-														backView={
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-															</View>	
-														}
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>
+													</TouchableOpacity>
+												)
+											}else{
+												return (
+													<Card2 
+														navigation={navigation}
+														key={index}
+														propsNick={item.name}													
+														propsAge={item.age}													
+														propsHeight={item.height}													
+														propsFlip={item.isFlipped}
+														propsDday={item.dday}
 													/>
-												</TouchableOpacity>
-											)
+												)
+											}
 										})}
 									</View>
 								</View>
+								) : null}
 
 								{/* 보낸 호감 */}
+								{data7List.length > 0 ? (
 								<View style={[styles.interestBox, styles.mgt50]}>
 									<View style={styles.interestBoxTitle}>
 										<Text style={styles.interestBoxTitleText}>보낸 호감</Text>
 									</View>
 									<View style={styles.cardView}>
 										{data7List.map((item, index) => {
-											return (
-												<TouchableOpacity 
-													key={item.idx}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal}
-													onPress={() => {
-														if(item.leave && !item.isFlipped){
-															//chgFlipped2('data7', item.idx);
+											if(item.leave && !item.isFlipped){
+												return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2]}
+														activeOpacity={opacityVal2}
+														onPress={() => {													
 															setLeavePop(true);
-														}else if(!item.leave && item.isFlipped){
-															ViewDetail();
-														}
-													}}
-												>
-													<FlipComponent
-														isFlipped={item.isFlipped}
-														scale={1}
-														scaleDuration= {0}
-														rotateDuration={200}
-														frontView={			
-															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																</View>
-															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<View style={styles.peopleImgBack}>
-																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																	</View>
-																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<View style={styles.peopleImgBack}>
-																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																		</View>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />																		
-																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																			<View	View style={styles.cardFrontDday}>
-																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																			</View>
-																			<View style={styles.cardFrontNick2}>
-																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																			</View>
-																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																				<View style={styles.cardFrontContLine}></View>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-																			</View>
-																		</View>
-																	</View>
-																</View>
-															)																										
-														}
-														backView={
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-															</View>	
-														}
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>
+													</TouchableOpacity>
+												)
+											}else{
+												return (
+													<Card2 
+														navigation={navigation}
+														key={index}
+														propsNick={item.name}													
+														propsAge={item.age}													
+														propsHeight={item.height}													
+														propsFlip={item.isFlipped}
+														propsDday={item.dday}
 													/>
-												</TouchableOpacity>
-											)
+												)
+											}
 										})}
 									</View>
-								</View>							
+								</View>
+								) : null}					
 							</View>
-
-							<View style={tabState2 != 3 ? styles.displayNone : null}>			
+							) : null}
+							
+							{tabState2 == 3 ? (
+							<View>			
 								{/* 매칭된 이성 */}
+								{data8List.length > 0 ? (
 								<View style={styles.interestBox}>
 									<View style={styles.interestBoxTitle}>
 										<Text style={styles.interestBoxTitleText}>매칭된 이성</Text>
@@ -1225,70 +837,42 @@ const Home = (props) => {
 									</View>
 									<View style={styles.cardView}>
 										{data8List.map((item, index) => {
-											return (
-												<TouchableOpacity 
-													key={item.idx}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal}
-													onPress={() => {
-														if(item.leave && !item.isFlipped){
-															//chgFlipped2('data8', item.idx);
+											if(item.leave && !item.isFlipped){
+												return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2]}
+														activeOpacity={opacityVal2}
+														onPress={() => {													
 															setLeavePop(true);
-														}else if(!item.leave && item.isFlipped){
-															ViewDetail();
-														}
-													}}
-												>
-													<FlipComponent
-														isFlipped={item.isFlipped}
-														scale={1}
-														scaleDuration= {0}
-														rotateDuration={200}
-														frontView={			
-															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																																													
-																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />																	
-																</View>
-															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>																			
-																	<View style={styles.peopleImgBack}>
-																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																	</View>
-																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<View style={styles.peopleImgBack}>
-																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-																		</View>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />																	
-																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
-																			<View	View style={styles.cardFrontDday}>
-																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-																			</View>
-																			<View style={styles.cardFrontNick2}>
-																				<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-																			</View>
-																			<View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-																				<View style={styles.cardFrontContLine}></View>
-																				<Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-																			</View>
-																		</View>
-																	</View>
-																</View>
-															)																									
-														}
-														backView={
-															<View style={[styles.cardCont, styles.cardCont2]}>																																												
-																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />																	
-															</View>	
-														}
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>
+													</TouchableOpacity>
+												)
+											}else{
+												return (
+													<Card2 
+														navigation={navigation}
+														key={index}
+														propsNick={item.name}													
+														propsAge={item.age}													
+														propsHeight={item.height}													
+														propsFlip={item.isFlipped}
+														propsDday={item.dday}
 													/>
-												</TouchableOpacity>
-											)
+												)
+											}
 										})}
 									</View>
 								</View>
+								) : null}
 							</View>
+							) : null}
 						</View>
+						) : null}
 					</View>
 				</ScrollView>
 				<View style={styles.gapBox}></View>			
@@ -1607,7 +1191,7 @@ const Home = (props) => {
 								<View style={styles.popTitleFlexWrap}>
 									<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>탈퇴한 회원이에요</Text>
 								</View>
-								<ImgDomain fileWidth={14} fileName={'emiticon1.png'} />
+								<ImgDomain fileWidth={18} fileName={'emiticon1.png'} />
 							</View>
 							<View style={styles.popBtnBox}>
 								<TouchableOpacity 
@@ -1770,9 +1354,9 @@ const Home = (props) => {
 							</View>
 							<View style={[styles.popTitle, styles.popTitleFlex]}>							
 								<View style={styles.popTitleFlexWrap}>
-									<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
+									<Text style={[styles.popTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
 								</View>
-								<ImgDomain fileWidth={14} fileName={'emiticon2.png'} />
+								<ImgDomain fileWidth={18} fileName={'emiticon2.png'} />
 							</View>
 							<View>
 								<Text style={[styles.popTitleDesc, styles.mgt0]}>새로운 회원이 들어올때까지 커뮤니티를 즐겨보세요!</Text>
@@ -1860,7 +1444,7 @@ const Home = (props) => {
 					>
 					</TouchableOpacity>
 					<View style={styles.prvPopBot2}>
-						<ImageBackground source={require('../assets/image/welcome.png')} resizeMode="cover" >
+						<ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/welcome.png'}} resizeMode="cover" >
 							<View style={styles.prvPopBot2Wrap}>
 								<View style={styles.prvPopBot2Title}>
 									<View style={styles.prvPopBot2View}>
@@ -1909,7 +1493,7 @@ const Home = (props) => {
 					<View style={styles.accImg}>						
 						<ImgDomain fileWidth={42} fileName={'logo_navy.png'} />
 						<View style={styles.accCircle}>
-							<ImgDomain fileWidth={84} fileName={'account_off.png'} />
+							<ImgDomain fileWidth={84} fileName={'account_off.jpg'} />
 						</View>
 					</View>
 					<View style={styles.accInfo}>
@@ -1961,14 +1545,12 @@ const Home = (props) => {
 				) : null}
 			</Modal>
 			)}
-
-
 			
 		</SafeAreaView>
 	)
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({	
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },
 	gapBox: {height:86,},
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
@@ -2086,9 +1668,9 @@ const styles = StyleSheet.create({
 	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
 	popTitle: {paddingBottom:20,},
 	popTitleFlex: {flexDirection:'row',alignItems:'center',justifyContent:'center',flexWrap:'wrap'},
-	popTitleFlexWrap: {position:'relative'},
+	popTitleFlexWrap: {position:'relative',},
 	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E',},
-  popTitleFlexText: {position:'relative',top:0,},	
+  popTitleFlexText: {position:'relative',top:0.5,},	
 	popTitleDesc: {width:innerWidth-40,textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:20,},
 	emoticon: {},
 	popIptBox: {paddingTop:10,},

@@ -11,6 +11,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Font from "../assets/common/Font";
 import ToastMessage from "../components/ToastMessage";
 import Header from '../components/Header';
+import ImgDomain from '../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -90,14 +91,14 @@ const Shop = (props) => {
             activeOpacity={opacityVal}
             onPress={()=>{}}
           >
-            <AutoHeightImage width={innerWidth} source={require('../assets/image/product1.png')} />
+            <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/product1.png'}} resizeMethod='resize' />
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.prdLi]}
             activeOpacity={opacityVal}
             onPress={()=>{}}
           >
-            <AutoHeightImage width={innerWidth} source={require('../assets/image/product2.png')} />
+            <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/product2.png'}} resizeMethod='resize' />
           </TouchableOpacity>
         </View>
       </View>
@@ -113,14 +114,14 @@ const Shop = (props) => {
 
         <View style={[styles.prdList]}>
           <View style={[styles.freeLi]}>
-            <AutoHeightImage width={innerWidth} source={require('../assets/image/freeSample.jpg')} style={styles.freeThumb} />
+            <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/freeSample.jpg'}} resizeMethod='resize' style={styles.freeThumb} />
             <View style={[styles.freeView, styles.boxShadow2]}>
               <TouchableOpacity
                 style={[styles.freeBtn]}
                 activeOpacity={opacityVal}
                 onPress={()=>{}}
               >
-                <AutoHeightImage width={16} source={require('../assets/image/icon_money.png')} />
+                <ImgDomain fileWidth={16} fileName={'icon_money.png'}/>
                 <View style={styles.freeBtnTextView}>
                   <Text style={styles.freeBtnText}>이벤트 참여하고 무료 프로틴 받기</Text>
                 </View>
@@ -234,10 +235,7 @@ const Shop = (props) => {
                   onPress={()=>{navigation.navigate('MyPoint')}}
                 >
                   <Text style={styles.currPointBtnText}>이용 내역</Text>
-                  <AutoHeightImage 
-                    width={5}
-                    source={require("../assets/image/icon_arr2.png")}
-                  />
+                  <ImgDomain fileWidth={5} fileName={'icon_arr2.png'}/>
                 </TouchableOpacity>
               </View>
             </>
@@ -340,7 +338,7 @@ const styles = StyleSheet.create({
 
   currPointPage: {flexDirection:'row',paddingHorizontal:20,marginTop:20,},
   currPointBtn: {flexDirection:'row',alignItems:'center',paddingHorizontal:15,height:37,backgroundColor:'#fff',borderWidth:1,borderColor:'#EDEDED',borderRadius:50,},
-	currPointBtnText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:15,color:'#1e1e1e',marginRight:8,position:'relative',top:1,},
+	currPointBtnText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:15,color:'#1e1e1e',marginRight:8,position:'relative',top:2,},
 
   prdFooter: {paddingTop:25,paddingBottom:50,paddingHorizontal:20,backgroundColor:'#F9FAFB',marginTop:40,},
   footerTitle: {},

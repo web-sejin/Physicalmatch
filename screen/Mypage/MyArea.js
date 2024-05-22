@@ -11,6 +11,7 @@ import Postcode from '@actbase/react-daum-postcode';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -138,10 +139,7 @@ const MyArea = (props) => {
 						setPreventBack(false);
 					}}
 				>
-					<AutoHeightImage
-						width={18}
-						source={require("../../assets/image/popup_x.png")}
-					/>
+					<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 				</TouchableOpacity>		
 				<View style={styles.popTitle}>
 					<Text style={styles.popTitleText}>활동 지역을 입력해 주세요</Text>
@@ -215,10 +213,7 @@ const MyArea = (props) => {
 						setPreventBack(false);
 					}}
 				>
-					<AutoHeightImage
-						width={18}
-						source={require("../../assets/image/popup_x.png")}
-					/>
+					<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 				</TouchableOpacity>
 				<Postcode
 					style={{ width: innerWidth-40, height: innerHeight-90, }}

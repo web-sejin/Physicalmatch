@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
 		elevation: 5,
 	},
 	introBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},
-	introArr: {position:'relative',top:-1,marginLeft:7},
+	introArr: {position:'relative',top:0,marginLeft:7},
 })
 
 export default Intro2

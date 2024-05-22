@@ -11,6 +11,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -117,9 +118,9 @@ const Privacy = (props) => {
                 </View>
               </View>
               {st1 ? (
-                <AutoHeightImage width={10} source={require('../../assets/image/icon_arr4.png')} />
+                <ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
               ) : (
-                <AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} />
+                <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
               )}
             </TouchableOpacity>
             {st1 ? (
@@ -140,9 +141,9 @@ const Privacy = (props) => {
                 </View>
               </View>
               {st2 ? (
-                <AutoHeightImage width={10} source={require('../../assets/image/icon_arr4.png')} />
+                <ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
               ) : (
-                <AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} />
+                <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
               )}
             </TouchableOpacity>
             {st2 ? (

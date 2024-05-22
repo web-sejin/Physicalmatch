@@ -11,6 +11,7 @@ import {connect} from 'react-redux';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -116,9 +117,13 @@ const Qna = (props) => {
           <Text style={styles.pointDateText}>{index+1}. {item[0]}</Text>
 
 					{item[2] ? (
-						<AutoHeightImage width={10} source={require('../../assets/image/icon_arr4.png')} style={styles.pointDateArr} />
+						<View style={styles.pointDateArr}>
+							<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
+						</View>
 					) : (
-						<AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} style={styles.pointDateArr} />
+						<View style={styles.pointDateArr}>
+							<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+						</View>
 					)}
         </TouchableOpacity>
 				{item[2] ? (
@@ -145,9 +150,13 @@ const Qna = (props) => {
                     </View>
                   </View>
                   {item2.open ? (
-                    <AutoHeightImage width={10} source={require('../../assets/image/icon_arr4.png')} />
+										<View style={styles.pointDateArr}>
+											<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
+										</View>
                   ) : (
-                    <AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} />
+										<View style={styles.pointDateArr}>
+											<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+										</View>
                   )}
                 </TouchableOpacity>
                 {item2.open ? (

@@ -181,7 +181,7 @@ const MatchDetail = (props) => {
 
     setTimeout(() => {
       setLoading(false);
-    }, 1000);
+    }, 500);
   }, []);
 
   useEffect(() => {
@@ -309,6 +309,8 @@ const MatchDetail = (props) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
+      {!loading ? (
+      <>
 			<ScrollView>
         <TouchableOpacity 
           onPress={() => {navigation.goBack()}} 
@@ -343,7 +345,7 @@ const MatchDetail = (props) => {
             }}
             renderItem={({ item, index }) => (
               <View key={index} style={styles.swiperWrap}>                
-                <ImgDomain fileWidth={widnowWidth} fileName={'sample.jpg'}/>
+                <AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/sample.jpg'}} resizeMethod='resize' />
                 <View style={styles.warterMark}>
                   <View style={styles.warterMarkWrap}>
                     {warterList.map((item2, index2) => {
@@ -367,10 +369,8 @@ const MatchDetail = (props) => {
                 onPress={() => {
                   swiperRef.current.scrollToIndex({index:index})
                 }}
-              >
-                <View style={[styles.paginationImg]}>
-                  <ImgDomain fileWidth={46} fileName={'sample.jpg'}/>
-                </View>
+              >                
+               <AutoHeightImage width={46} source={{uri:'https://cnj02.cafe24.com/appImg/sample.jpg'}} resizeMethod='resize' style={[styles.paginationImg]} />                
               </TouchableOpacity>
             )
           })}
@@ -1238,7 +1238,7 @@ const MatchDetail = (props) => {
                   setSotongPop(false);
                 }}
               >
-                <Text>캐시 구매(임시)</Text>
+                <Text style={styles.popBtnOffText}>캐시 구매 팝업 확인 목적 임시버튼</Text>
               </TouchableOpacity>
             </ScrollView>
             <View style={[styles.popBtnBox, styles.mgt20]}>         
@@ -2005,12 +2005,12 @@ const MatchDetail = (props) => {
 					</View>
 				</View>
 			</Modal>
-
-      {loading ? (
+      </>
+      ) : (
       <View style={[styles.indicator]}>
         <ActivityIndicator size="large" color="#D1913C" />
       </View>
-      ) : null}
+      )}
 		</SafeAreaView>
 	)
 }

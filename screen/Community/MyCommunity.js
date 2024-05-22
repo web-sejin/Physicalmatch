@@ -12,6 +12,7 @@ import Swiper from 'react-native-web-swiper';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const line = Platform.OS === 'ios' ? 15 : 14;
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
@@ -109,20 +110,24 @@ const MyCommunity = (props) => {
 				}}
 			>
 				<View style={styles.commLiProfile}>
-					<AutoHeightImage width={40} source={require('../../assets/image/profile_sample.png')} />
+					<AutoHeightImage width={40} source={{uri:'https://cnj02.cafe24.com/appImg/profile_sample.png'}} resizeMethod='resize' />
 				</View>
 				<View style={[styles.commLiInfo, item.idx == 4 ? styles.commLiInfo2 : null]}>
 					<View style={styles.commLiInfoSubject}>
-						<Text style={styles.commLiInfoSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.subject}</Text>
-						{item.blur ? (<AutoHeightImage width={13} source={require('../../assets/image/icon_alert2.png')} style={styles.commLiInfoAlert} />) : null}						
+						<Text style={styles.commLiInfoSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.subject}</Text>						
+						{item.blur ? (
+							<View style={styles.commLiInfoAlert}>
+								<ImgDomain fileWidth={13} fileName={'icon_alert2.png'}/>
+							</View>
+						) : null}						
 					</View>
 					<View style={styles.commLiSubInfo}>
 						<View style={styles.commLiSubView}>
-							<AutoHeightImage width={16} source={require('../../assets/image/icon_view.png')} />
+							<ImgDomain fileWidth={16} fileName={'icon_view.png'}/>
 							<Text style={styles.commLiSubViewText}>{item.viewCnt}</Text>
 						</View>
 						<View style={[styles.commLiSubView, styles.commLiSubView2]}>
-							<AutoHeightImage width={16} source={require('../../assets/image/icon_review.png')} />
+							<ImgDomain fileWidth={16} fileName={'icon_review.png'}/>
 							<Text style={styles.commLiSubViewText}>{item.reviewCnt}</Text>
 						</View>
 						<View style={styles.commLiSubLine}></View>
@@ -136,12 +141,12 @@ const MyCommunity = (props) => {
 				</View>
 				{item.idx != 4 ? (
 				<ImageBackground
-					style={styles.commLiThumb}
-					source={require('../../assets/image/social_basic1.jpg')}
+					style={styles.commLiThumb}					
+					source={{uri:'https://cnj02.cafe24.com/appImg/social_basic1.jpg'}}
 					resizeMode='cover'
 					blurRadius={item.blur ? 15 : 0}
-				>
-					{item.blur ? (<AutoHeightImage width={20} source={require('../../assets/image/icon_blurview.png')} />) : null}					
+				>					
+					{item.blur ? (<ImgDomain fileWidth={20} fileName={'icon_blurview.png'} />) : null}					
 				</ImageBackground>
 				) : null}
 			</TouchableOpacity>
@@ -228,7 +233,7 @@ const MyCommunity = (props) => {
 						activeOpacity={opacityVal}
 						onPress={()=>Search()}
 					>
-						<AutoHeightImage width={28} source={require('../../assets/image/icon_sch.png')} />
+						<ImgDomain fileWidth={28} fileName={'icon_sch.png'}/>
 					</TouchableOpacity>
 					<TextInput
 						value={sch}

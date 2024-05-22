@@ -12,7 +12,7 @@ import { BlurView } from "@react-native-community/blur";
 
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
-import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const line = Platform.OS === 'ios' ? 15 : 14;
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
@@ -178,15 +178,15 @@ const CommunityView = (props) => {
           onPress={() => navigation.goBack()} 
           style={styles.headerBackBtn} 
           activeOpacity={opacityVal}
-        >
-          <AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+        >          
+          <ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
         </TouchableOpacity>
         <TouchableOpacity 
           onPress={() => {setDotPop(true)}} 
           style={styles.headerBackBtn2} 
           activeOpacity={opacityVal}
           >
-          <AutoHeightImage width={24} source={require("../../assets/image/icon_hd_dot2.png")} />
+          <ImgDomain fileWidth={24} fileName={'icon_hd_dot2.png'}/>
         </TouchableOpacity>
       </View>
 
@@ -209,9 +209,9 @@ const CommunityView = (props) => {
                     onPress={()=>setBookSt(!bookSt)}
                   >
                     {bookSt ? (
-                      <AutoHeightImage width={18} source={require('../../assets/image/icon_zzim_on.png')} />
+                      <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
                     ): (
-                      <AutoHeightImage width={18} source={require('../../assets/image/icon_zzim_off.png')} />
+                      <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
                     )}                    
                   </TouchableOpacity>
                 </View>                
@@ -219,7 +219,7 @@ const CommunityView = (props) => {
                 <View style={styles.viewProf}>
                   <View style={styles.viewProfWrap}>
                     <View style={styles.viewProfImg}>
-                      <AutoHeightImage width={32} source={require('../../assets/image/profile_sample.png')} />  
+                      <AutoHeightImage width={32} source={{uri:'https://cnj02.cafe24.com/appImg/profile_sample.png'}} resizeMethod='resize' />
                     </View>
                     <View style={styles.viewProfNick}>
                       <Text style={styles.viewProfNickText}>자동 생성 닉네임</Text>
@@ -233,7 +233,7 @@ const CommunityView = (props) => {
                         //setCashPop(true);
                       }}
                     >
-                      <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
+                      <ImgDomain fileWidth={30} fileName={'icon_profile_trade.png'}/>
                     </TouchableOpacity>
                     ) : null}
                   </View>
@@ -249,7 +249,7 @@ const CommunityView = (props) => {
                 </View>
 
                 <View style={styles.viewProfContImg}>
-                  <AutoHeightImage width={innerWidth} source={require('../../assets/image/commu_sample.jpg')} />
+                  <ImgDomain fileWidth={innerWidth} fileName={'commu_sample.jpg'}/>
                 </View>
 
                 <View style={styles.voteArea}>
@@ -277,9 +277,9 @@ const CommunityView = (props) => {
                       }}
                     >
                       {goodSt == 1 ? (
-                        <AutoHeightImage width={38} source={require('../../assets/image/good_on.png')} />
+                        <ImgDomain fileWidth={38} fileName={'good_on.png'}/>
                       ) : (
-                        <AutoHeightImage width={38} source={require('../../assets/image/good_off.png')} />
+                        <ImgDomain fileWidth={38} fileName={'good_off.png'}/>
                       )}                      
                     </TouchableOpacity>
                   </View>
@@ -305,9 +305,9 @@ const CommunityView = (props) => {
                       }}
                     >
                       {goodSt == 2 ? (
-                        <AutoHeightImage width={38} source={require('../../assets/image/hate_on.png')} />
+                        <ImgDomain fileWidth={38} fileName={'hate_on.png'}/>
                       ) : (
-                        <AutoHeightImage width={38} source={require('../../assets/image/hate_off.png')} />
+                        <ImgDomain fileWidth={38} fileName={'hate_off.png'}/>
                       )}
                     </TouchableOpacity>
                     <View style={[styles.voteViewCnt, styles.mgl15]}>
@@ -337,14 +337,14 @@ const CommunityView = (props) => {
                         style={styles.reqUser}
                         activeOpacity={1}
                       >
-                        <AutoHeightImage width={46} source={require("../../assets/image/sample3.png")} />
+                        <AutoHeightImage width={46} source={{uri:'https://cnj02.cafe24.com/appImg/sample3.png'}} resizeMethod='resize' />
                       </TouchableOpacity>
                       <View style={styles.reqUserInfo}>
                         <View style={styles.tradeState}>
                           <View style={styles.tradeStateView}>
                             <Text style={styles.tradeStateText}>프로필 교환이 도착했어요</Text>
                           </View>
-                          <AutoHeightImage width={12} source={require('../../assets/image/icon_profile_msg.png')} />
+                          <ImgDomain fileWidth={12} fileName={'icon_profile_msg.png'}/>
                         </View>
                         <View style={styles.reqUserNick}>
                           <Text style={styles.reqUserNickText}>자동생성닉네임</Text>                          
@@ -371,14 +371,14 @@ const CommunityView = (props) => {
                         style={styles.reqUser}
                         activeOpacity={1}
                       >
-                        <AutoHeightImage width={46} source={require("../../assets/image/sample3.png")} />
+                        <AutoHeightImage width={46} source={{uri:'https://cnj02.cafe24.com/appImg/sample3.png'}} resizeMethod='resize' />
                       </TouchableOpacity>
                       <View style={styles.reqUserInfo}>
                         <View style={styles.tradeState}>
                           <View style={styles.tradeStateView}>
                             <Text style={styles.tradeStateText}>프로필 교환이 도착했어요</Text>
                           </View>
-                          <AutoHeightImage width={12} source={require('../../assets/image/icon_profile_msg.png')} />
+                          <ImgDomain fileWidth={12} fileName={'icon_profile_msg.png'}/>
                         </View>
                         <View style={styles.reqUserNick}>
                           <Text style={styles.reqUserNickText}>자동생성닉네임</Text>
@@ -406,13 +406,17 @@ const CommunityView = (props) => {
                       activeOpacity={opacityVal}
                       onPress={()=>{navigation.navigate('MatchDetail')}}
                     >                  
-                      <ImageBackground source={require('../../assets/image/social_req_bg.png')} resizeMode='cover' style={styles.reqStateWrap}>                    
+                      <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                         <View style={[styles.cardBtn, styles.cardBtn3]}>
                           <View style={[styles.cardCont, styles.cardCont3]}>		
-                            <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
+                            <View style={styles.peopleImgBack}>
+                              <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                            </View>
                             <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
-                              <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
-                              <AutoHeightImage width={110} source={require('../../assets/image/woman2.png')} style={styles.peopleImg} />
+                              <View style={styles.peopleImgBack}>
+                                <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                              </View>
+                              <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
                               <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                                 <View	View style={styles.cardFrontDday}>
                                   <Text style={styles.cardFrontDdayText}>D-7</Text>
@@ -432,8 +436,8 @@ const CommunityView = (props) => {
                         <View style={styles.reqStateInfo}>
                           <View style={styles.reqStateTitle}>
                             <Text style={styles.reqStateTitleText}>교환이 수락 되었어요</Text>
-                          </View>
-                          <AutoHeightImage width={32} source={require("../../assets/image/icon_heart3.png")} />
+                          </View>                          
+                          <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
                           <View style={styles.reqStateCont}>
                             <Text style={styles.reqStateContText}>번호를 교환하고</Text>
                             <Text style={styles.reqStateContText}>인연을 시작해보세요!</Text>
@@ -446,14 +450,18 @@ const CommunityView = (props) => {
                       style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
                       activeOpacity={opacityVal}
                       onPress={()=>{navigation.navigate('MatchDetail')}}
-                    >                  
-                      <ImageBackground source={require('../../assets/image/social_req_bg.png')} resizeMode='cover' style={styles.reqStateWrap}>                    
+                    >                            
+                      <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                         <View style={[styles.cardBtn, styles.cardBtn3]}>
                           <View style={[styles.cardCont, styles.cardCont3]}>		
-                            <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
+                            <View style={styles.peopleImgBack}>
+                              <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                            </View>
                             <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
-                              <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
-                              <AutoHeightImage width={110} source={require('../../assets/image/woman2.png')} style={styles.peopleImg} />
+                              <View style={styles.peopleImgBack}>
+                                <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                              </View>
+                              <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
                               <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                                 <View	View style={styles.cardFrontDday}>
                                   <Text style={styles.cardFrontDdayText}>D-7</Text>
@@ -474,7 +482,7 @@ const CommunityView = (props) => {
                           <View style={styles.reqStateTitle}>
                             <Text style={styles.reqStateTitleText}>교환이 완료 되었어요</Text>
                           </View>
-                          <AutoHeightImage width={32} source={require("../../assets/image/icon_heart3.png")} />
+                          <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
                           <View style={styles.reqStateCont}>
                             <Text style={styles.reqStateContText}>프로필에 오픈된 번호를</Text>
                             <Text style={styles.reqStateContText}>지금 바로 확인해보세요!</Text>
@@ -493,7 +501,7 @@ const CommunityView = (props) => {
                     <View style={[styles.reqLi, styles.boxShadow2, styles.mgt0]}>
                       <ImageBackground
                         style={styles.reqUser}
-                        source={require('../../assets/image/sample3.png')}
+                        source={{uri:'https://cnj02.cafe24.com/appImg/sample3.png'}}
                         resizeMode='cover'
                         blurRadius={5}
                       />
@@ -511,7 +519,7 @@ const CommunityView = (props) => {
                     <View style={[styles.reqLi, styles.boxShadow2,]}>
                       <ImageBackground
                         style={styles.reqUser}
-                        source={require('../../assets/image/sample3.png')}
+                        source={{uri:'https://cnj02.cafe24.com/appImg/sample3.png'}}
                         resizeMode='cover'
                         blurRadius={5}
                       />
@@ -532,13 +540,17 @@ const CommunityView = (props) => {
                       activeOpacity={opacityVal}
                       onPress={()=>{navigation.navigate('MatchDetail')}}
                     >                  
-                      <ImageBackground source={require('../../assets/image/social_req_bg.png')} resizeMode='cover' style={styles.reqStateWrap}>                    
+                      <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                         <View style={[styles.cardBtn, styles.cardBtn3]}>
                           <View style={[styles.cardCont, styles.cardCont3]}>		
-                            <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
+                            <View style={styles.peopleImgBack}>
+                              <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                            </View>
                             <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
-                              <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
-                              <AutoHeightImage width={110} source={require('../../assets/image/woman2.png')} style={styles.peopleImg} />
+                              <View style={styles.peopleImgBack}>
+                                <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                              </View>
+                              <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />                              
                               <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                                 <View	View style={styles.cardFrontDday}>
                                   <Text style={styles.cardFrontDdayText}>D-7</Text>
@@ -559,7 +571,7 @@ const CommunityView = (props) => {
                           <View style={styles.reqStateTitle}>
                             <Text style={styles.reqStateTitleText}>교환이 수락 되었어요</Text>
                           </View>
-                          <AutoHeightImage width={32} source={require("../../assets/image/icon_heart3.png")} />
+                          <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
                           <View style={styles.reqStateCont}>
                             <Text style={styles.reqStateContText}>번호를 교환하고</Text>
                             <Text style={styles.reqStateContText}>인연을 시작해보세요!</Text>
@@ -573,13 +585,17 @@ const CommunityView = (props) => {
                       activeOpacity={opacityVal}
                       onPress={()=>{navigation.navigate('MatchDetail')}}
                     >                  
-                      <ImageBackground source={require('../../assets/image/social_req_bg.png')} resizeMode='cover' style={styles.reqStateWrap}>                    
+                      <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                         <View style={[styles.cardBtn, styles.cardBtn3]}>
-                          <View style={[styles.cardCont, styles.cardCont3]}>		
-                            <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
+                          <View style={[styles.cardCont, styles.cardCont3]}>		                            
+                            <View style={styles.peopleImgBack}>
+                              <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                            </View>
                             <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
-                              <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
-                              <AutoHeightImage width={110} source={require('../../assets/image/woman2.png')} style={styles.peopleImg} />
+                              <View style={styles.peopleImgBack}>
+                                <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                              </View>
+                              <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
                               <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                                 <View	View style={styles.cardFrontDday}>
                                   <Text style={styles.cardFrontDdayText}>D-7</Text>
@@ -600,7 +616,7 @@ const CommunityView = (props) => {
                           <View style={styles.reqStateTitle}>
                             <Text style={styles.reqStateTitleText}>교환이 완료 되었어요</Text>
                           </View>
-                          <AutoHeightImage width={32} source={require("../../assets/image/icon_heart3.png")} />
+                          <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
                           <View style={styles.reqStateCont}>
                             <Text style={styles.reqStateContText}>프로필에 오픈된 번호를</Text>
                             <Text style={styles.reqStateContText}>지금 바로 확인해보세요!</Text>
@@ -635,7 +651,7 @@ const CommunityView = (props) => {
                   ) : null}
                   <View style={styles.cmView}>
                     <View style={[styles.reviewDepth, styles.mgt0]}>
-                      <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />                
+                      <AutoHeightImage width={28} source={{uri:'https://cnj02.cafe24.com/appImg/profile_sample2.png'}} resizeMethod='resize' />
                       <View style={styles.reviewInfo}>
                         <View style={styles.reviewNickDate}>
                           <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
@@ -647,7 +663,7 @@ const CommunityView = (props) => {
 
                             }}
                           >
-                            <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
+                            <ImgDomain fileWidth={30} fileName={'icon_profile_trade.png'}/>
                           </TouchableOpacity>
                         </View>
                         <View style={styles.reviewCont}>
@@ -681,7 +697,7 @@ const CommunityView = (props) => {
                         </View>
 
                         <View style={[styles.reviewDepth, styles.reviewDepth2]}>
-                          <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />
+                          <AutoHeightImage width={28} source={{uri:'https://cnj02.cafe24.com/appImg/profile_sample2.png'}} resizeMethod='resize' />
                           <View style={[styles.reviewInfo, styles.reviewInfo2]}>
                             <View style={styles.reviewNickDate}>
                               <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
@@ -693,7 +709,7 @@ const CommunityView = (props) => {
 
                                 }}
                               >
-                                <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
+                                <ImgDomain fileWidth={30} fileName={'icon_profile_trade.png'}/>
                               </TouchableOpacity>
                             </View>
                             <View style={styles.reviewCont}>
@@ -718,7 +734,7 @@ const CommunityView = (props) => {
                       </View>            
                     </View>
                     <View style={[styles.reviewDepth]}>
-                      <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />
+                      <AutoHeightImage width={28} source={{uri:'https://cnj02.cafe24.com/appImg/profile_sample2.png'}} resizeMethod='resize' />
                       <View style={styles.reviewInfo}>
                         <View style={styles.reviewNickDate}>
                           <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
@@ -730,7 +746,7 @@ const CommunityView = (props) => {
 
                             }}
                           >
-                            <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
+                            <ImgDomain fileWidth={30} fileName={'icon_profile_trade.png'}/>
                           </TouchableOpacity>
                         </View>
                         <View style={styles.reviewCont}>
@@ -765,7 +781,7 @@ const CommunityView = (props) => {
                       </View>
                     </View>          
                     <View style={[styles.reviewDepth]}>
-                      <AutoHeightImage width={28} source={require("../../assets/image/profile_sample.png")} />
+                      <AutoHeightImage width={28} source={{uri:'https://cnj02.cafe24.com/appImg/profile_sample.png'}} resizeMethod='resize' />
                       <View style={styles.reviewInfo}>
                         <View style={styles.reviewNickDate}>
                           <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
@@ -777,7 +793,7 @@ const CommunityView = (props) => {
 
                             }}
                           >
-                            <AutoHeightImage width={30} source={require('../../assets/image/icon_profile_trade.png')} />
+                            <ImgDomain fileWidth={30} fileName={'icon_profile_trade.png'}/>
                           </TouchableOpacity>
                         </View>
                         <View style={styles.reviewCont}>
@@ -952,7 +968,7 @@ const CommunityView = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setBlockPop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>개팅님을 차단하시겠어요?</Text>							
@@ -1000,7 +1016,7 @@ const CommunityView = (props) => {
               style={styles.pop_x}					
               onPress={() => reportPopClose()}
             >
-              <AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
             </TouchableOpacity>		
             <View style={[styles.popTitle]}>
               <Text style={styles.popTitleText}>신고 사유</Text>
@@ -1020,9 +1036,9 @@ const CommunityView = (props) => {
                     >
                       <Text style={styles.reportRadioBtnText}>{item.txt}</Text>
                       {report == item.txt ? (
-                        <AutoHeightImage width={20} source={require('../../assets/image/icon_radio_on.png')} />
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'}/>
                       ) : (
-                        <AutoHeightImage width={20} source={require('../../assets/image/icon_radio_off.png')} />
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'}/>
                       )}
                     </TouchableOpacity>
                   )
@@ -1152,7 +1168,7 @@ const CommunityView = (props) => {
 							style={styles.pop_x}					
 							onPress={() => closeTradePop()}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
               {tradeType == 1 ? (<Text style={styles.popTitleText}>프로필을 교환하시겠어요?</Text>) : null}
@@ -1161,7 +1177,7 @@ const CommunityView = (props) => {
               {tradeType == 4 ? (<Text style={styles.popTitleText}>번호를 교환하시겠어요?</Text>) : null}
 						</View>
             <View style={[styles.pointBox, styles.mgt20]}>
-              <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+              <ImgDomain fileWidth={24} fileName={'coin.png'}/>
               <Text style={styles.pointBoxText}>500</Text>
             </View>
             <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>

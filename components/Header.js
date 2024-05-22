@@ -3,6 +3,7 @@ import {Alert, View, Text, Button, TextInput, TouchableOpacity, Modal, Pressable
 import AutoHeightImage from "react-native-auto-height-image";
 
 import Font from "../assets/common/Font";
+import ImgDomain from '../assets/common/ImgDomain';
 
 // Text 적용
 Text.defaultProps = Text.defaultProps || {};
@@ -27,7 +28,7 @@ const Header = (props) => {
 				onPress={() => navigation.goBack()}
 				activeOpacity={opacityVal}
 			>
-				<AutoHeightImage width={14} source={require("../assets/image/icon_close.png")} />
+				<ImgDomain fileWidth={14} fileName={'icon_close.png'}/>
 			</TouchableOpacity>
 			) : (
 			<TouchableOpacity 
@@ -37,7 +38,7 @@ const Header = (props) => {
 			style={styles.headerBackBtn} 
 			activeOpacity={opacityVal}
 			>
-				<AutoHeightImage width={8} source={require("../assets/image/icon_header_back.png")} />
+				<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 			</TouchableOpacity>
 			)}
 			</>

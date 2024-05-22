@@ -13,6 +13,7 @@ import {connect} from 'react-redux';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -73,7 +74,7 @@ const MyCharm = (props) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			<Header navigation={navigation} />
+			<Header navigation={navigation} headertitle={'내 매력지수'} />
 
 			<ScrollView>
         <View style={styles.cmWrap}>
@@ -103,7 +104,7 @@ const MyCharm = (props) => {
 							<View style={styles.progressInfo}>
 								<View>
 									<View style={styles.progressInfo1}>
-										<AutoHeightImage width={12} source={require('../../assets/image/star.png')} />
+										<ImgDomain fileWidth={12} fileName={'star.png'}/>
 										<View style={styles.progressInfo1TextView}>
 											<Text style={styles.progressInfo1Text}>4.5</Text>
 										</View>
@@ -129,12 +130,12 @@ const MyCharm = (props) => {
 						onPress={()=>{navigation.navigate('MyProfile')}}
 					>
 						<View style={styles.charmBtnLeft}>
-							<AutoHeightImage width={13} source={require('../../assets/image/icon_charm1.png')} />
+							<ImgDomain fileWidth={13} fileName={'icon_charm1.png'}/>
 							<View style={[styles.charmBtnTitle, styles.charmBtnTitle2]}>
 								<Text style={styles.charmBtnTitleText}>더 멋진 프로필 사진으로!</Text>
 							</View>
 						</View>
-						<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+						<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={[styles.charmBtn]}
@@ -142,25 +143,25 @@ const MyCharm = (props) => {
 						onPress={()=>{navigation.navigate('MyIntro')}}
 					>
 						<View style={styles.charmBtnLeft}>
-							<AutoHeightImage width={13} source={require('../../assets/image/icon_charm2.png')} />
+							<ImgDomain fileWidth={13} fileName={'icon_charm2.png'}/>
 							<View style={styles.charmBtnTitle}>
 								<Text style={styles.charmBtnTitleText}>내 소개를 더 상세하게</Text>
 							</View>
 						</View>
-						<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+						<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={[styles.charmBtn]}
 						activeOpacity={opacityVal}
 						onPress={()=>{navigation.navigate('MyBadge')}}
 					>
-						<View style={styles.charmBtnLeft}>
-							<AutoHeightImage width={13} source={require('../../assets/image/icon_charm3.png')} />
+						<View style={styles.charmBtnLeft}>							
+							<ImgDomain fileWidth={13} fileName={'icon_charm3.png'}/>
 							<View style={styles.charmBtnTitle}>
 								<Text style={styles.charmBtnTitleText}>배지로 프로필 업그레이드</Text>
 							</View>
 						</View>
-						<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+						<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={[styles.charmBtn]}
@@ -168,12 +169,12 @@ const MyCharm = (props) => {
 						onPress={()=>{navigation.navigate('MyCert')}}
 					>
 						<View style={styles.charmBtnLeft}>
-							<AutoHeightImage width={13} source={require('../../assets/image/icon_charm4.png')} />
+							<ImgDomain fileWidth={13} fileName={'icon_charm4.png'}/>
 							<View style={styles.charmBtnTitle}>
 								<Text style={styles.charmBtnTitleText}>인증하고 신뢰도 다지기</Text>
 							</View>
 						</View>
-						<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+						<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={[styles.charmBtn]}
@@ -181,12 +182,12 @@ const MyCharm = (props) => {
 						onPress={()=>{navigation.navigate('MyDate')}}
 					>
 						<View style={styles.charmBtnLeft}>
-							<AutoHeightImage width={13} source={require('../../assets/image/icon_charm5.png')} />
+							<ImgDomain fileWidth={13} fileName={'icon_charm5.png'}/>
 							<View style={styles.charmBtnTitle}>
 								<Text style={styles.charmBtnTitleText}>가치관 입력해 호감도 UP!</Text>
 							</View>
 						</View>
-						<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+						<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={[styles.charmBtn]}
@@ -194,12 +195,12 @@ const MyCharm = (props) => {
 						onPress={()=>{navigation.navigate('MyHobby')}}
 					>
 						<View style={styles.charmBtnLeft}>
-							<AutoHeightImage width={13} source={require('../../assets/image/icon_charm6.png')} />
+							<ImgDomain fileWidth={13} fileName={'icon_charm6.png'}/>
 							<View style={styles.charmBtnTitle}>
 								<Text style={styles.charmBtnTitleText}>관심을 끄는 취미 · 관심사</Text>
 							</View>
 						</View>
-						<AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+						<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 					</TouchableOpacity>
 				</View>
 			</ScrollView>
@@ -244,7 +245,7 @@ const styles = StyleSheet.create({
 	charmBtnLeft: {flexDirection:'row',alignItems:'center'},
 	charmBtnTitle: {marginLeft:2,position:'relative'},
 	charmBtnTitle2: {top:1,},
-	charmBtnTitleText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,},
+	charmBtnTitleText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1e1e1e'},
 
 	red: {color:'#EE4245'},
 	gray: {color:'#B8B8B8'},

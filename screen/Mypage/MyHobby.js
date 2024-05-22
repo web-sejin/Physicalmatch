@@ -11,6 +11,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -199,7 +200,9 @@ const MyHobby = (props) => {
 									inputIOSContainer: styles.selectCont,
 								}}
 							/>
-							<AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} style={styles.selectArr} resizeMethod='resize' />
+							<View style={styles.selectArr}>
+								<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+							</View>
 						</View>
 
 						{depth1 != '' ? (
@@ -222,7 +225,7 @@ const MyHobby = (props) => {
 										activeOpacity={opacityVal}
 										onPress={()=>addKeywordChk()}
 									>
-										<AutoHeightImage width={11} source={require('../../assets/image/icon_plus2.png')} resizeMethod='resize' />
+										<ImgDomain fileWidth={11} fileName={'icon_plus2.png'}/>
 										<Text style={styles.inputBtnText}>추가</Text>
 									</TouchableOpacity>
 								</View>
@@ -279,7 +282,7 @@ const MyHobby = (props) => {
 																}}
 															>
 																<Text style={styles.myKeywordBtnText}>{item2.dep2Val}</Text>
-																<AutoHeightImage width={10} source={require('../../assets/image/keyword_x.png')} />
+																<ImgDomain fileWidth={10} fileName={'keyword_x.png'}/>
 															</TouchableOpacity>
 														)
 													})}

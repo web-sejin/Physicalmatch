@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {
+  ActivityIndicator,
   Alert,
   BackHandler,
   Button,
@@ -37,14 +38,12 @@ const opacityVal = 0.8;
 
 const TabBarMenu = (props) => {
   const {state, navigation, chatInfo} = props;
-  const screenName = state.routes[state.index].name;  
+  const screenName = state.routes[state.index].name; 
 
   //console.log('screenName : ',screenName);
-  if(screenName == 'Home' || screenName == 'Match' || screenName == 'Chat' || screenName == 'Room'){        
-    
-  }
 
   return (
+    <>
     <View style={styles.TabBarMainContainer}>
       <TouchableOpacity 
         style={styles.TabBarBtn} 
@@ -119,11 +118,12 @@ const TabBarMenu = (props) => {
         </View>
       </TouchableOpacity> 
     </View>
+    </>
   )
 }
 
 const TabNavigation = (props) => {
-	const {navigation, userInfo, route} = props;   
+	const {navigation, userInfo, route} = props;    
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -147,12 +147,13 @@ const TabNavigation = (props) => {
       <Tab.Screen name="Social" component={Social} options={{}} initialParams={{}} />
       <Tab.Screen name="Community" component={Community} options={{}} initialParams={{}} />
       <Tab.Screen name="Mypage" component={Mypage} options={{}} />
-    </Tab.Navigator>
+    </Tab.Navigator>    
     </>
 	)
 }
 
 const styles = StyleSheet.create({
+  indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },
   TabBarMainContainer: {
     position:'absolute',
     bottom:0,

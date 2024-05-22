@@ -14,6 +14,7 @@ import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -245,7 +246,7 @@ const MyCert = (props) => {
 										<View style={styles.stateView2}>
 											<Text style={styles.stateViewText2}>반려</Text>
 										</View>
-										<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 										</>									
 									)}
 								</View>
@@ -280,7 +281,7 @@ const MyCert = (props) => {
 										<View style={styles.stateView2}>
 											<Text style={styles.stateViewText2}>반려</Text>
 										</View>
-										<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 										</>									
 									)}
 								</View>
@@ -297,8 +298,8 @@ const MyCert = (props) => {
 											setDeleteType(2);
 											setDeletePop(true);
 										}}
-									>
-										<AutoHeightImage width={25} source={require('../../assets/image/icon_trash.png')} />
+									>										
+										<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
 									</TouchableOpacity>		
 								</View>
 							</View>
@@ -325,7 +326,7 @@ const MyCert = (props) => {
 										<View style={styles.stateView2}>
 											<Text style={styles.stateViewText2}>반려</Text>
 										</View>
-										<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 										</>									
 									)}
 								</View>
@@ -362,7 +363,7 @@ const MyCert = (props) => {
 								setPreventBack(false);
 							}}						
 						>
-							<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
 					</View>
 					<ScrollView>
@@ -377,7 +378,9 @@ const MyCert = (props) => {
 							</View>
 							<View style={[styles.cmDescBox, styles.cmDescBoxFlex]}>
 								<Text style={styles.cmDescText}>입력한 직업</Text>
-								<AutoHeightImage width={5} source={require('../../assets/image/icon_arr6.png')} style={styles.cmDescArr} />
+								<View style={styles.cmDescArr}>
+									<ImgDomain fileWidth={5} fileName={'icon_arr6.png'}/>
+								</View>
 								<Text style={styles.cmDescText2}>입력한 직업 상세</Text>
 							</View>
 
@@ -421,7 +424,7 @@ const MyCert = (props) => {
 												setJobFile({});
 											}}
 										>
-											<AutoHeightImage width={24} source={require('../../assets/image/icon_trash.png')} />
+											<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
 										</TouchableOpacity>
 									</View>
 								) : (
@@ -431,7 +434,7 @@ const MyCert = (props) => {
 											activeOpacity={opacityVal}
 											onPress={() => {jobImage()}}
 										>
-											<AutoHeightImage width={18} source={require('../../assets/image/icon_upload.png')} />
+											<ImgDomain fileWidth={18} fileName={'icon_upload.png'}/>
 											<Text style={styles.uploadBoxBtnText}>사진 업로드</Text>
 										</TouchableOpacity>
 										<View style={styles.uploadBoxDesc}>
@@ -470,7 +473,7 @@ const MyCert = (props) => {
 								setPreventBack(false);
 							}}						
 						>
-							<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
 					</View>
 					<KeyboardAvoidingView
@@ -565,7 +568,7 @@ const MyCert = (props) => {
 														setSchoolFile({});
 													}}
 												>
-													<AutoHeightImage width={24} source={require('../../assets/image/icon_trash.png')} />
+													<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
 												</TouchableOpacity>
 											</View>
 										) : (
@@ -575,7 +578,7 @@ const MyCert = (props) => {
 													activeOpacity={opacityVal}
 													onPress={() => {schoolImage()}}
 												>
-													<AutoHeightImage width={18} source={require('../../assets/image/icon_upload.png')} />
+													<ImgDomain fileWidth={18} fileName={'icon_upload.png'}/>
 													<Text style={styles.uploadBoxBtnText}>사진 업로드</Text>
 												</TouchableOpacity>
 												<View style={styles.uploadBoxDesc}>
@@ -616,7 +619,7 @@ const MyCert = (props) => {
 								setPreventBack(false);
 							}}						
 						>
-							<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
 					</View>
 					<KeyboardAvoidingView
@@ -696,7 +699,7 @@ const MyCert = (props) => {
 														setMarryFile({});
 													}}
 												>
-													<AutoHeightImage width={24} source={require('../../assets/image/icon_trash.png')} />
+													<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
 												</TouchableOpacity>
 											</View>
 										) : (
@@ -706,7 +709,7 @@ const MyCert = (props) => {
 													activeOpacity={opacityVal}
 													onPress={() => {marryImage()}}
 												>
-													<AutoHeightImage width={18} source={require('../../assets/image/icon_upload.png')} />
+													<ImgDomain fileWidth={18} fileName={'icon_upload.png'}/>
 													<Text style={styles.uploadBoxBtnText}>사진 업로드</Text>
 												</TouchableOpacity>
 												<View style={styles.uploadBoxDesc}>
@@ -752,7 +755,7 @@ const MyCert = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setDeletePop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
               <Text style={styles.popTitleText}>인증 항목을 삭제하시겠어요?</Text>
@@ -798,10 +801,7 @@ const MyCert = (props) => {
 							setPreventBack(false);
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>		
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>심사 등록</Text>

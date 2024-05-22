@@ -15,6 +15,7 @@ import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -352,7 +353,8 @@ const SocialWrite = (props) => {
                 
                 // 달 이동 화살표 구현 왼쪽이면 왼쪽 화살표 이미지, 아니면 오른쪽 화살표 이미지
                 renderArrow={(direction) => direction === "left" ?
-                <AutoHeightImage name="left" width={22} source={require('../../assets/image/cal_prev.png')}/> : <AutoHeightImage name="right" width={22} source={require('../../assets/image/cal_next.png')}/>}
+                  <AutoHeightImage name="left" width={22} source={require('../../assets/image/cal_prev.png')}/> : <AutoHeightImage name="right" width={22} source={require('../../assets/image/cal_next.png')}/>
+                }
               />   
               ) : null}
 
@@ -363,7 +365,7 @@ const SocialWrite = (props) => {
                   </View>
                   <View style={[styles.loginIptBox, styles.loginIptBoxFlex]}>
                     <View style={styles.locIcon}>
-                      <AutoHeightImage width={17} source={require('../../assets/image/icon_local.png')} />
+                      <ImgDomain fileWidth={17} fileName={'icon_local.png'}/>
                     </View>
                     <TouchableOpacity                    
                       style={[styles.input, styles.input4, styles.inputLine0]}
@@ -390,7 +392,7 @@ const SocialWrite = (props) => {
                       activeOpacity={opacityVal}
                       onPress={()=>fnCount('m')}
                     >
-                      <AutoHeightImage width={24} source={require('../../assets/image/icon_minus.png')} />
+                      <ImgDomain fileWidth={24} fileName={'icon_minus.png'}/>
                     </TouchableOpacity>
                     <View style={styles.countBoxBtnView}>
                       {cate == 2 ? (<Text style={styles.countBoxBtnText}>{womanCnt}:{ManCnt}</Text>) : null}
@@ -401,7 +403,7 @@ const SocialWrite = (props) => {
                       activeOpacity={opacityVal}
                       onPress={()=>fnCount('p')}
                     >
-                      <AutoHeightImage width={24} source={require('../../assets/image/icon_plus.png')} />
+                      <ImgDomain fileWidth={24} fileName={'icon_plus.png'}/>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -416,10 +418,10 @@ const SocialWrite = (props) => {
                       style={[styles.imgBtn]}
                       activeOpacity={opacityVal}
                       onPress={() => setImagePop(true)}
-                    >
-                      {imageType == 1 ? (<AutoHeightImage width={110} source={require("../../assets/image/social_basic1.jpg")} />) : null}                      
+                    >                      
+                      {imageType == 1 ? (<ImgDomain fileWidth={110} fileName={'social_basic1.jpg'}/>) : null}                      
                       {imageType == 2 ? (<AutoHeightImage width={110} source={{ uri: phoneImage.path }} />) : null}
-                      {imageType == 0 ? (<AutoHeightImage width={110} source={require("../../assets/image/img_back2.png")} />) : null}                        						
+                      {imageType == 0 ? (<ImgDomain fileWidth={110} fileName={'img_back2.png'}/>) : null}                        						
                       <Text style={styles.imgText}>필수</Text>
                     </TouchableOpacity>
                   </View>
@@ -544,10 +546,7 @@ const SocialWrite = (props) => {
           style={styles.pop_x}					
           onPress={() => setLocPop(false)}
         >
-          <AutoHeightImage
-            width={18}
-            source={require("../../assets/image/popup_x.png")}
-          />
+          <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
         </TouchableOpacity>
 				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
         <Postcode
@@ -577,7 +576,7 @@ const SocialWrite = (props) => {
             activeOpacity={opacityVal}
             onPress={() => {setImagePop(false)}}						
           >
-            <AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+            <ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
           </TouchableOpacity>
         </View>
         <View style={[styles.cmWrap, styles.pdb20]}>
@@ -586,7 +585,7 @@ const SocialWrite = (props) => {
             activeOpacity={opacityVal}
             onPress={() => chooseImage()}
           >
-            <AutoHeightImage width={15} source={require("../../assets/image/icon_gallery.png")} />
+            <ImgDomain fileWidth={15} fileName={'icon_gallery.png'}/>
             <Text style={styles.phoneGalleryText}>갤러리</Text>
           </TouchableOpacity>
           <View style={[styles.iptTit]}>
@@ -600,12 +599,12 @@ const SocialWrite = (props) => {
               activeOpacity={opacityVal}
               onPress={() => pickAppImg(1)}
             >
-              <AutoHeightImage width={(innerWidth/4)-7.5} source={require('../../assets/image/social_basic1.jpg')} />
+              <ImgDomain fileWidth={(innerWidth/4)-7.5} fileName={'social_basic1.jpg'}/>
               <View style={styles.basicPicChk}>
                 {imageType == 1 && appImage == 1 ? (
-                  <AutoHeightImage width={20} source={require('../../assets/image/icon_chk_on.png')} />  
+                  <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>                  
                 ) : (
-                  <AutoHeightImage width={20} source={require('../../assets/image/icon_chk_off.png')} />  
+                  <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
                 )}
               </View>
             </TouchableOpacity>
@@ -614,12 +613,12 @@ const SocialWrite = (props) => {
               activeOpacity={opacityVal}
               onPress={() => pickAppImg(2)}
             >
-              <AutoHeightImage width={(innerWidth/4)-7.5} source={require('../../assets/image/social_basic2.jpg')} />
+              <ImgDomain fileWidth={(innerWidth/4)-7.5} fileName={'social_basic2.jpg'}/>
               <View style={styles.basicPicChk}>
                 {imageType == 1 && appImage == 2 ? (
-                  <AutoHeightImage width={20} source={require('../../assets/image/icon_chk_on.png')} />  
+                  <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>
                 ) : (
-                  <AutoHeightImage width={20} source={require('../../assets/image/icon_chk_off.png')} />  
+                  <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
                 )}
               </View>
             </TouchableOpacity>
@@ -628,12 +627,12 @@ const SocialWrite = (props) => {
               activeOpacity={opacityVal}
               onPress={() => pickAppImg(3)}
             >
-              <AutoHeightImage width={(innerWidth/4)-7.5} source={require('../../assets/image/social_basic3.jpg')} />
+              <ImgDomain fileWidth={(innerWidth/4)-7.5} fileName={'social_basic3.jpg'}/>
               <View style={styles.basicPicChk}>
                 {imageType == 1 && appImage == 3 ? (
-                  <AutoHeightImage width={20} source={require('../../assets/image/icon_chk_on.png')} />  
+                  <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>
                 ) : (
-                  <AutoHeightImage width={20} source={require('../../assets/image/icon_chk_off.png')} />  
+                  <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
                 )}
               </View>
             </TouchableOpacity>
@@ -642,12 +641,12 @@ const SocialWrite = (props) => {
               activeOpacity={opacityVal}
               onPress={() => pickAppImg(4)}
             >
-              <AutoHeightImage width={(innerWidth/4)-7.5} source={require('../../assets/image/social_basic4.jpg')} />
+              <ImgDomain fileWidth={(innerWidth/4)-7.5} fileName={'social_basic4.jpg'}/>
               <View style={styles.basicPicChk}>
                 {imageType == 1 && appImage == 4 ? (
-                  <AutoHeightImage width={20} source={require('../../assets/image/icon_chk_on.png')} />  
+                  <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>
                 ) : (
-                  <AutoHeightImage width={20} source={require('../../assets/image/icon_chk_off.png')} />  
+                  <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
                 )}
               </View>
             </TouchableOpacity>
@@ -656,12 +655,12 @@ const SocialWrite = (props) => {
               activeOpacity={opacityVal}
               onPress={() => pickAppImg(5)}
             >
-              <AutoHeightImage width={(innerWidth/4)-7.5} source={require('../../assets/image/social_basic1.jpg')} />
+              <ImgDomain fileWidth={(innerWidth/4)-7.5} fileName={'social_basic1.jpg'}/>
               <View style={styles.basicPicChk}>
                 {imageType == 1 && appImage == 5 ? (
-                  <AutoHeightImage width={20} source={require('../../assets/image/icon_chk_on.png')} />  
+                  <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>
                 ) : (
-                  <AutoHeightImage width={20} source={require('../../assets/image/icon_chk_off.png')} />  
+                  <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
                 )}
               </View>
             </TouchableOpacity>
@@ -688,7 +687,7 @@ const SocialWrite = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setBackConfirm(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>작성된 내용이 삭제돼요</Text>

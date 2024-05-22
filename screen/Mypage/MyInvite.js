@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
-import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, Share, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
+import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, ImageBackground, Pressable, StyleSheet, ScrollView, Share, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -27,7 +28,7 @@ const MyInvite = (props) => {
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
-	const [loading, setLoading] = useState(false);	
+	const [loading, setLoading] = useState(true);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 
 	const isFocused = useIsFocused();
@@ -41,6 +42,10 @@ const MyInvite = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			setTimeout(function(){
+				setLoading(false);
+			}, 500);
 		}
 
     Keyboard.dismiss();
@@ -94,16 +99,14 @@ const MyInvite = (props) => {
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'지인 초대하기'}/>
 
-			<ScrollView>				
-				<AutoHeightImage width={widnowWidth} source={require('../../assets/image/invite.jpg')} />				
-			</ScrollView>
+			<ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/invite.jpg'}} resizeMode='cover' style={{flex:1}}></ImageBackground>
 			
 			<TouchableOpacity
 				style={styles.kakaoShare}
 				activeOpacity={opacityVal}
 				onPress={()=>{onShare()}}
 			>
-				<AutoHeightImage width={20} source={require('../../assets/image/icon_kakao.png')} />				
+				<ImgDomain fileWidth={20} fileName={'icon_kakao.png'}/>	
 				<View style={styles.kakaoShareView}>
 					<Text style={styles.kakaoShareText}>카톡으로 공유하기</Text>
 				</View>
@@ -121,7 +124,7 @@ const MyInvite = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
 	gapBox: {height:80,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
   reject: {paddingHorizontal:20,paddingBottom:10,},
   rejectBox: {padding:15,backgroundColor:'rgba(255,120,122,0.1)',borderRadius:5,},

@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, ImageBackground, Image, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
+import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
+import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, ImageBackground, Image, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -12,8 +12,8 @@ import { BlurView } from "@react-native-community/blur";
 
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
-import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import Card2 from '../../components/Card2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -21,6 +21,7 @@ const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
+const opacityVal2 = 0.95;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const SocialView = (props) => {
@@ -82,7 +83,7 @@ const SocialView = (props) => {
   const [data1List, setData1List] = useState(Data1);
   const [data1List2, setData1List2] = useState(Data2);
 
-  const [userType, setUserType] = useState(2); //1=>호스트, 2=>게스트
+  const [userType, setUserType] = useState(1); //1=>호스트, 2=>게스트
   const [userType2, setUserType2] = useState(0); //1=>정회원, 0=>비회원
   const [nick, setNick] = useState('');
   const [age, setAge] = useState('');
@@ -101,7 +102,7 @@ const SocialView = (props) => {
   const [miniChg, setMiniChg] = useState(0); //0=>포인트 있음, 1=>포인트 부족
   const [report, setReport] = useState('');
   const [reportEtc, setReportEtc] = useState('');
-  const [reportType, setReportType] = useState(); //1=>소셜글, 2=>댓글, 3=>대댓글
+  const [reportType, setReportType] = useState(); //1=>소셜글, 2=>댓글, 3=>대댓글  
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -467,64 +468,35 @@ const SocialView = (props) => {
                   </View>
                   <View style={styles.cardView}>
                     {data1List.map((item, index) => {
-                      return (
-                        <TouchableOpacity 
-                          key={item.idx}
-                          style={[styles.cardBtn, styles.cardBtn2]}
-                          activeOpacity={opacityVal}
-                          onPress={() => {
-                            if(item.leave && !item.isFlipped){
-                              setLeavePop(true);
-                            }else if(!item.leave && item.isFlipped){
-                              ViewDetail();
-                            }
-                          }}
-                        >
-                          <FlipComponent
-                            isFlipped={item.isFlipped}
-                            scale={1}
-                            scaleDuration= {0}
-                            rotateDuration={200}
-                            frontView={	
-                              item.leave ? (
-                                <View style={[styles.cardCont, styles.cardCont2]}>																												                                  
-                                  <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'}/>
-                                </View>
-                              ) : (
-                                <View style={[styles.cardCont, styles.cardCont2]}>		
-                                  <View style={styles.peopleImgBack}>
-                                    <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'}/>
-                                  </View>
-                                  <View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-                                    <View style={styles.peopleImgBack}>
-                                      <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'}/>
-                                    </View>
-                                    <AutoHeightImage width={(innerWidth/3)-7} source={require('../../assets/image/woman2.png')} style={styles.peopleImg} />
-                                    <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow3]}>
-                                      <View	View style={styles.cardFrontDday}>
-                                        <Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-                                      </View>
-                                      <View style={styles.cardFrontNick2}>
-                                        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-                                      </View>
-                                      <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-                                        <View style={styles.cardFrontContLine}></View>
-                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-                                      </View>
-                                    </View>
-                                  </View>
-                                </View>
-                              )																			
-                            }
-                            backView={
-                              <View style={[styles.cardCont, styles.cardCont2]}>																							
-                                <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'}/>
-                              </View>
-                            }
-                          />
-                        </TouchableOpacity>
-                      )
+                      if(item.leave && !item.isFlipped){
+												return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2]}
+														activeOpacity={opacityVal2}
+														onPress={() => {													
+															setLeavePop(true);
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>
+													</TouchableOpacity>
+												)
+											}else{
+												return (
+													<Card2 
+														navigation={navigation}
+														key={index}
+														propsNick={item.name}													
+														propsAge={item.age}													
+														propsHeight={item.height}													
+														propsFlip={item.isFlipped}
+														propsDday={item.dday}
+                            propsSreen={'SocialView'}
+													/>
+												)
+											}
                     })}
                   </View>              
                 </View>
@@ -535,66 +507,35 @@ const SocialView = (props) => {
                   </View>
                   <View style={styles.cardView}>
                     {data1List2.map((item, index) => {
-                      return (
-                        <TouchableOpacity 
-                          key={item.idx}
-                          style={[styles.cardBtn, styles.cardBtn2]}
-                          activeOpacity={opacityVal}
-                          onPress={() => {
-                            if(item.leave && !item.isFlipped){
-                              setLeavePop(true);
-                            }else if(!item.leave && item.isFlipped){
-                              ViewDetail();
-                            }
-                          }}
-                        >
-                          <FlipComponent
-                            isFlipped={item.isFlipped}
-                            scale={1}
-                            scaleDuration= {0}
-                            rotateDuration={200}
-                            frontView={	
-                              item.leave ? (
-                                <View style={[styles.cardCont, styles.cardCont2]}>
-                                  <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'}/>
-                                </View>
-                              ) : (
-                                <View style={[styles.cardCont, styles.cardCont2]}>		                                  
-                                  <View style={styles.peopleImgBack}>
-                                    <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'}/>
-                                  </View>
-                                  <View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>                                    
-                                    <View style={styles.peopleImgBack}>
-                                      <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'}/>
-                                    </View>
-                                    <View style={styles.peopleImg}>
-                                      <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'woman2.png'}/>
-                                    </View>
-                                    <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow3]}>
-                                      <View	View style={styles.cardFrontDday}>
-                                        <Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
-                                      </View>
-                                      <View style={styles.cardFrontNick2}>
-                                        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.name}</Text>
-                                      </View>
-                                      <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.age}</Text>
-                                        <View style={styles.cardFrontContLine}></View>
-                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.height}cm</Text>
-                                      </View>
-                                    </View>
-                                  </View>
-                                </View>
-                              )																			
-                            }
-                            backView={
-                              <View style={[styles.cardCont, styles.cardCont2]}>												
-                                <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'}/>
-                              </View>
-                            }
-                          />
-                        </TouchableOpacity>
-                      )
+                      if(item.leave && !item.isFlipped){
+												return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2]}
+														activeOpacity={opacityVal2}
+														onPress={() => {													
+															setLeavePop(true);
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>
+													</TouchableOpacity>
+												)
+											}else{
+												return (
+													<Card2 
+														navigation={navigation}
+														key={index}
+														propsNick={item.name}													
+														propsAge={item.age}													
+														propsHeight={item.height}													
+														propsFlip={item.isFlipped}
+														propsDday={item.dday}
+                            propsSreen={'SocialView'}
+													/>
+												)
+											}
                     })}
                   </View> 
                 </View>
@@ -631,8 +572,8 @@ const SocialView = (props) => {
                   style={styles.reqStateBox}
                   activeOpacity={opacityVal}
                   onPress={()=>{setReadyPop(true)}}
-                >
-                  <ImageBackground source={require('../../assets/image/social_req_bg.png')} resizeMode='cover' style={styles.reqStateWrap}>                    
+                >                  
+                  <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>                    
                     <View style={[styles.cardBtn, styles.cardBtn3]}>                      
                       <View style={[styles.cardCont, styles.cardCont2]}>																												                        											
                         <ImgDomain fileWidth={110} fileName={'front2.png'}/>
@@ -657,8 +598,8 @@ const SocialView = (props) => {
                   style={styles.reqStateBox}
                   activeOpacity={opacityVal}
                   onPress={()=>{navigation.navigate('MatchDetail')}}
-                >                  
-                  <ImageBackground source={require('../../assets/image/social_req_bg.png')} resizeMode='cover' style={styles.reqStateWrap}>                    
+                >                                        
+                  <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                     <View style={[styles.cardBtn, styles.cardBtn3]}>
                       <View style={[styles.cardCont, styles.cardCont3]}>		
                         <View style={styles.peopleImgBack}>
@@ -668,7 +609,7 @@ const SocialView = (props) => {
                           <View style={styles.peopleImgBack}>
                             <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                           </View>
-                          <AutoHeightImage width={110} source={require('../../assets/image/woman2.png')} style={styles.peopleImg} />
+                          <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
                           <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                             <View	View style={styles.cardFrontDday}>
                               <Text style={styles.cardFrontDdayText}>D-7</Text>
@@ -688,8 +629,8 @@ const SocialView = (props) => {
                     <View style={styles.reqStateInfo}>
                       <View style={styles.reqStateTitle}>
                         <Text style={styles.reqStateTitleText}>참여를 확정해주세요!</Text>
-                      </View>
-                      <AutoHeightImage width={32} source={require("../../assets/image/icon_heart3.png")} />
+                      </View>                      
+                      <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
                       <View style={styles.reqStateCont}>
                         <Text style={styles.reqStateContText}>참여 신청이 수락되었어요</Text>
                         <Text style={styles.reqStateContText}>프로필을 확인하고</Text>
@@ -703,14 +644,18 @@ const SocialView = (props) => {
                   style={styles.reqStateBox}
                   activeOpacity={opacityVal}
                   onPress={()=>{navigation.navigate('MatchDetail')}}
-                >                  
-                  <ImageBackground source={require('../../assets/image/social_req_bg.png')} resizeMode='cover' style={styles.reqStateWrap}>                    
+                >                            
+                  <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                     <View style={[styles.cardBtn, styles.cardBtn3]}>
                       <View style={[styles.cardCont, styles.cardCont3]}>		
-                        <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
+                        <View style={styles.peopleImgBack}>
+                          <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                        </View>
                         <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
-                          <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
-                          <AutoHeightImage width={110} source={require('../../assets/image/woman2.png')} style={styles.peopleImg} />
+                          <View style={styles.peopleImgBack}>
+                            <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                          </View>
+                          <AutoHeightImage width={(innerWidth/3)-7} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
                           <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                             <View	View style={styles.cardFrontDday}>
                               <Text style={styles.cardFrontDdayText}>D-7</Text>
@@ -731,7 +676,7 @@ const SocialView = (props) => {
                       <View style={styles.reqStateTitle}>
                         <Text style={styles.reqStateTitleText}>참여를 확정하시겠어요?</Text>
                       </View>
-                      <AutoHeightImage width={32} source={require("../../assets/image/icon_heart3.png")} />
+                      <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
                       <View style={styles.reqStateCont}>
                         <Text style={styles.reqStateContText}>최종 참여 확정</Text>
                         <Text style={styles.reqStateContText}>요청이 도착했어요!</Text>
@@ -745,14 +690,18 @@ const SocialView = (props) => {
                   style={styles.reqStateBox}
                   activeOpacity={opacityVal}
                   onPress={()=>{navigation.navigate('MatchDetail')}}
-                >                  
-                  <ImageBackground source={require('../../assets/image/social_req_bg.png')} resizeMode='cover' style={styles.reqStateWrap}>                    
+                >                            
+                  <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                     <View style={[styles.cardBtn, styles.cardBtn3]}>
-                      <View style={[styles.cardCont, styles.cardCont3]}>		
-                        <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
+                      <View style={[styles.cardCont, styles.cardCont3]}>		                        
+                        <View style={styles.peopleImgBack}>
+                          <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                        </View>
                         <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
-                          <AutoHeightImage width={110} source={require('../../assets/image/front2.png')} style={styles.peopleImgBack} />
-                          <AutoHeightImage width={110} source={require('../../assets/image/woman2.png')} style={styles.peopleImg} />
+                          <View style={styles.peopleImgBack}>
+                            <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                          </View>
+                          <AutoHeightImage width={(innerWidth/3)-7} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
                           <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                             <View	View style={styles.cardFrontDday}>
                               <Text style={styles.cardFrontDdayText}>D-7</Text>
@@ -772,8 +721,8 @@ const SocialView = (props) => {
                     <View style={styles.reqStateInfo}>
                       <View style={styles.reqStateTitle}>
                         <Text style={styles.reqStateTitleText}>참여가 확정되었어요!</Text>
-                      </View>
-                      <AutoHeightImage width={32} source={require("../../assets/image/icon_clap.png")} />
+                      </View>                      
+                      <ImgDomain fileWidth={32} fileName={'icon_clap.png'}/>
                       <View style={styles.reqStateCont}>
                         <Text style={styles.reqStateContText}>만남일을 확인하고</Text>
                         <Text style={styles.reqStateContText}>즐거운 만남에 참석해보세요!</Text>
@@ -810,8 +759,8 @@ const SocialView = (props) => {
                 </>
                 ) : null}
                 <View style={styles.cmView}>
-                  <View style={[styles.reviewDepth, styles.mgt0]}>
-                    <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />                
+                  <View style={[styles.reviewDepth, styles.mgt0]}>                    
+                    <ImgDomain fileWidth={28} fileName={'profile_sample2.png'}/>
                     <View style={styles.reviewInfo}>
                       <View style={styles.reviewNickDate}>
                         <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
@@ -848,7 +797,7 @@ const SocialView = (props) => {
                       </View>
 
                       <View style={[styles.reviewDepth, styles.reviewDepth2]}>
-                        <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />
+                        <ImgDomain fileWidth={28} fileName={'profile_sample2.png'}/>
                         <View style={[styles.reviewInfo, styles.reviewInfo2]}>
                           <View style={styles.reviewNickDate}>
                             <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
@@ -876,7 +825,7 @@ const SocialView = (props) => {
                     </View>            
                   </View>
                   <View style={[styles.reviewDepth]}>
-                    <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />
+                    <ImgDomain fileWidth={28} fileName={'profile_sample2.png'}/>
                     <View style={styles.reviewInfo}>
                       <View style={styles.reviewNickDate}>
                         <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
@@ -913,8 +862,8 @@ const SocialView = (props) => {
                       </View>
                     </View>
                   </View>          
-                  <View style={[styles.reviewDepth]}>
-                    <AutoHeightImage width={28} source={require("../../assets/image/profile_sample.png")} />
+                  <View style={[styles.reviewDepth]}>                    
+                    <ImgDomain fileWidth={28} fileName={'profile_sample.png'}/>
                     <View style={styles.reviewInfo}>
                       <View style={styles.reviewNickDate}>
                         <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
@@ -1091,7 +1040,7 @@ const SocialView = (props) => {
               style={styles.pop_x}					
               onPress={() => reportPopClose()}
             >
-              <AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
             </TouchableOpacity>		
             <View style={[styles.popTitle]}>
               <Text style={styles.popTitleText}>신고 사유</Text>
@@ -1110,10 +1059,10 @@ const SocialView = (props) => {
                       onPress={() => setReport(item.txt)}
                     >
                       <Text style={styles.reportRadioBtnText}>{item.txt}</Text>
-                      {report == item.txt ? (
-                        <AutoHeightImage width={20} source={require('../../assets/image/icon_radio_on.png')} />
+                      {report == item.txt ? (                        
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'}/>
                       ) : (
-                        <AutoHeightImage width={20} source={require('../../assets/image/icon_radio_off.png')} />
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'}/>
                       )}
                     </TouchableOpacity>
                   )
@@ -1170,8 +1119,8 @@ const SocialView = (props) => {
 						<TouchableOpacity
 							style={styles.pop_x}					
 							onPress={() => {setOrderPop(false)}}
-						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+						>							
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>소셜 룸을 끌어 올리시겠어요?</Text>
@@ -1185,7 +1134,7 @@ const SocialView = (props) => {
             
             {orderChg != 0 ? (
             <View style={[styles.pointBox, styles.mgt20]}>
-							<AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+              <ImgDomain fileWidth={24} fileName={'coin.png'}/>
 							<Text style={styles.pointBoxText}>{upPoint}</Text>
 						</View>
             ) : null}
@@ -1243,7 +1192,7 @@ const SocialView = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setMiniProfilePop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
             {miniChg == 0 ? (
               <View>
@@ -1258,7 +1207,7 @@ const SocialView = (props) => {
             )}
 
             <View style={[styles.pointBox, styles.mgt20]}>
-							<AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+              <ImgDomain fileWidth={24} fileName={'coin.png'}/>
 							<Text style={styles.pointBoxText}>{miniPoint}</Text>
 						</View>
 
@@ -1316,10 +1265,10 @@ const SocialView = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setBigImgPop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
             <ScrollView>
-              <AutoHeightImage width={innerWidth-20} source={require("../../assets/image/sample2.jpg")} />
+              <AutoHeightImage width={innerWidth-20} source={{uri:'https://cnj02.cafe24.com/appImg/sample2.jpg'}} resizeMethod='resize' />
             </ScrollView>
 					</View>
 				</View>
@@ -1344,7 +1293,7 @@ const SocialView = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setReadyPop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>아직 프로필을 볼 수 없어요</Text>							
@@ -1383,7 +1332,7 @@ const SocialView = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setBlockPop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>개팅님을 차단하시겠어요?</Text>							
@@ -1432,13 +1381,13 @@ const SocialView = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setLeavePop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View style={[styles.popTitle, styles.popTitleFlex]}>							
 							<View style={styles.popTitleFlexWrap}>
                 <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>탈퇴한 회원이에요</Text>
               </View>
-							<AutoHeightImage width={18} source={require("../../assets/image/emiticon1.png")} style={styles.emoticon} />
+              <ImgDomain fileWidth={18} fileName={'emiticon1.png'}/>
 						</View>
 						<View style={styles.popBtnBox}>
 							<TouchableOpacity 
@@ -1543,13 +1492,13 @@ const SocialView = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setSocialPop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
               <Text style={styles.popTitleText}>소셜에 신청하시겠어요?</Text>
 						</View>
             <View style={[styles.pointBox, styles.mgt20]}>
-              <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+              <ImgDomain fileWidth={24} fileName={'coin.png'}/>
               <Text style={styles.pointBoxText}>500</Text>
             </View>
             <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
@@ -1593,7 +1542,7 @@ const SocialView = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setSocialPop2(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
               <Text style={styles.popTitleText}>소셜 신청에 수락하시겠어요?</Text>
@@ -1781,7 +1730,7 @@ const styles = StyleSheet.create({
 	popTitleFlex: {flexDirection:'row',alignItems:'center',justifyContent:'center',flexWrap:'wrap'},
 	popTitleFlexWrap: {position:'relative',},
 	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E',},
-  popTitleFlexText: {position:'relative',top:0,},	
+  popTitleFlexText: {position:'relative',top:0.5,},	
 	popTitleDescFlex: {flexDirection:'row',alignItems:'center',justifyContent:'center'},
 	popTitleDesc: {width:innerWidth-40,textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:20,},
 	popTitleDescFlexDesc: {width:'auto',position:'relative',top:1.5,},

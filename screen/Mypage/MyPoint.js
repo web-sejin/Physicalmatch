@@ -10,7 +10,7 @@ import {connect} from 'react-redux';
 
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
-import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -155,14 +155,14 @@ const MyPoint = (props) => {
 					activeOpacity={opacityVal}
 					onPress={() => {navigation.goBack();}} 
 				>
-					<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+					<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 				</TouchableOpacity>
 				<TouchableOpacity
 					style={styles.headerShopBtn}
 					activeOpacity={opacityVal}
 					onPress={() => {navigation.navigate('Shop')}}							
 				>
-					<AutoHeightImage width={24} source={require('../../assets/image/icon_shop2.png')} />
+					<ImgDomain fileWidth={24} fileName={'icon_shop2.png'}/>
 				</TouchableOpacity>
 			</View>
 			

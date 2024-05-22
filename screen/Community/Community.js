@@ -11,7 +11,7 @@ import Swiper from 'react-native-web-swiper';
 
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
-import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -22,7 +22,7 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const Community = (props) => {
-	const socialData = [
+	const commData = [
 		{idx:1, cate:'자유', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
 		{idx:2, cate:'운동', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
 		{idx:3, cate:'프교', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
@@ -43,7 +43,7 @@ const Community = (props) => {
 	const [refreshing, setRefreshing] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
-	const [socialList, setSocaiList] = useState(socialData);
+	const [commList, setCommList] = useState([]);
 
 	const [tabState, setTabState] = useState(1); //자유, 운동, 프교, 셀소
 	const [sch, setSCh] = useState('');	
@@ -98,6 +98,14 @@ const Community = (props) => {
     };
   }, []);
 
+	useEffect(() => {		
+		setLoading(true);		
+		setTimeout(() => {
+			setCommList(commData);
+			setLoading(false);
+		}, 1000);
+	}, [])
+
 	const getList = ({item, index}) => (
 		<View style={[styles.commLi, index == 0 ? styles.mgt0 : null]}>
 			<TouchableOpacity
@@ -107,21 +115,25 @@ const Community = (props) => {
 					navigation.navigate('CommunityView', {idx:item.idx, cateName:item.cate});
 				}}
 			>
-				<View style={styles.commLiProfile}>
-					<AutoHeightImage width={40} source={require('../../assets/image/profile_sample.png')} />
+				<View style={styles.commLiProfile}>										
+					<AutoHeightImage width={40} source={{uri:'https://cnj02.cafe24.com/appImg/profile_sample.png'}} resizeMethod='resize' />
 				</View>
 				<View style={[styles.commLiInfo, item.idx == 4 ? styles.commLiInfo2 : null]}>
 					<View style={styles.commLiInfoSubject}>
 						<Text style={styles.commLiInfoSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.subject}</Text>
-						{item.blur ? (<AutoHeightImage width={13} source={require('../../assets/image/icon_alert2.png')} style={styles.commLiInfoAlert} />) : null}						
+						{item.blur ? (
+							<View style={styles.commLiInfoAlert}>
+								<ImgDomain fileWidth={13} fileName={'icon_alert2.png'}/>
+							</View>							
+						) : null}						
 					</View>
 					<View style={styles.commLiSubInfo}>
 						<View style={styles.commLiSubView}>
-							<AutoHeightImage width={16} source={require('../../assets/image/icon_view.png')} />
+							<ImgDomain fileWidth={16} fileName={'icon_view.png'}/>
 							<Text style={styles.commLiSubViewText}>{item.viewCnt}</Text>
 						</View>
 						<View style={[styles.commLiSubView, styles.commLiSubView2]}>
-							<AutoHeightImage width={16} source={require('../../assets/image/icon_review.png')} />
+							<ImgDomain fileWidth={16} fileName={'icon_review.png'}/>
 							<Text style={styles.commLiSubViewText}>{item.reviewCnt}</Text>
 						</View>
 						<View style={styles.commLiSubLine}></View>
@@ -133,11 +145,11 @@ const Community = (props) => {
 				{item.idx != 4 ? (
 				<ImageBackground
 					style={styles.commLiThumb}
-					source={require('../../assets/image/social_basic1.jpg')}
+					source={{uri:'https://cnj02.cafe24.com/appImg/social_basic1.jpg'}}
 					resizeMode='cover'
 					blurRadius={item.blur ? 6 : 0}
-				>
-					{item.blur ? (<AutoHeightImage width={20} source={require('../../assets/image/icon_blurview.png')} />) : null}					
+				>					
+					{item.blur ? (<ImgDomain fileWidth={20} fileName={'icon_blurview.png'} />) : null}					
 				</ImageBackground>
 				) : null}
 			</TouchableOpacity>
@@ -184,22 +196,22 @@ const Community = (props) => {
 							activeOpacity={opacityVal}
 							onPress={() => navigation.navigate('MyCommunity')}
 						>
-							<AutoHeightImage width={24} source={require('../../assets/image/icon_mycommuity.png')} />
+							<ImgDomain fileWidth={24} fileName={'icon_mycommuity.png'} />
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
 							onPress={() => {navigation.navigate('Shop')}}		
 						>
-							<AutoHeightImage width={24} source={require('../../assets/image/icon_shop.png')} />
+							<ImgDomain fileWidth={24} fileName={'icon_shop.png'} />
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
 							onPress={() => {navigation.navigate('Alim')}}
 						>
-							<AutoHeightImage width={24} source={require('../../assets/image/icon_alim_off.png')} />
-							{/* <AutoHeightImage width={24} source={require('../assets/image/icon_alim_on.png')} /> */}
+							<ImgDomain fileWidth={24} fileName={'icon_alim_off.png'} />
+							{/* <ImgDomain fileWidth={24} fileName={'icon_alim_on.png'} /> */}
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -243,7 +255,7 @@ const Community = (props) => {
 			</View>
 			
 			<FlatList 				
-				data={socialList}
+				data={commList}
 				renderItem={(getList)}
 				keyExtractor={(item, index) => index.toString()}
 				refreshing={refreshing}
@@ -275,14 +287,14 @@ const Community = (props) => {
 								activeOpacity={opacityVal}
 								onPress={()=>{}}
 							>
-								<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+								<AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/social_banner.png'}} resizeMethod='resize' />
 							</TouchableOpacity>
 							<TouchableOpacity 
 								style={styles.commuBanner}
 								activeOpacity={opacityVal}
 								onPress={()=>{}}
 							>
-								<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+								<AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/social_banner.png'}} resizeMethod='resize' />
 							</TouchableOpacity>
 						</Swiper>
 					</View>	
@@ -297,7 +309,7 @@ const Community = (props) => {
 								activeOpacity={opacityVal}
 								onPress={()=>Search()}
 							>
-								<AutoHeightImage width={28} source={require('../../assets/image/icon_sch.png')} />
+								<ImgDomain fileWidth={28} fileName={'icon_sch.png'}/>
 							</TouchableOpacity>
 							<TextInput
 								value={sch}
@@ -332,7 +344,7 @@ const Community = (props) => {
         activeOpacity={opacityVal}
         onPress={()=>{navigation.navigate('CommunityWrite')}}
       >
-        <AutoHeightImage width={60} source={require('../../assets/image/icon_write.png')} />
+				<ImgDomain fileWidth={60} fileName={'icon_write.png'}/>
       </TouchableOpacity>
 			) : null}
 

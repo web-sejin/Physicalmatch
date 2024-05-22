@@ -12,8 +12,8 @@ import Toast from 'react-native-toast-message';
 import Clipboard from '@react-native-clipboard/clipboard';
 
 import Font from "../../assets/common/Font";
-import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -181,15 +181,15 @@ const NewMember = (props) => {
 					activeOpacity={opacityVal}
 					onPress={() => {navigation.goBack();}} 
 				>
-					<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+          <ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 				</TouchableOpacity>
         <View style={styles.headerDesc}>
           <Text style={styles.headerDescText}>💝 NEW 회원 3번 평가하면 프로틴 00개</Text>
         </View>
         <View style={styles.pointState}>
-          <AutoHeightImage width={22} source={require('../../assets/image/coin.png')} style={styles.mgr5} />
-          <AutoHeightImage width={22} source={require('../../assets/image/coin.png')} style={styles.mgr5} />
-          <AutoHeightImage width={22} source={require('../../assets/image/coin_off.png')} />
+          <View style={styles.mgr5}><ImgDomain fileWidth={22} fileName={'coin.png'}/></View>          
+          <View style={styles.mgr5}><ImgDomain fileWidth={22} fileName={'coin.png'}/></View>
+          <View><ImgDomain fileWidth={22} fileName={'coin_off.png'}/></View>
         </View>
 			</View>
 
@@ -213,8 +213,8 @@ const NewMember = (props) => {
                 setActiveDot(obj.index);
               }}
               renderItem={({ item, index }) => (
-                <View key={index} style={styles.swiperWrap}>
-                  <AutoHeightImage width={widnowWidth} source={require("../../assets/image/sample.jpg")} />
+                <View key={index} style={styles.swiperWrap}>                  
+                  <AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/sample.jpg'}} resizeMethod='resize' />
                   <View style={styles.warterMark}>
                     <View style={styles.warterMarkWrap}>
                       {warterList.map((item2, index2) => {
@@ -238,8 +238,8 @@ const NewMember = (props) => {
                   onPress={() => {
                     swiperRef.current.scrollToIndex({index:index})
                   }}
-                >
-                  <AutoHeightImage width={46} source={require("../../assets/image/sample.jpg")} style={[styles.paginationImg]} />
+                >                  
+                  <AutoHeightImage width={46} source={{uri:'https://cnj02.cafe24.com/appImg/sample.jpg'}} resizeMethod='resize' style={[styles.paginationImg]} />
                 </TouchableOpacity>
               )
             })}
@@ -252,10 +252,10 @@ const NewMember = (props) => {
                 <Text style={styles.detailInfo1ViewAge}><Text style={styles.roboto}>1999</Text>년생</Text>
               </View>
               <View style={styles.detailInfo1BadgeBox}>
-                <AutoHeightImage width={45} source={require('../../assets/image/b_money2_1.png')} style={styles.detailInfo1Badge} />
-                <AutoHeightImage width={45} source={require('../../assets/image/b_money1_2.png')} style={styles.detailInfo1Badge} />
-                <AutoHeightImage width={45} source={require('../../assets/image/b_car3.png')} style={styles.detailInfo1Badge} />
-                <AutoHeightImage width={45} source={require('../../assets/image/b_school1.png')} style={styles.detailInfo1Badge} />
+                <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_money2_1.png'}/></View>
+                <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_money1_2.png'}/></View>
+                <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_car3.png'}/></View>
+                <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_school1.png'}/></View>
               </View>
               <TouchableOpacity
                 style={styles.zzimBtn}
@@ -263,10 +263,10 @@ const NewMember = (props) => {
                 onPress={() => {setZzim(!zzim)}}
               >
                 {zzim ? (
-                  <AutoHeightImage width={18} source={require('../../assets/image/icon_zzim_on.png')} />
+                  <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
                 ) : (
-                  <AutoHeightImage width={18} source={require('../../assets/image/icon_zzim_off.png')} />
-                )}              
+                  <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
+                )}                
               </TouchableOpacity>
             </View>
           </View>
@@ -307,7 +307,7 @@ const NewMember = (props) => {
             </View>
 
             <View style={styles.cmInfoBox}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_muscle.png')} />
+              <ImgDomain fileWidth={32} fileName={'icon_cont_muscle.png'}/>
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>운동</Text>
@@ -332,7 +332,7 @@ const NewMember = (props) => {
             </View>
 
             <View style={[styles.cmInfoBox, styles.mgt0]}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_loc.png')} />
+              <ImgDomain fileWidth={32} fileName={'icon_cont_loc.png'}/>
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>지역</Text>
@@ -351,11 +351,13 @@ const NewMember = (props) => {
             </View>
 
             <View style={[styles.cmInfoBox]}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_job.png')} />
+              <ImgDomain fileWidth={32} fileName={'icon_cont_job.png'}/>
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>직업</Text>
-                  <AutoHeightImage width={12} source={require('../../assets/image/icon_cert.png')} style={styles.certIcon} />
+                  <View style={styles.certIcon}>
+                    <ImgDomain fileWidth={12} fileName={'icon_cert.png'}/>
+                  </View>
                 </View>              
                 <View style={styles.cmInfoBoxContUl}>
                   <View style={[styles.cmInfoBoxContLi]}>
@@ -366,12 +368,14 @@ const NewMember = (props) => {
               </View>
             </View>
 
-            <View style={[styles.cmInfoBox]}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_school.png')} />
+            <View style={[styles.cmInfoBox]}>              
+              <ImgDomain fileWidth={32} fileName={'icon_cont_school.png'}/>
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
-                  <Text style={styles.cmInfoBoxContTitText}>학력</Text>
-                  <AutoHeightImage width={12} source={require('../../assets/image/icon_cert.png')} style={styles.certIcon} />
+                  <Text style={styles.cmInfoBoxContTitText}>학력</Text>                  
+                  <View style={styles.certIcon}>
+                    <ImgDomain fileWidth={12} fileName={'icon_cert.png'}/>
+                  </View>
                 </View>              
                 <View style={styles.cmInfoBoxContUl}>
                   <View style={[styles.cmInfoBoxContLi]}>
@@ -384,7 +388,7 @@ const NewMember = (props) => {
             
             <View style={[styles.cmInfoBoxFlex]}>
               <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-                <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_mbti.png')} />
+                <ImgDomain fileWidth={32} fileName={'icon_cont_mbti.png'}/>
                 <View style={styles.cmInfoBoxCont}>
                   <View style={styles.cmInfoBoxContTit}>
                     <Text style={styles.cmInfoBoxContTitText}>MBTI</Text>
@@ -398,7 +402,7 @@ const NewMember = (props) => {
               </View>
 
               <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-                <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_rel.png')} />
+                <ImgDomain fileWidth={32} fileName={'icon_cont_rel.png'}/>
                 <View style={styles.cmInfoBoxCont}>
                   <View style={styles.cmInfoBoxContTit}>
                     <Text style={styles.cmInfoBoxContTitText}>종교</Text>
@@ -412,7 +416,7 @@ const NewMember = (props) => {
               </View>
 
               <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-                <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_drink.png')} />
+                <ImgDomain fileWidth={32} fileName={'icon_cont_drink.png'}/>
                 <View style={styles.cmInfoBoxCont}>
                   <View style={styles.cmInfoBoxContTit}>
                     <Text style={styles.cmInfoBoxContTitText}>음주</Text>
@@ -426,7 +430,7 @@ const NewMember = (props) => {
               </View>
 
               <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-                <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_smoke.png')} />
+                <ImgDomain fileWidth={32} fileName={'icon_cont_smoke.png'}/>
                 <View style={styles.cmInfoBoxCont}>
                   <View style={styles.cmInfoBoxContTit}>
                     <Text style={styles.cmInfoBoxContTitText}>흡연</Text>
@@ -440,11 +444,13 @@ const NewMember = (props) => {
               </View>
 
               <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-                <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_marry.png')} />
+                <ImgDomain fileWidth={32} fileName={'icon_cont_marry.png'}/>
                 <View style={styles.cmInfoBoxCont}>
                   <View style={styles.cmInfoBoxContTit}>
                     <Text style={styles.cmInfoBoxContTitText}>혼인</Text>
-                    <AutoHeightImage width={12} source={require('../../assets/image/icon_cert.png')} style={styles.certIcon} />
+                    <View style={styles.certIcon}>
+                      <ImgDomain fileWidth={12} fileName={'icon_cert.png'}/>
+                    </View>
                   </View>              
                   <View style={styles.cmInfoBoxContUl}>
                     <View style={[styles.cmInfoBoxContLi]}>
@@ -467,7 +473,7 @@ const NewMember = (props) => {
           <View style={[styles.detailInfoCm]}>
             <View style={[styles.detailQnaBox, styles.mgt0]}>
               <View style={[styles.cmInfoBox, styles.mgt0]}>
-                <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_qna.png')} />
+                <ImgDomain fileWidth={32} fileName={'icon_cont_qna.png'}/>
                 <View style={styles.cmInfoBoxCont}>
                   <View style={styles.cmInfoBoxContTit}>
                     <Text style={styles.cmInfoBoxContTitText}>질문 내용</Text>
@@ -480,7 +486,7 @@ const NewMember = (props) => {
             </View>
             <View style={[styles.detailQnaBox, styles.mgt30]}>
               <View style={[styles.cmInfoBox, styles.mgt0]}>
-                <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_qna.png')} />
+                <ImgDomain fileWidth={32} fileName={'icon_cont_qna.png'}/>
                 <View style={styles.cmInfoBoxCont}>
                   <View style={styles.cmInfoBoxContTit}>
                     <Text style={styles.cmInfoBoxContTitText}>질문 내용</Text>
@@ -502,9 +508,9 @@ const NewMember = (props) => {
               onPress={() => reviewState ? fnReview(1) : null}
             >
               {reviewScore > 0 ? (
-                <AutoHeightImage width={45} source={require('../../assets/image/star_on.png')} />
+                <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
               ) : (
-                <AutoHeightImage width={45} source={require('../../assets/image/star_off.png')} />
+                <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
               )}
             </TouchableOpacity>
             <TouchableOpacity
@@ -513,9 +519,9 @@ const NewMember = (props) => {
               onPress={() => reviewState ? fnReview(2) : null}
             >
               {reviewScore > 1 ? (
-                <AutoHeightImage width={45} source={require('../../assets/image/star_on.png')} />
+                <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
               ) : (
-                <AutoHeightImage width={45} source={require('../../assets/image/star_off.png')} />
+                <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
               )}
             </TouchableOpacity>
             <TouchableOpacity
@@ -524,9 +530,9 @@ const NewMember = (props) => {
               onPress={() => reviewState ? fnReview(3) : null}
             >
               {reviewScore > 2 ? (
-                <AutoHeightImage width={45} source={require('../../assets/image/star_on.png')} />
+                <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
               ) : (
-                <AutoHeightImage width={45} source={require('../../assets/image/star_off.png')} />
+                <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
               )}
             </TouchableOpacity>
             <TouchableOpacity
@@ -535,9 +541,9 @@ const NewMember = (props) => {
               onPress={() => reviewState ? fnReview(4) : null}
             >
               {reviewScore > 3 ? (
-                <AutoHeightImage width={45} source={require('../../assets/image/star_on.png')} />
+                <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
               ) : (
-                <AutoHeightImage width={45} source={require('../../assets/image/star_off.png')} />
+                <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
               )}
             </TouchableOpacity>
             <TouchableOpacity
@@ -546,9 +552,9 @@ const NewMember = (props) => {
               onPress={() => reviewState ? fnReview(5) : null}
             >
               {reviewScore > 4 ? (
-                <AutoHeightImage width={45} source={require('../../assets/image/star_on.png')} />
+                <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
               ) : (
-                <AutoHeightImage width={45} source={require('../../assets/image/star_off.png')} />
+                <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
               )}
             </TouchableOpacity>
           </View>
@@ -572,8 +578,8 @@ const NewMember = (props) => {
               <TouchableOpacity
                 style={styles.pop_x}					
                 onPress={() => {setReviewPop(false)}}
-              >
-                <AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              >                
+                <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
               </TouchableOpacity>		
               <View style={[styles.popTitle]}>
                 <Text style={styles.popTitleText}>{reviewScore}점으로</Text>
@@ -595,7 +601,7 @@ const NewMember = (props) => {
       ) : (
         <View style={styles.notMember}>
           <View style={styles.notMemberWrap}>
-            <AutoHeightImage width={57} source={require('../../assets/image/icon_dot3.png')} />
+            <ImgDomain fileWidth={57} fileName={'icon_dot3.png'}/>
             <View style={styles.notMemberTitle}>
               <Text style={styles.notMemberTitleText}>현재 평가할 회원이 없습니다.</Text>
             </View>
@@ -607,7 +613,7 @@ const NewMember = (props) => {
               <View style={styles.notMemberDesc2View}>
                 <Text style={styles.notMemberDesc2Text}>신규회원에게 프로틴 00개 증정</Text>                
               </View>
-              <AutoHeightImage width={15} source={require('../../assets/image/icon_heart2.png')} />
+              <ImgDomain fileWidth={15} fileName={'icon_heart2.png'}/>
             </View>
           </View>
 
@@ -640,6 +646,10 @@ const styles = StyleSheet.create({
   
 	swiperView: { height: widnowWidth*1.25,},
 	swiperWrap: {},
+  warterMark: {width:widnowWidth,height:widnowWidth*1.25,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
+  warterMarkWrap: {width:widnowWidth*1.5,flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'center',transform: [{rotate: '-45deg'}],gap:60},
+  warterMarkView: {},
+  warterMarkText: {fontFamily:Font.RobotoMedium,fontSize:13,color:'#fff',opacity:0.2},
 	pagination: {flexDirection:'row',justifyContent:'center',marginTop:15},
 	paginationBtn: {width:46,height:46,overflow:'hidden',borderWidth:2,borderColor:'transparent',borderRadius:5,marginHorizontal:6,alignItems:'center',justifyContent:'center'},
   paginationActive: {borderWidth:2,borderColor:'#D1913C'},
@@ -712,7 +722,7 @@ const styles = StyleSheet.create({
   header: {height:48,backgroundColor:'#fff',position:'relative',justifyContent:'center',paddingLeft:47,paddingRight:100,},
 	headerBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},	
   headerDesc: {position:'relative',top:1,},
-  headerDescText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,},
+  headerDescText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1e1e1e'},
   pointState: {flexDirection:'row',alignItems:'center',position:'absolute',right:20},
   
   cmWrap: {paddingVertical:30,paddingHorizontal:20},

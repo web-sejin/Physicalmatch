@@ -14,6 +14,7 @@ import { actionCreators as UserAction } from '../../redux/module/action/UserActi
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -76,14 +77,14 @@ const ProfieModify = (props) => {
 							activeOpacity={opacityVal}
 							onPress={()=>{}}
 						>
-							<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+							<AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/social_banner.png'}} resizeMethod='resize' />
 						</TouchableOpacity>
 						<TouchableOpacity 
 							style={styles.commuBanner}
 							activeOpacity={opacityVal}
 							onPress={()=>{}}
 						>
-							<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+							<AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/social_banner.png'}} resizeMethod='resize' />
 						</TouchableOpacity>
 					</Swiper>
 				</View>
@@ -102,27 +103,24 @@ const ProfieModify = (props) => {
                 <View style={[styles.modiBtnState, styles.modiBtnState1, styles.mgr10]}>
                   <Text style={[styles.modiBtnStateText, styles.modiBtnStateText1]}>반려</Text>
                 </View>                
-                <AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+                <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
               </View>
             </View>
             <View style={styles.modiImgFlex}>
               <View style={[styles.modiImg]}>
-                <AutoHeightImage width={36} source={require('../../assets/image/social_basic1.jpg')} />
+                <AutoHeightImage width={36} source={{uri:'https://cnj02.cafe24.com/appImg/social_basic1.jpg'}} resizeMethod='resize' />
               </View>
               <View style={[styles.modiImg, styles.mgl10]}>
-                <AutoHeightImage width={36} source={require('../../assets/image/social_basic1.jpg')} />
+                <AutoHeightImage width={36} source={{uri:'https://cnj02.cafe24.com/appImg/social_basic1.jpg'}} resizeMethod='resize' />
               </View>
               <View style={[styles.modiImg, styles.mgl10]}>
-                <AutoHeightImage width={36} source={require('../../assets/image/social_basic1.jpg')} />
+                <AutoHeightImage width={36} source={{uri:'https://cnj02.cafe24.com/appImg/social_basic1.jpg'}} resizeMethod='resize' />
               </View>
               <View style={[styles.modiImg, styles.mgl10]}>
-                <AutoHeightImage width={36} source={require('../../assets/image/social_basic1.jpg')} />
+                <AutoHeightImage width={36} source={{uri:'https://cnj02.cafe24.com/appImg/social_basic1.jpg'}} resizeMethod='resize' />
               </View>
               <View style={[styles.modiImg, styles.mgl10]}>
-                <AutoHeightImage width={36} source={require('../../assets/image/social_basic1.jpg')} />
-              </View>
-              <View style={[styles.modiImg, styles.mgl10]}>
-                <AutoHeightImage width={36} source={require('../../assets/image/social_basic1.jpg')} />
+                <AutoHeightImage width={36} source={{uri:'https://cnj02.cafe24.com/appImg/social_basic1.jpg'}} resizeMethod='resize' />
               </View>
             </View>
           </TouchableOpacity>
@@ -137,21 +135,21 @@ const ProfieModify = (props) => {
                 <Text style={styles.modiBtnTopLeftText}>내 배지</Text>
               </View>
               <View style={styles.modiBtnTopRight}>
-                <AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+                <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
               </View>
             </View>
             <View style={[styles.modiImgFlex, styles.mgt5]}>
               <View style={[styles.modiImg, styles.modiImg2]}>
-                <AutoHeightImage width={45} source={require('../../assets/image/b_money2_1.png')} />
+                <ImgDomain fileWidth={45} fileName={'b_money2_1.png'}/>                
               </View>
               <View style={[styles.modiImg, styles.modiImg2, styles.mgl15]}>
-                <AutoHeightImage width={45} source={require('../../assets/image/b_silver.png')} />
+                <ImgDomain fileWidth={45} fileName={'b_silver.png'}/>
               </View>
-              <View style={[styles.modiImg, styles.modiImg2, styles.mgl15]}>
-                <AutoHeightImage width={45} source={require('../../assets/image/b_car1.png')} />
+              <View style={[styles.modiImg, styles.modiImg2, styles.mgl15]}>                
+                <ImgDomain fileWidth={45} fileName={'b_car1.png'}/>
               </View>
-              <View style={[styles.modiImg, styles.modiImg2, styles.mgl15]}>
-                <AutoHeightImage width={45} source={require('../../assets/image/b_height2.png')} />
+              <View style={[styles.modiImg, styles.modiImg2, styles.mgl15]}>                
+                <ImgDomain fileWidth={45} fileName={'b_height2.png'}/>
               </View>
             </View>
           </TouchableOpacity>
@@ -167,11 +165,11 @@ const ProfieModify = (props) => {
               </View>
               <View style={styles.modiBtnTopRight}>
                 <View style={[styles.modiBtnState, styles.modiBtnState2]}>
-                  <AutoHeightImage width={8} source={require('../../assets/image/icon_chk1.png')} />
+                  <ImgDomain fileWidth={8} fileName={'icon_chk1.png'}/>
                   <Text style={[styles.modiBtnStateText, styles.modiBtnStateText2, styles.mgl4]}>직장</Text>
                 </View>
                 <View style={[styles.modiBtnState, styles.modiBtnState2, styles.mgl4]}>
-                  <AutoHeightImage width={8} source={require('../../assets/image/icon_chk1.png')} />
+                  <ImgDomain fileWidth={8} fileName={'icon_chk1.png'}/>
                   <Text style={[styles.modiBtnStateText, styles.modiBtnStateText2, styles.mgl4]}>결혼</Text>
                 </View>
               </View>
@@ -188,7 +186,7 @@ const ProfieModify = (props) => {
                 <Text style={styles.modiBtnTopLeftText}>지역 설정</Text>
               </View>
               <View style={styles.modiBtnTopRight}>
-                <AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+                <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
               </View>
             </View>
             <View style={[styles.modiLocFlex]}>
@@ -213,7 +211,7 @@ const ProfieModify = (props) => {
                 <Text style={styles.modiBtnTopLeftText}>내 소개</Text>
               </View>
               <View style={styles.modiBtnTopRight}>
-                <AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+                <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
               </View>
             </View>
             <View style={[styles.modiCont, styles.mgt15]}>
@@ -253,7 +251,7 @@ const ProfieModify = (props) => {
                 <Text style={styles.modiBtnTopLeftText}>기본 정보</Text>
               </View>
               <View style={styles.modiBtnTopRight}>
-                <AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+                <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
               </View>
             </View>
             <View style={[styles.modiLocFlex]}>
@@ -309,7 +307,7 @@ const ProfieModify = (props) => {
                 <View style={styles.modiBtnTopRightView}>
                   <Text style={styles.modiBtnTopRightViewText}>프로틴 00개 혜택</Text>
                 </View>
-                <AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+                <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
               </View>
             </View>
           </TouchableOpacity>
@@ -324,7 +322,7 @@ const ProfieModify = (props) => {
                 <Text style={styles.modiBtnTopLeftText}>취미·관심사 키워드</Text>
               </View>
               <View style={styles.modiBtnTopRight}>
-                <AutoHeightImage width={7} source={require('../../assets/image/icon_arr8.png')} />
+                <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
               </View>
             </View>
           </TouchableOpacity>

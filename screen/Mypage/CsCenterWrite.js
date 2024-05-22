@@ -13,6 +13,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -180,8 +181,10 @@ const CsCenterWrite = (props) => {
                         inputIOS: styles.select,
                         inputIOSContainer: styles.selectCont,
                       }}
-                    />
-                    <AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} style={styles.selectArr} resizeMethod='resize' />
+                    />                    
+                    <View style={styles.selectArr}>
+                      <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+                    </View>
                   </View>
                 </View>
                 <View style={styles.mgt20}>                  
@@ -239,10 +242,7 @@ const CsCenterWrite = (props) => {
                     onPress={()=>{navigation.goBack()}}
                   >
                     <Text style={styles.guideBtnText}>Q&A 확인하기</Text>
-                    <AutoHeightImage 
-                      width={5}
-                      source={require("../../assets/image/icon_arr2.png")}
-                    />
+                    <ImgDomain fileWidth={5} fileName={'icon_arr2.png'}/>
                   </TouchableOpacity>
                 </View>
 
@@ -259,7 +259,7 @@ const CsCenterWrite = (props) => {
                       {phoneImage.path != '' && phoneImage.path != undefined ? (
                         <AutoHeightImage width={62} source={{ uri: phoneImage.path }} />
                       ) : (
-                        <AutoHeightImage width={62} source={require("../../assets/image/img_back2.png")} />
+                        <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
                       )}
                     </TouchableOpacity>
                   </View>                  

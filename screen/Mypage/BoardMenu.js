@@ -11,6 +11,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -81,7 +82,7 @@ const BoardMenu = (props) => {
             onPress={()=>{navigation.navigate('Notice')}}
           >
             <Text style={styles.btnText}>공지사항</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnLine]}
@@ -89,15 +90,15 @@ const BoardMenu = (props) => {
             onPress={()=>{navigation.navigate('UseGuide')}}
           >
             <Text style={styles.btnText}>이용 가이드</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnLine]}
             activeOpacity={opacityVal}
             onPress={()=>{navigation.navigate('Qna')}}
           >
-            <Text style={styles.btnText}>Q&A</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <Text style={styles.btnText}>{'Q&A'}</Text>
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
         </View>
 
@@ -110,7 +111,7 @@ const BoardMenu = (props) => {
             onPress={()=>{navigation.navigate('About')}}
           >
             <Text style={styles.btnText}>피지컬 매치란?</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnLine]}
@@ -118,7 +119,7 @@ const BoardMenu = (props) => {
             onPress={()=>{navigation.navigate('CsCenter')}}
           >
             <Text style={styles.btnText}>고객센터</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
         </View>
 
@@ -131,7 +132,7 @@ const BoardMenu = (props) => {
             onPress={()=>{navigation.navigate('Privacy')}}
           >
             <Text style={styles.btnText2}>개인정보 처리방침 / 이용약관</Text>
-            <AutoHeightImage width={6} source={require("../../assets/image/icon_arr8.png")} />
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
         </View>
 			</ScrollView>

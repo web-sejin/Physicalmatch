@@ -14,6 +14,7 @@ import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -218,7 +219,7 @@ const MyBadge = (props) => {
 								}}
 							>
 								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_height.png')} />
+									<ImgDomain fileWidth={45} fileName={'b_height.png'}/>
 									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
 										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>키 배지</Text>
 										<Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text>
@@ -229,12 +230,12 @@ const MyBadge = (props) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity> */}
 							<View style={[styles.badgeBtn]}>
 								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_height.png')} />
+									<ImgDomain fileWidth={45} fileName={'b_height.png'}/>
 									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
 										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>키 배지</Text>
 										<Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text>
@@ -248,7 +249,7 @@ const MyBadge = (props) => {
 										setDeletePop(true);
 									}}
 								>
-									<AutoHeightImage width={25} source={require('../../assets/image/icon_trash.png')} />
+									<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
 								</TouchableOpacity>							
 							</View>
 
@@ -265,7 +266,7 @@ const MyBadge = (props) => {
 								}}
 							>
 								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_muscle.png')} />
+									<ImgDomain fileWidth={45} fileName={'b_muscle.png'}/>
 									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
 										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>골격근량 배지</Text>
 										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
@@ -281,7 +282,7 @@ const MyBadge = (props) => {
 										<View style={styles.stateView2}>
 											<Text style={styles.stateViewText2}>반려</Text>
 										</View>
-										<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />									
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 										</>
 								)}
 								</View>
@@ -305,7 +306,7 @@ const MyBadge = (props) => {
 								}}
 							>
 								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_money.png')} />
+									<ImgDomain fileWidth={45} fileName={'b_money.png'}/>
 									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
 										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>개인 소득 배지</Text>
 										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
@@ -316,7 +317,7 @@ const MyBadge = (props) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
@@ -331,7 +332,7 @@ const MyBadge = (props) => {
 								}}
 							>
 								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_money2.png')} />									
+									<ImgDomain fileWidth={45} fileName={'b_money2.png'}/>
 									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
 										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>개인 자산 배지</Text>
 										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
@@ -342,7 +343,7 @@ const MyBadge = (props) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>	
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
@@ -357,7 +358,7 @@ const MyBadge = (props) => {
 								}}
 							>
 								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_money3.png')} />									
+									<ImgDomain fileWidth={45} fileName={'b_money3.png'}/>
 									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
 										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>집안 자산 배지</Text>
 										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
@@ -367,8 +368,8 @@ const MyBadge = (props) => {
 									<View style={styles.stateView}>
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
-								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+								) : (									
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
@@ -383,7 +384,7 @@ const MyBadge = (props) => {
 								}}
 							>
 								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_car.png')} />
+									<ImgDomain fileWidth={45} fileName={'b_car.png'}/>
 									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
 										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>차량 배지</Text>
 										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
@@ -394,7 +395,7 @@ const MyBadge = (props) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 						</View>
@@ -416,7 +417,7 @@ const MyBadge = (props) => {
 								}}
 							>
 								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_job.png')} />
+									<ImgDomain fileWidth={45} fileName={'b_job.png'}/>
 									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
 										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>직업 배지</Text>
 										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
@@ -427,7 +428,7 @@ const MyBadge = (props) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
@@ -442,7 +443,7 @@ const MyBadge = (props) => {
 								}}
 							>
 								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_school.png')} />
+									<ImgDomain fileWidth={45} fileName={'b_school.png'}/>
 									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
 										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>학력 배지</Text>
 										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
@@ -453,7 +454,7 @@ const MyBadge = (props) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 						</View>
@@ -487,7 +488,7 @@ const MyBadge = (props) => {
 								offBadgeModal();								
 							}}						
 						>
-							<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
 					</View>					
 					<ScrollView>
@@ -519,10 +520,10 @@ const MyBadge = (props) => {
 										}}
 									>
 										<View style={[styles.badgeBtnLeft]}>
-											{badgeGrade!= '' && badgeGrade != 'silver' ? (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_silver_off.png')} />
-											) : (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_silver.png')} />	
+											{badgeGrade!= '' && badgeGrade != 'silver' ? (												
+												<ImgDomain fileWidth={45} fileName={'b_silver_off.png'}/>
+											) : (												
+												<ImgDomain fileWidth={45} fileName={'b_silver.png'}/>
 											)}
 											<View style={styles.badgeBtnLeftWrap}>
 												<Text style={[
@@ -558,10 +559,10 @@ const MyBadge = (props) => {
 										}}
 									>
 										<View style={[styles.badgeBtnLeft]}>
-											{badgeGrade!= '' && badgeGrade != 'gold' ? (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_gold_off.png')} />
+											{badgeGrade!= '' && badgeGrade != 'gold' ? (												
+												<ImgDomain fileWidth={45} fileName={'b_gold_off.png'}/>
 											) : (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_gold.png')} />	
+												<ImgDomain fileWidth={45} fileName={'b_gold.png'}/>
 											)}
 											<View style={styles.badgeBtnLeftWrap}>
 												<Text style={[
@@ -597,10 +598,10 @@ const MyBadge = (props) => {
 										}}
 									>
 										<View style={[styles.badgeBtnLeft]}>
-											{badgeGrade!= '' && badgeGrade != 'dia' ? (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_diamond_off.png')} />
+											{badgeGrade!= '' && badgeGrade != 'dia' ? (												
+												<ImgDomain fileWidth={45} fileName={'b_diamond_off.png'}/>
 											) : (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_diamond.png')} />	
+												<ImgDomain fileWidth={45} fileName={'b_diamond.png'}/>
 											)}
 											<View style={styles.badgeBtnLeftWrap}>
 												<Text style={[
@@ -662,7 +663,7 @@ const MyBadge = (props) => {
 									<Text style={styles.iptSubTitText}>제출 자료명</Text>									
 								</View>
 								<View style={[styles.exampleBox, styles.mgt8]}>
-									<AutoHeightImage width={innerWidth} source={require('../../assets/image/example.jpg')} />
+									<ImgDomain fileWidth={innerWidth} fileName={'example.jpg'}/>
 								</View>
 								<View style={styles.exampleBoxDesc}>
 									<Text style={styles.exampleBoxDescText}>성함, 금액 등의 필수로 노출되어야 합니다</Text>
@@ -694,8 +695,8 @@ const MyBadge = (props) => {
 											onPress={() => {
 												setFile({});
 											}}
-										>
-											<AutoHeightImage width={24} source={require('../../assets/image/icon_trash.png')} />
+										>											
+											<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
 										</TouchableOpacity>
 									</View>
 								) : (
@@ -705,7 +706,7 @@ const MyBadge = (props) => {
 											activeOpacity={opacityVal}
 											onPress={() => {chooseImage()}}
 										>
-											<AutoHeightImage width={18} source={require('../../assets/image/icon_upload.png')} />
+											<ImgDomain fileWidth={18} fileName={'icon_upload.png'}/>
 											<Text style={styles.uploadBoxBtnText}>사진 업로드</Text>
 										</TouchableOpacity>
 										<View style={styles.uploadBoxDesc}>
@@ -751,7 +752,7 @@ const MyBadge = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setDeletePop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
               <Text style={styles.popTitleText}>인증 항목을 삭제하시겠어요?</Text>
@@ -797,10 +798,7 @@ const MyBadge = (props) => {
 							setPreventBack(false);
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>		
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>심사 등록</Text>
