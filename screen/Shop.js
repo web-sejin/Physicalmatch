@@ -190,7 +190,7 @@ const Shop = (props) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			<Header navigation={navigation} />
+			<Header navigation={navigation} headertitle={'상점'} />
 
       <View style={styles.viewTab}>
         <TouchableOpacity

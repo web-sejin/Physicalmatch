@@ -47,6 +47,7 @@ const CommunityView = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState(2); //1=>호스트, 2=>게스트
+  const [userType2, setUserType2] = useState(0); //1=>정회원, 2=>비회원
 
   const [dotPop, setDotPop] = useState(false);
   const [reportPop, setReportPop] = useState(false);
@@ -619,7 +620,9 @@ const CommunityView = (props) => {
                 </View>
                 
                 <View style={styles.reviewWrap}>
-                  {/* <BlurView 
+                  {userType2 == 0 ? (
+                  <>
+                  <BlurView
                     style={styles.blurView}
                     blurType="light"
                     blurAmount={3}
@@ -627,7 +630,9 @@ const CommunityView = (props) => {
                   <View style={styles.blurAlert}>
                     <Text style={styles.blurAlertText}>댓글은 정회원만</Text>
                     <Text style={styles.blurAlertText}>작성 및 열람이 가능합니다.</Text>
-                  </View> */}
+                  </View>
+                  </>
+                  ) : null}
                   <View style={styles.cmView}>
                     <View style={[styles.reviewDepth, styles.mgt0]}>
                       <AutoHeightImage width={28} source={require("../../assets/image/profile_sample2.png")} />                
@@ -804,6 +809,7 @@ const CommunityView = (props) => {
                     placeholderTextColor="#B8B8B8"
                     style={styles.reviewIpt}
                     returnKyeType='done'
+                    readOnly={userType2 == 0 ? true : false}
                   />                
                 ) : (
                   <>
@@ -835,7 +841,13 @@ const CommunityView = (props) => {
                 <TouchableOpacity
                   style={styles.reviewSubmitBtn}
                   activeOpacity={opacityVal}
-                  onPress={()=>{}}
+                  onPress={()=>{
+                    if(userType2 == 0){
+                      ToastMessage('정회원만 댓글 작성이 가능합니다.');
+                    }else{
+  
+                    }
+                  }}
                 >
                   <Text style={styles.reviewSubmitBtnText}>등록</Text>
                 </TouchableOpacity>

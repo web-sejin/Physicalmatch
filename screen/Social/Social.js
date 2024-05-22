@@ -13,6 +13,7 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -222,7 +223,7 @@ const Social = (props) => {
 				}}
 			>
 				<View style={styles.socialLiThumb}>
-					<AutoHeightImage width={65} source={require('../../assets/image/social_basic1.jpg')} />
+					<ImgDomain fileWidth={65} fileName={'social_basic1.jpg'}/>
 				</View>
 				<View style={styles.socialLiInfo}>
 					<View style={styles.socialLiInfo1}>
@@ -238,13 +239,13 @@ const Social = (props) => {
 					</View>
 					<View style={styles.socialLiInfo3}>
 						<View style={styles.socialLiInfo3Flex}>
-							<AutoHeightImage width={10} source={require('../../assets/image/icon_local.png')} />
+							<ImgDomain fileWidth={10} fileName={'icon_local.png'}/>
 							<Text style={styles.socialLiInfo3Text}>{item.loc}</Text>
 						</View>
 						<View style={styles.socialLiInfo3Line}></View>
 						<View style={styles.socialLiInfo3Flex}>
 							<View style={styles.socialLiInfoProfile}>
-								<AutoHeightImage width={20} source={require('../../assets/image/profile_sample.png')} />
+								<ImgDomain fileWidth={20} fileName={'profile_sample.png'}/>
 							</View>
 							<Text style={styles.socialLiInfo3Text}>{item.age}·{item.gender}</Text>
 						</View>
@@ -379,22 +380,22 @@ const Social = (props) => {
 							activeOpacity={opacityVal}
 							onPress={() => navigation.navigate('MySocial')}
 						>
-							<AutoHeightImage width={24} source={require('../../assets/image/icon_mysocial.png')} />
+							<ImgDomain fileWidth={24} fileName={'icon_mysocial.png'}/>
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
 							onPress={() => {navigation.navigate('Shop')}}					
 						>
-							<AutoHeightImage width={24} source={require('../../assets/image/icon_shop.png')} />
+							<ImgDomain fileWidth={24} fileName={'icon_shop.png'}/>
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
 							onPress={() => {navigation.navigate('Alim')}}
 						>
-							<AutoHeightImage width={24} source={require('../../assets/image/icon_alim_off.png')} />
-							{/* <AutoHeightImage width={24} source={require('../assets/image/icon_alim_on.png')} /> */}
+							<ImgDomain fileWidth={24} fileName={'icon_alim_off.png'}/>
+							{/* <ImgDomain fileWidth={24} fileName={'icon_alim_on.png'}/> */}
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -470,14 +471,14 @@ const Social = (props) => {
 								activeOpacity={opacityVal}
 								onPress={()=>{}}
 							>
-								<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+								<ImgDomain fileWidth={widnowWidth} fileName={'social_banner.png'}/>
 							</TouchableOpacity>
 							<TouchableOpacity 
 								style={styles.commuBanner}
 								activeOpacity={opacityVal}
 								onPress={()=>{}}
 							>
-								<AutoHeightImage width={widnowWidth} source={require('../../assets/image/social_banner.png')}	/>
+								<ImgDomain fileWidth={widnowWidth} fileName={'social_banner.png'}/>
 							</TouchableOpacity>
 						</Swiper>
 					</View>
@@ -491,7 +492,7 @@ const Social = (props) => {
 								activeOpacity={opacityVal}
 								onPress={()=>socialSearch()}
 							>
-								<AutoHeightImage width={28} source={require('../../assets/image/icon_sch.png')} />
+								<ImgDomain fileWidth={28} fileName={'icon_sch.png'}/>
 							</TouchableOpacity>
 							<TextInput
 								value={socialSch}
@@ -505,7 +506,7 @@ const Social = (props) => {
 							activeOpacity={opacityVal}
 							onPress={()=>setFilterPop(true)}
 						>
-							<AutoHeightImage width={28} source={require('../../assets/image/icon_option2.png')} />
+							<ImgDomain fileWidth={28} fileName={'icon_option2.png'}/>
 						</TouchableOpacity>
 					</View>
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -533,7 +534,7 @@ const Social = (props) => {
         activeOpacity={opacityVal}
         onPress={()=>{navigation.navigate('SocialType')}}
       >
-        <AutoHeightImage width={60} source={require('../../assets/image/icon_write.png')} />
+				<ImgDomain fileWidth={60} fileName={'icon_write.png'}/>
       </TouchableOpacity>
 			) : null}
 
@@ -551,15 +552,15 @@ const Social = (props) => {
 						onPress={() => {
 							setFilterPop(false);
 						}}						
-					>
-						<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+					>						
+						<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 					</TouchableOpacity>		
 					<TouchableOpacity 
 						style={styles.filterResetBtn}
 						activeOpacity={opacityVal}
 						onPress={()=>{console.log('초기화 작업 진행!!')}}
 					>
-						<AutoHeightImage width={13} source={require('../../assets/image/icon_refresh.png')} />	
+						<ImgDomain fileWidth={13} fileName={'icon_refresh.png'}/>
 						<Text style={styles.filterResetText}>초기화</Text>
 					</TouchableOpacity>				
 				</View>
@@ -764,7 +765,7 @@ const Social = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setOverPop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
 							<Text style={styles.popTitleText}>이미 매칭된 이성이</Text>
@@ -774,7 +775,7 @@ const Social = (props) => {
 							<View styles={styles.popTitleDescFlexView}>
 								<Text style={[styles.popTitleDesc, styles.popTitleDescFlexDesc, styles.mgt0]}>다른 소셜에 참여 신청해주세요</Text>
 							</View>
-							<AutoHeightImage width={14} source={require('../../assets/image/emoticon5.png')} />
+							<ImgDomain fileWidth={14} fileName={'emoticon5.png'}/>
 						</View>
 						<View style={styles.popBtnBox}>
 							<TouchableOpacity 

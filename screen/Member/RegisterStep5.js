@@ -18,6 +18,7 @@ import DraggableFlatList, {
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -529,7 +530,7 @@ const RegisterStep5 = ({navigation, route}) => {
 
 	const renderItem = ({ item, drag, isActive }: RenderItemParams<Item>) => {
     return (
-      <ScaleDecorator>
+      // <ScaleDecorator>
         <View style={[styles.exeSortCont]}>
 					<TouchableOpacity
 						style={styles.exeSortContBtn1}
@@ -538,10 +539,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							removeSport(item.key);
 						}}
 					>
-						<AutoHeightImage
-							width={22}
-							source={require("../../assets/image/icon_minus1.png")}
-						/>									
+						<ImgDomain fileWidth={22} fileName={'icon_minus1.png'} />						
 					</TouchableOpacity>
 					<View style={styles.exeSortContBox}>
 						<Text style={[styles.exeSortContBoxText, styles.exeSortContBoxText1]}>{item.period} {item.day}일</Text>
@@ -550,15 +548,12 @@ const RegisterStep5 = ({navigation, route}) => {
 					<TouchableOpacity
 						style={styles.exeSortContBtn2}
 						activeOpacity={opacityVal}		
-						onLongPress={drag}							
+						onPressIn={drag}							
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/icon_chg.png")}
-						/>									
+						<ImgDomain fileWidth={18} fileName={'icon_chg.png'}/>
 					</TouchableOpacity>
 				</View>
-      </ScaleDecorator>
+      // </ScaleDecorator>
     );
   };
 											
@@ -692,7 +687,7 @@ const RegisterStep5 = ({navigation, route}) => {
 				}
 
 				if(exeDay == '0'){
-					ToastMessage('0일 이상의 수를 입력해 주세요.');
+					ToastMessage('0일 이상을 입력해 주세요.');
 					return false;
 				}
 
@@ -700,6 +695,12 @@ const RegisterStep5 = ({navigation, route}) => {
 					ToastMessage('종목을 선택해 주세요.');
 					return false;
 				}
+
+				const sportAryChk = exeList.find(it => it.sort == exeSport);
+				if(sportAryChk){
+					ToastMessage('이미 선택한 종목입니다.\n다른 종목을 선택해 주세요.');
+					return false;
+				}				
 				
 				const keyOd = (exeList.length)+1;
 				let exeAddList = {key : keyOd, period : exePeri, day : exeDay, sort : exeSport};
@@ -854,19 +855,15 @@ const RegisterStep5 = ({navigation, route}) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realNick ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon1_2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon1_2.png'}/>
 							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon1.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon1.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>닉네임</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
 							<Text style={styles.regiStep5BtnRightText}>{realNick}</Text>
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 
@@ -880,9 +877,9 @@ const RegisterStep5 = ({navigation, route}) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realGender == 1 || realGender == 2 ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon2_2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon2_2.png'}/>
 							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon2.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>성별</Text>
 						</View>
@@ -894,11 +891,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									<Text style={styles.regiStep5BtnRightText}>여자</Text>
 								)
 							)}
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 
@@ -912,19 +905,15 @@ const RegisterStep5 = ({navigation, route}) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realLocal1 ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon3_2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon3_2.png'}/>
 							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon3.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon3.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>지역</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
 							<Text style={styles.regiStep5BtnRightText}>{realLocal1}</Text>
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 
@@ -938,19 +927,15 @@ const RegisterStep5 = ({navigation, route}) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realClass ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon4_2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon4_2.png'}/>
 							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon4.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon4.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>최종학력</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
 							<Text style={styles.regiStep5BtnRightText}>{realClass} {realClass2}</Text>
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 
@@ -967,19 +952,15 @@ const RegisterStep5 = ({navigation, route}) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realJob ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon5_2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon5_2.png'}/>
 							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon5.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon5.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>직업</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
 							<Text style={styles.regiStep5BtnRightText}>{realJob}</Text>
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 
@@ -1001,9 +982,9 @@ const RegisterStep5 = ({navigation, route}) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realHeight ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon6_2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon6_2.png'}/>
 							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon6.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon6.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>피지컬</Text>
 						</View>
@@ -1011,11 +992,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							{realHeight ? (
 							<Text style={styles.regiStep5BtnRightText}>{realHeight}</Text>
 							) : null}
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 
@@ -1033,9 +1010,9 @@ const RegisterStep5 = ({navigation, route}) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{exeRest || realExeList.length > 0 ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon7_2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon7_2.png'}/>
 							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon7.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon7.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>운동</Text>
 						</View>
@@ -1047,11 +1024,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							{realExeList.length > 0 ? (
 							<Text style={styles.regiStep5BtnRightText}>{realExeList.length}가지 선택</Text>
 							) : null}
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 
@@ -1068,19 +1041,15 @@ const RegisterStep5 = ({navigation, route}) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realPhyAryCnt >= 2 ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon8_2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon8_2.png'}/>
 							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon8.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon8.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>체형</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
 							<Text style={styles.regiStep5BtnRightText}>{realPhyAryCnt}가지 선택</Text>
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 
@@ -1093,10 +1062,10 @@ const RegisterStep5 = ({navigation, route}) => {
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
-							{realDrink != '' && realSmoke != '' ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon9_2.png")} style={styles.introArr} />
-							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon9.png")} style={styles.introArr} />
+							{realDrink != '' && realSmoke != '' ? (								
+								<ImgDomain fileWidth={24} fileName={'icon9_2.png'}/>
+							) : (								
+								<ImgDomain fileWidth={24} fileName={'icon9.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>음주 · 흡연</Text>
 						</View>
@@ -1104,11 +1073,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							{realDrink != '' && realSmoke != '' ? (
 							<Text style={styles.regiStep5BtnRightText}>입력완료</Text>	
 							) : null}
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 
@@ -1131,18 +1096,15 @@ const RegisterStep5 = ({navigation, route}) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realMbti1 && realMbti2 && realMbti3 && realMbti4 ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon10_2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon10_2.png'}/>								
 							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon10.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon10.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>MBTI</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
 							<Text style={styles.regiStep5BtnRightText}>{realMbti1}{realMbti2}{realMbti3}{realMbti4}</Text>
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}							
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 
@@ -1156,19 +1118,15 @@ const RegisterStep5 = ({navigation, route}) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realRel ? (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon11_2.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon11_2.png'}/>
 							) : (
-								<AutoHeightImage width={24} source={require("../../assets/image/icon11.png")} style={styles.introArr} />
+								<ImgDomain fileWidth={24} fileName={'icon11.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>종교</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
 							<Text style={styles.regiStep5BtnRightText}>{realRel}</Text>
-							<AutoHeightImage
-								width={20}
-								source={require("../../assets/image/icon_arr1.png")}
-								style={styles.introArr}
-							/>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 				</View>		
@@ -1208,10 +1166,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									setPreventBack(false);
 								}}
 							>
-								<AutoHeightImage
-									width={18}
-									source={require("../../assets/image/popup_x.png")}
-								/>
+								<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 							</TouchableOpacity>		
 							<View style={styles.popTitle}>
 								<Text style={styles.popTitleText}>닉네임을 입력해 주세요</Text>
@@ -1269,10 +1224,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setPreventBack(false);
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>			
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>성별을 선택해 주세요</Text>
@@ -1326,10 +1278,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setPreventBack(false);
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>		
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>활동 지역을 입력해 주세요</Text>
@@ -1403,10 +1352,7 @@ const RegisterStep5 = ({navigation, route}) => {
 						setPreventBack(false);
 					}}
 				>
-					<AutoHeightImage
-						width={18}
-						source={require("../../assets/image/popup_x.png")}
-					/>
+					<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 				</TouchableOpacity>
 				<Postcode
 					style={{ width: innerWidth-40, height: innerHeight-90, }}
@@ -1449,10 +1395,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setPreventBack(false);
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>			
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>최종 학력을 입력해 주세요</Text>
@@ -1524,10 +1467,7 @@ const RegisterStep5 = ({navigation, route}) => {
 								setPreventBack(false);
 							}}
 						>
-							<AutoHeightImage
-								width={18}
-								source={require("../../assets/image/popup_x.png")}
-							/>
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>	
 						<View style={[styles.popTitle, styles.popTitleJob]}>
 							<Text style={styles.popTitleText}>어떤 일을 하시나요?</Text>
@@ -1749,10 +1689,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setPreventBack(false);
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>			
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>피지컬을 입력해 주세요</Text>
@@ -1792,15 +1729,9 @@ const RegisterStep5 = ({navigation, route}) => {
 									onPress={() => {setNoWeight(!noWeight)}}
 								>
 									{noWeight ? (
-										<AutoHeightImage
-											width={20}
-											source={require("../../assets/image/icon_chk3.png")}
-										/>
+										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
 									) : (
-										<AutoHeightImage
-											width={20}
-											source={require("../../assets/image/icon_chk2.png")}
-										/>
+										<ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
 									)}
 									<Text style={styles.notPickBtnText}>선택안함</Text>
 								</TouchableOpacity>
@@ -1832,15 +1763,9 @@ const RegisterStep5 = ({navigation, route}) => {
 									onPress={() => {setNoMuscle(!noMuscle)}}
 								>
 									{noMuscle ? (
-										<AutoHeightImage
-											width={20}
-											source={require("../../assets/image/icon_chk3.png")}
-										/>
+										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
 									) : (
-										<AutoHeightImage
-											width={20}
-											source={require("../../assets/image/icon_chk2.png")}
-										/>
+										<ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
 									)}
 									<Text style={styles.notPickBtnText}>선택안함</Text>
 								</TouchableOpacity>
@@ -1872,15 +1797,9 @@ const RegisterStep5 = ({navigation, route}) => {
 									onPress={() => {setNoFat(!noFat)}}
 								>
 									{noFat ? (
-										<AutoHeightImage
-											width={20}
-											source={require("../../assets/image/icon_chk3.png")}
-										/>
+										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
 									) : (
-										<AutoHeightImage
-											width={20}
-											source={require("../../assets/image/icon_chk2.png")}
-										/>
+										<ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
 									)}
 									<Text style={styles.notPickBtnText}>선택안함</Text>
 								</TouchableOpacity>
@@ -1947,10 +1866,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setExeSport('');
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>			
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>어떤 운동을 하시나요?</Text>
@@ -1963,10 +1879,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									style={styles.exeAddBtn}
 									activeOpacity={1}
 								>
-									<AutoHeightImage
-										width={11}
-										source={require("../../assets/image/icon_plus2.png")}
-									/>
+									<ImgDomain fileWidth={11} fileName={'icon_plus2.png'}/>
 									<Text style={[styles.exeAddBtnText, styles.gray2]}>추가</Text>
 								</TouchableOpacity>
 							) : (
@@ -1978,10 +1891,7 @@ const RegisterStep5 = ({navigation, route}) => {
 										setExeRest(false);
 									}}
 								>
-									<AutoHeightImage
-										width={11}
-										source={require("../../assets/image/icon_plus1.png")}
-									/>
+									<ImgDomain fileWidth={11} fileName={'icon_plus1.png'}/>
 									<Text style={styles.exeAddBtnText}>추가</Text>
 								</TouchableOpacity>
 							)}
@@ -2010,10 +1920,7 @@ const RegisterStep5 = ({navigation, route}) => {
 								}}
 							>
 								<View style={[styles.restBtnChk, exeRest ? styles.restBtnChkOn : null]}>
-									<AutoHeightImage
-										width={10}
-										source={require("../../assets/image/icon_chk1.png")}
-									/>
+									<ImgDomain fileWidth={10} fileName={'icon_chk1.png'}/>
 								</View>
 								<Text style={styles.restBtnText}>운동을 쉬고 있어요</Text>
 							</TouchableOpacity>
@@ -2058,10 +1965,7 @@ const RegisterStep5 = ({navigation, route}) => {
 											activeOpacity={opacityVal}
 											onPress={() => {periCount('minus')}}
 										>
-											<AutoHeightImage
-												width={18}
-												source={require("../../assets/image/icon_minus2.png")}
-											/>
+											<ImgDomain fileWidth={18} fileName={'icon_minus2.png'}/>
 										</TouchableOpacity>
 										<TextInput
 										value={exeDay}
@@ -2081,10 +1985,7 @@ const RegisterStep5 = ({navigation, route}) => {
 											activeOpacity={opacityVal}
 											onPress={() => {periCount('plus')}}
 										>
-											<AutoHeightImage
-												width={18}
-												source={require("../../assets/image/icon_plus3.png")}
-											/>
+											<ImgDomain fileWidth={18} fileName={'icon_plus3.png'}/>
 										</TouchableOpacity>
 										<Text style={styles.periDayUnit}>일</Text>
 									</View>
@@ -2148,10 +2049,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setPreventBack(false);
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>			
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>체형을 선택해 주세요</Text>
@@ -2210,10 +2108,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setPreventBack(false);
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>			
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>음주 · 흡연을 즐기시나요?</Text>
@@ -2311,10 +2206,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setPreventBack(false);
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>			
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>나의 성격 유형</Text>
@@ -2368,17 +2260,13 @@ const RegisterStep5 = ({navigation, route}) => {
 									}}
 								>
 									{mbti2 != '' ? (
-										<AutoHeightImage
-											width={30}
-											source={require("../../assets/image/mbti_1_on.png")}
-											style={styles.popRadioBoxBtn4Img}
-										/>
+										<View style={styles.popRadioBoxBtn4Img}>
+											<ImgDomain fileWidth={30} fileName={'mbti_1_on.png'}/>
+										</View>
 									) : (
-										<AutoHeightImage
-											width={30}
-											source={require("../../assets/image/mbti_1.png")}
-											style={styles.popRadioBoxBtn4Img}
-										/>
+										<View style={styles.popRadioBoxBtn4Img}>
+											<ImgDomain fileWidth={30} fileName={'mbti_1.png'}/>
+										</View>
 									)}
 									<Text style={[styles.popRadioBoxBtn4TextDesc, mbti2 != '' ? styles.popRadioBoxBtnTextOn : null]}>거의</Text>
 									<Text style={[styles.popRadioBoxBtn4TextDesc, mbti2 != '' ? styles.popRadioBoxBtnTextOn : null]}>반반이예요</Text>
@@ -2432,18 +2320,14 @@ const RegisterStep5 = ({navigation, route}) => {
 										}
 									}}
 								>
-									{mbti4 != '' ? (
-										<AutoHeightImage
-											width={30}
-											source={require("../../assets/image/mbti_2_on.png")}
-											style={styles.popRadioBoxBtn4Img}
-										/>
+									{mbti4 != '' ? (										
+										<View style={styles.popRadioBoxBtn4Img}>
+											<ImgDomain fileWidth={30} fileName={'mbti_2_on.png'}/>
+										</View>
 									) : (
-										<AutoHeightImage
-											width={30}
-											source={require("../../assets/image/mbti_2.png")}
-											style={styles.popRadioBoxBtn4Img}
-										/>
+										<View style={styles.popRadioBoxBtn4Img}>
+											<ImgDomain fileWidth={30} fileName={'mbti_2.png'}/>
+										</View>
 									)}
 									<Text style={[styles.popRadioBoxBtn4TextDesc, mbti4 != '' ? styles.popRadioBoxBtnTextOn : null]}>거의</Text>
 									<Text style={[styles.popRadioBoxBtn4TextDesc, mbti4 != '' ? styles.popRadioBoxBtnTextOn : null]}>반반이예요</Text>
@@ -2498,17 +2382,13 @@ const RegisterStep5 = ({navigation, route}) => {
 									}}
 								>
 									{mbti6 != '' ? (
-										<AutoHeightImage
-											width={30}
-											source={require("../../assets/image/mbti_3_on.png")}
-											style={styles.popRadioBoxBtn4Img}
-										/>
+										<View style={styles.popRadioBoxBtn4Img}>
+											<ImgDomain fileWidth={30} fileName={'mbti_3_on.png'}/>
+										</View>
 									) : (
-										<AutoHeightImage
-											width={30}
-											source={require("../../assets/image/mbti_3.png")}
-											style={styles.popRadioBoxBtn4Img}
-										/>
+										<View style={styles.popRadioBoxBtn4Img}>
+											<ImgDomain fileWidth={30} fileName={'mbti_3.png'}/>
+										</View>
 									)}
 									<Text style={[styles.popRadioBoxBtn4TextDesc, mbti6 != '' ? styles.popRadioBoxBtnTextOn : null]}>거의</Text>
 									<Text style={[styles.popRadioBoxBtn4TextDesc, mbti6 != '' ? styles.popRadioBoxBtnTextOn : null]}>반반이예요</Text>
@@ -2563,17 +2443,13 @@ const RegisterStep5 = ({navigation, route}) => {
 									}}
 								>
 									{mbti8 != '' ? (
-										<AutoHeightImage
-											width={30}
-											source={require("../../assets/image/mbti_4_on.png")}
-											style={styles.popRadioBoxBtn4Img}
-										/>
+										<View style={styles.popRadioBoxBtn4Img}>
+											<ImgDomain fileWidth={30} fileName={'mbti_4_on.png'}/>
+										</View>
 									) : (
-										<AutoHeightImage
-											width={30}
-											source={require("../../assets/image/mbti_4.png")}
-											style={styles.popRadioBoxBtn4Img}
-										/>
+										<View style={styles.popRadioBoxBtn4Img}>
+											<ImgDomain fileWidth={30} fileName={'mbti_4.png'}/>
+										</View>
 									)}
 									<Text style={[styles.popRadioBoxBtn4TextDesc, mbti8 != '' ? styles.popRadioBoxBtnTextOn : null]}>거의</Text>
 									<Text style={[styles.popRadioBoxBtn4TextDesc, mbti8 != '' ? styles.popRadioBoxBtnTextOn : null]}>반반이예요</Text>
@@ -2615,10 +2491,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setPreventBack(false);							
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>			
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>종교를 선택해 주세요</Text>

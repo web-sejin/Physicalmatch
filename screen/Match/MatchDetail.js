@@ -6,13 +6,13 @@ import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/n
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import Swiper from 'react-native-web-swiper';
+import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import Toast from 'react-native-toast-message';
 import Clipboard from '@react-native-clipboard/clipboard';
 
 import Font from "../../assets/common/Font";
-import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -46,6 +46,13 @@ const MatchDetail = (props) => {
     {idx:11, txt:'형제'},
   ]
 
+  const swp = [
+    {idx:1, imgUrl:''},
+    {idx:2, imgUrl:''},
+    {idx:3, imgUrl:''},
+    {idx:4, imgUrl:''},
+  ]
+
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
@@ -55,6 +62,7 @@ const MatchDetail = (props) => {
 	const [keyboardHeight, setKeyboardHeight] = useState(0);
 	const [currFocus, setCurrFocus] = useState('');	
 	const [preventBack, setPreventBack] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const swiperRef = useRef(null);
   const etcRef = useRef(null);
@@ -90,6 +98,10 @@ const MatchDetail = (props) => {
   const [socialState, setSocialState] = useState(0); //1::수락, 2:거절
   const [numberTradePop, setNumberTradePop] = useState(false);
   const [numberTradePop2, setNumberTradePop2] = useState(false);
+  
+  const [swiperList, setSwiperList] = useState([]);
+  const [warterList, setWarterList] = useState([]);
+  const [phoneNumber, setPhoneNumber] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -97,9 +109,9 @@ const MatchDetail = (props) => {
 
 		if(!isFocused){
 
-		}else{
+		}else{      
 			setRouteLoad(true);
-			setPageSt(!pageSt);
+			setPageSt(!pageSt);      
 		}
 
     Keyboard.dismiss();
@@ -157,6 +169,22 @@ const MatchDetail = (props) => {
   }, [currFocus]);
 
   useEffect(() => {
+    setLoading(true);
+    setPhoneNumber('01000000000');
+    setSwiperList(swp);
+
+    let warterAry = [];
+    for(let i=0; i<50; i++){
+      warterAry = [...warterAry, {order:i}];
+    }
+    setWarterList(warterAry);
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  }, []);
+
+  useEffect(() => {
     if(report != ''){
       if(report == '기타'){
         setTimeout(function(){
@@ -166,7 +194,7 @@ const MatchDetail = (props) => {
         setReportEtc('');
       }
     }
-  }, [report])
+  }, [report]);
 
   const fnReview = (v) => {
     setReviewScore(v);
@@ -277,7 +305,7 @@ const MatchDetail = (props) => {
  
   const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
-	const behavior = Platform.OS === "ios" ? "padding" : "height";
+	const behavior = Platform.OS === "ios" ? "padding" : "height";  
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
@@ -287,85 +315,65 @@ const MatchDetail = (props) => {
           style={styles.DetailBackBtn} 
           activeOpacity={opacityVal}
           >
-          <AutoHeightImage width={8} source={require("../../assets/image/icon_header_back2.png")} />
+          <ImgDomain fileWidth={8} fileName={'icon_header_back2.png'}/>
         </TouchableOpacity>
         <TouchableOpacity 
           onPress={() => {setDotPop(true)}} 
           style={styles.DetailDotBtn} 
           activeOpacity={opacityVal}
-          >
-          <AutoHeightImage width={24} source={require("../../assets/image/icon_hd_dot.png")} />
+        >
+          <ImgDomain fileWidth={24} fileName={'icon_hd_dot.png'}/>
         </TouchableOpacity>
 
         <View style={styles.swiperView}>
-					<Swiper					
-						ref={swiperRef}	
-            controlsProps={{
-              prevTitle: '',
-              nextTitle: '',
-              dotsTouchable: true,
-              DotComponent: ({ index, activeIndex, isActive, onPress }) => <View style={[styles.swiperDot, isActive ? styles.swiperDotOn : null]} onPress={onPress}></View>              
+          <SwiperFlatList
+            ref={swiperRef}
+            //autoplay
+            //autoplayDelay={2}
+            //autoplayLoop
+            index={0}
+            showPagination
+            paginationStyle={{alignItems:'center',justifyContent:'center',gap:5,}}
+            paginationStyleItem={{width:10,height:4,backgroundColor:'#fff',borderRadius:50,opacity:0.3,margin:0,marginHorizontal:0}}
+            paginationStyleItemActive={{width:20,opacity:1,}}
+            paginationStyleItemInactive={{backgroundColor:'#fff',opacity:0.3,}}
+            data={swiperList}
+            onChangeIndex={(obj) => {
+              setActiveDot(obj.index);
             }}
-						onIndexChanged={(e) => {
-							//console.log(e);
-							setActiveDot(e);
-						}}
-					>
-						<View style={styles.swiperWrap}>
-							<AutoHeightImage width={widnowWidth} source={require("../../assets/image/sample.jpg")} />
-						</View>
-						<View style={styles.swiperWrap}>
-							<AutoHeightImage width={widnowWidth} source={require("../../assets/image/sample.jpg")} />
-						</View>
-						<View style={styles.swiperWrap}>
-							<AutoHeightImage width={widnowWidth} source={require("../../assets/image/sample.jpg")} />
-						</View>
-            <View style={styles.swiperWrap}>
-							<AutoHeightImage width={widnowWidth} source={require("../../assets/image/sample.jpg")} />
-						</View>
-					</Swiper>
+            renderItem={({ item, index }) => (
+              <View key={index} style={styles.swiperWrap}>                
+                <ImgDomain fileWidth={widnowWidth} fileName={'sample.jpg'}/>
+                <View style={styles.warterMark}>
+                  <View style={styles.warterMarkWrap}>
+                    {warterList.map((item2, index2) => {
+                      return (
+                        <View key={index2} style={styles.warterMarkView}><Text style={styles.warterMarkText}>{phoneNumber}</Text></View>
+                      )
+                    })}                    
+                  </View>
+                </View>
+              </View>
+            )}
+          />
 				</View>
 				<View style={styles.pagination}>
-					<TouchableOpacity
-						style={[styles.paginationBtn, activeDot == 0 ? styles.paginationActive : null]}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setActiveDot(0);
-							swiperRef.current.goTo(0);
-						}}
-					>
-						<AutoHeightImage width={46} source={require("../../assets/image/sample.jpg")} style={[styles.paginationImg]} />
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={[styles.paginationBtn, activeDot == 1 ? styles.paginationActive : null]}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setActiveDot(1);
-							swiperRef.current.goTo(1);
-						}}
-					>
-            <AutoHeightImage width={46} source={require("../../assets/image/sample.jpg")} style={[styles.paginationImg]} />
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={[styles.paginationBtn, activeDot == 2 ? styles.paginationActive : null]}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setActiveDot(2);
-							swiperRef.current.goTo(2);
-						}}
-					>
-						<AutoHeightImage width={46} source={require("../../assets/image/sample.jpg")} style={[styles.paginationImg]} />
-					</TouchableOpacity>
-          <TouchableOpacity
-						style={[styles.paginationBtn, activeDot == 3 ? styles.paginationActive : null]}
-						activeOpacity={opacityVal}
-						onPress={() => {
-							setActiveDot(3);
-							swiperRef.current.goTo(3);
-						}}
-					>
-						<AutoHeightImage width={46} source={require("../../assets/image/sample.jpg")} style={[styles.paginationImg]} />
-					</TouchableOpacity>
+          {swiperList.map((item, index) => {
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[styles.paginationBtn, activeDot == index ? styles.paginationActive : null]}
+                activeOpacity={opacityVal}
+                onPress={() => {
+                  swiperRef.current.scrollToIndex({index:index})
+                }}
+              >
+                <View style={[styles.paginationImg]}>
+                  <ImgDomain fileWidth={46} fileName={'sample.jpg'}/>
+                </View>
+              </TouchableOpacity>
+            )
+          })}
 				</View>
 
         <View style={styles.detailInfo1}>
@@ -375,10 +383,10 @@ const MatchDetail = (props) => {
               <Text style={styles.detailInfo1ViewAge}><Text style={styles.roboto}>1999</Text>년생</Text>
             </View>
             <View style={styles.detailInfo1BadgeBox}>
-              <AutoHeightImage width={45} source={require('../../assets/image/b_money2_1.png')} style={styles.detailInfo1Badge} />
-              <AutoHeightImage width={45} source={require('../../assets/image/b_money1_2.png')} style={styles.detailInfo1Badge} />
-              <AutoHeightImage width={45} source={require('../../assets/image/b_car3.png')} style={styles.detailInfo1Badge} />
-              <AutoHeightImage width={45} source={require('../../assets/image/b_school1.png')} style={styles.detailInfo1Badge} />
+              <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_money2_1.png'}/></View>
+              <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_money1_2.png'}/></View>
+              <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_car3.png'}/></View>
+              <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_school1.png'}/></View>
             </View>
             <TouchableOpacity
               style={styles.zzimBtn}
@@ -386,9 +394,9 @@ const MatchDetail = (props) => {
               onPress={() => {setZzim(!zzim)}}
             >
               {zzim ? (
-                <AutoHeightImage width={18} source={require('../../assets/image/icon_zzim_on.png')} />
+                <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
               ) : (
-                <AutoHeightImage width={18} source={require('../../assets/image/icon_zzim_off.png')} />
+                <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
               )}              
             </TouchableOpacity>
           </View>
@@ -444,10 +452,10 @@ const MatchDetail = (props) => {
           <TouchableOpacity
             style={[styles.detailInfo2Btn, styles.detailInfo2BtnGray]}
             activeOpacity={opacityVal}
-            onPress={() => copyToClipboard('010-1234-1234')}
+            onPress={() => copyToClipboard(phoneNumber)}
           >
-            <Text style={styles.detailInfo2BtnText, styles.detailInfo2BtnGrayText}>010-1234-1234</Text>
-            <AutoHeightImage width={10} source={require('../../assets/image/icon_copy.png')} />
+            <Text style={styles.detailInfo2BtnText, styles.detailInfo2BtnGrayText}>{phoneNumber}</Text>            
+            <ImgDomain fileWidth={10} fileName={'icon_copy.png'}/>
           </TouchableOpacity>
           ) : null}
         </View>
@@ -458,8 +466,8 @@ const MatchDetail = (props) => {
           <View style={styles.detailInfo2TextBox}>
             <Text style={styles.detailInfo2Text}>최종 참여를 신청 하시겠습니까?</Text>
           </View>
-          <View style={[styles.pointBox, styles.mgt20]}>
-            <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+          <View style={[styles.pointBox, styles.mgt20]}>            
+            <ImgDomain fileWidth={24} fileName={'coin.png'}/>
             <Text style={styles.pointBoxText}>500</Text>
           </View>
           <TouchableOpacity 
@@ -506,7 +514,7 @@ const MatchDetail = (props) => {
             <Text style={styles.detailInfo2Text}>최종 참여를 초대 하시겠습니까?</Text>
           </View>
           <View style={[styles.pointBox, styles.mgt20]}>
-            <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+            <ImgDomain fileWidth={24} fileName={'coin.png'}/>
             <Text style={styles.pointBoxText}>500</Text>
           </View>
           <TouchableOpacity 
@@ -563,7 +571,7 @@ const MatchDetail = (props) => {
           <View style={styles.detailInfo2TextBox}>
             <View style={styles.textFlex}>
               <Text style={styles.detailInfo2Text}>소셜룸에 참여하지 못했어요</Text>
-              <AutoHeightImage width={20} source={require('../../assets/image/emiticon4.png')} />
+              <ImgDomain fileWidth={20} fileName={'emiticon4.png'}/>
             </View>
             <Text style={styles.detailInfo2Text3}>다른 소셜룸을 만나보세요!</Text>
           </View>
@@ -592,8 +600,8 @@ const MatchDetail = (props) => {
           <View style={styles.detailInfo2TextBox}>
             <Text style={styles.detailInfo2Text}>번호를 교환 하시겠습니까?</Text>
           </View>
-          <View style={[styles.pointBox, styles.mgt20]}>
-            <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+          <View style={[styles.pointBox, styles.mgt20]}>            
+            <ImgDomain fileWidth={24} fileName={'coin.png'}/>
             <Text style={styles.pointBoxText}>500</Text>
           </View>
           <TouchableOpacity 
@@ -652,7 +660,7 @@ const MatchDetail = (props) => {
           </View>
 
           <View style={styles.cmInfoBox}>
-            <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_muscle.png')} />
+            <ImgDomain fileWidth={32} fileName={'icon_cont_muscle.png'}/>
             <View style={styles.cmInfoBoxCont}>
               <View style={styles.cmInfoBoxContTit}>
                 <Text style={styles.cmInfoBoxContTitText}>운동</Text>
@@ -677,7 +685,7 @@ const MatchDetail = (props) => {
           </View>
 
           <View style={[styles.cmInfoBox, styles.mgt0]}>
-            <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_loc.png')} />
+            <ImgDomain fileWidth={32} fileName={'icon_cont_loc.png'}/>
             <View style={styles.cmInfoBoxCont}>
               <View style={styles.cmInfoBoxContTit}>
                 <Text style={styles.cmInfoBoxContTitText}>지역</Text>
@@ -695,12 +703,14 @@ const MatchDetail = (props) => {
             </View>
           </View>
 
-          <View style={[styles.cmInfoBox]}>
-            <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_job.png')} />
+          <View style={[styles.cmInfoBox]}>            
+            <ImgDomain fileWidth={32} fileName={'icon_cont_job.png'}/>
             <View style={styles.cmInfoBoxCont}>
               <View style={styles.cmInfoBoxContTit}>
-                <Text style={styles.cmInfoBoxContTitText}>직업</Text>
-                <AutoHeightImage width={12} source={require('../../assets/image/icon_cert.png')} style={styles.certIcon} />
+                <Text style={styles.cmInfoBoxContTitText}>직업</Text>                
+                <View style={styles.certIcon}>
+                  <ImgDomain fileWidth={12} fileName={'icon_cert.png'} />
+                </View>
               </View>              
               <View style={styles.cmInfoBoxContUl}>
                 <View style={[styles.cmInfoBoxContLi]}>
@@ -712,11 +722,13 @@ const MatchDetail = (props) => {
           </View>
 
           <View style={[styles.cmInfoBox]}>
-            <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_school.png')} />
+            <ImgDomain fileWidth={32} fileName={'icon_cont_school.png'} />
             <View style={styles.cmInfoBoxCont}>
               <View style={styles.cmInfoBoxContTit}>
                 <Text style={styles.cmInfoBoxContTitText}>학력</Text>
-                <AutoHeightImage width={12} source={require('../../assets/image/icon_cert.png')} style={styles.certIcon} />
+                <View style={styles.certIcon}>
+                  <ImgDomain fileWidth={12} fileName={'icon_cert.png'} />
+                </View>
               </View>              
               <View style={styles.cmInfoBoxContUl}>
                 <View style={[styles.cmInfoBoxContLi]}>
@@ -742,13 +754,13 @@ const MatchDetail = (props) => {
               setCashPop(true);
             }}
           >
-            <Text style={styles.valuesBtnText}>연애 및 결혼관</Text>
-            <AutoHeightImage width={8} source={require('../../assets/image/icon_arr7.png')} />
+            <Text style={styles.valuesBtnText}>연애 및 결혼관</Text>            
+            <ImgDomain fileWidth={8} fileName={'icon_arr7.png'} />
           </TouchableOpacity>
           
           <View style={[styles.cmInfoBoxFlex]}>
             <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_mbti.png')} />
+              <ImgDomain fileWidth={32} fileName={'icon_cont_mbti.png'} />
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>MBTI</Text>
@@ -762,7 +774,7 @@ const MatchDetail = (props) => {
             </View>
 
             <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_rel.png')} />
+              <ImgDomain fileWidth={32} fileName={'icon_cont_rel.png'} />
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>종교</Text>
@@ -776,7 +788,7 @@ const MatchDetail = (props) => {
             </View>
 
             <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_drink.png')} />
+              <ImgDomain fileWidth={32} fileName={'icon_cont_drink.png'} />
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>음주</Text>
@@ -790,7 +802,7 @@ const MatchDetail = (props) => {
             </View>
 
             <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_smoke.png')} />
+              <ImgDomain fileWidth={32} fileName={'icon_cont_smoke.png'} />
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>흡연</Text>
@@ -804,11 +816,13 @@ const MatchDetail = (props) => {
             </View>
 
             <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_marry.png')} />
+              <ImgDomain fileWidth={32} fileName={'icon_cont_marry.png'} />
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>혼인</Text>
-                  <AutoHeightImage width={12} source={require('../../assets/image/icon_cert.png')} style={styles.certIcon} />
+                  <View style={styles.certIcon}>
+                    <ImgDomain fileWidth={12} fileName={'icon_cert.png'} />
+                  </View>
                 </View>              
                 <View style={styles.cmInfoBoxContUl}>
                   <View style={[styles.cmInfoBoxContLi]}>
@@ -831,7 +845,7 @@ const MatchDetail = (props) => {
         <View style={[styles.detailInfoCm]}>
           <View style={[styles.detailQnaBox, styles.mgt0]}>
             <View style={[styles.cmInfoBox, styles.mgt0]}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_qna.png')} />
+              <ImgDomain fileWidth={32} fileName={'icon_cont_qna.png'} />
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>질문 내용</Text>
@@ -844,7 +858,7 @@ const MatchDetail = (props) => {
           </View>
           <View style={[styles.detailQnaBox, styles.mgt30]}>
             <View style={[styles.cmInfoBox, styles.mgt0]}>
-              <AutoHeightImage width={32} source={require('../../assets/image/icon_cont_qna.png')} />
+              <ImgDomain fileWidth={32} fileName={'icon_cont_qna.png'} />
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>질문 내용</Text>
@@ -923,75 +937,79 @@ const MatchDetail = (props) => {
             </ScrollView>
           </View>
         </View>
- 
-        <View style={styles.border}></View>
-
-        <View style={[styles.detailInfoCm, styles.detailInfoCm3]}>
-          <View style={styles.reviewTitle}>
-            <Text style={styles.reviewTitleText}>ㅇㅇ님은 어떠셨어요?</Text>
+         
+        {/* 매칭된 사람에게 또는 평가를 한 사람에게 별점 숨김 처리 */}
+        {reviewState ? (
+          <>
+          <View style={styles.border}></View>
+          <View style={[styles.detailInfoCm, styles.detailInfoCm3]}>
+            <View style={styles.reviewTitle}>
+              <Text style={styles.reviewTitleText}>ㅇㅇ님은 어떠셨어요?</Text>
+            </View>
+            <View style={styles.starArea}>
+              <TouchableOpacity
+                style={styles.starBtn}
+                activeOpacity={opacityVal}
+                onPress={() => reviewState ? fnReview(1) : null}
+              >
+                {reviewScore > 0 ? (
+                  <ImgDomain fileWidth={50} fileName={'star_on.png'} />
+                ) : (
+                  <ImgDomain fileWidth={50} fileName={'star_off.png'} />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.starBtn}
+                activeOpacity={opacityVal}
+                onPress={() => reviewState ? fnReview(2) : null}
+              >
+                {reviewScore > 1 ? (
+                  <ImgDomain fileWidth={50} fileName={'star_on.png'} />
+                ) : (
+                  <ImgDomain fileWidth={50} fileName={'star_off.png'} />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.starBtn}
+                activeOpacity={opacityVal}
+                onPress={() => reviewState ? fnReview(3) : null}
+              >
+                {reviewScore > 2 ? (
+                  <ImgDomain fileWidth={50} fileName={'star_on.png'} />
+                ) : (
+                  <ImgDomain fileWidth={50} fileName={'star_off.png'} />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.starBtn}
+                activeOpacity={opacityVal}
+                onPress={() => reviewState ? fnReview(4) : null}
+              >
+                {reviewScore > 3 ? (
+                  <ImgDomain fileWidth={50} fileName={'star_on.png'} />
+                ) : (
+                  <ImgDomain fileWidth={50} fileName={'star_off.png'} />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.starBtn, styles.mgr0]}
+                activeOpacity={opacityVal}
+                onPress={() => reviewState ? fnReview(5) : null}
+              >
+                {reviewScore > 4 ? (
+                  <ImgDomain fileWidth={50} fileName={'star_on.png'} />
+                ) : (
+                  <ImgDomain fileWidth={50} fileName={'star_off.png'} />
+                )}
+              </TouchableOpacity>
+            </View>
+            <View style={styles.reviewDesc}>
+              <Text style={styles.reviewDescText}>매력도 평가는 상대방에게 전달되지 않습니다</Text>
+              <ImgDomain fileWidth={13} fileName={'emiticon3.png'} />
+            </View>
           </View>
-          <View style={styles.starArea}>
-            <TouchableOpacity
-              style={styles.starBtn}
-              activeOpacity={reviewState ? opacityVal : 1}
-              onPress={() => reviewState ? fnReview(1) : null}
-            >
-              {reviewScore > 0 ? (
-                <AutoHeightImage width={50} source={require('../../assets/image/star_on.png')} />
-              ) : (
-                <AutoHeightImage width={50} source={require('../../assets/image/star_off.png')} />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.starBtn}
-              activeOpacity={reviewState ? opacityVal : 1}
-              onPress={() => reviewState ? fnReview(2) : null}
-            >
-              {reviewScore > 1 ? (
-                <AutoHeightImage width={50} source={require('../../assets/image/star_on.png')} />
-              ) : (
-                <AutoHeightImage width={50} source={require('../../assets/image/star_off.png')} />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.starBtn}
-              activeOpacity={reviewState ? opacityVal : 1}
-              onPress={() => reviewState ? fnReview(3) : null}
-            >
-              {reviewScore > 2 ? (
-                <AutoHeightImage width={50} source={require('../../assets/image/star_on.png')} />
-              ) : (
-                <AutoHeightImage width={50} source={require('../../assets/image/star_off.png')} />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.starBtn}
-              activeOpacity={reviewState ? opacityVal : 1}
-              onPress={() => reviewState ? fnReview(4) : null}
-            >
-              {reviewScore > 3 ? (
-                <AutoHeightImage width={50} source={require('../../assets/image/star_on.png')} />
-              ) : (
-                <AutoHeightImage width={50} source={require('../../assets/image/star_off.png')} />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.starBtn, styles.mgr0]}
-              activeOpacity={reviewState ? opacityVal : 1}
-              onPress={() => reviewState ? fnReview(5) : null}
-            >
-              {reviewScore > 4 ? (
-                <AutoHeightImage width={50} source={require('../../assets/image/star_on.png')} />
-              ) : (
-                <AutoHeightImage width={50} source={require('../../assets/image/star_off.png')} />
-              )}
-            </TouchableOpacity>
-          </View>
-          <View style={styles.reviewDesc}>
-            <Text style={styles.reviewDescText}>매력도 평가는 상대방에게 전달되지 않습니다</Text>
-            <AutoHeightImage width={13} source={require('../../assets/image/emiticon3.png')} />
-          </View>
-        </View>
+          </>
+        ) : null}
       </ScrollView>
 
       <TouchableOpacity
@@ -1002,7 +1020,7 @@ const MatchDetail = (props) => {
 				  setPreventBack(true);
         }}
       >
-        <AutoHeightImage width={60} source={require('../../assets/image/icon_like.png')} />
+        <ImgDomain fileWidth={60} fileName={'icon_like.png'} />
       </TouchableOpacity>
 
       {/* 신고 버튼 팝업 */}
@@ -1059,7 +1077,7 @@ const MatchDetail = (props) => {
               style={styles.pop_x}					
               onPress={() => reportPopClose()}
             >
-              <AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
             </TouchableOpacity>		
             <View style={[styles.popTitle]}>
               <Text style={styles.popTitleText}>신고 사유</Text>
@@ -1079,9 +1097,9 @@ const MatchDetail = (props) => {
                     >
                       <Text style={styles.reportRadioBtnText}>{item.txt}</Text>
                       {report == item.txt ? (
-                        <AutoHeightImage width={20} source={require('../../assets/image/icon_radio_on.png')} />
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
                       ) : (
-                        <AutoHeightImage width={20} source={require('../../assets/image/icon_radio_off.png')} />
+                        <ImgDomain fileWidth={18} fileName={'icon_radio_off.png'} />
                       )}
                     </TouchableOpacity>
                   )
@@ -1139,7 +1157,7 @@ const MatchDetail = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setReviewPop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
 						<View style={[styles.popTitle]}>
 							<Text style={styles.popTitleText}>{reviewScore}점으로</Text>
@@ -1172,7 +1190,7 @@ const MatchDetail = (props) => {
               <View style={styles.popTitleFlexWrap}>
                 <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>마음을 보내보세요</Text>
               </View>
-              <AutoHeightImage width={20} source={require('../../assets/image/icon_message.png')} style={styles.emoticon} />
+              <ImgDomain fileWidth={20} fileName={'icon_message.png'} />
             </View>
             <ScrollView>
               <TouchableOpacity
@@ -1184,7 +1202,7 @@ const MatchDetail = (props) => {
                 }}
               >
                 <Text style={styles.sotongBtnText}>호감</Text>
-                <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+                <ImgDomain fileWidth={24} fileName={'coin.png'} />
                 <Text style={styles.sotongBtnText2}>100</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -1196,7 +1214,7 @@ const MatchDetail = (props) => {
                 }}
               >
                 <Text style={styles.sotongBtnText}>좋아요</Text>
-                <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+                <ImgDomain fileWidth={24} fileName={'coin.png'} />
                 <Text style={styles.sotongBtnText2}>200</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -1208,7 +1226,7 @@ const MatchDetail = (props) => {
                 }}
               >
                 <Text style={styles.sotongBtnText}>프리미엄</Text>
-                <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+                <ImgDomain fileWidth={24} fileName={'coin.png'} />
                 <Text style={styles.sotongBtnText2}>500</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -1255,13 +1273,13 @@ const MatchDetail = (props) => {
 							style={styles.pop_x}					
 							onPress={() => sotongSendClose()}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
 						<View style={[styles.popTitle]}>
 							<Text style={styles.popTitleText}>{sotongTypeText} 보내시겠어요?</Text>							
 						</View>
 						<View style={styles.pointBox}>
-							<AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+              <ImgDomain fileWidth={24} fileName={'coin.png'} />
 							<Text style={styles.pointBoxText}>{sotongTypePoint}</Text>
 						</View>						
 						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
@@ -1305,7 +1323,7 @@ const MatchDetail = (props) => {
               style={styles.pop_x}					
               onPress={() => preLikePopClose()}
             >
-              <AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
             </TouchableOpacity>		
             <View style={[styles.popTitle]}>
               <Text style={styles.popTitleText}>프리미엄 좋아요를 보내시겠어요?</Text>
@@ -1368,8 +1386,8 @@ const MatchDetail = (props) => {
 				</TouchableOpacity>
 				<View style={styles.prvPopBot}>
           <View style={styles.popInImageView}>
-            <View style={styles.popInImageViewBox}>
-              <AutoHeightImage width={100} source={require('../../assets/image/sample2.jpg')} style={styles.popInImage} />
+            <View style={styles.popInImageViewBox}>              
+              <ImgDomain fileWidth={100} fileName={'sample2.jpg'} />
             </View>
           </View>
 					<View style={[styles.popTitle]}>
@@ -1464,14 +1482,15 @@ const MatchDetail = (props) => {
         </TouchableOpacity>
         <View style={styles.prvPopBot}>
           <View style={[styles.popTitle, styles.popTitleFlex]}>
-            <AutoHeightImage width={20} source={require('../../assets/image/icon_match_success.png')} style={styles.emoticon} />
+            <ImgDomain fileWidth={20} fileName={'icon_match_success.png'} />
+            <ImgDomain fileWidth={20} fileName={'sample2.jpg'} />
             <View style={styles.popTitleFlexWrap}>
               <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>매칭을 축하합니다!</Text>
             </View>            
           </View>
           <View style={styles.popInImageView}>
             <View style={styles.popInImageViewBox}>
-              <AutoHeightImage width={100} source={require('../../assets/image/sample.jpg')} style={styles.popInImage} />
+              <ImgDomain fileWidth={100} fileName={'sample.jpg'} />
             </View>
             <View style={styles.popInImageNick}>
               <Text style={styles.popInImageNickText}>닉네임최대여덟자</Text>
@@ -1499,7 +1518,7 @@ const MatchDetail = (props) => {
             <View style={styles.newProteinCntWrap}>
               <Text style={styles.newProteinCntText}>신규 회원에게 프로틴 <Text style={styles.bold}>00</Text>개 증정</Text>
             </View>
-            <AutoHeightImage width={12} source={require('../../assets/image/icon_heart.png')} />
+            <ImgDomain fileWidth={12} fileName={'icon_heart.png'} />
           </View>
           <View style={[styles.popBtnBox, styles.mgt20]}>    
             <TouchableOpacity 
@@ -1543,13 +1562,13 @@ const MatchDetail = (props) => {
 							style={styles.pop_x}					
 							onPress={() => setNumbOpenPop(false)}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
 						<View style={[styles.popTitle]}>
 							<Text style={styles.popTitleText}>번호를 오픈하시겠어요?</Text>							
 						</View>
 						<View style={styles.pointBox}>
-							<AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+              <ImgDomain fileWidth={24} fileName={'coin.png'} />
 							<Text style={styles.pointBoxText}>000</Text>
 						</View>						
 						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
@@ -1596,14 +1615,14 @@ const MatchDetail = (props) => {
 							style={styles.pop_x}					
 							onPress={() => setValuesConfirm(false)}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
 						<View style={[styles.popTitle]}>
 							<Text style={styles.popTitleText}>매칭율을 높이는 상세 프로필</Text>			
               <Text style={[styles.popTitleText, styles.mgt5]}>오픈하시겠어요?</Text>
 						</View>
 						<View style={styles.pointBox}>
-							<AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+              <ImgDomain fileWidth={24} fileName={'coin.png'} />
 							<Text style={styles.pointBoxText}>000</Text>
 						</View>						
 						<View style={[styles.popBtnBox]}>
@@ -1648,13 +1667,13 @@ const MatchDetail = (props) => {
 							style={styles.pop_x}					
 							onPress={() => setValuesDisable(false)}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>								
             <View style={[styles.popTitle, styles.popTitleFlex]}>
               <View style={styles.popTitleFlexWrap}>
                 <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>앗!</Text>
               </View>
-              <AutoHeightImage width={18} source={require("../../assets/image/emiticon4.png")} style={styles.emoticon} />
+              <ImgDomain fileWidth={18} fileName={'emiticon4.png'} />
             </View>
             <View>
               <Text style={[styles.popTitleDesc, styles.mgt0]}>나의 연애 및 결혼관 정보를 입력해야</Text>
@@ -1697,7 +1716,7 @@ const MatchDetail = (props) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setValuesPop(false)}}						
 					>
-            <AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+            <ImgDomain fileWidth={8} fileName={'icon_header_back.png'} />
 					</TouchableOpacity>
 				</View>
 				<ScrollView>
@@ -1802,7 +1821,7 @@ const MatchDetail = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setSocialPop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
 						<View>
               {socialType == 1 ? (
@@ -1813,7 +1832,7 @@ const MatchDetail = (props) => {
 						</View>
             
             <View style={[styles.pointBox, styles.mgt20]}>
-							<AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+              <ImgDomain fileWidth={24} fileName={'coin.png'} />
 							<Text style={styles.pointBoxText}>500</Text>
 						</View>
 
@@ -1858,7 +1877,7 @@ const MatchDetail = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setSocialPop2(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
 						<View>
               {socialType == 1 ? (
@@ -1909,7 +1928,7 @@ const MatchDetail = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setNumberTradePop(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
 						<View>
             <Text style={styles.popTitleText}>번호 교환을 수락하시겠어요?</Text>
@@ -1956,13 +1975,13 @@ const MatchDetail = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setNumberTradePop2(false)}}
 						>
-							<AutoHeightImage width={18} source={require("../../assets/image/popup_x.png")} />
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
 						<View>
             <Text style={styles.popTitleText}>번호를 교환 하시겠어요?</Text>
 						</View>
             <View style={[styles.pointBox, styles.mgt20]}>
-              <AutoHeightImage width={24} source={require('../../assets/image/coin.png')} />
+              <ImgDomain fileWidth={24} fileName={'coin.png'} />
               <Text style={styles.pointBoxText}>500</Text>
             </View>
             <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
@@ -1986,6 +2005,12 @@ const MatchDetail = (props) => {
 					</View>
 				</View>
 			</Modal>
+
+      {loading ? (
+      <View style={[styles.indicator]}>
+        <ActivityIndicator size="large" color="#D1913C" />
+      </View>
+      ) : null}
 		</SafeAreaView>
 	)
 }
@@ -1993,16 +2018,20 @@ const MatchDetail = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },  
 	fullScreen: { flex: 1, },
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255, 0.3)', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
 
   DetailBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   DetailDotBtn: {width:54,height:48,position:'absolute',right:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   
-	swiperView: { height: widnowWidth*1.25,},
-	swiperWrap: {},
+	swiperView: {height:widnowWidth*1.25,},
+	swiperWrap: {position:'relative',overflow:'hidden'},
+  warterMark: {width:widnowWidth,height:widnowWidth*1.25,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
+  warterMarkWrap: {width:widnowWidth*1.5,flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'center',transform: [{rotate: '-45deg'}],gap:60},
+  warterMarkView: {},
+  warterMarkText: {fontFamily:Font.RobotoMedium,fontSize:13,color:'#fff',opacity:0.2},
 	pagination: {flexDirection:'row',justifyContent:'center',marginTop:15},
-	paginationBtn: {width:46,height:46,overflow:'hidden',borderRadius:5,marginHorizontal:6,alignItems:'center',justifyContent:'center'},
-  // paginationActive: {borderWidth:2,borderColor:'#D1913C'},
+	paginationBtn: {width:46,height:46,overflow:'hidden',borderWidth:2,borderColor:'transparent',borderRadius:5,marginHorizontal:6,alignItems:'center',justifyContent:'center'},
+  paginationActive: {borderWidth:2,borderColor:'#D1913C'},
   paginationImg: {},
   swiperDot: {width:10,height:4,backgroundColor:'#fff',borderRadius:50,opacity:0.3,marginHorizontal:2.5},
   swiperDotOn: {width:20,opacity:1,},

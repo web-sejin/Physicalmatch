@@ -47,6 +47,7 @@
     "react-native-status-bar-height": "^2.6.0",
     "react-native-svg": "^15.2.0",
     "react-native-swiper": "1.6.0",
+    "react-native-swiper-flatlist": "^3.2.4",
     "react-native-toast-message": "2.2.0",
     "react-native-version-check": "^3.4.7",
     "react-native-video": "5.2.1",

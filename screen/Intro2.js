@@ -6,6 +6,7 @@ import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import Video from 'react-native-video';
 
 import Font from "../assets/common/Font";
+import ImgDomain from '../assets/common/ImgDomain';
 
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
@@ -43,7 +44,7 @@ const Intro2 = ({navigation, route}) => {
 				repeat={true} // video가 끝나면 다시 재생할 지 여부
 				onAnimatedValueUpdate={() => { }}
 			/> */}
-			<AutoHeightImage width={widnowWidth} source={require('../assets/image/intro_bg.jpg')} />
+			<ImgDomain fileWidth={widnowWidth} fileName={'intro_bg.jpg'} />
 			<View style={styles.introBox}>
 				<TouchableOpacity
 					style={[styles.introBtn]}
@@ -65,11 +66,9 @@ const Intro2 = ({navigation, route}) => {
 					onPress={() => {navigation.navigate('CsCenter')}}
 				>
 					<Text style={styles.introBtnText}>피지컬 매치 알아보기</Text>
-					<AutoHeightImage
-						width={8}
-						source={require("../assets/image/intro2_arr.png")}
-						style={styles.introArr}
-					/>
+					<View style={styles.introArr}>
+						<ImgDomain fileWidth={8} fileName={'intro2_arr.png'}/>
+					</View>					
 				</TouchableOpacity>
 			</View>
 		</SafeAreaView>
@@ -85,7 +84,7 @@ const styles = StyleSheet.create({
 	mgt15: {marginTop:15},
 	
 	introBox: {position: 'absolute', left: 0, bottom: 0, zIndex: 100, paddingHorizontal: 20, paddingBottom: 60 },
-	introBtn: { width: innerWidth, height: 52, backgroundColor: 'rgba(20,30,48,0.9)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection:'row'},
+	introBtn: { width: innerWidth, height: 52, backgroundColor: 'rgba(20,30,48,0.9)', borderRadius: 5, alignItems: 'center', justifyContent: 'center', flexDirection:'row'},
 	introBtn2: { backgroundColor: 'rgba(0,0,0,0)', shadowColor:'transparent' },
 	boxShadow: {
 		borderWidth: 1,
@@ -99,8 +98,8 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
 		elevation: 5,
 	},
-	introBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,fontWeight:'600',color:'#fff'},
-	introArr: {position:'relative',top:-0.5,marginLeft:7},
+	introBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},
+	introArr: {position:'relative',top:-1,marginLeft:7},
 })
 
 export default Intro2

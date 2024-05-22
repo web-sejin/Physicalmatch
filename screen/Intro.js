@@ -2,6 +2,7 @@ import React, {useState, useEffect, useCallback} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
+import ImgDomain from '../assets/common/ImgDomain';
 import AsyncStorage from '@react-native-community/async-storage';
 import {connect} from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
@@ -18,8 +19,8 @@ const Intro = (props) => {
 	
 	useEffect(() => {
 		setTimeout(() => {
-			navigation.navigate('Intro2');
-			//navigation.replace('TabNavigation');
+			//navigation.navigate('Intro2');
+			navigation.replace('TabNavigation');
 		}, 2000);	
 	}, []);
 
@@ -27,10 +28,7 @@ const Intro = (props) => {
 		<SafeAreaView style={styles.safeAreaView}>
 			{/* <Header navigation={navigation} headertitle={'기본양식'} /> */}
 			<View style={styles.splash}>
-				<AutoHeightImage
-					width={80}
-					source={require("../assets/image/logo.png")}
-				/>
+				<ImgDomain fileWidth={80} fileName={'logo.png'} />
 			</View>
 		</SafeAreaView>
 	)

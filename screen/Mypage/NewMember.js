@@ -7,6 +7,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Swiper from 'react-native-web-swiper';
+import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import Toast from 'react-native-toast-message';
 import Clipboard from '@react-native-clipboard/clipboard';
 
@@ -46,6 +47,13 @@ const NewMember = (props) => {
     {idx:11, txt:'형제'},
   ]
 
+  const swp = [
+    {idx:1, imgUrl:''},
+    {idx:2, imgUrl:''},
+    {idx:3, imgUrl:''},
+    {idx:4, imgUrl:''},
+  ]
+
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
@@ -55,6 +63,7 @@ const NewMember = (props) => {
 	const [keyboardHeight, setKeyboardHeight] = useState(0);
 	const [currFocus, setCurrFocus] = useState('');	
 	const [preventBack, setPreventBack] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [newCnt, setNewCnt] = useState(1);
 
   const swiperRef = useRef(null);
@@ -64,7 +73,11 @@ const NewMember = (props) => {
   const [zzim, setZzim] = useState(false);
   const [reviewState, setReviewState] = useState(true);
   const [reviewScore, setReviewScore] = useState(0);  
-  const [reviewPop, setReviewPop] = useState(false);  
+  const [reviewPop, setReviewPop] = useState(false);
+
+  const [swiperList, setSwiperList] = useState([]);
+  const [warterList, setWarterList] = useState([]);
+  const [phoneNumber, setPhoneNumber] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -139,6 +152,22 @@ const NewMember = (props) => {
 
 		console.log('다음 회원으로 리셋');
   }
+
+  useEffect(() => {
+    setLoading(true);
+    setPhoneNumber('01000000000');
+    setSwiperList(swp);
+
+    let warterAry = [];
+    for(let i=0; i<50; i++){
+      warterAry = [...warterAry, {order:i}];
+    }
+    setWarterList(warterAry);
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  }, []);
  
   const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -168,74 +197,52 @@ const NewMember = (props) => {
         <>
         <ScrollView>
           <View style={styles.swiperView}>
-            <Swiper					
-              ref={swiperRef}	
-              controlsProps={{
-                prevTitle: '',
-                nextTitle: '',
-                dotsTouchable: true,
-                DotComponent: ({ index, activeIndex, isActive, onPress }) => <View style={[styles.swiperDot, isActive ? styles.swiperDotOn : null]} onPress={onPress}></View>              
+            <SwiperFlatList
+              ref={swiperRef}
+              //autoplay
+              //autoplayDelay={2}
+              //autoplayLoop
+              index={0}
+              showPagination
+              paginationStyle={{alignItems:'center',justifyContent:'center',gap:5,}}
+              paginationStyleItem={{width:10,height:4,backgroundColor:'#fff',borderRadius:50,opacity:0.3,margin:0,marginHorizontal:0}}
+              paginationStyleItemActive={{width:20,opacity:1,}}
+              paginationStyleItemInactive={{backgroundColor:'#fff',opacity:0.3,}}
+              data={swiperList}
+              onChangeIndex={(obj) => {
+                setActiveDot(obj.index);
               }}
-              onIndexChanged={(e) => {
-                //console.log(e);
-                setActiveDot(e);
-              }}
-            >
-              <View style={styles.swiperWrap}>
-                <AutoHeightImage width={widnowWidth} source={require("../../assets/image/sample.jpg")} />
-              </View>
-              <View style={styles.swiperWrap}>
-                <AutoHeightImage width={widnowWidth} source={require("../../assets/image/sample.jpg")} />
-              </View>
-              <View style={styles.swiperWrap}>
-                <AutoHeightImage width={widnowWidth} source={require("../../assets/image/sample.jpg")} />
-              </View>
-              <View style={styles.swiperWrap}>
-                <AutoHeightImage width={widnowWidth} source={require("../../assets/image/sample.jpg")} />
-              </View>
-            </Swiper>
+              renderItem={({ item, index }) => (
+                <View key={index} style={styles.swiperWrap}>
+                  <AutoHeightImage width={widnowWidth} source={require("../../assets/image/sample.jpg")} />
+                  <View style={styles.warterMark}>
+                    <View style={styles.warterMarkWrap}>
+                      {warterList.map((item2, index2) => {
+                        return (
+                          <View key={index2} style={styles.warterMarkView}><Text style={styles.warterMarkText}>{phoneNumber}</Text></View>
+                        )
+                      })}                    
+                    </View>
+                  </View>
+                </View>
+              )}
+            />
           </View>
           <View style={styles.pagination}>
-            <TouchableOpacity
-              style={[styles.paginationBtn, activeDot == 0 ? styles.paginationActive : null]}
-              activeOpacity={opacityVal}
-              onPress={() => {
-                setActiveDot(0);
-                swiperRef.current.goTo(0);
-              }}
-            >
-              <AutoHeightImage width={46} source={require("../../assets/image/sample.jpg")} style={[styles.paginationImg]} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.paginationBtn, activeDot == 1 ? styles.paginationActive : null]}
-              activeOpacity={opacityVal}
-              onPress={() => {
-                setActiveDot(1);
-                swiperRef.current.goTo(1);
-              }}
-            >
-              <AutoHeightImage width={46} source={require("../../assets/image/sample.jpg")} style={[styles.paginationImg]} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.paginationBtn, activeDot == 2 ? styles.paginationActive : null]}
-              activeOpacity={opacityVal}
-              onPress={() => {
-                setActiveDot(2);
-                swiperRef.current.goTo(2);
-              }}
-            >
-              <AutoHeightImage width={46} source={require("../../assets/image/sample.jpg")} style={[styles.paginationImg]} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.paginationBtn, activeDot == 3 ? styles.paginationActive : null]}
-              activeOpacity={opacityVal}
-              onPress={() => {
-                setActiveDot(3);
-                swiperRef.current.goTo(3);
-              }}
-            >
-              <AutoHeightImage width={46} source={require("../../assets/image/sample.jpg")} style={[styles.paginationImg]} />
-            </TouchableOpacity>
+            {swiperList.map((item, index) => {
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.paginationBtn, activeDot == index ? styles.paginationActive : null]}
+                  activeOpacity={opacityVal}
+                  onPress={() => {
+                    swiperRef.current.scrollToIndex({index:index})
+                  }}
+                >
+                  <AutoHeightImage width={46} source={require("../../assets/image/sample.jpg")} style={[styles.paginationImg]} />
+                </TouchableOpacity>
+              )
+            })}
           </View>
 
           <View style={styles.detailInfo1}>
@@ -613,6 +620,12 @@ const NewMember = (props) => {
           </TouchableOpacity>
         </View>
       )}
+
+      {loading ? (
+      <View style={[styles.indicator]}>
+        <ActivityIndicator size="large" color="#D1913C" />
+      </View>
+      ) : null}
 		</SafeAreaView>
 	)
 }
@@ -620,7 +633,7 @@ const NewMember = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },  
 	fullScreen: { flex: 1, },
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+	indicator: { width:widnowWidth, height: widnowHeight, display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
 
   DetailBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   DetailDotBtn: {width:54,height:48,position:'absolute',right:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
@@ -628,8 +641,8 @@ const styles = StyleSheet.create({
 	swiperView: { height: widnowWidth*1.25,},
 	swiperWrap: {},
 	pagination: {flexDirection:'row',justifyContent:'center',marginTop:15},
-	paginationBtn: {width:46,height:46,overflow:'hidden',borderRadius:5,marginHorizontal:6,alignItems:'center',justifyContent:'center'},
-  // paginationActive: {borderWidth:2,borderColor:'#D1913C'},
+	paginationBtn: {width:46,height:46,overflow:'hidden',borderWidth:2,borderColor:'transparent',borderRadius:5,marginHorizontal:6,alignItems:'center',justifyContent:'center'},
+  paginationActive: {borderWidth:2,borderColor:'#D1913C'},
   paginationImg: {},
   swiperDot: {width:10,height:4,backgroundColor:'#fff',borderRadius:50,opacity:0.3,marginHorizontal:2.5},
   swiperDotOn: {width:20,opacity:1,},

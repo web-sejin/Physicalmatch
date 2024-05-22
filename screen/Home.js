@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
+import {ActivityIndicator, Alert, Animated, Button, Dimensions, ImageBackground, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -12,7 +12,9 @@ import Toast from 'react-native-toast-message';
 
 import Font from "../assets/common/Font";
 import ToastMessage from "../components/ToastMessage";
+import ImgDomain from '../assets/common/ImgDomain';
 
+const imgDomain = 'https://cnj02.cafe24.com/appImg/';
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
@@ -103,6 +105,7 @@ const Home = (props) => {
 	const [tabState2, setTabState2] = useState(1); //관심[ 찜&교환, 호감, 매칭된 ]
 	const [todayFree, setTodayFree] = useState(2);
 	const [nonCollidingMultiSliderValue, setNonCollidingMultiSliderValue] = useState([]);
+	const [nonCollidingMultiSliderValue2, setNonCollidingMultiSliderValue2] = useState([]);
 	const [cardList, setCardList] = useState(cardData);	
 	const [data1List, setData1List] = useState(Data1);
 	const [data2List, setData2List] = useState(Data2);
@@ -207,7 +210,7 @@ const Home = (props) => {
 			yaerAry.unshift(i);
 			yaerAryIdx.push(cnt);
 			cnt++;
-		}
+		}		
 		setAgeAry(yaerAry);
 		setAgeAryIdx(yaerAryIdx);
 
@@ -215,9 +218,13 @@ const Home = (props) => {
 		const yearVal2 = year2-5;
 		
 		let yearString = yearVal.toString();
+		setRealAgeMax(yearString);
+		setRealAgeMax2(yearString);
 		yearString = yearString.substr(2,2);		
 
 		let yearString2 = yearVal2.toString();
+		setRealAgeMin(yearString2);
+		setRealAgeMin2(yearString2);
 		yearString2 = yearString2.substr(2,2);
 		
 		setAgeMin((yearString2).toString());
@@ -227,6 +234,7 @@ const Home = (props) => {
 		setAgeMinInt(5);
 		setAgeMaxInt(cnt-5);
 		setNonCollidingMultiSliderValue([5, cnt-5]);
+		setNonCollidingMultiSliderValue2([5, cnt-5]);		
 	}, []);
 
 	const getMatchCard = async(v) => {
@@ -318,6 +326,45 @@ const Home = (props) => {
 			setMyAccount(true);
 		}, 1000);		
 	}
+
+	const saveFilterSubmit = async () => {
+		// console.log('a ::: ',realAgeMin-realAgeMax);
+		// console.log('b ::: ',realAgeMin2-realAgeMax2);
+		if(realAgeMin-realAgeMax < 5 || realAgeMin2-realAgeMax2 < 5){
+			ToastMessage('나이는 5살 이상으로만 설정이 가능합니다.');
+			return false;
+		}
+		
+		setFilterPop(false);
+		setFilterSave(true);
+	}
+	
+	const toastConfig2 = {
+		custom_type: (internalState) => (
+			<View
+				style={{
+					backgroundColor: '#000',
+					borderRadius: 10,
+					paddingVertical: 10,
+					paddingHorizontal: 20,
+					opacity: 0.8,
+				}}
+			>
+				<Text
+					style={{
+						textAlign: 'center',
+						color: '#FFFFFF',
+						fontSize: 15,
+						lineHeight: 22,
+						fontFamily: Font.NotoSansRegular,
+						letterSpacing: -0.38,
+					}}
+				>
+					{internalState.text1}
+				</Text>
+			</View>
+		),
+  };
 	
 
 	return (
@@ -335,22 +382,22 @@ const Home = (props) => {
 								activeOpacity={opacityVal}
 								onPress={() => {setFilterPop(true)}}
 							>
-								<AutoHeightImage width={24} source={require('../assets/image/icon_option.png')} resizeMethod='resize' />
+								<ImgDomain fileWidth={24} fileName={'icon_option.png'} />
 							</TouchableOpacity>
 							<TouchableOpacity
 								style={styles.headerLnbBtn}
 								activeOpacity={opacityVal}
 								onPress={() => {navigation.navigate('Shop')}}
 							>
-								<AutoHeightImage width={24} source={require('../assets/image/icon_shop.png')} resizeMethod='resize' />
+								<ImgDomain fileWidth={24} fileName={'icon_shop.png'} />
 							</TouchableOpacity>
 							<TouchableOpacity
 								style={styles.headerLnbBtn}
 								activeOpacity={opacityVal}
 								onPress={() => {navigation.navigate('Alim')}}
 							>
-								{/* <AutoHeightImage width={24} source={require('../assets/image/icon_alim_off.png')} resizeMethod='resize' /> */}
-								<AutoHeightImage width={24} source={require('../assets/image/icon_alim_on.png')} resizeMethod='resize' />
+								{/* <ImgDomain fileWidth={24} fileName={'icon_alim_off.png'} /> */}
+								<ImgDomain fileWidth={24} fileName={'icon_alim_on.png'} />
 							</TouchableOpacity>
 						</View>
 					</View>
@@ -480,24 +527,26 @@ const Home = (props) => {
 												scaleDuration= {0}
 												rotateDuration={200}
 												frontView={		
-													<View style={[styles.cardCont]}>																												
-														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} resizeMethod='resize' />													
+													<View style={[styles.cardCont]}>														
+														<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
 													</View>												
 												}
 												backView={
 													<View style={[styles.cardCont]}>													
-														<View style={styles.cardFrontInfo}>
-															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} resizeMethod='resize' />
+														<View style={styles.cardFrontInfo}>															
+															<View style={styles.peopleImgBack}>
+																<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
+															</View>															
+															<AutoHeightImage width={(innerWidth/2)-10} source={{uri:imgDomain+'man.png'}} resizeMethod='resize' style={styles.peopleImg} />
 															<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
 																<View style={styles.cardFrontNick}>
 																	<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
-																	{item.badgeCnt == 1 ? (<AutoHeightImage width={26} source={require('../assets/image/b_1.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 2 ? (<AutoHeightImage width={26} source={require('../assets/image/b_2.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 3 ? (<AutoHeightImage width={26} source={require('../assets/image/b_3.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 4 ? (<AutoHeightImage width={26} source={require('../assets/image/b_4.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 5 ? (<AutoHeightImage width={26} source={require('../assets/image/b_5.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 6 ? (<AutoHeightImage width={26} source={require('../assets/image/b_6.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 1 ? (<ImgDomain fileWidth={26} fileName={'b_1.png'} />) : null}
+																	{item.badgeCnt == 2 ? (<ImgDomain fileWidth={26} fileName={'b_2.png'} />) : null}
+																	{item.badgeCnt == 3 ? (<ImgDomain fileWidth={26} fileName={'b_3.png'} />) : null}
+																	{item.badgeCnt == 4 ? (<ImgDomain fileWidth={26} fileName={'b_4.png'} />) : null}
+																	{item.badgeCnt == 5 ? (<ImgDomain fileWidth={26} fileName={'b_5.png'} />) : null}
+																	{item.badgeCnt == 6 ? (<ImgDomain fileWidth={26} fileName={'b_6.png'} />) : null}
 																</View>
 																<View style={styles.cardFrontJob}>
 																	<Text style={styles.cardFrontJobText}>{item.job}</Text>
@@ -550,24 +599,26 @@ const Home = (props) => {
 												scaleDuration= {0}
 												rotateDuration={200}
 												frontView={	
-													<View style={[styles.cardCont]}>																												
-														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} resizeMethod='resize' />													
+													<View style={[styles.cardCont]}>
+														<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
 													</View>												
 												}
 												backView={
 													<View style={[styles.cardCont]}>													
 														<View style={styles.cardFrontInfo}>
-															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} resizeMethod='resize' />
+															<View style={styles.peopleImgBack}>
+																<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
+															</View>
+															<AutoHeightImage width={(innerWidth/2)-10} source={{uri:imgDomain+'man.png'}} resizeMethod='resize' style={styles.peopleImg} />
 															<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
 																<View style={styles.cardFrontNick}>
 																	<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
-																	{item.badgeCnt == 1 ? (<AutoHeightImage width={26} source={require('../assets/image/b_1.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 2 ? (<AutoHeightImage width={26} source={require('../assets/image/b_2.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 3 ? (<AutoHeightImage width={26} source={require('../assets/image/b_3.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 4 ? (<AutoHeightImage width={26} source={require('../assets/image/b_4.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 5 ? (<AutoHeightImage width={26} source={require('../assets/image/b_5.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 6 ? (<AutoHeightImage width={26} source={require('../assets/image/b_6.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 1 ? (<ImgDomain fileWidth={26} fileName={'b_1.png'} />) : null}
+																	{item.badgeCnt == 2 ? (<ImgDomain fileWidth={26} fileName={'b_2.png'} />) : null}
+																	{item.badgeCnt == 3 ? (<ImgDomain fileWidth={26} fileName={'b_3.png'} />) : null}
+																	{item.badgeCnt == 4 ? (<ImgDomain fileWidth={26} fileName={'b_4.png'} />) : null}
+																	{item.badgeCnt == 5 ? (<ImgDomain fileWidth={26} fileName={'b_5.png'} />) : null}
+																	{item.badgeCnt == 6 ? (<ImgDomain fileWidth={26} fileName={'b_6.png'} />) : null}
 																</View>
 																<View style={styles.cardFrontJob}>
 																	<Text style={styles.cardFrontJobText}>{item.job}</Text>
@@ -620,24 +671,26 @@ const Home = (props) => {
 												scaleDuration= {0}
 												rotateDuration={200}
 												frontView={			
-													<View style={[styles.cardCont]}>																												
-														<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} resizeMethod='resize' />													
+													<View style={[styles.cardCont]}>
+														<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
 													</View>											
 												}
 												backView={
 													<View style={[styles.cardCont]}>													
 														<View style={styles.cardFrontInfo}>
-															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/front.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-															<AutoHeightImage width={(innerWidth/2)-10} source={require('../assets/image/man.png')} style={styles.peopleImg} resizeMethod='resize' />
+															<View style={styles.peopleImgBack}>
+																<ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
+															</View>
+															<AutoHeightImage width={(innerWidth/2)-10} source={{uri:imgDomain+'man.png'}} style={styles.peopleImg} resizeMethod='resize' />
 															<View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
 																<View style={styles.cardFrontNick}>
 																	<Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{item.name}</Text>
-																	{item.badgeCnt == 1 ? (<AutoHeightImage width={26} source={require('../assets/image/b_1.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 2 ? (<AutoHeightImage width={26} source={require('../assets/image/b_2.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 3 ? (<AutoHeightImage width={26} source={require('../assets/image/b_3.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 4 ? (<AutoHeightImage width={26} source={require('../assets/image/b_4.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 5 ? (<AutoHeightImage width={26} source={require('../assets/image/b_5.png')} resizeMethod='resize' />) : null}
-																	{item.badgeCnt == 6 ? (<AutoHeightImage width={26} source={require('../assets/image/b_6.png')} resizeMethod='resize' />) : null}
+																	{item.badgeCnt == 1 ? (<ImgDomain fileWidth={26} fileName={'b_1.png'} />) : null}
+																	{item.badgeCnt == 2 ? (<ImgDomain fileWidth={26} fileName={'b_2.png'} />) : null}
+																	{item.badgeCnt == 3 ? (<ImgDomain fileWidth={26} fileName={'b_3.png'} />) : null}
+																	{item.badgeCnt == 4 ? (<ImgDomain fileWidth={26} fileName={'b_4.png'} />) : null}
+																	{item.badgeCnt == 5 ? (<ImgDomain fileWidth={26} fileName={'b_5.png'} />) : null}
+																	{item.badgeCnt == 6 ? (<ImgDomain fileWidth={26} fileName={'b_6.png'} />) : null}																	
 																</View>
 																<View style={styles.cardFrontJob}>
 																	<Text style={styles.cardFrontJobText}>{item.job}</Text>
@@ -695,15 +748,19 @@ const Home = (props) => {
 														rotateDuration={200}
 														frontView={	
 															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																<View style={[styles.cardCont, styles.cardCont2]}>																																													
+																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 																</View>
 															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																<View style={[styles.cardCont, styles.cardCont2]}>																			
+																	<View style={styles.peopleImgBack}>
+																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																	</View>
 																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={styles.peopleImgBack}>
+																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																		</View>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />
 																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
 																			<View	View style={styles.cardFrontDday}>
 																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
@@ -722,8 +779,8 @@ const Home = (props) => {
 															)																			
 														}
 														backView={
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+															<View style={[styles.cardCont, styles.cardCont2]}>																																												
+																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />																
 															</View>
 														}
 													/>
@@ -762,14 +819,18 @@ const Home = (props) => {
 														frontView={		
 															item.leave ? (
 																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 																</View>
 															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																<View style={[styles.cardCont, styles.cardCont2]}>																			
+																	<View style={styles.peopleImgBack}>
+																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																	</View>
 																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={styles.peopleImgBack}>
+																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																		</View>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />																																																																							
 																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
 																			<View	View style={styles.cardFrontDday}>
 																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
@@ -788,8 +849,8 @@ const Home = (props) => {
 															)																								
 														}
 														backView={
-															<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />
+															<View style={[styles.cardCont, styles.cardCont2, styles.boxShadow]}>																			
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 															</View>	
 														}
 													/>
@@ -830,13 +891,17 @@ const Home = (props) => {
 														frontView={			
 															item.leave ? (
 																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 																</View>
 															) : (
 																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																	<View style={styles.peopleImgBack}>
+																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																	</View>
+																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>																																		
+																		<View style={styles.peopleImgBack}>
+																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																		</View>
 																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
 																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
 																			<View	View style={styles.cardFrontDday}>
@@ -857,7 +922,7 @@ const Home = (props) => {
 														}
 														backView={
 															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 															</View>	
 														}
 													/>
@@ -896,14 +961,18 @@ const Home = (props) => {
 														frontView={			
 															item.leave ? (
 																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 																</View>
 															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																<View style={[styles.cardCont, styles.cardCont2]}>	
+																	<View style={styles.peopleImgBack}>
+																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																	</View>
 																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={styles.peopleImgBack}>
+																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																		</View>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />
 																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
 																			<View	View style={styles.cardFrontDday}>
 																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
@@ -923,7 +992,7 @@ const Home = (props) => {
 														}
 														backView={
 															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 															</View>	
 														}
 													/>
@@ -961,15 +1030,19 @@ const Home = (props) => {
 														rotateDuration={200}
 														frontView={			
 															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																<View style={[styles.cardCont, styles.cardCont2]}>																														
+																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 																</View>
 															) : (
 																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																	<View style={styles.peopleImgBack}>
+																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																	</View>
 																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={styles.peopleImgBack}>
+																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																		</View>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />																																																																							
 																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
 																			<View	View style={styles.cardFrontDday}>
 																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
@@ -989,7 +1062,7 @@ const Home = (props) => {
 														}
 														backView={
 															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 															</View>
 														}
 													/>
@@ -1027,15 +1100,19 @@ const Home = (props) => {
 														rotateDuration={200}
 														frontView={			
 															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																<View style={[styles.cardCont, styles.cardCont2]}>																														
+																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 																</View>
 															) : (
 																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																	<View style={styles.peopleImgBack}>
+																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																	</View>
 																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={styles.peopleImgBack}>
+																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																		</View>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />																																																																						
 																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
 																			<View	View style={styles.cardFrontDday}>
 																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
@@ -1055,7 +1132,7 @@ const Home = (props) => {
 														}
 														backView={
 															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 															</View>	
 														}
 													/>
@@ -1094,14 +1171,18 @@ const Home = (props) => {
 														frontView={			
 															item.leave ? (
 																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 																</View>
 															) : (
 																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																	<View style={styles.peopleImgBack}>
+																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																	</View>
 																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={styles.peopleImgBack}>
+																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																		</View>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />																		
 																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
 																			<View	View style={styles.cardFrontDday}>
 																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
@@ -1121,7 +1202,7 @@ const Home = (props) => {
 														}
 														backView={
 															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 															</View>	
 														}
 													/>
@@ -1139,8 +1220,8 @@ const Home = (props) => {
 										<Text style={styles.interestBoxTitleText}>매칭된 이성</Text>
 									</View>
 									<View style={styles.interestBoxDesc}>
-										<Text style={styles.interestBoxDescText}>매칭을 축하합니다!</Text>
-										<AutoHeightImage width={12} source={require('../assets/image/icon_pang.png')} resizeMethod='resize' />
+										<Text style={styles.interestBoxDescText}>매칭을 축하합니다!</Text>										
+										<ImgDomain fileWidth={12} fileName={'icon_pang.png'} />
 									</View>
 									<View style={styles.cardView}>
 										{data8List.map((item, index) => {
@@ -1165,15 +1246,19 @@ const Home = (props) => {
 														rotateDuration={200}
 														frontView={			
 															item.leave ? (
-																<View style={[styles.cardCont, styles.cardCont2]}>																												
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+																<View style={[styles.cardCont, styles.cardCont2]}>																																													
+																	<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />																	
 																</View>
 															) : (
-																<View style={[styles.cardCont, styles.cardCont2]}>		
-																	<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
+																<View style={[styles.cardCont, styles.cardCont2]}>																			
+																	<View style={styles.peopleImgBack}>
+																		<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																	</View>
 																	<View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} style={styles.peopleImgBack} resizeMethod='resize' />
-																		<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/woman2.png')} style={styles.peopleImg} resizeMethod='resize' />
+																		<View style={styles.peopleImgBack}>
+																			<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+																		</View>
+																		<AutoHeightImage width={(innerWidth/3)-7} source={{uri:imgDomain+'woman2.png'}} style={styles.peopleImg} resizeMethod='resize' />																	
 																		<View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont2, styles.boxShadow2]}>
 																			<View	View style={styles.cardFrontDday}>
 																				<Text style={styles.cardFrontDdayText}>D-{item.dday}</Text>
@@ -1192,8 +1277,8 @@ const Home = (props) => {
 															)																									
 														}
 														backView={
-															<View style={[styles.cardCont, styles.cardCont2]}>																												
-																<AutoHeightImage width={(innerWidth/3)-7} source={require('../assets/image/front2.png')} resizeMethod='resize' />													
+															<View style={[styles.cardCont, styles.cardCont2]}>																																												
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />																	
 															</View>	
 														}
 													/>
@@ -1219,18 +1304,16 @@ const Home = (props) => {
 						<TouchableOpacity
 							style={styles.headerBackBtn2}
 							activeOpacity={opacityVal}
-							onPress={() => {
-								setFilterPop(false);
-							}}						
-						>
-							<AutoHeightImage width={8} source={require("../assets/image/icon_header_back.png")} resizeMethod='resize' />
+							onPress={() => setFilterPop(false)}						
+						>							
+							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'} />
 						</TouchableOpacity>		
 						<TouchableOpacity 
 							style={styles.filterResetBtn}
 							activeOpacity={opacityVal}
 							onPress={()=>{console.log('초기화 작업 진행!!')}}
 						>
-							<AutoHeightImage width={13} source={require('../assets/image/icon_refresh.png')} resizeMethod='resize' />	
+							<ImgDomain fileWidth={13} fileName={'icon_refresh.png'} />
 							<Text style={styles.filterResetText}>초기화</Text>
 						</TouchableOpacity>				
 					</View>
@@ -1273,6 +1356,7 @@ const Home = (props) => {
 										<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
 									)}
 									onValuesChange={(e) => {
+										//console.log(e);
 										const first = ageAry[e[0]];
 										const last = ageAry[e[1]];
 										
@@ -1286,6 +1370,7 @@ const Home = (props) => {
 										
 										setAgeMin(yearString);
 										setAgeMax(yearString2);
+										setNonCollidingMultiSliderValue(e);
 									}}
 								/>
 							</View>
@@ -1449,8 +1534,8 @@ const Home = (props) => {
 										}}
 										optionsArray={ageAryIdx}
 										values={[
-											nonCollidingMultiSliderValue[0],
-											nonCollidingMultiSliderValue[1],
+											nonCollidingMultiSliderValue2[0],
+											nonCollidingMultiSliderValue2[1],
 										]}
 										markerOffsetY={1}
 										sliderLength={innerWidth}
@@ -1477,6 +1562,7 @@ const Home = (props) => {
 											
 											setAgeMin2(yearString);
 											setAgeMax2(yearString2);
+											setNonCollidingMultiSliderValue2(e);
 										}}
 									/>
 								</View>
@@ -1487,14 +1573,13 @@ const Home = (props) => {
 						<TouchableOpacity 
 							style={[styles.nextBtn]}
 							activeOpacity={opacityVal}
-							onPress={() => {
-								setFilterPop(false);
-								setFilterSave(true);
-							}}
+							onPress={() => {saveFilterSubmit()}}
 						>
 							<Text style={styles.nextBtnText}>저장하기</Text>
 						</TouchableOpacity>
 					</View>
+
+					<Toast config={toastConfig2} />
 				</Modal>
 
 				{/* 탈퇴 회원 알림 */}
@@ -1515,14 +1600,14 @@ const Home = (props) => {
 							<TouchableOpacity
 								style={styles.pop_x}					
 								onPress={() => {setLeavePop(false)}}
-							>
-								<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
+							>								
+								<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 							</TouchableOpacity>		
 							<View style={[styles.popTitle, styles.popTitleFlex]}>							
 								<View style={styles.popTitleFlexWrap}>
 									<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>탈퇴한 회원이에요</Text>
 								</View>
-								<AutoHeightImage width={18} source={require("../assets/image/emiticon1.png")} style={styles.emoticon} resizeMethod='resize' />
+								<ImgDomain fileWidth={14} fileName={'emiticon1.png'} />
 							</View>
 							<View style={styles.popBtnBox}>
 								<TouchableOpacity 
@@ -1555,14 +1640,14 @@ const Home = (props) => {
 							<TouchableOpacity
 								style={styles.pop_x}					
 								onPress={() => {setAddIntroPop(false)}}
-							>
-								<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
+							>								
+								<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 							</TouchableOpacity>		
 							<View style={[styles.popTitle]}>
 								<Text style={styles.popTitleText}>추가 소개 받으시겠어요?</Text>							
 							</View>
 							<View style={styles.pointBox}>
-								<AutoHeightImage width={24} source={require('../assets/image/coin.png')} resizeMethod='resize' />
+								<ImgDomain fileWidth={24} fileName={'coin.png'} />
 								<Text style={styles.pointBoxText}>100</Text>
 							</View>						
 							<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
@@ -1677,8 +1762,8 @@ const Home = (props) => {
 							<TouchableOpacity
 								style={styles.pop_x}					
 								onPress={() => {setUnAddIntroPop1(false)}}
-							>
-								<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
+							>								
+								<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 							</TouchableOpacity>		
 							<View>
 								<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
@@ -1687,7 +1772,7 @@ const Home = (props) => {
 								<View style={styles.popTitleFlexWrap}>
 									<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
 								</View>
-								<AutoHeightImage width={18} source={require("../assets/image/emiticon2.png")} style={styles.emoticon} resizeMethod='resize' />
+								<ImgDomain fileWidth={14} fileName={'emiticon2.png'} />
 							</View>
 							<View>
 								<Text style={[styles.popTitleDesc, styles.mgt0]}>새로운 회원이 들어올때까지 커뮤니티를 즐겨보세요!</Text>
@@ -1730,8 +1815,8 @@ const Home = (props) => {
 							<TouchableOpacity
 								style={styles.pop_x}					
 								onPress={() => {setUnAddIntroPop2(false)}}
-							>
-								<AutoHeightImage width={18} source={require("../assets/image/popup_x.png")} resizeMethod='resize' />
+							>								
+								<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 							</TouchableOpacity>		
 							<View>
 								<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
@@ -1740,7 +1825,7 @@ const Home = (props) => {
 								<View style={styles.popTitleFlexWrap}>
 									<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
 								</View>
-								<AutoHeightImage width={18} source={require("../assets/image/emiticon2.png")} style={styles.emoticon} resizeMethod='resize' />
+								<ImgDomain fileWidth={14} fileName={'emiticon2.png'} />
 							</View>
 							<View>
 								<Text style={[styles.popTitleDesc, styles.mgt0]}>추가 소개를 받고 싶다면 필터 범위를 넓혀보세요!</Text>
@@ -1775,7 +1860,35 @@ const Home = (props) => {
 					>
 					</TouchableOpacity>
 					<View style={styles.prvPopBot2}>
-						<AutoHeightImage width={widnowWidth} source={require('../assets/image/welcome.png')} resizeMethod='resize' />
+						<ImageBackground source={require('../assets/image/welcome.png')} resizeMode="cover" >
+							<View style={styles.prvPopBot2Wrap}>
+								<View style={styles.prvPopBot2Title}>
+									<View style={styles.prvPopBot2View}>
+										<ImgDomain fileWidth={20} fileName={'icon_match_success.png'} />
+										<View style={styles.prvPopBot2ViewIn}>
+											<Text style={styles.prvPopBot2ViewText}>가입축하</Text>
+										</View>
+									</View>
+									<View style={[styles.prvPopBot2View, styles.prvPopBot2View2]}>
+										<ImgDomain fileWidth={24} fileName={'coin2.png'} />
+										<View style={styles.prvPopBot2ViewIn}>
+											<Text style={[styles.prvPopBot2ViewText, styles.prvPopBot2ViewText2]}>00개</Text>
+										</View>
+									</View>
+									<View style={styles.prvPopBot2View}>
+										<View style={styles.prvPopBot2ViewIn}>
+											<Text style={styles.prvPopBot2ViewText}>증정</Text>
+										</View>
+										<ImgDomain fileWidth={20} fileName={'icon_match_success.png'} />
+									</View>
+								</View>
+								<View style={styles.prvPopBot2Desc}>
+									<Text style={styles.prvPopBot2DescText}>하이엔드 소개팅 앱 피지컬 매치에서</Text>
+									<Text style={styles.prvPopBot2DescText}>NO.1 육각형 회원들과 만나 보세요</Text>
+								</View>
+							</View>							
+						</ImageBackground>
+						{/* <AutoHeightImage width={widnowWidth} source={require('../assets/image/welcome.png')} resizeMethod='resize' /> */}
 					</View>
 				</Modal>
 
@@ -1793,10 +1906,10 @@ const Home = (props) => {
 			>
 				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
 				<ScrollView>
-					<View style={styles.accImg}>
-						<AutoHeightImage width={42} source={require('../assets/image/logo_navy.png')} />
+					<View style={styles.accImg}>						
+						<ImgDomain fileWidth={42} fileName={'logo_navy.png'} />
 						<View style={styles.accCircle}>
-							<AutoHeightImage width={84} source={require('../assets/image/account_off.jpg')} />
+							<ImgDomain fileWidth={84} fileName={'account_off.png'} />
 						</View>
 					</View>
 					<View style={styles.accInfo}>
@@ -1817,7 +1930,9 @@ const Home = (props) => {
 						</View>
 						<View style={styles.accInfoDesc}>
 							<Text style={styles.accInfoDescText}>다시 만나보세요</Text>
-							<AutoHeightImage width={24} source={require('../assets/image/icon_heart2.png')} style={{position:'relative',top:2,}} />
+							<View style={{position:'relative',top:2,}}>
+								<ImgDomain fileWidth={24} fileName={'icon_heart2.png'} />
+							</View>
 						</View>
 					</View>
 				</ScrollView>
@@ -1992,6 +2107,16 @@ const styles = StyleSheet.create({
 	prvPopBot2: {width:widnowWidth,position:'absolute',bottom:0,},
 	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,color:'#1e1e1e',},
 	popBotTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#666',marginTop:10,},
+
+	prvPopBot2Wrap: {paddingTop:40,paddingBottom:285,paddingHorizontal:20,},
+	prvPopBot2Title: {flexDirection:'row',alignItems:'center',justifyContent:'center'},
+	prvPopBot2View: {flexDirection:'row',alignItems:'center',justifyContent:'center',},
+	prvPopBot2View2: {marginHorizontal:8,},
+	prvPopBot2ViewIn: {position:'relative',top:2,},
+	prvPopBot2ViewText: {fontFamily:Font.NotoSansSemiBold,fontSize:20,lineHeight:23,color:'#fff'},
+	prvPopBot2ViewText2: {color:'#FFD194'},
+	prvPopBot2Desc: {alignItems:'center',justifyContent:'center',marginTop:20,},
+	prvPopBot2DescText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#fff'},
 	
 	multiSliderDot: {width:16,height:16,backgroundColor:'#fff',borderWidth:2,borderColor:'#D1913C',borderRadius:50,position:'relative',zIndex:10,},
 	multiSliderDotOff: {borderWidth:0,backgroundColor:'#F8F9FA'},

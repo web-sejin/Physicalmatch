@@ -14,6 +14,7 @@ import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -277,10 +278,7 @@ const RegisterStep6 = ({navigation, route}) => {
 							{file1.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file1.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}							
 							<Text style={styles.imgText}>대표</Text>
 						</TouchableOpacity>
@@ -293,10 +291,7 @@ const RegisterStep6 = ({navigation, route}) => {
 							{file2.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file2.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}
 							<Text style={styles.imgText}>필수</Text>
 						</TouchableOpacity>
@@ -309,10 +304,7 @@ const RegisterStep6 = ({navigation, route}) => {
 							{file3.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file3.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}
 							<Text style={styles.imgText}>필수</Text>
 						</TouchableOpacity>
@@ -325,10 +317,7 @@ const RegisterStep6 = ({navigation, route}) => {
 							{file4.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file4.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}
 						</TouchableOpacity>
 
@@ -340,10 +329,7 @@ const RegisterStep6 = ({navigation, route}) => {
 							{file5.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file5.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}
 						</TouchableOpacity>
 
@@ -355,10 +341,7 @@ const RegisterStep6 = ({navigation, route}) => {
 							{file6.path ? (
 								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file6.path }} />
 							) : (
-								<AutoHeightImage 
-									width={(innerWidth/3)-7}
-									source={require("../../assets/image/img_back.jpg")}
-								/>
+								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
 							)}
 						</TouchableOpacity>
 					</View>
@@ -372,17 +355,11 @@ const RegisterStep6 = ({navigation, route}) => {
 						}}
 					>
 						<Text style={styles.guideBtnText}>사진 등록 가이드</Text>
-						<AutoHeightImage 
-							width={5}
-							source={require("../../assets/image/icon_arr2.png")}
-						/>
+						<ImgDomain fileWidth={5} fileName={'icon_arr2.png'}/>
 					</TouchableOpacity>
 
 					<View style={styles.alertBox}>
-						<AutoHeightImage 
-							width={19}
-							source={require("../../assets/image/icon_alert.png")}
-						/>
+						<ImgDomain fileWidth={19} fileName={'icon_alert.png'}/>
 						<Text style={styles.alertTxt}>주의해주세요</Text>
 						<Text style={styles.alertTxt2}>타인의 사진을 무단 도용 시,</Text>
 						<Text style={styles.alertTxt2}>관련 법에 따라 처벌을 받을 수 있습니다.</Text>
@@ -413,7 +390,7 @@ const RegisterStep6 = ({navigation, route}) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setGuideModal(false)}}						
 					>
-						<AutoHeightImage width={16} source={require("../../assets/image/icon_close2.png")} />
+						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
 				<ScrollView>

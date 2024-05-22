@@ -6,6 +6,7 @@ import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import Video from 'react-native-video';
 
 import Font from "../../assets/common/Font";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
@@ -43,7 +44,7 @@ const RegisterResult = ({navigation, route}) => {
 				repeat={true} // video가 끝나면 다시 재생할 지 여부
 				onAnimatedValueUpdate={() => { }}
 			/> */}
-      <AutoHeightImage width={widnowWidth} source={require('../../assets/image/intro_bg.jpg')} />
+			<ImgDomain fileWidth={widnowWidth} fileName={'intro_bg.jpg'}/>
       <View style={styles.introDescBox}>
         <View style={styles.introDescBoxWrap}>
           <Text style={styles.introDescBoxName}>홍길동님,</Text>
@@ -57,8 +58,8 @@ const RegisterResult = ({navigation, route}) => {
 			<View style={styles.introBox}>
 				<TouchableOpacity
 					style={[styles.introBtn, styles.boxShadow]}
-					activeOpacity={opacityVal}
-					onPress={() => {console.log('zzz')}}
+					activeOpacity={opacityVal}					
+					onPress={() => navigation.navigate('TabNavigation', { screen: 'Mypage' })}
 				>
 					<Text style={styles.introBtnText}>피지컬 매치 둘러보기</Text>
 				</TouchableOpacity>

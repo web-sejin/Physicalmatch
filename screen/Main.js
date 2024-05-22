@@ -14,6 +14,7 @@ import Font from '../assets/common/Font';
 import Intro from './Intro';
 import Intro2 from './Intro2';
 import TabNavigation from './TabNavigation';
+import Home from './Home';
 import Login from './Member/Login';
 import FindId from './Member/FindId';
 import IdResult from './Member/IdResult';
@@ -60,7 +61,6 @@ import CsCenter from './Mypage/CsCenter';
 import Privacy from './Mypage/Privacy';
 import CsCenterWrite from './Mypage/CsCenterWrite';
 import PushSet from './Mypage/PushSet';
-import AccoutSet from './Mypage/PushSet';
 import AccountSet from './Mypage/AccountSet';
 import ModifyLogin from './Mypage/ModifyLogin';
 import Alim from './Mypage/Alim';
@@ -163,7 +163,7 @@ const Main = () => {
 		custom_type: (internalState) => (
 			<View
 				style={{
-					backgroundColor: '#000000e0',
+					backgroundColor: '#000',
 					borderRadius: 10,
 					paddingVertical: 10,
 					paddingHorizontal: 20,
@@ -176,7 +176,7 @@ const Main = () => {
 						color: '#FFFFFF',
 						fontSize: 15,
 						lineHeight: 22,
-						fontFamily: Font.NotoSansCJKkrRegular,
+						fontFamily: Font.NotoSansRegular,
 						letterSpacing: -0.38,
 					}}
 				>

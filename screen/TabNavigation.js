@@ -21,6 +21,7 @@ import { actionCreators as UserAction } from '../redux/module/action/UserAction'
 import AsyncStorage from '@react-native-community/async-storage';
 import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import Font from '../assets/common/Font';
+import ImgDomain from '../assets/common/ImgDomain';
 
 import Home from './Home';
 import Social from './Social/Social';
@@ -54,9 +55,9 @@ const TabBarMenu = (props) => {
       >
         <View style={styles.tabIcon}>
           {screenName == 'Home' ? (
-          <AutoHeightImage width={20} source={require("../assets/image/tab1_on.png")} />
+            <ImgDomain fileWidth={20} fileName={'tab1_on.png'} />
           ) : (
-          <AutoHeightImage width={20} source={require("../assets/image/tab1_off.png")} />
+            <ImgDomain fileWidth={20} fileName={'tab1_off.png'} />
           )}
         </View>
         <View style={styles.tabView}>
@@ -72,9 +73,9 @@ const TabBarMenu = (props) => {
       >
         <View style={styles.tabIcon}>
           {screenName == 'Social' ? (
-          <AutoHeightImage width={20} source={require("../assets/image/tab2_on.png")} />
+            <ImgDomain fileWidth={20} fileName={'tab2_on.png'} />
           ) : (
-          <AutoHeightImage width={20} source={require("../assets/image/tab2_off.png")} />
+            <ImgDomain fileWidth={20} fileName={'tab2_off.png'} />
           )}
         </View>
         <View style={styles.tabView}>
@@ -90,9 +91,9 @@ const TabBarMenu = (props) => {
       >
         <View style={styles.tabIcon}>
           {screenName == 'Community' ? (
-          <AutoHeightImage width={20} source={require("../assets/image/tab3_on.png")} />
+            <ImgDomain fileWidth={20} fileName={'tab3_on.png'} />
           ) : (
-          <AutoHeightImage width={20} source={require("../assets/image/tab3_off.png")} />
+            <ImgDomain fileWidth={20} fileName={'tab3_off.png'} />
           )}
         </View>
         <View style={styles.tabView}>
@@ -108,9 +109,9 @@ const TabBarMenu = (props) => {
       >
         <View style={styles.tabIcon}>
           {screenName == 'Mypage' ? (
-          <AutoHeightImage width={20} source={require("../assets/image/tab4_on.png")} />
+            <ImgDomain fileWidth={20} fileName={'tab4_on.png'} />
           ) : (
-          <AutoHeightImage width={20} source={require("../assets/image/tab4_off.png")} />
+            <ImgDomain fileWidth={20} fileName={'tab4_off.png'} />
           )}
         </View>
         <View style={styles.tabView}>
@@ -121,8 +122,8 @@ const TabBarMenu = (props) => {
   )
 }
 
-const TabNav = (props) => {
-	const {navigation, userInfo, chatInfo, member_chatCnt} = props;
+const TabNavigation = (props) => {
+	const {navigation, userInfo, route} = props;   
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -184,11 +185,9 @@ const styles = StyleSheet.create({
 export default connect(
   ({ User }) => ({
       userInfo: User.userInfo, //회원정보      
-      chatInfo : User.chatInfo
   }),
   (dispatch) => ({
       member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
-      member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회      
-      member_chatCnt: (user) => dispatch(UserAction.member_chatCnt(user))
+      member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회     
   })
-)(TabNav);
+)(TabNavigation);

@@ -19,6 +19,7 @@
 		872E2A472BEC537500657FD7 /* Roboto-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 872E2A412BEC537500657FD7 /* Roboto-Bold.ttf */; };
 		872E2A482BEC537500657FD7 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 872E2A422BEC537500657FD7 /* Roboto-Medium.ttf */; };
 		872E2A492BEC537500657FD7 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 872E2A432BEC537500657FD7 /* Roboto-Regular.ttf */; };
+		87398EE32BFB0A7C00EF4FD4 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87398EE22BFB0A7C00EF4FD4 /* StoreKit.framework */; };
 		87E95A1C2BD0F49A0037035A /* NotoSansKR-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87E95A162BD0F49A0037035A /* NotoSansKR-Medium.ttf */; };
 		87E95A1D2BD0F49A0037035A /* NotoSansKR-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87E95A172BD0F49A0037035A /* NotoSansKR-Bold.ttf */; };
 		87E95A1E2BD0F49A0037035A /* NotoSansKR-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87E95A182BD0F49A0037035A /* NotoSansKR-Thin.ttf */; };
@@ -76,6 +77,7 @@
 		872E2A412BEC537500657FD7 /* Roboto-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Bold.ttf"; path = "Fonts/Roboto-Bold.ttf"; sourceTree = "<group>"; };
 		872E2A422BEC537500657FD7 /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Medium.ttf"; path = "Fonts/Roboto-Medium.ttf"; sourceTree = "<group>"; };
 		872E2A432BEC537500657FD7 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Regular.ttf"; path = "Fonts/Roboto-Regular.ttf"; sourceTree = "<group>"; };
+		87398EE22BFB0A7C00EF4FD4 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		87E95A162BD0F49A0037035A /* NotoSansKR-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSansKR-Medium.ttf"; path = "Fonts/NotoSansKR-Medium.ttf"; sourceTree = "<group>"; };
 		87E95A172BD0F49A0037035A /* NotoSansKR-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSansKR-Bold.ttf"; path = "Fonts/NotoSansKR-Bold.ttf"; sourceTree = "<group>"; };
 		87E95A182BD0F49A0037035A /* NotoSansKR-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSansKR-Thin.ttf"; path = "Fonts/NotoSansKR-Thin.ttf"; sourceTree = "<group>"; };
@@ -104,6 +106,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDCF6E488BDD455684800530 /* libPods-Physicalmatchapp.a in Frameworks */,
+				87398EE32BFB0A7C00EF4FD4 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,6 +153,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				87398EE22BFB0A7C00EF4FD4 /* StoreKit.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				734A5B95C674F364EE2091B7 /* libPods-Physicalmatchapp.a */,
 				252996DCD46B28D2AD8C7AEB /* libPods-Physicalmatchapp-PhysicalmatchappTests.a */,

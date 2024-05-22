@@ -12,6 +12,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -195,7 +196,7 @@ const BlockPeople = ({navigation, route}) => {
 							setBlockNumberList(realBlockNumberList);
 						}}
           >
-            <AutoHeightImage width={18} source={require('../../assets/image/icon_call.png')} />
+						<ImgDomain fileWidth={18} fileName={'icon_call.png'}/>
             <Text style={styles.blockBtnText}>연락처로 차단하기</Text>
           </TouchableOpacity>
         </View>
@@ -214,7 +215,7 @@ const BlockPeople = ({navigation, route}) => {
 							setBlockNameList(realBlockNameList);
 						}}
           >
-            <AutoHeightImage width={18} source={require('../../assets/image/icon_people.png')} />
+						<ImgDomain fileWidth={18} fileName={'icon_people.png'}/>
             <Text style={styles.blockBtnText}>실명으로 차단하기</Text>
           </TouchableOpacity>
         </View>
@@ -243,10 +244,7 @@ const BlockPeople = ({navigation, route}) => {
 									setPreventBack(false);
 								}}
 							>
-								<AutoHeightImage
-									width={18}
-									source={require("../../assets/image/popup_x.png")}
-								/>
+								<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 							</TouchableOpacity>		
 							<View style={styles.popTitle}>
 								<Text style={styles.popTitleText}>연락처 차단</Text>
@@ -293,7 +291,7 @@ const BlockPeople = ({navigation, route}) => {
 														removeData('number', item.phoneNumber);
 													}}
 												>
-													<AutoHeightImage width={22} source={require('../../assets/image/icon_minus3.png')} />
+													<ImgDomain fileWidth={22} fileName={'icon_minus3.png'}/>
 												</TouchableOpacity>
 											</View>
 										)
@@ -342,10 +340,7 @@ const BlockPeople = ({navigation, route}) => {
 									setPreventBack(false);
 								}}
 							>
-								<AutoHeightImage
-									width={18}
-									source={require("../../assets/image/popup_x.png")}
-								/>
+								<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>								
 							</TouchableOpacity>		
 							<View style={styles.popTitle}>
 								<Text style={styles.popTitleText}>실명 차단</Text>
@@ -391,8 +386,8 @@ const BlockPeople = ({navigation, route}) => {
 													onPress={() => {
 														removeData('name', item.name);
 													}}
-												>
-													<AutoHeightImage width={22} source={require('../../assets/image/icon_minus3.png')} />
+												>													
+													<ImgDomain fileWidth={22} fileName={'icon_minus3.png'}/>
 												</TouchableOpacity>
 											</View>
 										)

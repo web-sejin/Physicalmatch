@@ -12,6 +12,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -288,10 +289,7 @@ const RegisterStep1 = ({navigation, route}) => {
 						setPreventBack(false);
 					}}
 				>
-					<AutoHeightImage
-						width={18}
-						source={require("../../assets/image/popup_x.png")}
-					/>
+					<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 				</TouchableOpacity>
 				<View style={styles.popTitle}>
 					<Text style={styles.popTitleText}>{prvTitle}</Text>

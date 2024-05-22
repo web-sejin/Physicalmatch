@@ -14,6 +14,7 @@ import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -373,10 +374,7 @@ const RegisterStep7 = ({navigation, route}) => {
 								}}
 							>
 								<Text style={styles.guideBtnText}>자기소개 가이드</Text>
-								<AutoHeightImage 
-									width={5}
-									source={require("../../assets/image/icon_arr2.png")}
-								/>
+								<ImgDomain fileWidth={5} fileName={'icon_arr2.png'}/>
 							</TouchableOpacity>
 
 							<View style={styles.mgt20}>
@@ -418,7 +416,7 @@ const RegisterStep7 = ({navigation, route}) => {
 												activeOpacity={0.5}
 												onPress={()=>{removeQna(item.key, item.listIdx)}}
 											>
-												<AutoHeightImage width={12} source={require("../../assets/image/icon_close3.png")} />							
+												<ImgDomain fileWidth={12} fileName={'icon_close3.png'}/>
 											</TouchableOpacity>
 											) : null}
 
@@ -438,7 +436,7 @@ const RegisterStep7 = ({navigation, route}) => {
 													</View>
 												) : (
 													<View style={styles.qnaBefore}>
-														<AutoHeightImage width={24} source={require("../../assets/image/icon_plus4.png")} />							
+														<ImgDomain fileWidth={24} fileName={'icon_plus4.png'}/>
 														<Text style={styles.qnaBeforeText}>질문을 선택해 주세요.</Text>
 													</View>
 												)}
@@ -452,7 +450,7 @@ const RegisterStep7 = ({navigation, route}) => {
 								activeOpacity={opacityVal}
 								onPress={() => {addInterview()}}
 							>
-								<AutoHeightImage width={10} source={require("../../assets/image/icon_plus5.png")} />	
+								<ImgDomain fileWidth={10} fileName={'icon_plus5.png'}/>
 								<Text style={styles.addBtnText}>인터뷰 추가</Text>
 							</TouchableOpacity>
 						</View>					
@@ -483,7 +481,7 @@ const RegisterStep7 = ({navigation, route}) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setGuideModal(false)}}						
 					>
-						<AutoHeightImage width={16} source={require("../../assets/image/icon_close2.png")} />
+						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
 				<ScrollView>
@@ -501,13 +499,13 @@ const RegisterStep7 = ({navigation, route}) => {
 									onPress={()=>{setSt1(!st1)}}
 								>
 									<View style={styles.guidePopContBtnTitle}>
-										<AutoHeightImage width={14} source={require('../../assets/image/ic1.png')} />
+										<ImgDomain fileWidth={14} fileName={'ic1.png'}/>
 										<Text style={styles.guidePopContBtnText}>피지컬 강조형</Text>
 									</View>
 									{st1 ? (
-										<AutoHeightImage width={10} source={require('../../assets/image/icon_arr4.png')} style={styles.guidePopContArr} />
+										<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
 									) : (
-										<AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} style={styles.guidePopContArr} />
+										<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
 									)}
 								</TouchableOpacity>
 								{st1 ? (
@@ -523,14 +521,14 @@ const RegisterStep7 = ({navigation, route}) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{setSt2(!st2)}}
 								>
-									<View style={styles.guidePopContBtnTitle}>
-										<AutoHeightImage width={14} source={require('../../assets/image/ic2.png')} />
+									<View style={styles.guidePopContBtnTitle}>										
+										<ImgDomain fileWidth={14} fileName={'ic2.png'}/>
 										<Text style={styles.guidePopContBtnText}>취미 강조형</Text>
 									</View>
 									{st2 ? (
-										<AutoHeightImage width={10} source={require('../../assets/image/icon_arr4.png')} style={styles.guidePopContArr} />
+										<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
 									) : (
-										<AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} style={styles.guidePopContArr} />
+										<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
 									)}
 								</TouchableOpacity>
 								{st2 ? (
@@ -547,13 +545,13 @@ const RegisterStep7 = ({navigation, route}) => {
 									onPress={()=>{setSt3(!st3)}}
 								>
 									<View style={styles.guidePopContBtnTitle}>
-										<AutoHeightImage width={14} source={require('../../assets/image/ic3.png')} />
+										<ImgDomain fileWidth={14} fileName={'ic3.png'}/>
 										<Text style={styles.guidePopContBtnText}>자기소개 가이드 제목</Text>
 									</View>
 									{st3 ? (
-										<AutoHeightImage width={10} source={require('../../assets/image/icon_arr4.png')} style={styles.guidePopContArr} />
+										<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
 									) : (
-										<AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} style={styles.guidePopContArr} />
+										<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
 									)}
 								</TouchableOpacity>
 								{st3 ? (
@@ -570,13 +568,13 @@ const RegisterStep7 = ({navigation, route}) => {
 									onPress={()=>{setSt4(!st4)}}
 								>
 									<View style={styles.guidePopContBtnTitle}>
-										<AutoHeightImage width={14} source={require('../../assets/image/ic4.png')} />
+										<ImgDomain fileWidth={14} fileName={'ic4.png'}/>
 										<Text style={styles.guidePopContBtnText}>자기소개 가이드 제목</Text>
 									</View>
 									{st4 ? (
-										<AutoHeightImage width={10} source={require('../../assets/image/icon_arr4.png')} style={styles.guidePopContArr} />
+										<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
 									) : (
-										<AutoHeightImage width={10} source={require('../../assets/image/icon_arr3.png')} style={styles.guidePopContArr} />
+										<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
 									)}
 								</TouchableOpacity>
 								{st4 ? (
@@ -603,7 +601,7 @@ const RegisterStep7 = ({navigation, route}) => {
 								setPreventBack(false);
 							}}						
 						>
-							<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
 					</View>
 
@@ -666,11 +664,7 @@ const RegisterStep7 = ({navigation, route}) => {
 											</Text>
 											{item.best && !item.chk ? (<View style={styles.qnaBest}><Text style={styles.qnaBestText}>BEST</Text></View>) : null}
 											{item.chk ? (
-												<AutoHeightImage 
-													width={18} 
-													source={require("../../assets/image/icon_chk4.png")} 
-													style={styles.qnaChkIcon}
-												/>
+												<ImgDomain fileWidth={18} fileName={'icon_chk4.png'}/>
 											) : null}
 										</TouchableOpacity>
 									)
@@ -694,7 +688,7 @@ const RegisterStep7 = ({navigation, route}) => {
 								activeOpacity={opacityVal}
 								onPress={WritePopOff}
 							>
-								<AutoHeightImage width={16} source={require("../../assets/image/icon_close2.png")} />
+								<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 							</TouchableOpacity>
 
 							<TouchableOpacity
@@ -723,7 +717,7 @@ const RegisterStep7 = ({navigation, route}) => {
 										activeOpacity={opacityVal}
 										onPress={WritePopOff}
 									>
-										<AutoHeightImage width={12} source={require("../../assets/image/icon_pen.png")} />
+										<ImgDomain fileWidth={12} fileName={'icon_pen.png'}/>
 										<Text style={styles.inputChgText}>변경</Text>
 									</TouchableOpacity>
 								</View>

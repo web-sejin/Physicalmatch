@@ -42,7 +42,7 @@ const Login = ({navigation, route}) => {
   
   const sendLogin = async () => {
 		if(!id || id == ""){
-			ToastMessage('이메일을 입력해 주세요.');
+			ToastMessage('아이디를 입력해 주세요.');
 			return false;
 		}
 

@@ -14,6 +14,7 @@ import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -486,8 +487,8 @@ const RegisterStep8 = ({navigation, route}) => {
 									!realFile1.path ? setPreventBack(true) : null
 								}}
 							>
-								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_height.png')} />
+								<View style={styles.badgeBtnLeft}>									
+									<ImgDomain fileWidth={45} fileName={'b_height.png'}/>
 									<Text style={styles.badgeBtnLeftText}>키 배지</Text>
 								</View>
 								{realFile1.path ? (
@@ -495,7 +496,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
@@ -509,8 +510,8 @@ const RegisterStep8 = ({navigation, route}) => {
 									!realFile2.path ? setPreventBack(true) : null
 								}}
 							>
-								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_muscle.png')} />
+								<View style={styles.badgeBtnLeft}>									
+									<ImgDomain fileWidth={45} fileName={'b_muscle.png'}/>
 									<Text style={styles.badgeBtnLeftText}>골격근량 배지</Text>
 								</View>
 								{realFile2.path ? (
@@ -518,7 +519,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 						</View>
@@ -540,8 +541,8 @@ const RegisterStep8 = ({navigation, route}) => {
 									!realFile3.path ? setPreventBack(true) : null
 								}}
 							>
-								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_money.png')} />
+								<View style={styles.badgeBtnLeft}>									
+									<ImgDomain fileWidth={45} fileName={'b_money.png'}/>
 									<Text style={styles.badgeBtnLeftText}>개인 소득 배지</Text>
 								</View>
 								{realFile3.path ? (
@@ -549,7 +550,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
@@ -563,8 +564,8 @@ const RegisterStep8 = ({navigation, route}) => {
 									!realFile4.path ? setPreventBack(true) : null
 								}}
 							>
-								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_money2.png')} />
+								<View style={styles.badgeBtnLeft}>									
+									<ImgDomain fileWidth={45} fileName={'b_money2.png'}/>
 									<Text style={styles.badgeBtnLeftText}>개인 자산 배지</Text>
 								</View>
 								{realFile4.path ? (
@@ -572,7 +573,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
@@ -586,8 +587,8 @@ const RegisterStep8 = ({navigation, route}) => {
 									!realFile5.path ? setPreventBack(true) : null
 								}}
 							>
-								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_money3.png')} />
+								<View style={styles.badgeBtnLeft}>									
+									<ImgDomain fileWidth={45} fileName={'b_money3.png'}/>
 									<Text style={styles.badgeBtnLeftText}>집안 자산 배지</Text>
 								</View>
 								{realFile5.path ? (
@@ -595,7 +596,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
@@ -609,8 +610,8 @@ const RegisterStep8 = ({navigation, route}) => {
 									!realFile6.path ? setPreventBack(true) : null
 								}}
 							>
-								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_car.png')} />
+								<View style={styles.badgeBtnLeft}>									
+									<ImgDomain fileWidth={45} fileName={'b_car.png'}/>
 									<Text style={styles.badgeBtnLeftText}>차량 배지</Text>
 								</View>
 								{realFile6.path ? (
@@ -618,7 +619,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 						</View>
@@ -639,8 +640,8 @@ const RegisterStep8 = ({navigation, route}) => {
 									!realFile7.path ? setPreventBack(true) : null
 								}}
 							>
-								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_job.png')} />
+								<View style={styles.badgeBtnLeft}>									
+									<ImgDomain fileWidth={45} fileName={'b_job.png'}/>
 									<Text style={styles.badgeBtnLeftText}>직업 배지</Text>
 								</View>
 								{realFile7.path ? (
@@ -648,7 +649,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
@@ -662,8 +663,8 @@ const RegisterStep8 = ({navigation, route}) => {
 									!realFile8.path ? setPreventBack(true) : null
 								}}
 							>
-								<View style={styles.badgeBtnLeft}>
-									<AutoHeightImage width={45} source={require('../../assets/image/b_school.png')} />
+								<View style={styles.badgeBtnLeft}>									
+									<ImgDomain fileWidth={45} fileName={'b_school.png'}/>
 									<Text style={styles.badgeBtnLeftText}>학력 배지</Text>
 								</View>
 								{realFile8.path ? (
@@ -671,7 +672,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 						</View>
@@ -699,7 +700,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<TouchableOpacity
@@ -726,7 +727,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 							<TouchableOpacity
@@ -746,7 +747,7 @@ const RegisterStep8 = ({navigation, route}) => {
 										<Text style={styles.stateViewText}>심사중</Text>
 									</View>
 								) : (
-									<AutoHeightImage width={24} source={require('../../assets/image/icon_arr5.png')} />
+									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
 								)}
 							</TouchableOpacity>
 						</View>
@@ -779,8 +780,8 @@ const RegisterStep8 = ({navigation, route}) => {
 							onPress={() => {
 								offBadgeModal();								
 							}}						
-						>
-							<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+						>							
+							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
 					</View>
 					<ScrollView>
@@ -807,10 +808,10 @@ const RegisterStep8 = ({navigation, route}) => {
 										}}
 									>
 										<View style={[styles.badgeBtnLeft]}>
-											{badgeGrade!= '' && badgeGrade != 'silver' ? (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_silver_off.png')} />
+											{badgeGrade!= '' && badgeGrade != 'silver' ? (												
+												<ImgDomain fileWidth={45} fileName={'b_silver_off.png'}/>
 											) : (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_silver.png')} />	
+												<ImgDomain fileWidth={45} fileName={'b_silver.png'}/>
 											)}
 											<View style={styles.badgeBtnLeftWrap}>
 												<Text style={[
@@ -847,9 +848,9 @@ const RegisterStep8 = ({navigation, route}) => {
 									>
 										<View style={[styles.badgeBtnLeft]}>
 											{badgeGrade!= '' && badgeGrade != 'gold' ? (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_gold_off.png')} />
+												<ImgDomain fileWidth={45} fileName={'b_gold_off.png'}/>
 											) : (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_gold.png')} />	
+												<ImgDomain fileWidth={45} fileName={'b_gold.png'}/>
 											)}
 											<View style={styles.badgeBtnLeftWrap}>
 												<Text style={[
@@ -886,9 +887,9 @@ const RegisterStep8 = ({navigation, route}) => {
 									>
 										<View style={[styles.badgeBtnLeft]}>
 											{badgeGrade!= '' && badgeGrade != 'dia' ? (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_diamond_off.png')} />
+												<ImgDomain fileWidth={45} fileName={'b_diamond_off.png'}/>												
 											) : (
-												<AutoHeightImage width={45} source={require('../../assets/image/b_diamond.png')} />	
+												<ImgDomain fileWidth={45} fileName={'b_diamond.png'}/>
 											)}
 											<View style={styles.badgeBtnLeftWrap}>
 												<Text style={[
@@ -950,7 +951,7 @@ const RegisterStep8 = ({navigation, route}) => {
 									<Text style={styles.iptSubTitText}>제출 자료명</Text>									
 								</View>
 								<View style={[styles.exampleBox, styles.mgt8]}>
-									<AutoHeightImage width={innerWidth} source={require('../../assets/image/example.jpg')} />
+									<ImgDomain fileWidth={innerWidth} fileName={'example.jpg'}/>
 								</View>
 								<View style={styles.exampleBoxDesc}>
 									<Text style={styles.exampleBoxDescText}>성함, 금액 등의 필수로 노출되어야 합니다</Text>
@@ -983,7 +984,7 @@ const RegisterStep8 = ({navigation, route}) => {
 												setFile({});
 											}}
 										>
-											<AutoHeightImage width={24} source={require('../../assets/image/icon_trash.png')} />
+											<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
 										</TouchableOpacity>
 									</View>
 								) : (
@@ -993,7 +994,7 @@ const RegisterStep8 = ({navigation, route}) => {
 											activeOpacity={opacityVal}
 											onPress={() => {chooseImage()}}
 										>
-											<AutoHeightImage width={18} source={require('../../assets/image/icon_upload.png')} />
+											<ImgDomain fileWidth={18} fileName={'icon_upload.png'}/>
 											<Text style={styles.uploadBoxBtnText}>사진 업로드</Text>
 										</TouchableOpacity>
 										<View style={styles.uploadBoxDesc}>
@@ -1033,8 +1034,8 @@ const RegisterStep8 = ({navigation, route}) => {
 								setJobModal(false);								
 								setPreventBack(false);
 							}}						
-						>
-							<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+						>							
+							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
 					</View>
 					<ScrollView>
@@ -1044,7 +1045,9 @@ const RegisterStep8 = ({navigation, route}) => {
 							</View>
 							<View style={[styles.cmDescBox, styles.cmDescBoxFlex]}>
 								<Text style={styles.cmDescText}>입력한 직업</Text>
-								<AutoHeightImage width={5} source={require('../../assets/image/icon_arr6.png')} style={styles.cmDescArr} />
+								<View style={styles.cmDescArr}>
+									<ImgDomain fileWidth={5} fileName={'icon_arr6.png'}/>
+								</View>
 								<Text style={styles.cmDescText2}>입력한 직업 상세</Text>
 							</View>
 
@@ -1088,7 +1091,7 @@ const RegisterStep8 = ({navigation, route}) => {
 												setJobFile({});
 											}}
 										>
-											<AutoHeightImage width={24} source={require('../../assets/image/icon_trash.png')} />
+											<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
 										</TouchableOpacity>
 									</View>
 								) : (
@@ -1097,8 +1100,8 @@ const RegisterStep8 = ({navigation, route}) => {
 											style={styles.uploadBoxBtn}
 											activeOpacity={opacityVal}
 											onPress={() => {jobImage()}}
-										>
-											<AutoHeightImage width={18} source={require('../../assets/image/icon_upload.png')} />
+										>											
+											<ImgDomain fileWidth={18} fileName={'icon_upload.png'}/>
 											<Text style={styles.uploadBoxBtnText}>사진 업로드</Text>
 										</TouchableOpacity>
 										<View style={styles.uploadBoxDesc}>
@@ -1137,7 +1140,7 @@ const RegisterStep8 = ({navigation, route}) => {
 								setPreventBack(false);
 							}}						
 						>
-							<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
 					</View>
 					<KeyboardAvoidingView
@@ -1227,7 +1230,7 @@ const RegisterStep8 = ({navigation, route}) => {
 														setSchoolFile({});
 													}}
 												>
-													<AutoHeightImage width={24} source={require('../../assets/image/icon_trash.png')} />
+													<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
 												</TouchableOpacity>
 											</View>
 										) : (
@@ -1237,7 +1240,7 @@ const RegisterStep8 = ({navigation, route}) => {
 													activeOpacity={opacityVal}
 													onPress={() => {schoolImage()}}
 												>
-													<AutoHeightImage width={18} source={require('../../assets/image/icon_upload.png')} />
+													<ImgDomain fileWidth={18} fileName={'icon_upload.png'}/>
 													<Text style={styles.uploadBoxBtnText}>사진 업로드</Text>
 												</TouchableOpacity>
 												<View style={styles.uploadBoxDesc}>
@@ -1278,7 +1281,7 @@ const RegisterStep8 = ({navigation, route}) => {
 								setPreventBack(false);
 							}}						
 						>
-							<AutoHeightImage width={8} source={require("../../assets/image/icon_header_back.png")} />
+							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
 					</View>
 					<KeyboardAvoidingView
@@ -1353,7 +1356,7 @@ const RegisterStep8 = ({navigation, route}) => {
 														setMarryFile({});
 													}}
 												>
-													<AutoHeightImage width={24} source={require('../../assets/image/icon_trash.png')} />
+													<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
 												</TouchableOpacity>
 											</View>
 										) : (
@@ -1363,7 +1366,7 @@ const RegisterStep8 = ({navigation, route}) => {
 													activeOpacity={opacityVal}
 													onPress={() => {marryImage()}}
 												>
-													<AutoHeightImage width={18} source={require('../../assets/image/icon_upload.png')} />
+													<ImgDomain fileWidth={18} fileName={'icon_upload.png'}/>
 													<Text style={styles.uploadBoxBtnText}>사진 업로드</Text>
 												</TouchableOpacity>
 												<View style={styles.uploadBoxDesc}>
@@ -1409,10 +1412,7 @@ const RegisterStep8 = ({navigation, route}) => {
 							setPreventBack(false);
 						}}
 					>
-						<AutoHeightImage
-							width={18}
-							source={require("../../assets/image/popup_x.png")}
-						/>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>		
 					<View style={styles.popTitle}>
 						<Text style={styles.popTitleText}>심사 등록</Text>
