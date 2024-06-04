@@ -18,7 +18,7 @@ const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
-const innerHeight = widnowHeight - 40 - stBarHt;
+const innerHeight = widnowHeight - 40 - (stBarHt*2);
 const opacityVal = 0.8;
 
 const BlockPeople = ({navigation, route}) => {	

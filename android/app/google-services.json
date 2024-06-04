@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "623714676277",
+    "project_id": "physicalmatch-b8cbb",
+    "storage_bucket": "physicalmatch-b8cbb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623714676277:android:e63c228b871d8506344b7c",
+        "android_client_info": {
+          "package_name": "com.physicalmatchapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAamGTz_IjzqNmY1AJdjSc1ShC4-GPOipk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

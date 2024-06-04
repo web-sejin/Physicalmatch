@@ -23,6 +23,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import Font from '../assets/common/Font';
 import ImgDomain from '../assets/common/ImgDomain';
+import messaging from '@react-native-firebase/messaging';
+import PushNotificationIOS from "@react-native-community/push-notification-ios";
 
 import Home from './Home';
 import Social from './Social/Social';
@@ -135,6 +137,39 @@ const TabNavigation = (props) => {
 
 		return () => isSubscribed = false;
 	}, [isFocused]);
+
+  const requestUserPermission = async () => {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+        console.log('Authorization status:', authStatus);
+    }
+  }
+
+  if (Platform.OS === 'ios') { PushNotificationIOS.setApplicationIconBadgeNumber(0); }
+
+  useEffect(() => {
+    //포그라운드 상태
+     messaging().onMessage((remoteMessage) => {
+       console.log('포그라운드 ::: ',remoteMessage);     
+     });
+ 
+     //백그라운드 상태
+     messaging().onNotificationOpenedApp((remoteMessage) => {
+       //console.log('onNotificationOpenedApp', remoteMessage);
+       console.log('백그라운드 ::: ', remoteMessage);     
+     });
+ 
+     //종료상태
+     messaging().getInitialNotification().then((remoteMessage) => {
+       // console.log('getInitialNotification', remoteMessage);
+       console.log('종료상태 ::: ',remoteMessage)
+     });
+ 
+   }, []);
 
 	return (
 		<>

@@ -7,7 +7,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
-import Swiper from 'react-native-web-swiper';
+import { SwiperFlatList } from 'react-native-swiper-flatlist';
 
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
@@ -33,6 +33,12 @@ const Community = (props) => {
 		{idx:8, cate:'셀소', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
 	];
 
+	const swp = [
+    {idx:1, imgUrl:'', type:'community_guide'},
+    {idx:2, imgUrl:'', type:'social_guide'},
+    {idx:3, imgUrl:'', type:'shop_free'},
+  ]
+
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route	
@@ -44,6 +50,9 @@ const Community = (props) => {
 	const [loading, setLoading] = useState(false);
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [commList, setCommList] = useState([]);
+	const [swiperList, setSwiperList] = useState([]);
+	const [guideModal, setGuideModal] = useState(false);
+	const [guideModal2, setGuideModal2] = useState(false);
 
 	const [tabState, setTabState] = useState(1); //자유, 운동, 프교, 셀소
 	const [sch, setSCh] = useState('');	
@@ -102,6 +111,7 @@ const Community = (props) => {
 		setLoading(true);		
 		setTimeout(() => {
 			setCommList(commData);
+			setSwiperList(swp);
 			setLoading(false);
 		}, 1000);
 	}, [])
@@ -188,11 +198,12 @@ const Community = (props) => {
 		<SafeAreaView style={styles.safeAreaView}>
 			<View style={styles.header}>
 				<View style={styles.headerTop}>
-					<View style={styles.headerTitle}>
+					<View style={styles.headerTopTitle}>
 						<Text style={styles.headerTitleText}>Community</Text>
 					</View>
 					<View style={styles.headerLnb}>
 						<TouchableOpacity
+							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
 							onPress={() => navigation.navigate('MyCommunity')}
 						>
@@ -267,36 +278,34 @@ const Community = (props) => {
 				ListHeaderComponent={
 					<>
 					<View style={styles.swiperView}>
-						<Swiper					
-							ref={swiperRef}	
-							autoplay={true}
-							showsPagination={false}
-							controlsProps={{
-								prevTitle: '',
-								nextTitle: '',
-								dotsTouchable: true,
-								DotComponent: ({ index, activeIndex, isActive, onPress }) => null              
+						<SwiperFlatList
+							ref={swiperRef}
+							index={0}
+							data={swiperList}
+							onChangeIndex={(obj) => {
+								
 							}}
-							onIndexChanged={(e) => {
-								//console.log(e);
-								//setActiveDot(e);
+							renderItem={({ item, index }) => {
+								return (
+									<TouchableOpacity 
+										key={index}
+										style={styles.commuBanner}
+										activeOpacity={opacityVal}
+										onPress={()=>{
+											if(item.type == 'community_guide'){
+												setGuideModal(true);
+											}else if(item.type == 'social_guide'){
+												setGuideModal2(true);
+											}else if(item.type == 'shop_free'){
+												navigation.navigate('Shop', {tab:2});
+											}
+										}}
+									>
+										<ImgDomain fileWidth={widnowWidth} fileName={'slide_banner'+(index+1)+'.png'} />
+									</TouchableOpacity>
+								)
 							}}
-						>
-							<TouchableOpacity 
-								style={styles.commuBanner}
-								activeOpacity={opacityVal}
-								onPress={()=>{}}
-							>
-								<AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/social_banner.png'}} resizeMethod='resize' />
-							</TouchableOpacity>
-							<TouchableOpacity 
-								style={styles.commuBanner}
-								activeOpacity={opacityVal}
-								onPress={()=>{}}
-							>
-								<AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/social_banner.png'}} resizeMethod='resize' />
-							</TouchableOpacity>
-						</Swiper>
+						/>
 					</View>	
 					
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -348,6 +357,54 @@ const Community = (props) => {
       </TouchableOpacity>
 			) : null}
 
+			{/* 커뮤니티 가이드 */}
+			<Modal
+				visible={guideModal}
+				animationType={"none"}
+				onRequestClose={() => {setGuideModal(false)}}
+			>
+				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
+				<View style={styles.modalHeader}>	
+					<Text numberOfLines={1} ellipsizeMode='tail' style={styles.headerTitle}>커뮤니티 이용 가이드</Text>
+					<TouchableOpacity
+						style={styles.headerBackBtn2}
+						activeOpacity={opacityVal}
+						onPress={() => {setGuideModal(false)}}						
+					>
+						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
+					</TouchableOpacity>
+				</View>
+				<ScrollView>
+					<View style={styles.guidePopCont}>
+						<Text style={styles.guidePopContText}>커뮤니티 가이드입니다.</Text>
+					</View>
+				</ScrollView>
+			</Modal>
+
+			{/* 소셜 가이드 */}
+			<Modal
+				visible={guideModal2}
+				animationType={"none"}
+				onRequestClose={() => {setGuideModal2(false)}}
+			>
+				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
+				<View style={styles.modalHeader}>	
+					<Text numberOfLines={1} ellipsizeMode='tail' style={styles.headerTitle}>소셜 이용 가이드</Text>
+					<TouchableOpacity
+						style={styles.headerBackBtn2}
+						activeOpacity={opacityVal}
+						onPress={() => {setGuideModal2(false)}}						
+					>
+						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
+					</TouchableOpacity>
+				</View>
+				<ScrollView>
+					<View style={styles.guidePopCont}>
+						<Text style={styles.guidePopContText}>소셜 가이드입니다.</Text>
+					</View>
+				</ScrollView>
+			</Modal>
+
 			{loading ? (
       <View style={[styles.indicator]}>
         <ActivityIndicator size="large" color="#D1913C" />
@@ -363,11 +420,11 @@ const styles = StyleSheet.create({
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
 
 	header: {backgroundColor:'#141E30'},
-	headerTop: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingTop:20,paddingBottom:10,paddingHorizontal:20,},
-	headerTitle: {},
+	headerTop: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingTop:20,paddingBottom:10,},
+	headerTopTitle: {paddingLeft:20,},
 	headerTitleText: {fontFamily:Font.RobotoMedium,fontSize:24,lineHeight:26,color:'#fff'},
-	headerLnb: {flexDirection:'row',alignItems:'center',},
-	headerLnbBtn: {marginLeft:16,},
+	headerLnb: {flexDirection:'row',alignItems:'center',paddingRight:15,},
+	headerLnbBtn: {marginLeft:6,paddingHorizontal:5,},
 	headerBot: {flexDirection:'row',},
 	headerTab: {width:widnowWidth/4,height:60,alignItems:'center',justifyContent:'center',position:'relative',paddingTop:10,},
 	headerTabText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:17,color:'#fff'},
@@ -383,6 +440,9 @@ const styles = StyleSheet.create({
 	headerSubmitBtnTextOn: {color:'#243B55'},
 	filterResetBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',paddingHorizontal:20,height:48,backgroundColor:'#fff',position:'absolute',top:0,right:0,zIndex:10,},
 	filterResetText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#1E1E1E',marginLeft:6,},
+
+	guidePopCont: {padding:20,},
+	guidePopContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e'},
 
 	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
 	socialSchBoxWrap: {flexDirection:'row',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
@@ -401,11 +461,11 @@ const styles = StyleSheet.create({
 		shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 0,
+      height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-		elevation: 1,
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+		elevation: 4,
 	},
 
 	commLi: {marginTop:5,},

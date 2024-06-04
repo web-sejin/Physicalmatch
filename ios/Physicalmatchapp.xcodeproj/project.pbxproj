@@ -8,27 +8,29 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* PhysicalmatchappTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* PhysicalmatchappTests.m */; };
+		0CACB85683664F69962DBDC2 /* NotoSansKR-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8BE525CD9DC64028803283DD /* NotoSansKR-Medium.otf */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		27EA04ED43ED42A39E0EFC5B /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CFB789E5FF164C9CB581E56D /* Roboto-Medium.ttf */; };
+		3D6BE1FEDB08494499A2BE60 /* NotoSansKR-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 421053F3397D4460BB468671 /* NotoSansKR-Regular.otf */; };
+		3E226ED5984448AD8F828FBC /* Roboto-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2FE13CA3C059460584FE8137 /* Roboto-Bold.ttf */; };
+		3E8412A861874CBEADF84508 /* NotoSansKR-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 9008602F6DDC42B58D3CA986 /* NotoSansKR-Bold.otf */; };
+		4B293E69154741D49056A08D /* Roboto-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 27EF8F60407F407086B427DD /* Roboto-Thin.ttf */; };
+		55743D1C82FC401280EEE012 /* Roboto-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 79EFCA1390754D73B5E276E6 /* Roboto-Light.ttf */; };
+		7DC3DE45BD2845FC8A59DFF2 /* NotoSansKR-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 27FCCFC087DF4E38829E34D7 /* NotoSansKR-Light.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		872E2A3D2BEC535900657FD7 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 872E2A3C2BEC535900657FD7 /* Fonts */; };
-		872E2A442BEC537500657FD7 /* Roboto-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 872E2A3E2BEC537500657FD7 /* Roboto-Light.ttf */; };
-		872E2A452BEC537500657FD7 /* Roboto-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 872E2A3F2BEC537500657FD7 /* Roboto-Thin.ttf */; };
-		872E2A462BEC537500657FD7 /* Roboto-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 872E2A402BEC537500657FD7 /* Roboto-Black.ttf */; };
-		872E2A472BEC537500657FD7 /* Roboto-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 872E2A412BEC537500657FD7 /* Roboto-Bold.ttf */; };
-		872E2A482BEC537500657FD7 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 872E2A422BEC537500657FD7 /* Roboto-Medium.ttf */; };
-		872E2A492BEC537500657FD7 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 872E2A432BEC537500657FD7 /* Roboto-Regular.ttf */; };
 		87398EE32BFB0A7C00EF4FD4 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87398EE22BFB0A7C00EF4FD4 /* StoreKit.framework */; };
-		87E95A1C2BD0F49A0037035A /* NotoSansKR-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87E95A162BD0F49A0037035A /* NotoSansKR-Medium.ttf */; };
-		87E95A1D2BD0F49A0037035A /* NotoSansKR-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87E95A172BD0F49A0037035A /* NotoSansKR-Bold.ttf */; };
-		87E95A1E2BD0F49A0037035A /* NotoSansKR-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87E95A182BD0F49A0037035A /* NotoSansKR-Thin.ttf */; };
-		87E95A1F2BD0F49A0037035A /* NotoSansKR-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87E95A192BD0F49A0037035A /* NotoSansKR-Black.ttf */; };
-		87E95A202BD0F49A0037035A /* NotoSansKR-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87E95A1A2BD0F49A0037035A /* NotoSansKR-Regular.ttf */; };
-		87E95A212BD0F49A0037035A /* NotoSansKR-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87E95A1B2BD0F49A0037035A /* NotoSansKR-Light.ttf */; };
-		87E95A232BD0F7B20037035A /* NotoSansKR-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87E95A222BD0F7B20037035A /* NotoSansKR-SemiBold.ttf */; };
-		D1480B258E81DF2D9728BEE1 /* libPods-Physicalmatchapp-PhysicalmatchappTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 252996DCD46B28D2AD8C7AEB /* libPods-Physicalmatchapp-PhysicalmatchappTests.a */; };
-		EDCF6E488BDD455684800530 /* libPods-Physicalmatchapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 734A5B95C674F364EE2091B7 /* libPods-Physicalmatchapp.a */; };
+		877B6F9A2BFF125700F7059F /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877B6F992BFF125700F7059F /* File.swift */; };
+		877B6F9E2BFF263E00F7059F /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 877B6F9D2BFF263E00F7059F /* Fonts */; };
+		87CF8D3E2C05835000B5798B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 87CF8D3D2C05835000B5798B /* GoogleService-Info.plist */; };
+		985A32D18ADE43669632D31E /* NotoSansKR-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3D871BF85D044296A1A6E239 /* NotoSansKR-SemiBold.ttf */; };
+		AE86AE4D278D9A3F9CDF313D /* libPods-Physicalmatchapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E4065227DECDD84473CD21 /* libPods-Physicalmatchapp.a */; };
+		CA0C093B98EF498A895A2503 /* NotoSansKR-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 99F14180522346F09A62F0AE /* NotoSansKR-Thin.otf */; };
+		D54F7CB76EED45E79EC40345 /* NotoSansKR-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5D148351DD1540568B10C3B4 /* NotoSansKR-Black.otf */; };
+		D9978599CDC44747BA91A045 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2CB4EA0E32DA4FABA8934CF4 /* Roboto-Regular.ttf */; };
+		E141B7E4EAFD40E69533FD8F /* Roboto-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6393B819774748A9AD20FE85 /* Roboto-Black.ttf */; };
+		F5007C9A9645D0CB1CD70B3A /* libPods-Physicalmatchapp-PhysicalmatchappTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 08CB4C6693BB2143E7E941D4 /* libPods-Physicalmatchapp-PhysicalmatchappTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,26 +60,32 @@
 		00E356EE1AD99517003FC87E /* PhysicalmatchappTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhysicalmatchappTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* PhysicalmatchappTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PhysicalmatchappTests.m; sourceTree = "<group>"; };
+		08CB4C6693BB2143E7E941D4 /* libPods-Physicalmatchapp-PhysicalmatchappTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Physicalmatchapp-PhysicalmatchappTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* Physicalmatchapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Physicalmatchapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Physicalmatchapp/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Physicalmatchapp/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Physicalmatchapp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Physicalmatchapp/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Physicalmatchapp/main.m; sourceTree = "<group>"; };
-		252996DCD46B28D2AD8C7AEB /* libPods-Physicalmatchapp-PhysicalmatchappTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Physicalmatchapp-PhysicalmatchappTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2771D1A6ABF892ABB253A12E /* Pods-Physicalmatchapp-PhysicalmatchappTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Physicalmatchapp-PhysicalmatchappTests.debug.xcconfig"; path = "Target Support Files/Pods-Physicalmatchapp-PhysicalmatchappTests/Pods-Physicalmatchapp-PhysicalmatchappTests.debug.xcconfig"; sourceTree = "<group>"; };
-		734A5B95C674F364EE2091B7 /* libPods-Physicalmatchapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Physicalmatchapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		27E4065227DECDD84473CD21 /* libPods-Physicalmatchapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Physicalmatchapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		27EF8F60407F407086B427DD /* Roboto-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Thin.ttf"; path = "../assets/fonts/Roboto-Thin.ttf"; sourceTree = "<group>"; };
+		27FCCFC087DF4E38829E34D7 /* NotoSansKR-Light.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "NotoSansKR-Light.otf"; path = "../assets/fonts/NotoSansKR-Light.otf"; sourceTree = "<group>"; };
+		2CB4EA0E32DA4FABA8934CF4 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Regular.ttf"; path = "../assets/fonts/Roboto-Regular.ttf"; sourceTree = "<group>"; };
+		2FE13CA3C059460584FE8137 /* Roboto-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Bold.ttf"; path = "../assets/fonts/Roboto-Bold.ttf"; sourceTree = "<group>"; };
+		3D871BF85D044296A1A6E239 /* NotoSansKR-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "NotoSansKR-SemiBold.ttf"; path = "../assets/fonts/NotoSansKR-SemiBold.ttf"; sourceTree = "<group>"; };
+		421053F3397D4460BB468671 /* NotoSansKR-Regular.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "NotoSansKR-Regular.otf"; path = "../assets/fonts/NotoSansKR-Regular.otf"; sourceTree = "<group>"; };
+		5D148351DD1540568B10C3B4 /* NotoSansKR-Black.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "NotoSansKR-Black.otf"; path = "../assets/fonts/NotoSansKR-Black.otf"; sourceTree = "<group>"; };
+		6393B819774748A9AD20FE85 /* Roboto-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Black.ttf"; path = "../assets/fonts/Roboto-Black.ttf"; sourceTree = "<group>"; };
+		79EFCA1390754D73B5E276E6 /* Roboto-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Light.ttf"; path = "../assets/fonts/Roboto-Light.ttf"; sourceTree = "<group>"; };
 		7CBC22A99F9DD5B890D6970A /* Pods-PhysicalmatchappTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhysicalmatchappTests.debug.xcconfig"; path = "Target Support Files/Pods-PhysicalmatchappTests/Pods-PhysicalmatchappTests.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Physicalmatchapp/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		87068E702BE4CD5A00E79333 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
-		872E2A3C2BEC535900657FD7 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
-		872E2A3E2BEC537500657FD7 /* Roboto-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Light.ttf"; path = "Fonts/Roboto-Light.ttf"; sourceTree = "<group>"; };
-		872E2A3F2BEC537500657FD7 /* Roboto-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Thin.ttf"; path = "Fonts/Roboto-Thin.ttf"; sourceTree = "<group>"; };
-		872E2A402BEC537500657FD7 /* Roboto-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Black.ttf"; path = "Fonts/Roboto-Black.ttf"; sourceTree = "<group>"; };
-		872E2A412BEC537500657FD7 /* Roboto-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Bold.ttf"; path = "Fonts/Roboto-Bold.ttf"; sourceTree = "<group>"; };
-		872E2A422BEC537500657FD7 /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Medium.ttf"; path = "Fonts/Roboto-Medium.ttf"; sourceTree = "<group>"; };
-		872E2A432BEC537500657FD7 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Regular.ttf"; path = "Fonts/Roboto-Regular.ttf"; sourceTree = "<group>"; };
 		87398EE22BFB0A7C00EF4FD4 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		87687B312C0075E000963728 /* Physicalmatchapp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Physicalmatchapp.entitlements; path = Physicalmatchapp/Physicalmatchapp.entitlements; sourceTree = "<group>"; };
+		877B6F982BFF125700F7059F /* Physicalmatchapp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Physicalmatchapp-Bridging-Header.h"; sourceTree = "<group>"; };
+		877B6F992BFF125700F7059F /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
+		877B6F9D2BFF263E00F7059F /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
+		87CF8D3D2C05835000B5798B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		87E95A162BD0F49A0037035A /* NotoSansKR-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSansKR-Medium.ttf"; path = "Fonts/NotoSansKR-Medium.ttf"; sourceTree = "<group>"; };
 		87E95A172BD0F49A0037035A /* NotoSansKR-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSansKR-Bold.ttf"; path = "Fonts/NotoSansKR-Bold.ttf"; sourceTree = "<group>"; };
 		87E95A182BD0F49A0037035A /* NotoSansKR-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSansKR-Thin.ttf"; path = "Fonts/NotoSansKR-Thin.ttf"; sourceTree = "<group>"; };
@@ -85,9 +93,13 @@
 		87E95A1A2BD0F49A0037035A /* NotoSansKR-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSansKR-Regular.ttf"; path = "Fonts/NotoSansKR-Regular.ttf"; sourceTree = "<group>"; };
 		87E95A1B2BD0F49A0037035A /* NotoSansKR-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSansKR-Light.ttf"; path = "Fonts/NotoSansKR-Light.ttf"; sourceTree = "<group>"; };
 		87E95A222BD0F7B20037035A /* NotoSansKR-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSansKR-SemiBold.ttf"; path = "Fonts/NotoSansKR-SemiBold.ttf"; sourceTree = "<group>"; };
+		8BE525CD9DC64028803283DD /* NotoSansKR-Medium.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "NotoSansKR-Medium.otf"; path = "../assets/fonts/NotoSansKR-Medium.otf"; sourceTree = "<group>"; };
+		9008602F6DDC42B58D3CA986 /* NotoSansKR-Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "NotoSansKR-Bold.otf"; path = "../assets/fonts/NotoSansKR-Bold.otf"; sourceTree = "<group>"; };
+		99F14180522346F09A62F0AE /* NotoSansKR-Thin.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "NotoSansKR-Thin.otf"; path = "../assets/fonts/NotoSansKR-Thin.otf"; sourceTree = "<group>"; };
 		A5FDE2E2FF5BE4781AECB13A /* Pods-PhysicalmatchappTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhysicalmatchappTests.release.xcconfig"; path = "Target Support Files/Pods-PhysicalmatchappTests/Pods-PhysicalmatchappTests.release.xcconfig"; sourceTree = "<group>"; };
 		C273E7ECC6D646B30B70D791 /* Pods-Physicalmatchapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Physicalmatchapp.debug.xcconfig"; path = "Target Support Files/Pods-Physicalmatchapp/Pods-Physicalmatchapp.debug.xcconfig"; sourceTree = "<group>"; };
 		CCAB1E91E69F001AC6A1ACD1 /* Pods-Physicalmatchapp-PhysicalmatchappTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Physicalmatchapp-PhysicalmatchappTests.release.xcconfig"; path = "Target Support Files/Pods-Physicalmatchapp-PhysicalmatchappTests/Pods-Physicalmatchapp-PhysicalmatchappTests.release.xcconfig"; sourceTree = "<group>"; };
+		CFB789E5FF164C9CB581E56D /* Roboto-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Medium.ttf"; path = "../assets/fonts/Roboto-Medium.ttf"; sourceTree = "<group>"; };
 		DD7C6CDA5D3FF55B1F021D4A /* Pods-Physicalmatchapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Physicalmatchapp.release.xcconfig"; path = "Target Support Files/Pods-Physicalmatchapp/Pods-Physicalmatchapp.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -97,7 +109,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D1480B258E81DF2D9728BEE1 /* libPods-Physicalmatchapp-PhysicalmatchappTests.a in Frameworks */,
+				F5007C9A9645D0CB1CD70B3A /* libPods-Physicalmatchapp-PhysicalmatchappTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -105,8 +117,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EDCF6E488BDD455684800530 /* libPods-Physicalmatchapp.a in Frameworks */,
 				87398EE32BFB0A7C00EF4FD4 /* StoreKit.framework in Frameworks */,
+				AE86AE4D278D9A3F9CDF313D /* libPods-Physicalmatchapp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -133,6 +145,7 @@
 		13B07FAE1A68108700A75B9A /* Physicalmatchapp */ = {
 			isa = PBXGroup;
 			children = (
+				87687B312C0075E000963728 /* Physicalmatchapp.entitlements */,
 				87E95A222BD0F7B20037035A /* NotoSansKR-SemiBold.ttf */,
 				87E95A192BD0F49A0037035A /* NotoSansKR-Black.ttf */,
 				87E95A172BD0F49A0037035A /* NotoSansKR-Bold.ttf */,
@@ -142,6 +155,7 @@
 				87E95A182BD0F49A0037035A /* NotoSansKR-Thin.ttf */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
+				87CF8D3D2C05835000B5798B /* GoogleService-Info.plist */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
@@ -155,10 +169,30 @@
 			children = (
 				87398EE22BFB0A7C00EF4FD4 /* StoreKit.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				734A5B95C674F364EE2091B7 /* libPods-Physicalmatchapp.a */,
-				252996DCD46B28D2AD8C7AEB /* libPods-Physicalmatchapp-PhysicalmatchappTests.a */,
+				27E4065227DECDD84473CD21 /* libPods-Physicalmatchapp.a */,
+				08CB4C6693BB2143E7E941D4 /* libPods-Physicalmatchapp-PhysicalmatchappTests.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6EDDDF3AD7934FC9BDB035FC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				5D148351DD1540568B10C3B4 /* NotoSansKR-Black.otf */,
+				9008602F6DDC42B58D3CA986 /* NotoSansKR-Bold.otf */,
+				27FCCFC087DF4E38829E34D7 /* NotoSansKR-Light.otf */,
+				8BE525CD9DC64028803283DD /* NotoSansKR-Medium.otf */,
+				421053F3397D4460BB468671 /* NotoSansKR-Regular.otf */,
+				99F14180522346F09A62F0AE /* NotoSansKR-Thin.otf */,
+				3D871BF85D044296A1A6E239 /* NotoSansKR-SemiBold.ttf */,
+				6393B819774748A9AD20FE85 /* Roboto-Black.ttf */,
+				2FE13CA3C059460584FE8137 /* Roboto-Bold.ttf */,
+				79EFCA1390754D73B5E276E6 /* Roboto-Light.ttf */,
+				CFB789E5FF164C9CB581E56D /* Roboto-Medium.ttf */,
+				2CB4EA0E32DA4FABA8934CF4 /* Roboto-Regular.ttf */,
+				27EF8F60407F407086B427DD /* Roboto-Thin.ttf */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -171,20 +205,16 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				872E2A402BEC537500657FD7 /* Roboto-Black.ttf */,
-				872E2A412BEC537500657FD7 /* Roboto-Bold.ttf */,
-				872E2A3E2BEC537500657FD7 /* Roboto-Light.ttf */,
-				872E2A422BEC537500657FD7 /* Roboto-Medium.ttf */,
-				872E2A432BEC537500657FD7 /* Roboto-Regular.ttf */,
-				872E2A3F2BEC537500657FD7 /* Roboto-Thin.ttf */,
-				87068E702BE4CD5A00E79333 /* Fonts */,
-				872E2A3C2BEC535900657FD7 /* Fonts */,
+				877B6F9D2BFF263E00F7059F /* Fonts */,
+				877B6F992BFF125700F7059F /* File.swift */,
 				13B07FAE1A68108700A75B9A /* Physicalmatchapp */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* PhysicalmatchappTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				877B6F982BFF125700F7059F /* Physicalmatchapp-Bridging-Header.h */,
+				6EDDDF3AD7934FC9BDB035FC /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -250,6 +280,7 @@
 				8C5C13A92B9F519B18F6C3A9 /* [CP] Embed Pods Frameworks */,
 				C4AAF46BC87EDE9E968A7B93 /* [CP] Copy Pods Resources */,
 				872E2A3A2BEC511F00657FD7 /* Copy Bundle Resources */,
+				D9A49E64AC4A336EC3325CDA /* [CP-User] [RNFB] Core Configuration */,
 			);
 			buildRules = (
 			);
@@ -273,7 +304,7 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 1120;
+						LastSwiftMigration = 1520;
 					};
 				};
 			};
@@ -308,22 +339,23 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				872E2A472BEC537500657FD7 /* Roboto-Bold.ttf in Resources */,
-				872E2A3D2BEC535900657FD7 /* Fonts in Resources */,
-				872E2A492BEC537500657FD7 /* Roboto-Regular.ttf in Resources */,
-				87E95A1C2BD0F49A0037035A /* NotoSansKR-Medium.ttf in Resources */,
-				87E95A232BD0F7B20037035A /* NotoSansKR-SemiBold.ttf in Resources */,
-				872E2A442BEC537500657FD7 /* Roboto-Light.ttf in Resources */,
-				872E2A482BEC537500657FD7 /* Roboto-Medium.ttf in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				87E95A202BD0F49A0037035A /* NotoSansKR-Regular.ttf in Resources */,
-				87E95A1D2BD0F49A0037035A /* NotoSansKR-Bold.ttf in Resources */,
-				872E2A452BEC537500657FD7 /* Roboto-Thin.ttf in Resources */,
-				872E2A462BEC537500657FD7 /* Roboto-Black.ttf in Resources */,
-				87E95A1F2BD0F49A0037035A /* NotoSansKR-Black.ttf in Resources */,
-				87E95A1E2BD0F49A0037035A /* NotoSansKR-Thin.ttf in Resources */,
-				87E95A212BD0F49A0037035A /* NotoSansKR-Light.ttf in Resources */,
+				D54F7CB76EED45E79EC40345 /* NotoSansKR-Black.otf in Resources */,
+				3E8412A861874CBEADF84508 /* NotoSansKR-Bold.otf in Resources */,
+				7DC3DE45BD2845FC8A59DFF2 /* NotoSansKR-Light.otf in Resources */,
+				0CACB85683664F69962DBDC2 /* NotoSansKR-Medium.otf in Resources */,
+				3D6BE1FEDB08494499A2BE60 /* NotoSansKR-Regular.otf in Resources */,
+				CA0C093B98EF498A895A2503 /* NotoSansKR-Thin.otf in Resources */,
+				985A32D18ADE43669632D31E /* NotoSansKR-SemiBold.ttf in Resources */,
+				877B6F9E2BFF263E00F7059F /* Fonts in Resources */,
+				E141B7E4EAFD40E69533FD8F /* Roboto-Black.ttf in Resources */,
+				3E226ED5984448AD8F828FBC /* Roboto-Bold.ttf in Resources */,
+				87CF8D3E2C05835000B5798B /* GoogleService-Info.plist in Resources */,
+				55743D1C82FC401280EEE012 /* Roboto-Light.ttf in Resources */,
+				27EA04ED43ED42A39E0EFC5B /* Roboto-Medium.ttf in Resources */,
+				D9978599CDC44747BA91A045 /* Roboto-Regular.ttf in Resources */,
+				4B293E69154741D49056A08D /* Roboto-Thin.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,6 +490,19 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Physicalmatchapp-PhysicalmatchappTests/Pods-Physicalmatchapp-PhysicalmatchappTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		D9A49E64AC4A336EC3325CDA /* [CP-User] [RNFB] Core Configuration */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "[CP-User] [RNFB] Core Configuration";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/usr/bin/env bash\n#\n# Copyright (c) 2016-present Invertase Limited & Contributors\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this library except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#   http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\nset -e\n\n_MAX_LOOKUPS=2;\n_SEARCH_RESULT=''\n_RN_ROOT_EXISTS=''\n_CURRENT_LOOKUPS=1\n_JSON_ROOT=\"'react-native'\"\n_JSON_FILE_NAME='firebase.json'\n_JSON_OUTPUT_BASE64='e30=' # { }\n_CURRENT_SEARCH_DIR=${PROJECT_DIR}\n_PLIST_BUDDY=/usr/libexec/PlistBuddy\n_TARGET_PLIST=\"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"\n_DSYM_PLIST=\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist\"\n\n# plist arrays\n_PLIST_ENTRY_KEYS=()\n_PLIST_ENTRY_TYPES=()\n_PLIST_ENTRY_VALUES=()\n\nfunction setPlistValue {\n  echo \"info:      setting plist entry '$1' of type '$2' in file '$4'\"\n  ${_PLIST_BUDDY} -c \"Add :$1 $2 '$3'\" $4 || echo \"info:      '$1' already exists\"\n}\n\nfunction getFirebaseJsonKeyValue () {\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    ruby -Ku -e \"require 'rubygems';require 'json'; output=JSON.parse('$1'); puts output[$_JSON_ROOT]['$2']\"\n  else\n    echo \"\"\n  fi;\n}\n\nfunction jsonBoolToYesNo () {\n  if [[ $1 == \"false\" ]]; then\n    echo \"NO\"\n  elif [[ $1 == \"true\" ]]; then\n    echo \"YES\"\n  else echo \"NO\"\n  fi\n}\n\necho \"info: -> RNFB build script started\"\necho \"info: 1) Locating ${_JSON_FILE_NAME} file:\"\n\nif [[ -z ${_CURRENT_SEARCH_DIR} ]]; then\n  _CURRENT_SEARCH_DIR=$(pwd)\nfi;\n\nwhile true; do\n  _CURRENT_SEARCH_DIR=$(dirname \"$_CURRENT_SEARCH_DIR\")\n  if [[ \"$_CURRENT_SEARCH_DIR\" == \"/\" ]] || [[ ${_CURRENT_LOOKUPS} -gt ${_MAX_LOOKUPS} ]]; then break; fi;\n  echo \"info:      ($_CURRENT_LOOKUPS of $_MAX_LOOKUPS) Searching in '$_CURRENT_SEARCH_DIR' for a ${_JSON_FILE_NAME} file.\"\n  _SEARCH_RESULT=$(find \"$_CURRENT_SEARCH_DIR\" -maxdepth 2 -name ${_JSON_FILE_NAME} -print | /usr/bin/head -n 1)\n  if [[ ${_SEARCH_RESULT} ]]; then\n    echo \"info:      ${_JSON_FILE_NAME} found at $_SEARCH_RESULT\"\n    break;\n  fi;\n  _CURRENT_LOOKUPS=$((_CURRENT_LOOKUPS+1))\ndone\n\nif [[ ${_SEARCH_RESULT} ]]; then\n  _JSON_OUTPUT_RAW=$(cat \"${_SEARCH_RESULT}\")\n  _RN_ROOT_EXISTS=$(ruby -Ku -e \"require 'rubygems';require 'json'; output=JSON.parse('$_JSON_OUTPUT_RAW'); puts output[$_JSON_ROOT]\" || echo '')\n\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    if ! python3 --version >/dev/null 2>&1; then echo \"python3 not found, firebase.json file processing error.\" && exit 1; fi\n    _JSON_OUTPUT_BASE64=$(python3 -c 'import json,sys,base64;print(base64.b64encode(bytes(json.dumps(json.loads(open('\"'${_SEARCH_RESULT}'\"', '\"'rb'\"').read())['${_JSON_ROOT}']), '\"'utf-8'\"')).decode())' || echo \"e30=\")\n  fi\n\n  _PLIST_ENTRY_KEYS+=(\"firebase_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n\n  # config.app_data_collection_default_enabled\n  _APP_DATA_COLLECTION_ENABLED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"app_data_collection_default_enabled\")\n  if [[ $_APP_DATA_COLLECTION_ENABLED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseDataCollectionDefaultEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_APP_DATA_COLLECTION_ENABLED\")\")\n  fi\n\n  # config.analytics_auto_collection_enabled\n  _ANALYTICS_AUTO_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_auto_collection_enabled\")\n  if [[ $_ANALYTICS_AUTO_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FIREBASE_ANALYTICS_COLLECTION_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AUTO_COLLECTION\")\")\n  fi\n\n  # config.analytics_collection_deactivated\n  _ANALYTICS_DEACTIVATED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_collection_deactivated\")\n  if [[ $_ANALYTICS_DEACTIVATED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_DEACTIVATED\")\")\n  fi\n\n  # config.analytics_idfv_collection_enabled\n  _ANALYTICS_IDFV_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_idfv_collection_enabled\")\n  if [[ $_ANALYTICS_IDFV_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_IDFV_COLLECTION\")\")\n  fi\n\n  # config.analytics_default_allow_ad_personalization_signals\n  _ANALYTICS_PERSONALIZATION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_ad_personalization_signals\")\n  if [[ $_ANALYTICS_PERSONALIZATION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_PERSONALIZATION\")\")\n  fi\n\n  # config.analytics_registration_with_ad_network_enabled\n  _ANALYTICS_REGISTRATION_WITH_AD_NETWORK=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"google_analytics_registration_with_ad_network_enabled\")\n  if [[ $_ANALYTICS_REGISTRATION_WITH_AD_NETWORK ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_REGISTRATION_WITH_AD_NETWORK_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_REGISTRATION_WITH_AD_NETWORK\")\")\n  fi\n\n  # config.google_analytics_automatic_screen_reporting_enabled\n  _ANALYTICS_AUTO_SCREEN_REPORTING=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"google_analytics_automatic_screen_reporting_enabled\")\n  if [[ $_ANALYTICS_AUTO_SCREEN_REPORTING ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseAutomaticScreenReportingEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AUTO_SCREEN_REPORTING\")\")\n  fi\n\n  # config.perf_auto_collection_enabled\n  _PERF_AUTO_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"perf_auto_collection_enabled\")\n  if [[ $_PERF_AUTO_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"firebase_performance_collection_enabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_PERF_AUTO_COLLECTION\")\")\n  fi\n\n  # config.perf_collection_deactivated\n  _PERF_DEACTIVATED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"perf_collection_deactivated\")\n  if [[ $_PERF_DEACTIVATED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"firebase_performance_collection_deactivated\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_PERF_DEACTIVATED\")\")\n  fi\n\n  # config.messaging_auto_init_enabled\n  _MESSAGING_AUTO_INIT=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"messaging_auto_init_enabled\")\n  if [[ $_MESSAGING_AUTO_INIT ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseMessagingAutoInitEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_MESSAGING_AUTO_INIT\")\")\n  fi\n\n  # config.in_app_messaging_auto_colllection_enabled\n  _FIAM_AUTO_INIT=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"in_app_messaging_auto_collection_enabled\")\n  if [[ $_FIAM_AUTO_INIT ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseInAppMessagingAutomaticDataCollectionEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_FIAM_AUTO_INIT\")\")\n  fi\n\n  # config.app_check_token_auto_refresh\n  _APP_CHECK_TOKEN_AUTO_REFRESH=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"app_check_token_auto_refresh\")\n  if [[ $_APP_CHECK_TOKEN_AUTO_REFRESH ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseAppCheckTokenAutoRefreshEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_APP_CHECK_TOKEN_AUTO_REFRESH\")\")\n  fi\n\n  # config.crashlytics_disable_auto_disabler - undocumented for now - mainly for debugging, document if becomes useful\n  _CRASHLYTICS_AUTO_DISABLE_ENABLED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"crashlytics_disable_auto_disabler\")\n  if [[ $_CRASHLYTICS_AUTO_DISABLE_ENABLED == \"true\" ]]; then\n    echo \"Disabled Crashlytics auto disabler.\" # do nothing\n  else\n    _PLIST_ENTRY_KEYS+=(\"FirebaseCrashlyticsCollectionEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"NO\")\n  fi\nelse\n  _PLIST_ENTRY_KEYS+=(\"firebase_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n  echo \"warning:   A firebase.json file was not found, whilst this file is optional it is recommended to include it to configure firebase services in React Native Firebase.\"\nfi;\n\necho \"info: 2) Injecting Info.plist entries: \"\n\n# Log out the keys we're adding\nfor i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n  echo \"    ->  $i) ${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\"\ndone\n\nfor plist in \"${_TARGET_PLIST}\" \"${_DSYM_PLIST}\" ; do\n  if [[ -f \"${plist}\" ]]; then\n\n    # paths with spaces break the call to setPlistValue. temporarily modify\n    # the shell internal field separator variable (IFS), which normally\n    # includes spaces, to consist only of line breaks\n    oldifs=$IFS\n    IFS=\"\n\"\n\n    for i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n      setPlistValue \"${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\" \"${plist}\"\n    done\n\n    # restore the original internal field separator value\n    IFS=$oldifs\n  else\n    echo \"warning:   A Info.plist build output file was not found (${plist})\"\n  fi\ndone\n\necho \"info: <- RNFB build script finished\"\n";
+		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -493,6 +538,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				877B6F9A2BFF125700F7059F /* File.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -512,6 +558,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 2771D1A6ABF892ABB253A12E /* Pods-Physicalmatchapp-PhysicalmatchappTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -539,6 +586,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = CCAB1E91E69F001AC6A1ACD1 /* Pods-Physicalmatchapp-PhysicalmatchappTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = PhysicalmatchappTests/Info.plist;
@@ -565,16 +613,103 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Physicalmatchapp/Physicalmatchapp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = T8BN8Z2J9K;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Physicalmatchapp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Alamofire\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/BVLinearGradient\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/CocoaAsyncSocket\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/DoubleConversion\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-Boost-iOSX\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-Fmt\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-Folly\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-PeerTalk\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-RSocket\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FlipperKit\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/KakaoSDKCommon\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/KakaoSDKShare\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/KakaoSDKTemplate\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-AppTrackingTransparency\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-BluetoothPeripheral\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Calendars\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Camera\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Contacts\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-FaceID\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-LocationAccuracy\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-LocationAlways\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-LocationWhenInUse\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-MediaLibrary\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Microphone\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Motion\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Notifications\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-PhotoLibrary\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-PhotoLibraryAddOnly\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Reminders\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Siri\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-SpeechRecognition\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-StoreKit\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RCT-Folly\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RCTTypeSafety\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNCAsyncStorage\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNCClipboard\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNCMaskedView\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNCPicker\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNCPushNotificationIOS\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNGestureHandler\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNIap\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNImageCropPicker\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNPermissions\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNReanimated\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNSVG\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNScreens\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-Codegen\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-Core\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-CoreModules\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTAnimation\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTAppDelegate\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTBlob\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTImage\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTLinking\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTNetwork\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTSettings\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTText\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTVibration\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-hermes\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-jsi\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-jsiexecutor\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-jsinspector\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-logger\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-perflogger\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/SocketRocket\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/TOCropViewController\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Yoga\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/YogaKit\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/fmt\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/glog\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/libevent\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-blur\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-kakao-share-link\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-safe-area-context\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-version-check\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-video\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-webview\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/rn-fetch-blob\"",
+					/usr/lib/swift,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MARKETING_VERSION = 1.0;
@@ -586,8 +721,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Physicalmatchapp;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "Physicalmatchapp-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -598,15 +737,95 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Physicalmatchapp/Physicalmatchapp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = T8BN8Z2J9K;
 				INFOPLIST_FILE = Physicalmatchapp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Alamofire\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/BVLinearGradient\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/CocoaAsyncSocket\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/DoubleConversion\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/KakaoSDKCommon\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/KakaoSDKShare\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/KakaoSDKTemplate\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-AppTrackingTransparency\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-BluetoothPeripheral\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Calendars\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Camera\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Contacts\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-FaceID\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-LocationAccuracy\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-LocationAlways\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-LocationWhenInUse\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-MediaLibrary\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Microphone\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Motion\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Notifications\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-PhotoLibrary\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-PhotoLibraryAddOnly\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Reminders\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-Siri\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-SpeechRecognition\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Permission-StoreKit\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RCT-Folly\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RCTTypeSafety\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNCAsyncStorage\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNCClipboard\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNCMaskedView\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNCPicker\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNCPushNotificationIOS\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNGestureHandler\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNIap\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNImageCropPicker\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNPermissions\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNReanimated\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNSVG\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RNScreens\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-Codegen\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-Core\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-CoreModules\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTAnimation\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTAppDelegate\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTBlob\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTImage\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTLinking\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTNetwork\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTSettings\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTText\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTVibration\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-hermes\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-jsi\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-jsiexecutor\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-jsinspector\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-logger\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-perflogger\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/SocketRocket\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/TOCropViewController\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Yoga\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/YogaKit\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/fmt\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/glog\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/libevent\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-blur\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-kakao-share-link\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-safe-area-context\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-version-check\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-video\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-webview\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/rn-fetch-blob\"",
+					/usr/lib/swift,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MARKETING_VERSION = 1.0;
@@ -618,7 +837,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Physicalmatchapp;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "Physicalmatchapp-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

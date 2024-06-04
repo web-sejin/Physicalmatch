@@ -7,6 +7,15 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import RNIap, {
+  initConnection, endConnection,
+  getProducts, getSubscriptions, Product,
+  requestPurchase, requestSubscription, 
+  flushFailedPurchasesCachedAsPendingAndroid,
+  clearProductsIOS, clearTransactionIOS, validateReceiptIos,getReceiptIOS,
+  purchaseErrorListener, purchaseUpdatedListener, getAvailablePurchases,
+  finishTransaction
+} from 'react-native-iap';
 
 import Font from "../assets/common/Font";
 import ToastMessage from "../components/ToastMessage";
@@ -39,6 +48,10 @@ const Shop = (props) => {
   const [tabSt, setTabSt] = useState(1);
   const [protainList, setProtainList] = useState(data);
   const [freeList, setFreeList] = useState(data);
+  const [productList, setProductList] = useState([]);
+
+  let purchaseUpdateSubscription = null;
+  let purchaseErrorSubscription = null;
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -51,6 +64,13 @@ const Shop = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      if(params){
+        if(params.tab == 2){
+          setLoading(true);
+          change(params.tab);        
+        }
+      }
 		}
 
     Keyboard.dismiss();
@@ -89,14 +109,18 @@ const Shop = (props) => {
           <TouchableOpacity
             style={[styles.prdLi, styles.mgt0]}
             activeOpacity={opacityVal}
-            onPress={()=>{}}
+            onPress={()=>{
+              _requestPurchase('test_item1');
+            }}
           >
             <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/product1.png'}} resizeMethod='resize' />
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.prdLi]}
             activeOpacity={opacityVal}
-            onPress={()=>{}}
+            onPress={()=>{
+              _requestPurchase('test_item2');
+            }}
           >
             <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/product2.png'}} resizeMethod='resize' />
           </TouchableOpacity>
@@ -183,6 +207,185 @@ const Shop = (props) => {
 
   const change = async (v) => {
     setTabSt(v);
+    setLoading(false);
+  }
+
+  const itemSkus = Platform.select({
+    ios: ['test_item1','test_item2'],
+    android: ['test_item1','test_item2']
+  });
+
+  useEffect(()=>{    
+    initConnection().then(async(result) => {
+      //console.log('result :::: ', result);
+      if(Platform.OS == 'android'){
+
+        // Platform ANDROID
+        flushFailedPurchasesCachedAsPendingAndroid()        
+        .catch((err) => {
+          console.log(err);
+        })
+        .then(() => {
+          purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
+            console.log('purchaseUpdatedListener Android', purchase);
+            const receipt = purchase.transactionReceipt;
+
+            if(receipt){
+              await finishTransaction({purchase, isConsumable: true})
+              .catch((error) => {
+                console.log(error)
+              })
+            }
+            setLoading(false);
+          })
+        })        
+
+        purchaseErrorSubscription = purchaseErrorListener(async(error) => {
+          console.log('purchaseErrorListener', error);
+          let msg = '';
+          if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
+          if(error?.responseCode == -1){msg = '서비스 연결 해제'}
+          if(error?.responseCode == 1){msg = '사용자 취소'}
+          if(error?.responseCode == 2){msg = '서비스 이용 불가'}
+          if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
+          if(error?.responseCode == 4){msg = '사용 불가 상품'}
+          if(error?.responseCode == 5){msg = '개발자 오류'}
+          if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
+          if(error?.responseCode == 7){msg = '이미 구입한 상품'}
+          if(error?.responseCode == 8){msg = '구입 실패'}
+          if(error?.responseCode == 12){msg = '네트워크 오류'}
+          
+          setLoading(false);
+        })
+        // Platform ANDROID END
+
+      }else{
+
+        // Platform IOS
+        purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
+          //console.log('purchaseUpdatedListener IOS', purchase);
+          const receipt = purchase.transactionReceipt;
+
+          if(receipt){
+            await finishTransaction({purchase, isConsumable: true})
+            .catch((error) => {
+              console.log(error)
+            });
+
+            await clearProductsIOS();
+            await clearTransactionIOS();
+            setLoading(false);
+          }else{
+
+          }
+        });
+
+        purchaseErrorSubscription = purchaseErrorListener(async(error) => {
+          console.log('purchaseErrorListener', error);
+          let msg = '';
+          if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
+          if(error?.responseCode == -1){msg = '서비스 연결 해제'}
+          if(error?.responseCode == 1){msg = '사용자 취소'}
+          if(error?.responseCode == 2){msg = '서비스 이용 불가'}
+          if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
+          if(error?.responseCode == 4){msg = '사용 불가 상품'}
+          if(error?.responseCode == 5){msg = '개발자 오류'}
+          if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
+          if(error?.responseCode == 7){msg = '이미 구입한 상품'}
+          if(error?.responseCode == 8){msg = '구입 실패'}
+          if(error?.responseCode == 12){msg = '네트워크 오류'}
+
+          await clearProductsIOS();
+          await clearTransactionIOS();
+          setLoading(false);
+        });
+        // Platform IOS END        
+
+      }
+      
+      if(result){
+        await _getProducts();
+      }
+    }).catch(error => {
+      console.log('initConnection error', error)
+    });
+
+    return () => {
+      //console.log('return unmount')
+      if(purchaseUpdateSubscription){
+          //console.log('return purchaseUpdateSubscription');
+          purchaseUpdateSubscription.remove()
+          purchaseUpdateSubscription = null
+      }
+      if(purchaseErrorSubscription){
+          //console.log('return purchaseErrorSubscription');
+          purchaseErrorSubscription.remove()
+          purchaseErrorSubscription = null
+      }
+      endConnection()
+    }
+    
+  }, []);
+
+  const endConnection = () => {
+    
+  }
+
+  const _getProducts = async () => {    
+    try {
+        const products = await getProducts({skus:itemSkus});
+        //console.log('Products', products);
+
+        if (products.length !== 0){
+          setProductList(products);
+        }
+    } catch (err){
+        console.warn("IAP error code ", err.code);
+        console.warn("IAP error message ", err.message);
+        console.warn("IAP error ", err);
+    }
+  }
+
+  const _requestPurchase = async (sku) => {
+    //console.log("IAP req", sku);
+    setLoading(true);
+    let iapObj = {skus: [sku], sku: sku};
+    let getItems = await getProducts(iapObj);
+    console.log('getItems :::: ', getItems);
+    try {
+      await requestPurchase(iapObj)
+      .then(async (result) => {
+          //console.log('IAP req sub', result);
+          if (Platform.OS === 'android'){
+            console.log('dataAndroid', result[0].dataAndroid);
+            // console.log("purchaseToken : ", result.purchaseToken);
+            // console.log("packageNameAndroid : ", result.packageNameAndroid);
+            // console.log("productId : ", result.productId);
+            console.log("성공");
+            // let inappPayResult =JSON.stringify({
+            //     type: "inappResult",
+            //     code: result.productId,
+            //     tno: result.transactionId,
+            //     token: result.purchaseToken,
+            // });
+            // console.log("inappPayResult : ", inappPayResult);            
+            // can do your API call here to save the purchase details of particular user
+          } else if (Platform.OS === 'ios'){
+            console.log(result);
+            //console.log(result.transactionReceipt);
+            // can do your API call here to save the purchase details of particular user
+          }
+
+          setLoading(false);
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log('err1', err);
+      });
+    } catch (err) {
+      setLoading(false);
+      console.log('err2', err.message);
+    }
   }
 
 	const headerHeight = 48;
@@ -295,7 +498,7 @@ const Shop = (props) => {
 
 			{loading ? (
       <View style={[styles.indicator]}>
-        <ActivityIndicator size="large" color="#D1913C" />
+        <ActivityIndicator size="large" color="#fff" />
       </View>
       ) : null}
 		</SafeAreaView>
@@ -305,7 +508,7 @@ const Shop = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
 	gapBox: {height:80,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
   cmWrap: {paddingHorizontal:20,},
 	cmTitleBox: {position:'relative'},

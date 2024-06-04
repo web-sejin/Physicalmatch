@@ -282,7 +282,7 @@ const MatchDetail = (props) => {
   const shareApp = () => {
     setMatchPop(false);
     setPreventBack(false);
-    Alert.alert('다이나믹 링크 연결!!!');
+    navigation.navigate('MyInvite')
   }
 
   const copyToClipboard = async (v) => {

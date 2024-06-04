@@ -35,16 +35,24 @@ const Intro2 = ({navigation, route}) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			{/* <Video
-				source={require('../assets/video/sample.mp4')}
+			<Video
+				source={require('../assets/video/intro.mp4')}
 				style={styles.fullScreen}
 				paused={false} // 재생/중지 여부
 				resizeMode={"cover"} // 프레임이 비디오 크기와 일치하지 않을 때 비디오 크기를 조정하는 방법을 결정합니다. cover : 비디오의 크기를 유지하면서 최대한 맞게
 				onLoad={e => console.log(e)} // 미디어가 로드되고 재생할 준비가 되면 호출되는 콜백 함수입니다.
 				repeat={true} // video가 끝나면 다시 재생할 지 여부
 				onAnimatedValueUpdate={() => { }}
-			/> */}
-			<ImgDomain fileWidth={widnowWidth} fileName={'intro_bg.jpg'} />
+			/>
+			{/* <ImgDomain fileWidth={widnowWidth} fileName={'intro_bg.jpg'} /> */}
+			<View style={styles.introTextBox}>
+				<ImgDomain fileWidth={38} fileName={'intro_logo.png'} />
+				<View style={styles.introTextView}>
+					<Text style={styles.introText}>기다리던</Text>
+					<Text style={styles.introText}>그 인연을</Text>
+					<Text style={styles.introText}>지금, 여기서</Text>
+				</View>
+			</View>
 			<View style={styles.introBox}>
 				<TouchableOpacity
 					style={[styles.introBtn]}
@@ -82,6 +90,10 @@ const styles = StyleSheet.create({
 	indicator2: { marginTop: 62 },
 
 	mgt15: {marginTop:15},
+
+	introTextBox: {position:'absolute',left:0,top:105,zIndex:100,paddingHorizontal:48,},
+	introTextView: {marginTop:40,},
+	introText: {fontFamily:Font.NotoSansBold,fontSize:24,lineHeight:36,color:'#fff'},
 	
 	introBox: {position: 'absolute', left: 0, bottom: 0, zIndex: 100, paddingHorizontal: 20, paddingBottom: 60 },
 	introBtn: { width: innerWidth, height: 52, backgroundColor: 'rgba(20,30,48,0.9)', borderRadius: 5, alignItems: 'center', justifyContent: 'center', flexDirection:'row'},

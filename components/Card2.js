@@ -17,6 +17,8 @@ const widnowHeight = Dimensions.get('window').height;
 const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.95;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
+const radius = widnowWidth >= 640 ? 240 : 90;
+const radius2 = widnowWidth >= 640 ? 15 : 5;
 
 const Card2 = (props) => {
 	const navigationUse = useNavigation();
@@ -88,8 +90,10 @@ const Card2 = (props) => {
           </View>
         </Animated.View>
 
-        <Animated.View style={[styles.cardCont, styles.cardCont2, styles.back, backAnimatedStyle]}>          
-          <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />     
+        <Animated.View style={[styles.cardCont, styles.cardCont2, styles.back, backAnimatedStyle]}>    
+          <View style={styles.boxShadow}>
+            <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />     
+            </View>      
         </Animated.View>    
       </TouchableOpacity>  
     </View>
@@ -101,11 +105,11 @@ const styles = StyleSheet.create({
   back: {},
 	fakeView: {},
   cardBtn: { width: ((widnowWidth / 2) - 30), marginTop: 20, position: 'relative' },		
-	cardCont: {width: ((widnowWidth / 2) - 30), backgroundColor:'#fff', backfaceVisibility:'hidden', borderTopLeftRadius:88, borderTopRightRadius:88,},	
+	cardCont: {width: ((widnowWidth / 2) - 30), backgroundColor:'#fff', backfaceVisibility:'hidden', borderTopLeftRadius:radius, borderTopRightRadius:radius,},	
 	cardFrontInfo: {width: ((widnowWidth / 2) - 30), /*position:'absolute', left:0, top:0, zIndex:10,*/},
 	peopleImgBack: {opacity:0,},
-	peopleImg: {position:'absolute', left:0, top:0, zIndex:9, borderTopLeftRadius:80, borderTopRightRadius:80,},
-	cardFrontInfoCont: {width: ((widnowWidth / 2) - 30), backgroundColor:'#fff', position:'absolute', left:0, bottom:0, zIndex:10, paddingVertical:12, paddingHorizontal:10, borderRadius:5,},
+	peopleImg: {position:'absolute', left:0, top:0, zIndex:9, borderTopLeftRadius:radius, borderTopRightRadius:radius,},
+	cardFrontInfoCont: {width: ((widnowWidth / 2) - 30), backgroundColor:'#fff', position:'absolute', left:0, bottom:0, zIndex:100, paddingVertical:12, paddingHorizontal:10, borderRadius:5,},
 	cardFrontNick: {flexDirection:'row', alignItems:'center', justifyContent:'space-between'},
 	cardFrontNickText: {width:(innerWidth/2)-61,fontFamily:Font.NotoSansBold,fontSize:15,lineHeight:19,color:'#1e1e1e',},
 	cardFrontJob: {marginVertical:6,},
@@ -129,14 +133,18 @@ const styles = StyleSheet.create({
   cardBtn3: {marginTop:0,marginBottom:20},
 
   boxShadow: {
+    borderRadius:radius2,
+    borderTopLeftRadius:radius,
+    borderTopRightRadius:radius,    
+    backgroundColor:'#fff',
 		shadowColor: "#000",
     shadowOffset: {
-      width: 0,
+      width: 4,
       height: 0,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 5,
-		elevation: 5,
+		elevation: 7,
 	},
 	boxShadow2: {
 		shadowColor: "#000",

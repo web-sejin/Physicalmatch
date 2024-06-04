@@ -17,6 +17,8 @@ const widnowHeight = Dimensions.get('window').height;
 const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.95;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
+const radius = widnowWidth >= 640 ? 240 : 90;
+const radius2 = widnowWidth >= 640 ? 15 : 5;
 
 const Card = (props) => {
 	const navigationUse = useNavigation();
@@ -77,9 +79,11 @@ const Card = (props) => {
         <Animated.View style={[styles.cardCont, styles.front, frontAnimatedStyle]}>
           <View style={[styles.cardFrontInfo]}>
             <View style={styles.peopleImgBack}>
-              <ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />
+              <ImgDomain fileWidth={(innerWidth/2)-5} fileName={'front.png'} />
             </View>
-            <AutoHeightImage width={(innerWidth/2)-10} source={{uri:imgDomain+'woman.png'}} style={styles.peopleImg} resizeMethod='resize' />
+            <View style={[styles.peopleImg]}>
+              <AutoHeightImage width={(innerWidth/2)-5} source={{uri:imgDomain+'woman.png'}}  resizeMethod='resize' />
+            </View>
             <View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
               <View style={styles.cardFrontNick}>
                 <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{propsNick}</Text>                
@@ -107,9 +111,11 @@ const Card = (props) => {
           </View>
         </Animated.View>
 
-        <Animated.View style={[styles.cardCont, styles.back, backAnimatedStyle]}>          
-          <ImgDomain fileWidth={(innerWidth/2)-10} fileName={'front.png'} />     
-        </Animated.View>    
+        <Animated.View style={[styles.cardCont, styles.back, backAnimatedStyle]}>
+          <View style={styles.boxShadow}>
+            <ImgDomain fileWidth={(innerWidth/2)-5} fileName={'front.png'} />
+          </View>
+        </Animated.View>
       </TouchableOpacity>  
     </View>
 	)
@@ -119,12 +125,12 @@ const styles = StyleSheet.create({
   front: {position: 'absolute',},
   back: {},
 	fakeView: {},
-  cardBtn: { width: ((widnowWidth / 2) - 30), marginTop: 20, position: 'relative' },		
-	cardCont: {width: ((widnowWidth / 2) - 30), backgroundColor:'#fff', backfaceVisibility:'hidden', borderTopLeftRadius:88, borderTopRightRadius:88,},	
+  cardBtn: { width: ((innerWidth/2)-5), marginTop: 20, position: 'relative' },		
+	cardCont: {width: ((innerWidth/2)-5), backgroundColor:'#fff', backfaceVisibility:'hidden',borderRadius:5,borderTopLeftRadius:radius, borderTopRightRadius:radius,},	
 	cardFrontInfo: {width: ((widnowWidth / 2) - 30), /*position:'absolute', left:0, top:0, zIndex:10,*/},
 	peopleImgBack: {opacity:0,},
-	peopleImg: {position:'absolute', left:0, top:0, zIndex:9, borderTopLeftRadius:80, borderTopRightRadius:80,},
-	cardFrontInfoCont: {width: ((widnowWidth / 2) - 30), backgroundColor:'#fff', position:'absolute', left:0, bottom:0, zIndex:10, paddingVertical:10, paddingHorizontal:10, borderRadius:5,},
+	peopleImg: {position:'absolute', left:0, top:0, zIndex:9, borderTopLeftRadius:radius, borderTopRightRadius:radius,overflow:'hidden'},
+	cardFrontInfoCont: {width: ((innerWidth/2)-5), backgroundColor:'#fff', position:'absolute', left:0, bottom:0, zIndex:10, paddingVertical:10, paddingHorizontal:10, borderRadius:5,},
 	cardFrontNick: {flexDirection:'row', alignItems:'center', justifyContent:'space-between'},
 	cardFrontNickText: {width:(innerWidth/2)-61,fontFamily:Font.NotoSansBold,fontSize:15,lineHeight:19,color:'#1e1e1e',},
 	cardFrontJob: {marginVertical:6,},
@@ -146,14 +152,18 @@ const styles = StyleSheet.create({
 	cardFrontContText2: {fontFamily:Font.RobotoRegular,color:'#888'},
 
   boxShadow: {
+    borderRadius:radius2,
+    borderTopLeftRadius:radius,
+    borderTopRightRadius:radius,    
+    backgroundColor:'#fff',
 		shadowColor: "#000",
     shadowOffset: {
-      width: 0,
+      width: 4,
       height: 0,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 5,
-		elevation: 5,
+		elevation: 7,
 	},
 	boxShadow2: {
 		shadowColor: "#000",

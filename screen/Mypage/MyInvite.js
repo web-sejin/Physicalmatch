@@ -7,6 +7,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import KakaoShareLink from 'react-native-kakao-share-link';
 
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
@@ -24,12 +25,14 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 const MyInvite = (props) => {
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, chatInfo, route} = props;
-	const {params} = route
+	const {params} = route;	
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(true);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
+
+	const tagData = ['초중고 동창', '친척', '동호회 지인', '대학동기', '결혼하고 싶어 하는', '회사 동료', '지인', '형제·자매', '외로워하는', '친구', '소개팅 해 달라고 보채는', '보는 눈이 높은', '만년 솔로인', '이별의 슬픔을 겪고 있는'];
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -72,11 +75,13 @@ const MyInvite = (props) => {
 
 	const onShare = async () => {
 		try {
-			const result = await Share.share({
-				title: 'App link',
-				message: 'Please install this app and stay safe , AppLink :https://play.google.com/store/apps/details?id=nic.goi.aarogyasetu&hl=en', 
-				url: 'https://play.google.com/store/apps/details?id=nic.goi.aarogyasetu&hl=en'
-			});
+			const result = await Share.share(
+				{
+					title: 'App link',
+					message: 'Please install this app and stay safe , AppLink :https://play.google.com/store/apps/details?id=nic.goi.aarogyasetu&hl=en', 
+					url: 'https://play.google.com/store/apps/details?id=nic.goi.aarogyasetu&hl=en'
+				}
+			);
 			if (result.action === Share.sharedAction) {
 				if (result.activityType) {
 					// shared with activity type of result.activityType
@@ -91,6 +96,73 @@ const MyInvite = (props) => {
 		}
 	};
 
+	const sendList = async () => {
+    try {
+      const response = await KakaoShareLink.sendList({
+        headerTitle: '피지컬매치',
+        headerLink: {
+          webUrl: '',
+          mobileWebUrl: '',
+        },
+        contents: [
+          {
+            title: '안드로이드용',
+            imageUrl:
+              'http://t1.daumcdn.net/friends/prod/editor/dc8b3d02-a15a-4afa-a88b-989cf2a50476.jpg',
+            link: {
+              webUrl: 'https://play.google.com/store/apps/details?id=com.supercell.brawlstars',
+              mobileWebUrl: 'https://play.google.com/store/apps/details?id=com.supercell.brawlstars',
+            },
+            description: '',
+          },
+          {
+            title: 'IOS용',
+            imageUrl:
+							'https://cnj02.cafe24.com/appImg/icon_like.png',
+            link: {
+              webUrl: 'https://apps.apple.com/kr/app/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88/id1229016807',
+              mobileWebUrl: 'https://apps.apple.com/kr/app/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88/id1229016807',
+            },
+            description: '',
+          },
+        ],
+      });
+      console.log(response);
+    } catch (e) {
+      console.error(e);
+      console.error(e.message);
+    }
+  };
+
+	const onPressShare = useCallback(async () => {
+		try {
+				const response = await KakaoShareLink.sendText({
+						text: "피지컬매치",
+						link: {
+								webUrl: "",
+								mobileWebUrl: "",
+						},
+						buttons: [
+								{
+										title: "앱에서 보기",
+										link: {
+												androidExecutionParams: [
+														{ key: "deviceVer", value: "from Kakao App" },
+												],
+												iosExecutionParams: [
+														{ key: "deviceVer", value: "from Kakao App" },
+												],
+										},
+								},
+						],
+				});
+				console.log(response);
+		} catch (e) {
+				console.error(e);
+				console.error(e.message);
+		}
+	}, []);
+
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
 	const behavior = Platform.OS === "ios" ? "padding" : "height";
@@ -99,12 +171,40 @@ const MyInvite = (props) => {
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'지인 초대하기'}/>
 
-			<ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/invite.jpg'}} resizeMode='cover' style={{flex:1}}></ImageBackground>
+			<ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/invite_background.png'}} resizeMode='cover' style={{flex:1}}>
+				<View style={styles.inviteBox}>
+					<View style={styles.inviteView1}>
+						<Text style={styles.inviteText1}>피지컬 매치의</Text>
+					</View>
+					<View style={styles.inviteView2}>
+						<Text style={styles.inviteText2}>매력적인 회원들을</Text>
+						<Text style={styles.inviteText2}>주변에 소개해주세요!</Text>
+					</View>
+					<View style={styles.inviteView3}>
+						<ImgDomain fileWidth={20} fileName={'icon_heart3.png'} />
+						<Text style={styles.inviteText3}>신규 회원 프로틴 00개 증정</Text>
+						<ImgDomain fileWidth={20} fileName={'icon_heart3.png'} />
+					</View>
+					<View style={styles.tagBox}>
+						{tagData.map((item, index) => {
+							let tagState = true;
+							if(index==1 || index==3 || index==8 || index==10 || index==13){
+								tagState = false;
+							}
+							return (
+								<View key={index} style={[styles.tagView, !tagState ? styles.tagView2 : null]}>
+									<Text style={[styles.tagText, !tagState ? styles.tagText2 : null]}>{item}</Text>
+								</View>
+							)
+						})}						
+					</View>
+				</View>
+			</ImageBackground>
 			
 			<TouchableOpacity
 				style={styles.kakaoShare}
 				activeOpacity={opacityVal}
-				onPress={()=>{onShare()}}
+				onPress={()=>{onPressShare()}}
 			>
 				<ImgDomain fileWidth={20} fileName={'icon_kakao.png'}/>	
 				<View style={styles.kakaoShareView}>
@@ -140,6 +240,20 @@ const styles = StyleSheet.create({
 	kakaoShare: {flexDirection:'row',alignItems:'center',justifyContent:'center',width:innerWidth,height:52,backgroundColor:'#FFE812',borderRadius:5,position:'absolute',left:20,bottom:50,},
 	kakaoShareView: {marginLeft:6,},
 	kakaoShareText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#3C1E1E'},
+
+	inviteBox: {alignItems:'center',paddingTop:widnowHeight/10,},
+	inviteView1: {},
+	inviteText1: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:15,lineHeight:27,color:'#fff'},
+	inviteView2: {marginTop:5,},
+	inviteText2: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:24,lineHeight:32,color:'#fff'},
+	inviteView3: {flexDirection:'row',alignItems:'center',justifyContent:'center',marginTop:17,},
+	inviteText3: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:18,lineHeight:22,color:'#fff'},
+
+	tagBox: {flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:8,paddingHorizontal:30,marginTop:50,},
+	tagView: {alignItems:'center',justifyContent:'center',height:33,paddingHorizontal:14,backgroundColor:'#fff',borderRadius:50,},
+	tagView2: {backgroundColor:'rgba(82,186,218,0.15)',borderWidth:1,borderColor:'#9CCBD9'},
+	tagText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:19,color:'#1e1e1e'},
+	tagText2: {color:'#9CCBD9'},
 
 	red: {color:'#EE4245'},
 	gray: {color:'#B8B8B8'},

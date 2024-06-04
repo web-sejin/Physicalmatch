@@ -320,6 +320,7 @@ const Home = (props) => {
 						</View>
 						<View style={styles.headerLnb}>
 							<TouchableOpacity
+								style={styles.headerLnbBtn}
 								activeOpacity={opacityVal}
 								onPress={() => {setFilterPop(true)}}
 							>
@@ -1556,11 +1557,11 @@ const styles = StyleSheet.create({
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
 
 	header: {backgroundColor:'#141E30'},
-	headerTop: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingTop:20,paddingBottom:10,paddingHorizontal:20,},
-	headerTitle: {},
+	headerTop: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingTop:20,paddingBottom:10,},
+	headerTitle: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:48,color:'#000',paddingLeft:20,},
 	headerTitleText: {fontFamily:Font.RobotoMedium,fontSize:24,lineHeight:26,color:'#fff'},
-	headerLnb: {flexDirection:'row',alignItems:'center',},
-	headerLnbBtn: {marginLeft:16,},
+	headerLnb: {flexDirection:'row',alignItems:'center',paddingRight:15,},
+	headerLnbBtn: {marginLeft:6,paddingHorizontal:5,},
 	headerBot: {flexDirection:'row',},
 	headerTab: {width:widnowWidth/2,height:60,alignItems:'center',justifyContent:'center',position:'relative',paddingTop:10,},
 	headerTabText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:17,color:'#fff'},
@@ -1569,7 +1570,6 @@ const styles = StyleSheet.create({
 
 	modalHeader: {height:48,backgroundColor:'#fff',position:'relative',display:'flex',justifyContent:'center',paddingHorizontal:40},
 	headerBackBtn2: {width:56,height:48,position:'absolute',left:0,top:0,zIndex:10,display:'flex',alignItems:'center',justifyContent:'center',},
-	headerTitle: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:48,color:'#000'},
 	headerDot: {width:43,height:48,position:'absolute',top:0,right:0,display:'flex',alignItems:'center',justifyContent:'center'},
 	headerSubmitBtn: {alignItems:'center',justifyContent:'center',width:50,height:48,position:'absolute',right:10,top:0},
 	headerSubmitBtnText: {fontFamily:Font.NotoSansMedium,fontSize:16,color:'#b8b8b8',},
