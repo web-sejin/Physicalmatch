@@ -1,22 +1,21 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
 import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-handler'
-import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
+const paddTop = Platform.OS === 'ios' ? 0 : 15;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
@@ -30,31 +29,6 @@ const MyIntro = (props) => {
 		{key:3, subject:'', content:'', listIdx:''},
 	]
 
-	const qnaTab = [
-		{idx:1, txt:'BEST',},
-		{idx:2, txt:'질문탭1'},
-		{idx:3, txt:'질문탭2'},
-		{idx:4, txt:'질문탭3'},
-		{idx:5, txt:'질문탭4'},
-		{idx:6, txt:'질문탭5'},
-	]
-
-	const qnaListData= [
-		{idx:1, subject:'질문1 제목', best:true, chk:false},
-		{idx:2, subject:'질문2 제목 질문2 제목 질문2 제목 질문2 제목 질문2 제목', best:true, chk:false},
-		{idx:3, subject:'질문3 제목', best:false, chk:false},
-		{idx:4, subject:'질문4 제목', best:false, chk:false},
-		{idx:5, subject:'질문5 제목', best:false, chk:false},
-		{idx:6, subject:'질문6 제목', best:false, chk:false},
-		{idx:7, subject:'질문7 제목', best:false, chk:false},
-		{idx:8, subject:'질문8 제목', best:false, chk:false},
-		{idx:9, subject:'질문9 제목', best:false, chk:false},
-		{idx:10, subject:'질문10 제목', best:false, chk:false},
-		{idx:11, subject:'질문11 제목', best:false, chk:false},
-		{idx:12, subject:'질문12 제목', best:false, chk:false},
-		{idx:13, subject:'질문13 제목', best:false, chk:false},
-	]
-
 	const {navigation, userInfo, chatInfo, route} = props;
   const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
@@ -65,14 +39,17 @@ const MyIntro = (props) => {
 	const [currFocus, setCurrFocus] = useState('');
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [memberIdx, setMemberIdx] = useState();
 
 	const [guideModal, setGuideModal] = useState(false);
 	const [qnaModal, setQnaModal] = useState(false);
 	const [writeModal, setWriteModal] = useState(false);
 	const [qnaList, setQnaList] = useState(qnaData);
-	const [activeTab, setActiveTab] = useState(1);
-	const [apiQnaTab, setApiQnaTab] = useState(qnaTab);
-	const [apiQnaListData, setapiQnaListData] = useState(qnaListData);
+	const [activeTab, setActiveTab] = useState();
+	const [apiQnaTab, setApiQnaTab] = useState([]);
+	const [apiQnaListData, setapiQnaListData] = useState([]);
+	const [qnaListChk, setQnaListChk] = useState([]);
+	const [guideIntro, setGuideIntro] = useState([]);
 
 	const [currQnaBox, setCurrQnaBox] = useState(0);
 	const [ingIdx, setIngIdx] = useState(0);
@@ -82,10 +59,9 @@ const MyIntro = (props) => {
 	const [intro, setIntro] = useState('');
 	const [nextOpen, setNextOpen] = useState(false);
 
-	const [st1, setSt1] = useState(false);
-	const [st2, setSt2] = useState(false);
-	const [st3, setSt3] = useState(false);
-	const [st4, setSt4] = useState(false);
+	const [guideOpen, setGuideOpen] = useState();
+	const [notfirst, setNotFirst] = useState(false);
+	const [notfirstIdx, setNotFirstIdx] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -98,6 +74,11 @@ const MyIntro = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 		Keyboard.dismiss();
 		Toast.hide();
@@ -122,6 +103,12 @@ const MyIntro = (props) => {
 
     return unsubscribe;
   }, [navigationUse, preventBack]);
+
+	useEffect(() => {
+		if(memberIdx){
+			getMemInfo();
+		}
+	}, [memberIdx]);
 	
 	useEffect(() => {
 		let cnt = 0;
@@ -137,6 +124,82 @@ const MyIntro = (props) => {
 			setNextOpen(false);
 		}
 	}, [qnaList]);
+
+	useEffect(() => {
+		setLoading(true);
+		getQnaTabData();
+		getGuideIntro();
+	}, []);
+
+	const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyProfile",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			if(response.data.info.member_intro){ 
+				setIntro(response.data.info.member_intro); 
+			}
+
+			let selectCon = response.data.interview.map((item, index) => {
+				return {...item, key:index+1, subject: item.mi_subject, content: item.mi_content, listIdx: item.mi_idx};
+			});			
+			setQnaList(selectCon);
+
+			let selectCon2 = qnaListChk;
+			response.data.interview.map((item, index) => {
+				selectCon2 = [...selectCon2, item.mi_subject];
+			})
+			setQnaListChk(selectCon2);
+		}
+	}
+
+	const getQnaTabData = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetInterviewList",
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			//console.log(response.data.category);
+			setApiQnaTab(response.data.category);
+		}
+	}
+
+	const getGuideIntro = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetIntroduceList",
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){			
+			setGuideIntro(response.data);
+		}	
+		setLoading(false);
+	}
+
+	const getActiveList = async (idx) => {
+		setActiveTab(idx);
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetInterviewList",
+			interview_category: idx
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			//console.log(response.data.list);
+			if(response.data.list == false){
+				setapiQnaListData([]);
+			}else{
+				setapiQnaListData(response.data.list);				
+			}
+		}
+	}
 
 	const addInterview = () => {
 		const order = (qnaList.length)+1;
@@ -165,11 +228,23 @@ const MyIntro = (props) => {
 			}else{
 				return {...item, chk: item.chk};
 			}
-		})
+		})		
 		setapiQnaListData(selectCon3);
 	}
 
-	const WritePopOff = () => {
+	const WritePopOff = (v) => {
+		if(v == 'remove'){
+			let selectCon = [];
+			qnaListChk.map((item, index) => {
+				//console.log(item+'/////'+ingIdx);								
+				if(item != ingSubject){
+					let ary = item;
+					selectCon = [...selectCon, ary];
+				}
+			});
+			
+			setQnaListChk(selectCon);
+		}
 		setWriteModal(false);
 		setPreventBack(false);
 		setIngIdx(0);
@@ -186,10 +261,21 @@ const MyIntro = (props) => {
 		let chg = false;
 		let offIdx = 0;
 		let selectCon = qnaList.map((item) => {
-			if(item.key === currQnaBox){					
+			if(item.key === currQnaBox){									
 				if(item.listIdx != ''){
 					chg = true;
-					offIdx = item.listIdx;					
+					offIdx = item.listIdx;
+					
+					//console.log('offIdx :::: ',offIdx);
+					let selectCon = [];
+					qnaListChk.map((item2, index2) => {
+						if(item.subject != item2){
+							let ary2 = item2;
+							selectCon = [...selectCon, ary2];
+						}
+					});					
+					console.log('qnaSuccess :::: ', selectCon);
+					setQnaListChk(selectCon);
 				}
 
 				return {...item, subject: ingSubject, content: ingContent, listIdx: ingIdx};
@@ -198,19 +284,6 @@ const MyIntro = (props) => {
 			}
 		});		
 		setQnaList(selectCon);
-
-		let selectCon3 = apiQnaListData.map((item) => {
-			if(chg && item.idx == offIdx){
-				return {...item, chk: false};
-			}else{
-				if(item.idx === ingIdx){							
-					return {...item, chk: true};
-				}else{
-					return {...item, chk: item.chk};
-				}
-			}
-		})
-		setapiQnaListData(selectCon3);
 
 		setQnaModal(false);
 		setPreventBack(false);
@@ -232,8 +305,20 @@ const MyIntro = (props) => {
 		
 		nextObj.qnaList = qnaList;
 		nextObj.intro = intro;
-		nextObj.qnaListData = apiQnaListData;
 		console.log(nextObj);
+	}
+
+	const listAryChk = (idx) => {		
+		let ary = qnaListChk;
+
+		const result = ary.filter((v) => v == idx);
+		if(result.length > 0){
+			//console.log('1');
+		}else{
+			ary.push(idx);			
+		}
+		console.log('listAryChk :::: ', ary);
+		setQnaListChk(ary);
 	}
 
 	const headerHeight = 48;
@@ -303,6 +388,7 @@ const MyIntro = (props) => {
 
 							<View style={styles.qnaBox}>
 								{qnaList.map((item, index) => {
+									//console.log(item);
 									return (
 										<View key={index} style={[styles.qnaBtnView, index == 0 ? styles.mgt0 : null]}>
 											{index > 2 ? (
@@ -322,11 +408,14 @@ const MyIntro = (props) => {
 													setCurrQnaBox(item.key);
 													setQnaModal(true);
 													setPreventBack(true);
+													if(item.subject != ''){
+														setNotFirst(true);
+													}
 												}}
 											>				
 												{item.subject != '' ? (
 													<View style={styles.qnaAfter}>
-														<Text style={styles.qnaAfterSubject}>{item.subject}/{item.listIdx}</Text>
+														<Text style={styles.qnaAfterSubject}>{item.subject}</Text>
 														<Text style={styles.qnaAfterContent}>{item.content}</Text>
 													</View>
 												) : (
@@ -367,14 +456,20 @@ const MyIntro = (props) => {
 			<Modal
 				visible={guideModal}
 				animationType={"none"}
-        onRequestClose={() => {setGuideModal(false)}}
+        onRequestClose={() => {
+					setGuideModal(false);
+					setGuideOpen();
+				}}
 			>
 				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
 				<View style={styles.header}>						
 					<TouchableOpacity
 						style={styles.headerBackBtn2}
 						activeOpacity={opacityVal}
-						onPress={() => {setGuideModal(false)}}						
+						onPress={() => {
+							setGuideModal(false);
+							setGuideOpen();
+						}}						
 					>
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
@@ -387,97 +482,38 @@ const MyIntro = (props) => {
 						</View>
 						
 						<View style={styles.mgt20}>
-							<View style={styles.guidePopContBox}>
-								<TouchableOpacity
-									style={[styles.guidePopContBtn, st1 ? styles.guidePopContBtn2 : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{setSt1(!st1)}}
-								>
-									<View style={styles.guidePopContBtnTitle}>
-										<ImgDomain fileWidth={14} fileName={'ic1.png'}/>
-										<Text style={styles.guidePopContBtnText}>피지컬 강조형</Text>
+							{guideIntro.map((item, index) => {
+								return (
+									<View key={index} style={styles.guidePopContBox}>
+										<TouchableOpacity
+											style={[styles.guidePopContBtn, guideOpen == item.it_idx ? styles.guidePopContBtn2 : null]}
+											activeOpacity={opacityVal}
+											onPress={()=>{
+												if(guideOpen == item.it_idx){
+													setGuideOpen();
+												}else{
+													setGuideOpen(item.it_idx);
+												}												
+											}}
+										>
+											<View style={styles.guidePopContBtnTitle}>
+												<ImgDomain2 fileWidth={14} fileName={item.it_img}/>
+												<Text style={styles.guidePopContBtnText}>{item.it_subject}</Text>
+											</View>
+											{guideOpen == item.it_idx ? (
+												<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
+											) : (
+												<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+											)}
+										</TouchableOpacity>
+										{guideOpen == item.it_idx ? (
+										<View style={styles.guidePopCont2}>
+											<Text style={styles.guidePopCont2Text}>{item.it_content}</Text>
+										</View>
+										) : null}
 									</View>
-									{st1 ? (
-										<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
-									) : (
-										<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-									)}
-								</TouchableOpacity>
-								{st1 ? (
-								<View style={styles.guidePopCont2}>
-									<Text style={styles.guidePopCont2Text}>관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.</Text>
-								</View>
-								) : null}
-							</View>
-
-							<View style={styles.guidePopContBox}>
-								<TouchableOpacity
-									style={[styles.guidePopContBtn, st2 ? styles.guidePopContBtn2 : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{setSt2(!st2)}}
-								>
-									<View style={styles.guidePopContBtnTitle}>
-										<ImgDomain fileWidth={14} fileName={'ic2.png'}/>
-										<Text style={styles.guidePopContBtnText}>취미 강조형</Text>
-									</View>
-									{st2 ? (
-										<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
-									) : (
-										<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-									)}
-								</TouchableOpacity>
-								{st2 ? (
-								<View style={styles.guidePopCont2}>
-									<Text style={styles.guidePopCont2Text}>관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.</Text>
-								</View>
-								) : null}
-							</View>
-
-							<View style={styles.guidePopContBox}>
-								<TouchableOpacity
-									style={[styles.guidePopContBtn, st3 ? styles.guidePopContBtn2 : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{setSt3(!st3)}}
-								>
-									<View style={styles.guidePopContBtnTitle}>
-										<ImgDomain fileWidth={14} fileName={'ic3.png'}/>
-										<Text style={styles.guidePopContBtnText}>자기소개 가이드 제목</Text>
-									</View>
-									{st3 ? (
-										<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
-									) : (
-										<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-									)}
-								</TouchableOpacity>
-								{st3 ? (
-								<View style={styles.guidePopCont2}>
-									<Text style={styles.guidePopCont2Text}>관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.</Text>
-								</View>
-								) : null}
-							</View>
-
-							<View style={styles.guidePopContBox}>
-								<TouchableOpacity
-									style={[styles.guidePopContBtn, st4 ? styles.guidePopContBtn2 : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{setSt4(!st4)}}
-								>
-									<View style={styles.guidePopContBtnTitle}>
-										<ImgDomain fileWidth={14} fileName={'ic4.png'}/>
-										<Text style={styles.guidePopContBtnText}>자기소개 가이드 제목</Text>
-									</View>
-									{st4 ? (
-										<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
-									) : (
-										<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-									)}
-								</TouchableOpacity>
-								{st4 ? (
-								<View style={styles.guidePopCont2}>
-									<Text style={styles.guidePopCont2Text}>관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.관리자가 작성한 예시글이 보여집니다.</Text>
-								</View>
-								) : null}
-							</View>
+								)
+							})}	
 						</View>
 					</View>
 				</ScrollView>
@@ -512,17 +548,16 @@ const MyIntro = (props) => {
 										key={index}
 										style={[
 											styles.qnaTabBtn
-											, activeTab == item.idx ? styles.qnaTabBtnOn : null
+											, activeTab == item.ic_idx ? styles.qnaTabBtnOn : null
 											, index == 0 ? styles.mgl0 : null
-											, index+1 == qnaTab.length ? styles.mgr20 : null
+											, index+1 == apiQnaTab.length ? styles.mgr20 : null
 										]}
 										activeOpacity={opacityVal}
 										onPress={() => {
-											setActiveTab(item.idx);
-											console.log('각 탭에 맞는 리스트 뽑아야 함');
+											getActiveList(item.ic_idx);											
 										}}
 									>
-										<Text style={[styles.qnaTabBtnText, activeTab == item.idx ? styles.qnaTabBtnTextOn : null]}>{item.txt}</Text>
+										<Text style={[styles.qnaTabBtnText, activeTab == item.ic_idx ? styles.qnaTabBtnTextOn : null]}>{item.ic_name}</Text>
 									</TouchableOpacity>
 								)
 							})}
@@ -532,40 +567,47 @@ const MyIntro = (props) => {
 					<ScrollView>
 						<View style={[styles.cmWrap, styles.cmWrap2]}>
 							<View style={styles.questionBox}>
-								{apiQnaListData.map((item, index) => {
-									return (
-										<TouchableOpacity
-											key={item.idx}
-											style={[
-												styles.questionBtn
-												, styles.boxShadow
-												, index == 0 ? styles.mgt0 : null
-												, item.best || item.chk ? styles.questionBest : null
-											]}
-											activeOpacity={item.chk ? 1 : opacityVal}
-											onPress={() => {												
-												item.chk ? null : setIngIdx(item.idx);
-												item.chk ? null : setIngSubject(item.subject);
-												item.chk ? null : setWriteModal(true);
-												item.chk ? null : setPreventBack(true);
-											}}
-										>
-											<Text style={[
-												styles.questionBtnText
-												, item.best ? styles.questionBtnText2 : null
-												, item.chk ? styles.questionBtnText3 : null
-											]}>
-												{item.subject}
-											</Text>
-											{item.best && !item.chk ? (<View style={styles.qnaBest}><Text style={styles.qnaBestText}>BEST</Text></View>) : null}
-											{item.chk ? (
-												<View style={styles.qnaChkIcon}>
+								{apiQnaListData.length > 0 ? (
+									apiQnaListData.map((item, index) => {
+										let checked = false;
+										const result = qnaListChk.filter((v) => v == item.interview_question);										
+										return (
+											<TouchableOpacity
+												key={index}
+												style={[
+													styles.questionBtn
+													, styles.boxShadow
+													, index == 0 ? styles.mgt0 : null
+													, item.best_yn == 'y' || result.length > 0 ? styles.questionBest : null
+												]}
+												activeOpacity={result.length > 0 ? 1 : opacityVal}
+												onPress={() => {
+													result.length > 0 ? null : setIngIdx(item.interview_idx);
+													result.length > 0 ? null : setIngSubject(item.interview_question);
+													result.length > 0 ? null : setWriteModal(true);
+													result.length > 0 ? null : setPreventBack(true);
+													listAryChk(item.interview_question);													
+												}}
+											>
+												<Text style={[
+													styles.questionBtnText
+													, item.best_yn == 'y' ? styles.questionBtnText2 : null
+													, result.length > 0 ? styles.questionBtnText3 : null
+												]}>
+													{item.interview_question}
+												</Text>
+												{item.best_yn == 'y' && result.length < 1 ? (<View style={styles.qnaBest}><Text style={styles.qnaBestText}>BEST</Text></View>) : null}
+												{result.length > 0 ? (
 													<ImgDomain fileWidth={18} fileName={'icon_chk4.png'}/>
-												</View>
-											) : null}
-										</TouchableOpacity>
-									)
-								})}
+												) : null}
+											</TouchableOpacity>											
+										)
+									})
+								) : (
+									<View style={styles.notData}>
+										<Text style={styles.notDataText}>선택할 수 있는 질문이 없습니다.</Text>
+									</View>
+								)}
 							</View>
 						</View>
 					</ScrollView>
@@ -582,7 +624,7 @@ const MyIntro = (props) => {
 						<TouchableOpacity
 							style={styles.headerBackBtn2}
 							activeOpacity={opacityVal}
-							onPress={WritePopOff}
+							onPress={() => WritePopOff('remove')}
 						>
 							<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 						</TouchableOpacity>
@@ -612,7 +654,7 @@ const MyIntro = (props) => {
 								<TouchableOpacity
 									style={styles.inputChg}
 									activeOpacity={opacityVal}
-									onPress={WritePopOff}
+									onPress={() => WritePopOff('remove')}
 								>
 									<ImgDomain fileWidth={12} fileName={'icon_pen.png'}/>
 									<Text style={styles.inputChgText}>변경</Text>
@@ -669,7 +711,7 @@ const styles = StyleSheet.create({
   cmDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},	
 
 	input: {},
-	textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,},
+	textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,paddingTop:paddTop,},
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
@@ -761,6 +803,9 @@ const styles = StyleSheet.create({
 	guidePopContBtnText: {fontFamily:Font.NotoSansSemiBold,fontSize:14,color:'#1e1e1e',marginLeft:2,},
 	guidePopCont2: {paddingVertical:10,paddingHorizontal:15,backgroundColor:'#F9FAFB',borderRadius:5,},
 	guidePopCont2Text: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e',},
+
+	notData: {marginTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#666'},
 
 	red: {color:'#EE4245'},
 	gray: {color:'#B8B8B8'},

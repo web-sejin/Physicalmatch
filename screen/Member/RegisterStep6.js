@@ -10,7 +10,10 @@ import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-handler'
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
+import { WebView } from 'react-native-webview';
+import RenderHtml from 'react-native-render-html';
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
@@ -24,37 +27,44 @@ const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 
 const RegisterStep6 = ({navigation, route}) => {		
+	
 	const nextObj = {
 		prvChk4:route['params']['prvChk4'],
 		accessRoute:route['params']['accessRoute'],
-		mb_id:route['params']['mb_id'],
-		mb_pw:route['params']['mb_pw'],
-		mb_nick:route['params']['mb_nick'],
-		mb_gender:route['params']['mb_gender'],
-		mb_local1:route['params']['mb_local1'],
-		mb_local2:route['params']['mb_local2'],
-		mb_class1:route['params']['mb_class1'],
-		mb_class2:route['params']['mb_class2'],
-		mb_job:route['params']['mb_job'],
-		mb_jobDetail:route['params']['mb_jobDetail'],
-		mb_height:route['params']['mb_height'],
-		mb_weight:route['params']['mb_weight'],
-		mb_muscle:route['params']['mb_muscle'],
-		mb_fat:route['params']['mb_fat'],
-		mb_no_weight:route['params']['mb_no_weight'],
-		mb_no_muscle:route['params']['mb_no_muscle'],
-		mb_no_fat:route['params']['mb_no_fat'],
-		mb_rest:route['params']['mb_rest'],
-		mb_exercise:route['params']['mb_exercise'],
-		mb_physicalType:route['params']['mb_physicalType'],
-		mb_drink:route['params']['mb_drink'],
-		mb_smoke:route['params']['mb_smoke'],
-		mb_smokeSort:route['params']['mb_smokeSort'],
-		mb_mbit1:route['params']['mb_mbit1'],
-		mb_mbit2:route['params']['mb_mbit2'],
-		mb_mbit3:route['params']['mb_mbit3'],
-		mb_mbit4:route['params']['mb_mbit4'],
-		mb_religion:route['params']['mb_religion'],
+		member_id:route['params']['member_id'],
+		member_pw:route['params']['member_pw'],
+		member_nick:route['params']['member_nick'],
+		member_sex:route['params']['member_sex'],
+		member_main_local:route['params']['member_main_local'],		
+		member_main_local_detail:route['params']['member_main_local_detail'],
+		member_sub_local:route['params']['member_sub_local'],
+		member_sub_local_detail:route['params']['member_sub_local_detail'],
+		member_education:route['params']['member_education'],
+		member_education_status:route['params']['member_education_status'],
+		member_job:route['params']['member_job'],
+		member_job_detail:route['params']['member_job_detail'],
+		member_height:route['params']['member_height'],
+		member_weight:route['params']['member_weight'],
+		member_muscle:route['params']['member_muscle'],
+		member_fat:route['params']['member_fat'],
+		member_no_weight:route['params']['member_no_weight'],
+		member_no_muscle:route['params']['member_no_muscle'],
+		member_no_fat:route['params']['member_no_fat'],
+		member_rest:route['params']['member_rest'],
+		member_exercise:route['params']['member_exercise'],
+		member_physicalType:route['params']['member_physicalType'],
+		member_drink_status:route['params']['member_drink_status'],
+		member_drinkText:route['params']['member_drinkText'],
+		member_smoke_status:route['params']['member_smoke_status'],
+		member_smokeText:route['params']['member_smokeText'],
+		member_smoke_type:route['params']['member_smoke_type'],
+		member_smokeSortText:route['params']['member_smokeSortText'],
+		member_mbit1:route['params']['member_mbit1'],
+		member_mbit2:route['params']['member_mbit2'],
+		member_mbit3:route['params']['member_mbit3'],
+		member_mbit4:route['params']['member_mbit4'],
+		mbti_result:route['params']['mbti_result'],
+		member_religion:route['params']['member_religion'],
 	}
 
 	const [routeLoad, setRouteLoad] = useState(false);
@@ -72,6 +82,7 @@ const RegisterStep6 = ({navigation, route}) => {
 	const [file5, setFile5] = useState({});
 	const [file6, setFile6] = useState({});
 	const [guideModal, setGuideModal] = useState(false);
+	const [guideCont, setGuideCont] = useState();
 
 	const [nextOpen, setNextOpen] = useState(false);	
 
@@ -140,10 +151,28 @@ const RegisterStep6 = ({navigation, route}) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+	useEffect(() => {
+		getGuideCont();
+	}, [])
+
+	const getGuideCont = async () => {
+		let sData = {      
+      basePath: "/api/etc/index.php",
+			type: "GetProfileGuide",
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			const source = {
+        html: response.data
+      };
+      setGuideCont(source);
+		}
+	}
+
 	const chooseImage = (v) => {
     ImagePicker.openPicker({
-      width: 992,
-      height: 992*1.355,
+      width: 1024,
+      height: 1024*1.355,
       cropping: true,
     })
 		.then(image => {
@@ -167,21 +196,47 @@ const RegisterStep6 = ({navigation, route}) => {
 		});
   };
 
-	const nextStep = () => {
+	const nextStep = async () => {
+		const fileData = [];		
 		if(!file1.path || !file2.path || !file3.path){
 			ToastMessage('대표 및 필수 영역의 사진을 등록해 주세요.');
 			return false;
 		}		
 		
-		if(file1.path){ nextObj.file1 = file1; }
-		if(file2.path){ nextObj.file2 = file2; }
-    if(file3.path){ nextObj.file3 = file3; }
-    if(file4.path){ nextObj.file4 = file4; }
-    if(file5.path){ nextObj.file5 = file5; }
-    if(file6.path){ nextObj.file6 = file6; }
+		if(file1.path){ 
+			nextObj.file1 = file1; 		
+			fileData[0] = {uri: file1?.path, name: 'profile1.png', type: file1?.mime};
+		}
+
+		if(file2.path){ 
+			nextObj.file2 = file2;
+			fileData[1] = {uri: file2?.path, name: 'profile2.png', type: file2?.mime};
+		}
+
+    if(file3.path){ 
+			nextObj.file3 = file3; 
+			fileData[2] = {uri: file3?.path, name: 'profile3.png', type: file3?.mime};
+		}
+
+    if(file4.path){ 
+			nextObj.file4 = file4; 
+			fileData[fileData.length] = {uri: file4?.path, name: 'profile4.png', type: file4?.mime};
+		}
+
+    if(file5.path){ 
+			nextObj.file5 = file5; 
+			fileData[fileData.length] = {uri: file5?.path, name: 'profile5.png', type: file5?.mime};
+		}
+		
+    if(file6.path){ 
+			nextObj.file6 = file6; 
+			fileData[fileData.length] = {uri: file6?.path, name: 'profile6.png', type: file6?.mime};
+		}
+
 		if(route['params']['qnaList']){ nextObj.qnaList = route['params']['qnaList']; }
-		if(route['params']['intro']){ nextObj.intro = route['params']['intro']; }
-		if(route['params']['qnaListData']){ nextObj.qnaListData = route['params']['qnaListData']; }
+		if(route['params']['member_intro']){ nextObj.member_intro = route['params']['member_intro']; }
+		//if(route['params']['qnaListData']){ nextObj.qnaListData = route['params']['qnaListData']; }
+		if(route['params']['qnaListChk']){ nextObj.qnaListChk = route['params']['qnaListChk']; }
 		if(route['params']['step8File1']){ nextObj.step8File1 = route['params']['step8File1']; }
 		if(route['params']['step8File2']){ nextObj.step8File2 = route['params']['step8File2']; }
 		if(route['params']['step8File3']){ nextObj.step8File3 = route['params']['step8File3']; }
@@ -204,6 +259,33 @@ const RegisterStep6 = ({navigation, route}) => {
 		if(route['params']['step8SchoolMajor']){ nextObj.step8SchoolMajor = route['params']['step8SchoolMajor']; }
 		if(route['params']['step8MarryFile']){ nextObj.step8MarryFile = route['params']['step8MarryFile']; }
 		if(route['params']['step8MarryState']){ nextObj.step8MarryState = route['params']['step8MarryState']; }
+		if(route['params']['file1Url']){ nextObj.file1Url = route['params']['file1Url']; }
+		if(route['params']['file2Url']){ nextObj.file2Url = route['params']['file2Url']; }
+		if(route['params']['file3Url']){ nextObj.file3Url = route['params']['file3Url']; }
+		if(route['params']['file4Url']){ nextObj.file4Url = route['params']['file4Url']; }
+		if(route['params']['file5Url']){ nextObj.file5Url = route['params']['file5Url']; }
+		if(route['params']['file6Url']){ nextObj.file6Url = route['params']['file6Url']; }
+		if(route['params']['file7Url']){ nextObj.file7Url = route['params']['file7Url']; }
+		if(route['params']['file8Url']){ nextObj.file8Url = route['params']['file8Url']; }
+		if(route['params']['jobFileUrl']){ nextObj.jobFileUrl = route['params']['jobFileUrl']; }
+		if(route['params']['schoolFileUrl']){ nextObj.schoolFileUrl = route['params']['schoolFileUrl']; }
+		if(route['params']['marryFileUrl']){ nextObj.marryFileUrl = route['params']['marryFileUrl']; }		
+
+		//console.log('fileData :::: ', fileData);
+		setLoading(true);
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "SetTempImage",
+			dir:'profile',
+      files: fileData,			
+		}
+		const formData = APIs.makeFormData(sData)
+		const response = await APIs.multipartRequest(formData);		
+		//console.log('!!!!!!!! ',response);
+		if(response.code == 200){
+			nextObj.fileResData = response.data;
+			setLoading(false);
+		}
 		navigation.navigate('RegisterStep7', nextObj);
 	}
 
@@ -227,15 +309,43 @@ const RegisterStep6 = ({navigation, route}) => {
 							nextObj.file4 = file4;
 							nextObj.file5 = file5;
 							nextObj.file6 = file6;
-							if(route['params']['qnaList']){
-								nextObj.qnaList = route['params']['qnaList'];
-							}
-							if(route['params']['intro']){
-								nextObj.intro = route['params']['intro'];
-							}
-							if(route['params']['qnaListData']){
-								nextObj.qnaListData = route['params']['qnaListData'];
-							}
+							if(route['params']['qnaList']){ nextObj.qnaList = route['params']['qnaList']; }
+							if(route['params']['intro']){ nextObj.intro = route['params']['intro']; }
+							//if(route['params']['qnaListData']){ nextObj.qnaListData = route['params']['qnaListData']; }
+							if(route['params']['qnaListChk']){ nextObj.qnaListChk = route['params']['qnaListChk']; }
+							if(route['params']['step8File1']){ nextObj.step8File1 = route['params']['step8File1']; }
+							if(route['params']['step8File2']){ nextObj.step8File2 = route['params']['step8File2']; }
+							if(route['params']['step8File3']){ nextObj.step8File3 = route['params']['step8File3']; }
+							if(route['params']['step8File4']){ nextObj.step8File4 = route['params']['step8File4']; }
+							if(route['params']['step8File5']){ nextObj.step8File5 = route['params']['step8File5']; }
+							if(route['params']['step8File6']){ nextObj.step8File6 = route['params']['step8File6']; }
+							if(route['params']['step8File7']){ nextObj.step8File7 = route['params']['step8File7']; }
+							if(route['params']['step8File8']){ nextObj.step8File8 = route['params']['step8File8']; }
+							if(route['params']['step8Grade1']){ nextObj.step8Grade1 = route['params']['step8Grade1']; }
+							if(route['params']['step8Grade2']){ nextObj.step8Grade2 = route['params']['step8Grade2']; }
+							if(route['params']['step8Grade3']){ nextObj.step8Grade3 = route['params']['step8Grade3']; }
+							if(route['params']['step8Grade4']){ nextObj.step8Grade4 = route['params']['step8Grade4']; }
+							if(route['params']['step8Grade5']){ nextObj.step8Grade5 = route['params']['step8Grade5']; }
+							if(route['params']['step8Grade6']){ nextObj.step8Grade6 = route['params']['step8Grade6']; }
+							if(route['params']['step8Grade7']){ nextObj.step8Grade7 = route['params']['step8Grade7']; }
+							if(route['params']['step8Grade8']){ nextObj.step8Grade8 = route['params']['step8Grade8']; }
+							if(route['params']['step8JobFile']){ nextObj.step8JobFile = route['params']['step8JobFile']; }
+							if(route['params']['step8SchoolFile']){ nextObj.step8SchoolFile = route['params']['step8SchoolFile']; }
+							if(route['params']['step8SchoolName']){ nextObj.step8SchoolName = route['params']['step8SchoolName']; }
+							if(route['params']['step8SchoolMajor']){ nextObj.step8SchoolMajor = route['params']['step8SchoolMajor']; }
+							if(route['params']['step8MarryFile']){ nextObj.step8MarryFile = route['params']['step8MarryFile']; }
+							if(route['params']['step8MarryState']){ nextObj.step8MarryState = route['params']['step8MarryState']; }
+							if(route['params']['file1Url']){ nextObj.file1Url = route['params']['file1Url']; }
+							if(route['params']['file2Url']){ nextObj.file2Url = route['params']['file2Url']; }
+							if(route['params']['file3Url']){ nextObj.file3Url = route['params']['file3Url']; }
+							if(route['params']['file4Url']){ nextObj.file4Url = route['params']['file4Url']; }
+							if(route['params']['file5Url']){ nextObj.file5Url = route['params']['file5Url']; }
+							if(route['params']['file6Url']){ nextObj.file6Url = route['params']['file6Url']; }
+							if(route['params']['file7Url']){ nextObj.file7Url = route['params']['file7Url']; }
+							if(route['params']['file8Url']){ nextObj.file8Url = route['params']['file8Url']; }
+							if(route['params']['jobFileUrl']){ nextObj.jobFileUrl = route['params']['jobFileUrl']; }
+							if(route['params']['schoolFileUrl']){ nextObj.schoolFileUrl = route['params']['schoolFileUrl']; }
+							if(route['params']['marryFileUrl']){ nextObj.marryFileUrl = route['params']['marryFileUrl']; }
 
 							navigation.navigate('RegisterStep5', nextObj);
             }}
@@ -380,7 +490,10 @@ const RegisterStep6 = ({navigation, route}) => {
 			<Modal
 				visible={guideModal}
 				animationType={"none"}
-				onRequestClose={() => {setGuideModal(false)}}
+				onRequestClose={() => {
+					setGuideModal(false);
+					setPreventBack(false);
+				}}
 			>
 				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
 				<View style={styles.header}>	
@@ -388,21 +501,28 @@ const RegisterStep6 = ({navigation, route}) => {
 					<TouchableOpacity
 						style={styles.headerBackBtn2}
 						activeOpacity={opacityVal}
-						onPress={() => {setGuideModal(false)}}						
+						onPress={() => {
+							setGuideModal(false);
+							setPreventBack(false);
+						}}						
 					>
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
 				<ScrollView>
 					<View style={styles.guidePopCont}>
-						<Text style={styles.guidePopContText}>사진 심사 기준입니다.</Text>
+						{/* <Text style={styles.guidePopContText}>{guideCont}</Text> */}
+						<RenderHtml
+              contentWidth={widnowWidth}
+              source={guideCont}            
+            />
 					</View>
 				</ScrollView>
 			</Modal>
 
 			{loading ? (
       <View style={[styles.indicator]}>
-        <ActivityIndicator size="large" color="#D1913C" />
+        <ActivityIndicator size="large" color="#fff" />
       </View>
       ) : null}
 
@@ -413,7 +533,7 @@ const RegisterStep6 = ({navigation, route}) => {
 const styles = StyleSheet.create({
 	safeAreaView: {flex:1,backgroundColor:'#fff'},
 	gapBox: {height:80,backgroundColor:'#fff'},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
 	cmWrap: {paddingVertical:30,paddingHorizontal:20},
 	cmTitleBox: {position:'relative'},
@@ -466,7 +586,7 @@ const styles = StyleSheet.create({
 	headerTitle: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:48,color:'#000'},
 	headerDot: {width:43,height:48,position:'absolute',top:0,right:0,display:'flex',alignItems:'center',justifyContent:'center'},
 
-	guidePopCont: {padding:20,},
+	guidePopCont: {paddingHorizontal:20,},
 	guidePopContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e'},
 
 	red: {color:'#EE4245'},

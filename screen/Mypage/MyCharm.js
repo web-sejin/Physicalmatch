@@ -10,6 +10,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import {connect} from 'react-redux';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -32,6 +33,9 @@ const MyCharm = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
+	const [memberIdx, setMemberIdx] = useState();
+	const [score, setScore] = useState(0);
+	const [percent, setPercent] = useState(0);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -44,6 +48,10 @@ const MyCharm = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
@@ -67,6 +75,25 @@ const MyCharm = (props) => {
 
     return unsubscribe;
   }, [navigationUse, preventBack]);
+
+	useEffect(() => {
+		if(memberIdx){
+			getScore();
+		}
+	}, [memberIdx]);
+
+	const getScore = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetAttractive",
+			member_idx: memberIdx,
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setPercent(response.data.member_per);
+			setScore(response.data.member_attractive);
+		}
+	}
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -93,9 +120,9 @@ const MyCharm = (props) => {
 							<AnimatedCircularProgress
 								size={194}
 								width={25}
-								fill={80}
+								fill={100-percent}
 								tintColor="#8AA6EE"
-								onAnimationComplete={() => console.log('onAnimationComplete')}
+								//onAnimationComplete={() => console.log('onAnimationComplete')}
 								backgroundColor="#F2F4F6"
 								rotation={0}
 								lineCap="round"
@@ -106,11 +133,11 @@ const MyCharm = (props) => {
 									<View style={styles.progressInfo1}>
 										<ImgDomain fileWidth={12} fileName={'star.png'}/>
 										<View style={styles.progressInfo1TextView}>
-											<Text style={styles.progressInfo1Text}>4.5</Text>
+											<Text style={styles.progressInfo1Text}>{score}</Text>
 										</View>
 									</View>
 									<View style={styles.progressInfo2}>
-										<Text style={styles.progressInfo2Text}>상위 10%</Text>
+										<Text style={styles.progressInfo2Text}>상위 {percent}%</Text>
 									</View>
 								</View>
 							</View>

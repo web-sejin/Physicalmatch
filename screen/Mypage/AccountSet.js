@@ -4,10 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
+import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
+
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -22,38 +26,15 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const AccountSet = (props) => {
-  const data = [
-    {idx:1, txt:'좋은 인연을 만나서'},
-    {idx:2, txt:'만남을 쉬고 싶어서'},
-    {idx:3, txt:'커뮤니티만 이용하려고'},
-    {idx:4, txt:'매칭되는 인연이 마음에 들지 않아서'},
-    {idx:5, txt:'기타'},
-  ]
-
-  const data2 = [
-    {idx:1, txt:'좋은 인연을 만나서'},
-    {idx:2, txt:'만남을 쉬고 싶어서'},
-    {idx:3, txt:'타 소개팅 어플을 사용하려고'},
-    {idx:4, txt:'어플 사용이 불편해서'},
-    {idx:5, txt:'기타'},
-  ]
-
-  const data3 = [
-    {idx:1, txt:'좋은 인연을 만나서'},
-    {idx:2, txt:'만남을 쉬고 싶어서'},
-    {idx:3, txt:'매칭되는 인연이 마음에 들지 않아서 '},
-    {idx:4, txt:'서비스가 불편해서'},
-    {idx:5, txt:'기타'},
-  ]
-
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
+  const [memberIdx, setMemberIdx] = useState();
   const [modal, setModal] = useState(false);
   const [modal2, setModal2] = useState(false);
   const [modal3, setModal3] = useState(false);
@@ -67,14 +48,17 @@ const AccountSet = (props) => {
   const [onOffBg2, setOnOffBg2] = useState();
   const [onOffEvent2, setOnOffEvent2] = useState(new Animated.Value(0));
 
-  const [cardOffList, setCardOffList] = useState(data);
+  const [cardOffList, setCardOffList] = useState([]);
   const [cardOffVal, setCardOffVal] = useState();
+  const [cardOffValString, setCardOffValString] = useState('');
 
-  const [accountoffList, setAccountOffList] = useState(data2);
+  const [accountoffList, setAccountOffList] = useState([]);
   const [accountoffVal, setAccountOffVal] = useState();
+  const [accountoffValString, setAccountOffValString] = useState('');
 
-  const [leaveValList, setLeaveValList] = useState(data3);
+  const [leaveValList, setLeaveValList] = useState([]);
   const [leaveVal, setLeaveVal] = useState();
+  const [leaveValString, setLeaveValString] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -87,12 +71,18 @@ const AccountSet = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
 		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
+  
 
   useEffect(() => {
     const unsubscribe = navigationUse.addListener('beforeRemove', (e) => {
@@ -112,6 +102,15 @@ const AccountSet = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+  useEffect(() => {
+    if(memberIdx){
+      getPushList();
+    }
+    getDisableList();
+    getDisableList2();
+    getDisableList3();
+  }, [memberIdx]);
+
   useEffect(() => {		
     let change = 0; 
     if(onOff){ change = 15; setOnOffBg('#243b55'); }else{ change = 0; setOnOffBg('#F8F9FA'); }
@@ -130,6 +129,7 @@ const AccountSet = (props) => {
       setPreventBack(true);
     }else{
       setOnOff(true);
+      updatePushList('card_yn', true);
     }
   }
 
@@ -139,51 +139,172 @@ const AccountSet = (props) => {
       setPreventBack(true);
     }else{
       setOnOff2(true);
+      updatePushList('available_yn', true);
     }
   }
 
-  const logout = async () => {    
-    setModal(false);
-    setLoading(true);
-    setTimeout(function(){
-      setLoading(false);
-    }, 1000);
+  const logout = async () => {        
+    let sData = {
+			basePath: "/api/member/",
+			type: "SetLogout",
+      member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+    if(response.code == 200){
+      AsyncStorage.removeItem('member_id');
+      AsyncStorage.removeItem('member_idx');
+
+      setModal(false);
+      navigation.navigate('Intro2');
+    }
   }
 
-  const submit = async (v) => {
+  const updatePushList = async (col, state) => {
+    let yn = '';
+    if(state){
+      yn = 'y';
+    }else{
+      yn = 'n';
+    }
+    let sData = {
+			basePath: "/api/member/",
+			type: "SetPushList",
+			member_idx: memberIdx,
+			push_col: col,
+      push_yn: yn 
+		};
+    const response = await APIs.send(sData);
+    //console.log(response);
+  }
+
+  const submit = async (v, col, state) => {
     if(v == 'card'){
       if(!cardOffVal){
         ToastMessage('비활성화 사유를 선택해 주세요.');
         return false;
       }
 
-      setOnOff(false);
-      setModal2(false);
-      setPreventBack(false);
-      setCardOffVal();
-
+      let sData = {
+        basePath: "/api/member/",
+        type: "SetPushList",
+        member_idx: memberIdx,
+        push_col: col,
+        push_yn: state,
+        push_reason: cardOffValString,
+      };
+      const response = await APIs.send(sData);
+      if(response.code == 200){
+        setOnOff(false);
+        setModal2(false);
+        setPreventBack(false);
+        setCardOffVal();
+        setCardOffValString('');
+        ToastMessage('카드가 비활성화 되었습니다.');
+      }
     }else if(v == 'account'){
       if(!accountoffVal){
         ToastMessage('비활성화 사유를 선택해 주세요.');
         return false;
       }
 
-      setOnOff2(false);
-      setModal3(false);
-      setPreventBack(false);
-      setAccountOffVal();
+      let sData = {
+        basePath: "/api/member/",
+        type: "SetPushList",
+        member_idx: memberIdx,
+        push_col: col,
+        push_yn: state,
+        push_reason: accountoffValString,
+      };
+      const response = await APIs.send(sData);
+      //console.log(response);
+      if(response.code == 200){
+        setOnOff2(false);
+        setModal3(false);
+        setPreventBack(false);
+        setAccountOffVal();
+        setAccountOffValString('');
+        ToastMessage('계정이 비활성화 되었습니다.');
 
-      navigation.navigate('Home', {account:'off'});
+        navigation.navigate('Disable');
+      }
 
     }else if(v == 'leave'){
       if(!leaveVal){
         ToastMessage('탈퇴 사유를 선택해 주세요.');
         return false;
       }
-      
-      setModal4(false);
-      setPreventBack(false);
-      setLeaveVal();
+
+      let sData = {
+        basePath: "/api/member/",
+        type: "SetLeaveMember",
+        member_idx: memberIdx,
+        leave_reason: leaveValString,
+      };
+      const response = await APIs.send(sData);
+      if(response.code == 200){
+        AsyncStorage.removeItem('member_id');
+        AsyncStorage.removeItem('member_idx');
+        setModal4(false);
+        setPreventBack(false);
+        setLeaveVal();
+        setLeaveValString('');
+        navigation.navigate('Intro2');
+      }
+    }
+  }
+
+  const getPushList = async () => {
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetPushList",
+			member_idx: memberIdx,
+			push_type: 1,
+		};
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+      if(response.data.card_yn == 'y'){ setOnOff(true); }else{ setOnOff(false); }
+      if(response.data.available_yn == 'y'){ setOnOff2(true); }else{ setOnOff2(false); }
+    }
+  }
+
+  const getDisableList = async () => {    
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetDisabledList",
+			dr_type: 0,
+		};
+		const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setCardOffList(response.data);
+    }
+  }
+
+  const getDisableList2 = async () => {    
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetDisabledList",
+			dr_type: 1,
+		};
+		const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setAccountOffList(response.data);
+    }
+  }
+
+  const getDisableList3 = async () => {    
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetDisabledList",
+			dr_type: 2,
+		};
+		const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setLeaveValList(response.data);
     }
   }
 
@@ -208,7 +329,7 @@ const AccountSet = (props) => {
           <TouchableOpacity
             style={[styles.btn, styles.btnLine]}
             activeOpacity={opacityVal}
-            onPress={()=>{setModal(true)}}
+            onPress={()=>setModal(true)}
           >
             <Text style={styles.btnText}>로그아웃</Text>
             <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
@@ -317,6 +438,7 @@ const AccountSet = (props) => {
             setModal2(false);
             setPreventBack(false);
             setCardOffVal();
+            setCardOffValString('');
           }}
         >
         </TouchableOpacity>
@@ -327,6 +449,7 @@ const AccountSet = (props) => {
               setModal2(false);
               setPreventBack(false);
               setCardOffVal();
+              setCardOffValString('');
             }}
           >
             <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
@@ -351,12 +474,15 @@ const AccountSet = (props) => {
                         styles.reseonBtn, 
                         index == 0 ? styles.mgt0 : null,
                         styles.boxShadow2,
-                        item.idx == cardOffVal ? styles.reseonBtnOn : null
+                        item.dr_idx == cardOffVal ? styles.reseonBtnOn : null
                       ]}
                       activeOpacity={opacityVal}
-                      onPress={()=>setCardOffVal(item.idx)}
+                      onPress={()=>{
+                        setCardOffVal(item.dr_idx)
+                        setCardOffValString(item.dr_content);
+                      }}
                     >
-                      <Text style={[styles.reseonBtnText, item.idx == cardOffVal ? styles.reseonBtnTextOn : null]}>{item.txt}</Text>
+                      <Text style={[styles.reseonBtnText, item.dr_idx == cardOffVal ? styles.reseonBtnTextOn : null]}>{item.dr_content}</Text>
                     </TouchableOpacity>
                   )
                 })}            
@@ -367,7 +493,7 @@ const AccountSet = (props) => {
             <TouchableOpacity 
               style={[styles.popBtn, cardOffVal ? null : styles.popBtnOff3]}
               activeOpacity={opacityVal}
-              onPress={() => {submit('card')}}
+              onPress={() => {submit('card', 'card_yn', 'n')}}
             >
               <Text style={styles.popBtnText}>비활성화</Text>
             </TouchableOpacity>				
@@ -386,6 +512,7 @@ const AccountSet = (props) => {
             setModal3(false);
             setPreventBack(false);
             setAccountOffVal();
+            setAccountOffValString('');
           }}
         >
         </TouchableOpacity>
@@ -396,6 +523,7 @@ const AccountSet = (props) => {
               setModal3(false);
               setPreventBack(false);
               setAccountOffVal();
+              setAccountOffValString('');
             }}
           >
             <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
@@ -419,12 +547,15 @@ const AccountSet = (props) => {
                         styles.reseonBtn, 
                         index == 0 ? styles.mgt0 : null,
                         styles.boxShadow2,
-                        item.idx == accountoffVal ? styles.reseonBtnOn : null
+                        item.dr_idx == accountoffVal ? styles.reseonBtnOn : null
                       ]}
                       activeOpacity={opacityVal}
-                      onPress={()=>setAccountOffVal(item.idx)}
+                      onPress={()=>{
+                        setAccountOffVal(item.dr_idx);
+                        setAccountOffValString(item.dr_content);
+                      }}
                     >
-                      <Text style={[styles.reseonBtnText, item.idx == accountoffVal ? styles.reseonBtnTextOn : null]}>{item.txt}</Text>
+                      <Text style={[styles.reseonBtnText, item.dr_idx == accountoffVal ? styles.reseonBtnTextOn : null]}>{item.dr_content}</Text>
                     </TouchableOpacity>
                   )
                 })}            
@@ -435,7 +566,7 @@ const AccountSet = (props) => {
             <TouchableOpacity 
               style={[styles.popBtn, accountoffVal ? null : styles.popBtnOff3]}
               activeOpacity={opacityVal}
-              onPress={() => {submit('account')}}
+              onPress={() => {submit('account', 'available_yn', 'n')}}
             >
               <Text style={styles.popBtnText}>비활성화</Text>
             </TouchableOpacity>				
@@ -453,6 +584,7 @@ const AccountSet = (props) => {
             setModal4(false);
             setPreventBack(false);
             setLeaveVal();
+            setLeaveValString('');
           }}
         >
         </TouchableOpacity>
@@ -463,6 +595,7 @@ const AccountSet = (props) => {
               setModal4(false);
               setPreventBack(false);
               setLeaveVal();
+              setLeaveValString('');
             }}
           >
             <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
@@ -486,12 +619,15 @@ const AccountSet = (props) => {
                         styles.reseonBtn, 
                         index == 0 ? styles.mgt0 : null,
                         styles.boxShadow2,
-                        item.idx == leaveVal ? styles.reseonBtnOn : null
+                        item.dr_idx == leaveVal ? styles.reseonBtnOn : null
                       ]}
                       activeOpacity={opacityVal}
-                      onPress={()=>setLeaveVal(item.idx)}
+                      onPress={()=>{
+                        setLeaveVal(item.dr_idx);
+                        setLeaveValString(item.dr_content);
+                      }}
                     >
-                      <Text style={[styles.reseonBtnText, item.idx == leaveVal ? styles.reseonBtnTextOn : null]}>{item.txt}</Text>
+                      <Text style={[styles.reseonBtnText, item.dr_idx == leaveVal ? styles.reseonBtnTextOn : null]}>{item.dr_content}</Text>
                     </TouchableOpacity>
                   )
                 })}            
@@ -575,7 +711,7 @@ const styles = StyleSheet.create({
   popBotDesc: {marginBottom:20,},
   popBotDescText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:17,color:'#888'},
   reseonBtn: {alignItems:'center',justifyContent:'center',width:innerWidth,height:48,backgroundColor:'#fff',marginTop:10,},
-  reseonBtnOn: {shadowColor:'#D1913C',shadowOpacity:0.45,shadowRadius:4,elevation:10},
+  reseonBtnOn: {shadowColor:'#D1913C',shadowOpacity:0.45,shadowRadius:4,elevation:10,borderWidth:1,borderColor:'rgba(209,145,60,0.2)'},
   reseonBtnText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:19,color:'#666'},
   reseonBtnTextOn: {fontFamily:Font.NotoSansMedium,color:'#D1913C'},
 

@@ -10,24 +10,23 @@ export const WISH_LIST_FLEX = 'user/WISH_LIST_FLEX';
 export const MEMBER_PUSH_LIST = 'user/MEMBER_PUSH_LIST';
 export const MEMBER_KEYWORD_LIST = 'user/MEMBER_KEYWORD_LIST';
 export const MEMBER_LOGOUT = 'user/MEMBER_LOGOUT';
-export const MEMBER_CHAT_CNT = 'user/MEMBER_CHAT_CNT';
 
 export const actionCreators = {
   //회원 로그인
   member_login: (user) => async (dispatch) => {
     try {
       const response = await UserApi.member_login(user);
-      console.log('member_login ::: ', response);
+      //console.log('member_login ::: ', response);
 
-      if (response.result === 'success') {
-        //console.log('success : ',response);
+      if (response.code == 200) {
+        console.log('member_login success : ',response);
         await dispatch({
           type: MEBMER_LOGIN,
           payload: response,
         });
 
         //console.log('payload : ', response);
-        AsyncStorage.setItem('mb_id', response.mb_id);
+        AsyncStorage.setItem('member_id', response.mb_id);
        
         return {
           state: true,
@@ -51,31 +50,45 @@ export const actionCreators = {
   },
 
   //회원 정보확인
-  member_info: (user) => async (dispatch) => {
+  member_info: (user) => async (dispatch) => {    
     try {      
       const response = await UserApi.member_info(user);
-      //console.log('member_info api ::: ', response);
+      //==console.log('member_info api ::: ', response);
 
-      if (response.result) {
+      if (response.code == 200) {
         await dispatch({
-          type: MEBMER_LOGIN,
+          type: MEMBER_INFO,
           payload: response,
         });
         return {
 					'state': true,
-					'mb_idx': response.mb_idx,
-					'nick': response.mb_nick,
-					'result': response.result,
-          'result_code': response.result_code,
-					'result_text': response.result_text,
-          'recently_notice': response.recently_notice
+					'member_idx': response.data.member_idx,
+					'member_type': response.data.member_type,
+					'member_id': response.data.member_id,
+          'member_name': response.data.member_name,
+          'member_nick': response.data.member_nick,
+					'member_phone': response.data.member_phone,
+          'member_age': response.data.member_age,
+          'member_sex': response.data.member_sex,
+          'free_cnt': response.data.free_cnt,
+          'block_yn': response.data.block_yn,
+          'available_yn': response.data.available_yn,
+          'member_point': response.data.member_point,
+          'member_attractive': response.data.member_attractive,
+          'member_main_local': response.data.member_main_local,
+          'member_main_local_detail': response.data.member_main_local_detail,
+          'member_sub_local': response.data.member_sub_local,
+          'member_sub_local_detail': response.data.member_sub_local_detail,
 				};
       } else {
         await dispatch({
-          type: MEBMER_LOGIN,
+          type: MEMBER_INFO,
           payload: null,
         });
-        return { state: false, msg: response.msg, nick: '' };
+        return { 
+          state: false, 
+          msg: 'not data',
+        };
       }
     } catch (error) {
       return { state: false, msg: '', nick: '' };
@@ -231,30 +244,6 @@ export const actionCreators = {
     } catch (error) {
       // console.log('member_out Error : ', error);
       return { state: false, msg: '' };
-    }
-  },
-
-  //채팅 카운트 변경
-  member_chatCnt: (user) => async (dispatch) => {
-    try {
-      const response = await UserApi.member_chatCnt(user);
-       console.log('member_chatCnt action ::: ', response);
-
-      if (response.result) {
-        await dispatch({
-          type: MEMBER_CHAT_CNT,
-          payload: response,
-        });
-        return { state: true, total_unread: response.total_unread, total_unread_alarm:response.total_unread_alarm, msg:response.msg };
-      } else {
-        await dispatch({
-          type: MEMBER_CHAT_CNT,
-          payload: null,
-        });
-        return { state: false, msg: response.msg, nick: '' };
-      }
-    } catch (error) {
-      return { state: false, msg: '', nick: '' };
     }
   },
 };

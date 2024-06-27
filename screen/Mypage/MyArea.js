@@ -1,17 +1,20 @@
 import React, {useState, useEffect, useRef, useCallback, Component} from 'react';
 import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import Postcode from '@actbase/react-daum-postcode';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -22,7 +25,7 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const MyArea = (props) => {
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, member_info, route} = props;
   const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
@@ -32,15 +35,17 @@ const MyArea = (props) => {
 	const [currFocus, setCurrFocus] = useState('');
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [memberIdx, setMemberIdx] = useState();
 
 	const [popLocal, setPopLocal] = useState(false);
 	const [popLocal2, setPopLocal2] = useState(false);
 	const [localType, setLocalType] = useState(0);
 	const [locBtn, setLocBtn] = useState(false);
+
 	const [local1, setLocal1] = useState('');
 	const [local2, setLocal2] = useState('');
-	const [realLocal1, setRealLocal1] = useState('');
-	const [realLocal2, setRealLocal2] = useState('');
+	const [localDetail1, setLocalDetail1] = useState('');
+	const [localDetail2, setLocalDetail2] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -53,10 +58,76 @@ const MyArea = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
+
+	useEffect(() => {
+		if(memberIdx){
+			getMemInfo();
+		}
+	}, [memberIdx]);
+
+	const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			if(response.data.member_main_local){ 
+				setLocal1(response.data.member_main_local); 
+			}
+			if(response.data.member_main_local){ 
+				setLocalDetail1(response.data.member_main_local_detail);
+			}
+			if(response.data.member_sub_local){ 
+				setLocal2(response.data.member_sub_local);
+			}
+			if(response.data.member_sub_local_detail){ 
+				setLocalDetail2(response.data.member_main_local_detail);
+			}
+		}
+	}
+
+	const nextStep = async () => {
+		if(local1 == ''){ ToastMessage('주 활동 지역을 입력해 주세요.'); return false; }
+		
+		const nextObj = {
+			basePath: "/api/member/",
+			type:'SetAddress',
+			member_idx:memberIdx,						
+			member_main_local:local1,
+			member_main_local_detail:localDetail1,
+			member_sub_local:local2,
+			member_sub_local_detail:localDetail2,
+		}
+
+		let sData = nextObj
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			ToastMessage('지역 설정이 수정되었습니다.');
+
+			const formData = new FormData();
+			formData.append('type', 'GetMyInfo');
+			formData.append('member_idx', memberIdx);
+			//const mem_info = await member_info(formData);
+
+			setTimeout(function(){
+				navigation.navigate('ProfieModify', {reload:true});
+			}, 500);
+		}
+	}
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
@@ -115,7 +186,7 @@ const MyArea = (props) => {
         <TouchableOpacity 
 					style={[styles.nextBtn, local1 ? null : styles.nextBtnOff]}
 					activeOpacity={opacityVal}
-					onPress={() => {}}
+					onPress={() => nextStep()}
 				>
 					<Text style={styles.nextBtnText}>저장하기</Text>
 				</TouchableOpacity>
@@ -224,9 +295,11 @@ const MyArea = (props) => {
 						//console.log(data);				
 						if(localType == 1){
 							setLocal1(kakaoAddr.sido+' '+kakaoAddr.sigungu);
+							setLocalDetail1(kakaoAddr.address);
 							setLocBtn(true);
 						}else if(localType == 2){
 							setLocal2(kakaoAddr.sido+' '+kakaoAddr.sigungu);
+							setLocalDetail2(kakaoAddr.address);
 						}
 						setPopLocal2(false);
 					}}
@@ -314,4 +387,14 @@ const styles = StyleSheet.create({
 	pdb20: {paddingBottom:20},
 })
 
-export default MyArea
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+		member_logout: (user) => dispatch(UserAction.member_logout(user)), //로그아웃
+		member_out: (user) => dispatch(UserAction.member_out(user)), //회원탈퇴
+	})
+)(MyArea);

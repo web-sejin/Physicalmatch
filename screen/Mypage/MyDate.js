@@ -4,11 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
-import Swiper from 'react-native-web-swiper';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -30,8 +30,11 @@ const MyDate = (props) => {
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [keyboardStatus, setKeyboardStatus] = useState(0);
-	const [btnState, setBtnState] = useState(false);
+	const [keyboardStatus, setKeyboardStatus] = useState(0);	
+	const [memberIdx, setMemberIdx] = useState();
+	const [questionList, setQuestionList] = useState([]);
+	const [questionTotal, setQuestionTotal] = useState();
+	const [currCnt, setCurrCnt] = useState(0);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -44,12 +47,141 @@ const MyDate = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
 		}
 
 		Keyboard.dismiss();
 		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
+
+	useEffect(() => {
+		if(memberIdx){
+			getQuestion();
+		}
+	}, [memberIdx])
+
+	const getQuestion = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetQuestion",
+			member_idx: memberIdx,
+		}
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setQuestionList(response.data);
+			setQuestionTotal(response.qCount);
+
+			let chkCnt = 0;
+			response.data.map((item, index) => {
+				item.data.map((item2, index2) => {			
+					for(let i=0; i<item2.answer.length; i++){
+						if(item2.answer[i].is_chk == 'y'){
+							chkCnt = chkCnt+1;		
+							break;
+						}						
+					}					
+				});
+			})
+			setCurrCnt(chkCnt);
+		}
+	}
+
+	const updateQuestion = async (is_multi, la_idx, is_chk, idx, idx2, idx3) => {				
+		let updateAry = [...questionList];
+		let addState = true;
+		let chgCnt = currCnt;
+
+		//console.log('is_multi ::: ', is_multi);		
+		
+		if(is_multi == 'n'){
+			updateAry[idx].data[idx2].answer.map((item, index) => {
+				if(la_idx != item.la_idx){
+					if(updateAry[idx].data[idx2].answer[index].is_chk == 'y'){
+						if(chgCnt <= 1){
+							chgCnt = 0;
+						}else{
+							chgCnt = chgCnt-1;
+						}
+					}
+					updateAry[idx].data[idx2].answer[index].is_chk = 'n';					
+				}
+			})
+		}else if(is_multi == 'y'){
+			for(let i=0; i<updateAry[idx].data[idx2].answer.length; i++){				
+				if(la_idx != updateAry[idx].data[idx2].answer[i].la_idx){
+					if(updateAry[idx].data[idx2].answer[i].is_chk == 'y'){
+						addState = false;
+						break;
+					}
+				}
+			}
+		}
+
+		if(is_chk == 'y'){
+			updateAry[idx].data[idx2].answer[idx3].is_chk = 'n';
+			if(addState){
+				if(chgCnt <= 1){
+					chgCnt = 0;
+				}else{
+					chgCnt = chgCnt-1;
+				}		
+			}
+		}else{
+			updateAry[idx].data[idx2].answer[idx3].is_chk = 'y';
+			//console.log('addState :::: ',addState);
+			if(addState){				
+				chgCnt = chgCnt+1;				
+			}
+		}
+
+		setCurrCnt(chgCnt);
+		setQuestionList(updateAry);
+	}
+
+	const saveQuestion = async () => {
+		if(currCnt != questionTotal){
+			//ToastMessage('모든 질문에 답변을 선택해 주세요.');
+			//return false;
+		}
+
+		let submitAry = [];
+		questionList.map((item, index) => {
+			item.data.map((item2, index2) => {				
+				let laIdx = '';
+				item2.answer.map((item3, index3) => {
+					if(item3.is_chk == 'y'){
+						if(laIdx != ''){ laIdx += '|'; }
+						laIdx += item3.la_idx;
+					}
+				});
+
+				if(laIdx != ''){
+					const questionObject = {lq_idx:item2.question.lq_idx, la_idx:laIdx};
+					submitAry = [...submitAry, questionObject];
+				}
+			})
+		});
+
+		setLoading(true);
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "SetQuestion",
+			member_idx: memberIdx,
+			question_data: submitAry,
+		}
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		setLoading(false);
+		if(response.code == 200){
+			navigation.navigate('ProfieModify', {reload:true});
+		}
+	}
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
@@ -64,85 +196,60 @@ const MyDate = (props) => {
 						<Text style={styles.cmWrapDescText}>나의 연애 및 결혼관이 입력되어야</Text>
 						<Text style={styles.cmWrapDescText}>상대방의 연애 및 결혼관을 열 수 있어요.</Text>
 					</View>
-					<View style={styles.mgt40}>
-						<View>
-							<View style={styles.valueTitle}>
-								<Text style={styles.valueTitleText}>첫만남</Text>
+					{questionList.map((item, index) => {						
+						return (
+							<View key={index} style={[index == 0 ? styles.mgt40 : styles.mgt50]}>
+								<View>
+									<View style={styles.valueTitle}>
+										<Text style={styles.valueTitleText}>{item.title}</Text>
+									</View>
+									{item.data.map((item2, index2) => {
+										return (
+											<View key={index2} style={[index2 != 0 ? styles.mgt30 : null]}>
+												<View style={styles.valueQuestion}>
+												 {item2.question.is_multi == 'y' ? (
+													<Text style={styles.valueQuestionText}>													
+														<Text style={styles.roboto}>Q{index2+1}.</Text> {item2.question.lq_content} (다중선택)
+													</Text>
+													) : (
+														<Text style={styles.valueQuestionText}>
+															<Text style={styles.roboto}>Q{index2+1}.</Text> {item2.question.lq_content}																											
+														</Text>
+													)}
+												</View>   
+												<View style={styles.valueAnswer}>
+													{item2.answer.map((item3, index3) => {
+														return (
+															<TouchableOpacity
+																key={index3}
+																style={[styles.valueAnswerBtn, styles.boxShadow3, index3 == 0 ? styles.mgt0 : null, item3.is_chk == 'y' ? styles.boxShadow4 : null]}
+																activeOpacity={opacityVal}
+																onPress={() => {
+																	updateQuestion(item2.question.is_multi, item3.la_idx, item3.is_chk, index, index2, index3);																	
+																}}
+															>
+																<Text style={[styles.valueAnswerBtnText, item3.is_chk == 'y' ? styles.valueAnswerBtnTextOn : null]}>{item3.la_content}</Text>
+															</TouchableOpacity>
+														)
+													})}													
+												</View>  
+											</View>
+										)
+									})}								              									              
+								</View>
 							</View>
-							<View style={styles.valueQuestion}>
-								<Text style={styles.valueQuestionText}><Text style={styles.roboto}>Q1.</Text> 질문 내용입니다.</Text>
-							</View>                
-							<View style={styles.valueAnswer}>
-								<TouchableOpacity
-									style={[styles.valueAnswerBtn, styles.boxShadow3, styles.boxShadow4, styles.mgt0]}
-									activeOpacity={opacityVal}
-								>
-									<Text style={[styles.valueAnswerBtnText, styles.valueAnswerBtnTextOn]}>선택지1</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									style={[styles.valueAnswerBtn, styles.boxShadow3]}
-									activeOpacity={opacityVal}
-								>
-									<Text style={styles.valueAnswerBtnText}>선택지2</Text>
-								</TouchableOpacity>
-							</View>                
-						</View>
-					</View>
-					<View style={styles.mgt50}>
-						<View>
-							<View style={styles.valueTitle}>
-								<Text style={styles.valueTitleText}>연애관</Text>
-							</View>
-							<View style={styles.valueQuestion}>
-								<Text style={styles.valueQuestionText}><Text style={styles.roboto}>Q2.</Text> 질문 내용입니다.</Text>
-							</View>
-							<View style={styles.valueQuestionDesc}>
-								<Text style={styles.valueQuestionDescText}>해당되는 답변을 모두 선택해 주세요</Text>
-							</View>                
-							<View style={styles.valueAnswer}>
-								<TouchableOpacity
-									style={[styles.valueAnswerBtn, styles.boxShadow3, styles.mgt0]}
-									activeOpacity={opacityVal}
-								>
-									<Text style={styles.valueAnswerBtnText}>선택지1</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									style={[styles.valueAnswerBtn, styles.boxShadow3]}
-									activeOpacity={opacityVal}
-								>
-									<Text style={styles.valueAnswerBtnText}>선택지2</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-						<View style={styles.mgt30}>
-							<View style={styles.valueQuestion}>
-								<Text style={styles.valueQuestionText}><Text style={styles.roboto}>Q3.</Text> 질문 내용입니다.</Text>
-							</View>
-							<View style={styles.valueAnswer}>
-								<TouchableOpacity
-									style={[styles.valueAnswerBtn, styles.boxShadow3, styles.mgt0]}
-									activeOpacity={opacityVal}
-								>
-									<Text style={styles.valueAnswerBtnText}>선택지1</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									style={[styles.valueAnswerBtn, styles.boxShadow3]}
-									activeOpacity={opacityVal}
-								>
-									<Text style={styles.valueAnswerBtnText}>선택지2</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-					</View>
+						)
+					})}
 				</View>
 			</ScrollView>
 
 			<View style={styles.nextFix}>
         <TouchableOpacity 
-					style={[styles.nextBtn, btnState ? null : styles.nextBtnOff]}
+					style={[styles.nextBtn, currCnt === questionTotal ? null : styles.nextBtnOff]}
 					activeOpacity={opacityVal}
-					onPress={() => {}}
+					onPress={() => saveQuestion()}
 				>
+					{/* <Text style={styles.nextBtnText}>저장하기 {currCnt}/{questionTotal}</Text> */}
 					<Text style={styles.nextBtnText}>저장하기</Text>
 				</TouchableOpacity>
 			</View>
@@ -159,7 +266,7 @@ const MyDate = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
 	gapBox: {height:86,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
 	cmWrap: {paddingVertical:30,paddingHorizontal:20},
 	cmWrapTitleBox: {position:'relative'},
@@ -175,7 +282,7 @@ const styles = StyleSheet.create({
   valueQuestionDesc: {marginTop:4,},
   valueQuestionDescText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#666'},
   valueAnswer: {marginTop:15,},
-  valueAnswerBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#fff',marginTop:12,},
+  valueAnswerBtn: {alignItems:'center',justifyContent:'center',minHeight:48,backgroundColor:'#fff',marginTop:12,padding:5,},
   valueAnswerBtnText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:17,color:'#666'},
   valueAnswerBtnTextOn: {fontFamily:Font.NotoSansMedium,color:'#D1913C'},
 

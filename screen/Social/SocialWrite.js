@@ -3,21 +3,22 @@ import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, Text
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import Postcode from '@actbase/react-daum-postcode';
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
+const paddTop = Platform.OS === 'ios' ? 0 : 15;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
@@ -45,8 +46,9 @@ const SocialWrite = (props) => {
   const [locPop, setLocPop] = useState(false);
   const [backConfirm, setBackConfirm] = useState(false);
   const [ImagePop, setImagePop] = useState(false);
+
   const [state, setState] = useState(false);
-  const [cate, setCate] = useState(); //1=>1:1 // 2=>미팅 // 3=>모임
+  const [cate, setCate] = useState(); //0=>1:1 // 1=>미팅 // 2=>모임
   const [subject, setSubject] = useState('');
   const [today, setToday] = useState('');
   const [calendarState, setCalendarState] = useState(false);
@@ -54,6 +56,7 @@ const SocialWrite = (props) => {
   const [meetDate, setMeetDate] = useState('');
   const [meetYoil, setMeetYoil] = useState('');
   const [meetLocal, setMeetLocal] = useState('');
+  const [meetLocalDetail, setMeetLocalDetail] = useState('');
   const [womanCnt, setWomanCnt] = useState(2);
   const [ManCnt, setManCnt] = useState(2);
   const [peopleCnt, setPeopleCnt] = useState(2);
@@ -61,8 +64,11 @@ const SocialWrite = (props) => {
   const [appImage, setAppImage] = useState();
   const [phoneImage, setPhoneImage] = useState({});
   const [content, setContent] = useState('');
-  const [hostFriend, setHostFriend] = useState();
-  const [guestFriend, setGuestFriend] = useState();
+  const [hostFriend, setHostFriend] = useState('');
+  const [guestFriend, setGuestFriend] = useState('');
+  const [memberIdx, setMemberIdx] = useState();
+  const [basicPicture, setBasicPicture] = useState([]);
+  const [pickedPicture, setPickedPicture] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -74,6 +80,11 @@ const SocialWrite = (props) => {
       setCate(route['params']['wrtType']);
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      AsyncStorage.getItem('member_idx', (err, result) => {
+				//console.log('member_idx :::: ', result);
+				setMemberIdx(result);
+			});
 		}
 
 		Keyboard.dismiss();
@@ -102,7 +113,7 @@ const SocialWrite = (props) => {
   useEffect(() => {
     let totalReq = 6;
     let currReq = 0;
-    if(cate == 2 || cate == 3){
+    if(cate == 1 || cate == 2){
       totalReq = 7;
     }
 
@@ -111,8 +122,8 @@ const SocialWrite = (props) => {
     if(meetLocal != ''){ currReq++; }
     if(imageType != 0){ currReq++; }
     if(content != '' && content.length >= 10  && content.length <= 300){ currReq++; }
-    if(hostFriend == 1 || hostFriend == 0){ currReq++; }
-    if(guestFriend == 1 || guestFriend == 0){ currReq++; }
+    if(hostFriend != ''){ currReq++; }
+    if(guestFriend != ''){ currReq++; }
 
     //console.log(currReq+'/'+totalReq);
     if(currReq == totalReq){
@@ -132,6 +143,26 @@ const SocialWrite = (props) => {
     const dateStr = year+'-'+monthPad+'-'+dayPad;    
     setToday(dateStr);
   }, [])
+
+  useEffect(() => {
+		if(memberIdx){
+			//setLoading(true);
+			getBasicPicture();
+		}
+	}, [memberIdx]);
+
+  const getBasicPicture = async () => {
+    let sData = {
+			basePath: "/api/social/",
+			type: "GetSocialBasicImg",
+		};
+	
+		const response = await APIs.send(sData);
+		//console.log(response);
+    if(response.code == 200){      
+      setBasicPicture(response.data);
+    }
+  }
 
   const pickedDateSet = () => {
     if(pickDate == ''){
@@ -161,21 +192,27 @@ const SocialWrite = (props) => {
 
   const fnCount = (v) => {
     if(v == 'm'){
-      if(cate == 2){
+      if(cate == 1){
         if(womanCnt > 2){
-          setWomanCnt(womanCnt-1);
-          setManCnt(ManCnt-1);
+          if(womanCnt == ManCnt){
+            setManCnt(ManCnt-1);
+          }else if(womanCnt > ManCnt){
+            setWomanCnt(womanCnt-1);
+          }
         }
-      }else if(cate == 3){
+      }else if(cate == 2){
         if(peopleCnt > 2){
           setPeopleCnt(peopleCnt-1);
         }
       }
     }else if(v == 'p'){
-      if(cate == 2){
-        setWomanCnt(womanCnt+1);
-        setManCnt(ManCnt+1);
-      }else if(cate == 3){
+      if(cate == 1){
+        if(womanCnt == ManCnt){
+          setWomanCnt(womanCnt+1);
+        }else{
+          setManCnt(ManCnt+1);
+        }        
+      }else if(cate == 2){
         setPeopleCnt(peopleCnt+1);
       }
     }
@@ -183,8 +220,8 @@ const SocialWrite = (props) => {
 
   const chooseImage = () => {
     ImagePicker.openPicker({
-      //width: 300,
-      //height: 400,
+      width: 1024,
+      height: 1024*1.355,
       cropping: true,
     })
 		.then(image => {      
@@ -200,9 +237,10 @@ const SocialWrite = (props) => {
 		});
   }
 
-  const pickAppImg = (v) => {
+  const pickAppImg = (v, url) => {
     setImageType(1);
     setAppImage(v);
+    setPickedPicture(url);
     setPhoneImage({});
     setImagePop(false);
   }
@@ -210,44 +248,90 @@ const SocialWrite = (props) => {
   const socialWriteUpdate = async () => {    
     if(subject == '' || subject.length < 5 || subject.length > 20){
       ToastMessage('모임 제목을 5~20자 입력해 주세요.');
+      Keyboard.dismiss();
       return false;
     }
 
     if(meetDate == ''){ 
       ToastMessage('만날 날짜를 선택해 주세요.');
+      Keyboard.dismiss();
       return false;
     }
 
     if(meetLocal == ''){ 
       ToastMessage('만날 장소를 검색해 주세요.');
+      Keyboard.dismiss();
       return false;
     }
 
     if(imageType == 0){ 
       ToastMessage('모임을 소개할 수 있는 이미지를 등록해 주세요.');
+      Keyboard.dismiss();
       return false;
     }
 
     if(content == '' || content.length < 10 || content.length > 300){
       ToastMessage('모임 내용을 10~300자 입력해 주세요.');
+      Keyboard.dismiss();
       return false;
     }
 
-    if(hostFriend != 1 && hostFriend != 0){
+    if(hostFriend == ''){
       ToastMessage('호스트의 지인이 참여하는지 선택해주세요.');
+      Keyboard.dismiss();
       return false;
     }
 
-    if(guestFriend != 1 && guestFriend != 0){
+    if(guestFriend == ''){
       ToastMessage('게스트의 지인이 참여 허용 여부를 선택해주세요.');
+      Keyboard.dismiss();
       return false;
     }
 
-    Keyboard.dismiss;
+    Keyboard.dismiss();
     setLoading(true);
-    setTimeout(function(){
-      setLoading(false);
-    }, 1000)
+
+    let sData = {
+			basePath: "/api/social/",
+			type: "SetSocial",
+      member_idx: memberIdx,
+      social_type: cate,
+      social_date: pickDate,
+      social_subject: subject,
+      social_content: content,
+      social_location: meetLocal,
+      host_guest_yn: hostFriend,
+      guest_guest_yn: guestFriend,
+		};
+
+    if(cate == 1){ 
+      sData.social_mcnt = ManCnt;
+      sData.social_wcnt = womanCnt;
+    }else if(cate == 2){
+      sData.social_cnt = peopleCnt;
+    }
+
+    if(imageType == 1){
+      //앱에서 제공하는 사진
+      sData.social_default_files = pickedPicture;
+    }else if(imageType == 2){
+      //기기 내 갤러리 사진
+      let fileData = [];
+      fileData[0] = {uri: phoneImage.path, name: 'phone_image.png', type: phoneImage.mime};
+      sData.social_files = fileData;
+    }
+    
+    const formData = APIs.makeFormData(sData)
+		const response = await APIs.multipartRequest(formData);
+		//console.log(response);
+    if(response.code == 200){      
+      ToastMessage('소셜이 작성되었습니다.');
+      setPreventBack(false);
+      setTimeout(function(){
+        setLoading(false);
+        navigation.navigate('TabNavigation', {screen:'Social', reload:true});
+      }, 500)
+    }
   }
 
   const headerHeight = 48;
@@ -381,7 +465,7 @@ const SocialWrite = (props) => {
                   </View>
                 </View>
 
-                {cate == 2 || cate == 3 ? (
+                {cate == 1 || cate == 2 ? (
                 <View style={styles.mgt50}>
                   <View style={[styles.iptTit]}>
                     <Text style={styles.iptTitText}>인원 수를 선택해 주세요 <Text style={styles.red}>*</Text></Text>
@@ -395,8 +479,8 @@ const SocialWrite = (props) => {
                       <ImgDomain fileWidth={24} fileName={'icon_minus.png'}/>
                     </TouchableOpacity>
                     <View style={styles.countBoxBtnView}>
-                      {cate == 2 ? (<Text style={styles.countBoxBtnText}>{womanCnt}:{ManCnt}</Text>) : null}
-                      {cate == 3 ? (<Text style={styles.countBoxBtnText}>{peopleCnt}</Text>) : null}
+                      {cate == 1 ? (<Text style={styles.countBoxBtnText}>{womanCnt}:{ManCnt}</Text>) : null}
+                      {cate == 2 ? (<Text style={styles.countBoxBtnText}>{peopleCnt}</Text>) : null}
                     </View>
                     <TouchableOpacity
                       style={styles.countBoxBtn}
@@ -419,7 +503,7 @@ const SocialWrite = (props) => {
                       activeOpacity={opacityVal}
                       onPress={() => setImagePop(true)}
                     >                      
-                      {imageType == 1 ? (<ImgDomain fileWidth={110} fileName={'social_basic1.jpg'}/>) : null}                      
+                      {imageType == 1 ? (<ImgDomain2 fileWidth={110} fileName={pickedPicture}/>) : null}                      
                       {imageType == 2 ? (<AutoHeightImage width={110} source={{ uri: phoneImage.path }} />) : null}
                       {imageType == 0 ? (<ImgDomain fileWidth={110} fileName={'img_back2.png'}/>) : null}                        						
                       <Text style={styles.imgText}>필수</Text>
@@ -454,18 +538,18 @@ const SocialWrite = (props) => {
                   </View>
                   <View style={styles.friendBox}>
                     <TouchableOpacity
-                      style={[styles.friendBtn, hostFriend == 1 ? styles.friendBtnOn : null]}
+                      style={[styles.friendBtn, hostFriend == 'y' ? styles.friendBtnOn : null]}
                       activeOpacity={opacityVal}
-                      onPress={()=>setHostFriend(1)}
+                      onPress={()=>setHostFriend('y')}
                     >
-                      <Text style={[styles.friendBtnText, hostFriend == 1 ? styles.friendBtnTextOn : null]}>네</Text>
+                      <Text style={[styles.friendBtnText, hostFriend == 'y' ? styles.friendBtnTextOn : null]}>네</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.friendBtn, hostFriend == 0 ? styles.friendBtnOn : null]}
+                      style={[styles.friendBtn, hostFriend == 'n' ? styles.friendBtnOn : null]}
                       activeOpacity={opacityVal}
-                      onPress={()=>setHostFriend(0)}
+                      onPress={()=>setHostFriend('n')}
                     >
-                      <Text style={[styles.friendBtnText, hostFriend == 0 ? styles.friendBtnTextOn : null]}>아니오</Text>
+                      <Text style={[styles.friendBtnText, hostFriend == 'n' ? styles.friendBtnTextOn : null]}>아니오</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -476,18 +560,18 @@ const SocialWrite = (props) => {
                   </View>
                   <View style={styles.friendBox}>
                     <TouchableOpacity
-                      style={[styles.friendBtn, guestFriend == 1 ? styles.friendBtnOn : null]}
+                      style={[styles.friendBtn, guestFriend == 'y' ? styles.friendBtnOn : null]}
                       activeOpacity={opacityVal}
-                      onPress={()=>setGuestFriend(1)}
+                      onPress={()=>setGuestFriend('y')}
                     >
-                      <Text style={[styles.friendBtnText, guestFriend == 1 ? styles.friendBtnTextOn : null]}>네</Text>
+                      <Text style={[styles.friendBtnText, guestFriend == 'y' ? styles.friendBtnTextOn : null]}>네</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.friendBtn, guestFriend == 0 ? styles.friendBtnOn : null]}
+                      style={[styles.friendBtn, guestFriend == 'n' ? styles.friendBtnOn : null]}
                       activeOpacity={opacityVal}
-                      onPress={()=>setGuestFriend(0)}
+                      onPress={()=>setGuestFriend('n')}
                     >
-                      <Text style={[styles.friendBtnText, guestFriend == 0 ? styles.friendBtnTextOn : null]}>아니오</Text>
+                      <Text style={[styles.friendBtnText, guestFriend == 'n' ? styles.friendBtnTextOn : null]}>아니오</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -555,8 +639,9 @@ const SocialWrite = (props) => {
           onSelected={data => {
             //console.log(JSON.stringify(data))
             const kakaoAddr = data;
-            //console.log(data);	
-            setMeetLocal(kakaoAddr.sido+' '+kakaoAddr.sigungu);
+            //console.log(kakaoAddr);	
+            setMeetLocal(kakaoAddr.sido+' '+kakaoAddr.sigungu+' '+kakaoAddr.buildingName);
+            setMeetLocalDetail(kakaoAddr.address);
             setLocPop(false);
           }}
         />
@@ -594,76 +679,25 @@ const SocialWrite = (props) => {
         </View>
         <ScrollView>
           <View style={styles.basicPic}>
-            <TouchableOpacity
-              style={[styles.basicPicBtn]}
-              activeOpacity={opacityVal}
-              onPress={() => pickAppImg(1)}
-            >
-              <ImgDomain fileWidth={(innerWidth/4)-7.5} fileName={'social_basic1.jpg'}/>
-              <View style={styles.basicPicChk}>
-                {imageType == 1 && appImage == 1 ? (
-                  <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>                  
-                ) : (
-                  <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
-                )}
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.basicPicBtn]}
-              activeOpacity={opacityVal}
-              onPress={() => pickAppImg(2)}
-            >
-              <ImgDomain fileWidth={(innerWidth/4)-7.5} fileName={'social_basic2.jpg'}/>
-              <View style={styles.basicPicChk}>
-                {imageType == 1 && appImage == 2 ? (
-                  <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>
-                ) : (
-                  <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
-                )}
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.basicPicBtn]}
-              activeOpacity={opacityVal}
-              onPress={() => pickAppImg(3)}
-            >
-              <ImgDomain fileWidth={(innerWidth/4)-7.5} fileName={'social_basic3.jpg'}/>
-              <View style={styles.basicPicChk}>
-                {imageType == 1 && appImage == 3 ? (
-                  <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>
-                ) : (
-                  <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
-                )}
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.basicPicBtn, styles.mgr0]}
-              activeOpacity={opacityVal}
-              onPress={() => pickAppImg(4)}
-            >
-              <ImgDomain fileWidth={(innerWidth/4)-7.5} fileName={'social_basic4.jpg'}/>
-              <View style={styles.basicPicChk}>
-                {imageType == 1 && appImage == 4 ? (
-                  <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>
-                ) : (
-                  <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
-                )}
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.basicPicBtn]}
-              activeOpacity={opacityVal}
-              onPress={() => pickAppImg(5)}
-            >
-              <ImgDomain fileWidth={(innerWidth/4)-7.5} fileName={'social_basic1.jpg'}/>
-              <View style={styles.basicPicChk}>
-                {imageType == 1 && appImage == 5 ? (
-                  <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>
-                ) : (
-                  <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
-                )}
-              </View>
-            </TouchableOpacity>
+            {basicPicture.map((item, index) => {
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.basicPicBtn, (index+1)/4 == 1 ? styles.mgr0 : null]}
+                  activeOpacity={opacityVal}
+                  onPress={() => pickAppImg(item.sbi_idx, item.sbi_img)}
+                >
+                  <ImgDomain2 fileWidth={(innerWidth/4)-7.5} fileName={item.sbi_img}/>
+                  <View style={styles.basicPicChk}>
+                    {imageType == 1 && appImage == item.sbi_idx ? (
+                      <ImgDomain fileWidth={20} fileName={'icon_chk_on.png'}/>                  
+                    ) : (
+                      <ImgDomain fileWidth={20} fileName={'icon_chk_off.png'}/>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              )
+            })}
           </View>    
         </ScrollView>
       </Modal>
@@ -763,7 +797,7 @@ const styles = StyleSheet.create({
   input4: {width:innerWidth-25,},
   inputLine0 : {borderBottomWidth:0,},
   inputText: {fontFamily:Font.NotoSansRegular,fontSize: 16, lineHeight:21, color: '#1e1e1e',},
-  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,marginTop:30,},
+  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,marginTop:30,paddingTop:paddTop,},
 
   help_box: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:5,},
 	alertText2: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#B8B8B8',},

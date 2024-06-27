@@ -11,10 +11,12 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-handler'
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -27,34 +29,40 @@ const RegisterStep8 = ({navigation, route}) => {
 	const nextObj = {
 		prvChk4:route['params']['prvChk4'],
 		accessRoute:route['params']['accessRoute'],
-		mb_id:route['params']['mb_id'],
-		mb_pw:route['params']['mb_pw'],
-		mb_nick:route['params']['mb_nick'],
-		mb_gender:route['params']['mb_gender'],
-		mb_local1:route['params']['mb_local1'],
-		mb_local2:route['params']['mb_local2'],
-		mb_class1:route['params']['mb_class1'],
-		mb_class2:route['params']['mb_class2'],
-		mb_job:route['params']['mb_job'],
-		mb_jobDetail:route['params']['mb_jobDetail'],
-		mb_height:route['params']['mb_height'],
-		mb_weight:route['params']['mb_weight'],
-		mb_muscle:route['params']['mb_muscle'],
-		mb_fat:route['params']['mb_fat'],
-		mb_no_weight:route['params']['mb_no_weight'],
-		mb_no_muscle:route['params']['mb_no_muscle'],
-		mb_no_fat:route['params']['mb_no_fat'],
-		mb_rest:route['params']['mb_rest'],
-		mb_exercise:route['params']['mb_exercise'],
-		mb_physicalType:route['params']['mb_physicalType'],
-		mb_drink:route['params']['mb_drink'],
-		mb_smoke:route['params']['mb_smoke'],
-		mb_smokeSort:route['params']['mb_smokeSort'],
-		mb_mbit1:route['params']['mb_mbit1'],
-		mb_mbit2:route['params']['mb_mbit2'],
-		mb_mbit3:route['params']['mb_mbit3'],
-		mb_mbit4:route['params']['mb_mbit4'],
-		mb_religion:route['params']['mb_religion'],
+		member_id:route['params']['member_id'],
+		member_pw:route['params']['member_pw'],
+		member_nick:route['params']['member_nick'],
+		member_sex:route['params']['member_sex'],
+		member_main_local:route['params']['member_main_local'],		
+		member_main_local_detail:route['params']['member_main_local_detail'],
+		member_sub_local:route['params']['member_sub_local'],
+		member_sub_local_detail:route['params']['member_sub_local_detail'],
+		member_education:route['params']['member_education'],
+		member_education_status:route['params']['member_education_status'],
+		member_job:route['params']['member_job'],
+		member_job_detail:route['params']['member_job_detail'],
+		member_height:route['params']['member_height'],
+		member_weight:route['params']['member_weight'],
+		member_muscle:route['params']['member_muscle'],
+		member_fat:route['params']['member_fat'],
+		member_no_weight:route['params']['member_no_weight'],
+		member_no_muscle:route['params']['member_no_muscle'],
+		member_no_fat:route['params']['member_no_fat'],
+		member_rest:route['params']['member_rest'],
+		member_exercise:route['params']['member_exercise'],
+		member_physicalType:route['params']['member_physicalType'],
+		member_drink_status:route['params']['member_drink_status'],
+		member_drinkText:route['params']['member_drinkText'],
+		member_smoke_status:route['params']['member_smoke_status'],
+		member_smokeText:route['params']['member_smokeText'],
+		member_smoke_type:route['params']['member_smoke_type'],
+		member_smokeSortText:route['params']['member_smokeSortText'],
+		member_mbit1:route['params']['member_mbit1'],
+		member_mbit2:route['params']['member_mbit2'],
+		member_mbit3:route['params']['member_mbit3'],
+		member_mbit4:route['params']['member_mbit4'],
+		mbti_result:route['params']['mbti_result'],
+		member_religion:route['params']['member_religion'],
 		file1:route['params']['file1'],
 		file2:route['params']['file2'],
 		file3:route['params']['file3'],
@@ -62,10 +70,10 @@ const RegisterStep8 = ({navigation, route}) => {
 		file5:route['params']['file5'],
 		file6:route['params']['file6'],
 		qnaList:route['params']['qnaList'],
-		intro:route['params']['intro'],
-		qnaListData:route['params']['qnaListData'],
+		member_intro:route['params']['member_intro'],
+		qnaListChk:route['params']['qnaListChk'],
 	}
-
+	
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
 	const navigationUse = useNavigation();
@@ -75,7 +83,7 @@ const RegisterStep8 = ({navigation, route}) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [file, setFile] = useState({});
-
+	
 	const [realFile1, setRealFile1] = useState({});
 	const [realFile2, setRealFile2] = useState({});
 	const [realFile3, setRealFile3] = useState({});
@@ -94,11 +102,25 @@ const RegisterStep8 = ({navigation, route}) => {
 	const [realFile7Grade, setRealFile7Grade] = useState('');
 	const [realFile8Grade, setRealFile8Grade] = useState('');
 	
+	const [file1Url, setFile1Url] = useState('');
+	const [file2Url, setFile2Url] = useState('');
+	const [file3Url, setFile3Url] = useState('');
+	const [file4Url, setFile4Url] = useState('');
+	const [file5Url, setFile5Url] = useState('');
+	const [file6Url, setFile6Url] = useState('');
+	const [file7Url, setFile7Url] = useState('');
+	const [file8Url, setFile8Url] = useState('');
+
+	const [badgeGnb, setBadgeGnb] = useState([]);
+	const [badge2dp, setBadge2dp] = useState([]);
+	const [badgeSub, setBadgeSub] = useState();
+	const [certInfo, setCertInfo] = useState('');
+	
 	const [badgeType, setBadgeType] = useState(0);
 	const [badgeModal, setBadgeModal] = useState(false);	
 	const [badgeTitle, setBadgeTitle] = useState('');
 	const [badgeCert, setBadgeCert] = useState(false);
-	const [badgeGrade, setBadgeGrade] = useState('');
+	const [badgeGrade, setBadgeGrade] = useState();
 
 	const [jobModal, setJobModal] = useState(false);
 	const [schoolModal, setSchoolModal] = useState(false);
@@ -107,6 +129,7 @@ const RegisterStep8 = ({navigation, route}) => {
 
 	const [jobFile, setJobFile] = useState({});
 	const [realJobFile, setRealJobFile] = useState({});
+	const [jobFileUrl, setJobFileUrl] = useState('');
 
 	const [schoolFile, setSchoolFile] = useState({});
 	const [realSchoolFile, setRealSchoolFile] = useState({});
@@ -114,11 +137,16 @@ const RegisterStep8 = ({navigation, route}) => {
 	const [realSchoolName, setRealSchoolName] = useState('');
 	const [schoolMajor, setSchoolMajor] = useState('');
 	const [realSchoolMajor, setRealSchoolMajor] = useState('');
+	const [schoolFileUrl, setSchoolFileUrl] = useState('');
 
 	const [marryFile, setMarryFile] = useState({});
 	const [realMarryFile, setRealMarryFile] = useState({});
 	const [marryState, setMarryState] = useState('');
 	const [realMarryState, setRealMarryState] = useState('');
+	const [marryFileUrl, setMarryFileUrl] = useState('');
+
+	const [deviceToken, setDeviceToken] = useState('');
+	const [firebaseToken, setFirebaseToken] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -154,6 +182,27 @@ const RegisterStep8 = ({navigation, route}) => {
 			if(route['params']['step8SchoolMajor']){ setRealSchoolMajor(route['params']['step8SchoolMajor']); }
 			if(route['params']['step8MarryFile']){ setRealMarryFile(route['params']['step8MarryFile']); }
 			if(route['params']['step8MarryState']){ setRealMarryState(route['params']['step8MarryState']); }
+			if(route['params']['file1Url']){ setFile1Url(route['params']['file1Url']); }
+			if(route['params']['file2Url']){ setFile2Url(route['params']['file2Url']); }
+			if(route['params']['file3Url']){ setFile3Url(route['params']['file3Url']); }
+			if(route['params']['file4Url']){ setFile4Url(route['params']['file4Url']); }
+			if(route['params']['file5Url']){ setFile5Url(route['params']['file5Url']); }
+			if(route['params']['file6Url']){ setFile6Url(route['params']['file6Url']); }
+			if(route['params']['file7Url']){ setFile7Url(route['params']['file7Url']); }
+			if(route['params']['file8Url']){ setFile8Url(route['params']['file8Url']); }
+			if(route['params']['jobFileUrl']){ setJobFileUrl(route['params']['jobFileUrl']); }
+			if(route['params']['schoolFileUrl']){ setSchoolFileUrl(route['params']['schoolFileUrl']); }
+			if(route['params']['marryFileUrl']){ setMarryFileUrl(route['params']['marryFileUrl']); }
+
+			AsyncStorage.getItem('appToken', (err, result) => {
+				//console.log('appToken :::: ', result);
+				setFirebaseToken(result);
+			});
+	
+			AsyncStorage.getItem('deviceId', (err, result) => {		
+				//console.log('deviceId :::: ', result);		
+				setDeviceToken(result);
+			});
 		}
 		Keyboard.dismiss();
 		Toast.hide();
@@ -165,7 +214,6 @@ const RegisterStep8 = ({navigation, route}) => {
       // 뒤로 가기 이벤트가 발생했을 때 실행할 로직을 작성합니다.
       // 여기에 원하는 동작을 추가하세요.
       // e.preventDefault();를 사용하면 뒤로 가기를 막을 수 있습니다.
-      //console.log('preventBack22 ::: ',preventBack);
       if (preventBack) {        
 				setBadgeModal(false);
 				setJobModal(false);
@@ -181,6 +229,21 @@ const RegisterStep8 = ({navigation, route}) => {
 
     return unsubscribe;
   }, [navigationUse, preventBack]);
+
+	useEffect(() => {
+		getBadgeList();		
+	}, [])
+
+	const getBadgeList = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetBadgeList",
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setBadgeGnb(response.data);
+		}
+	}
 
 	const chooseImage = () => {
     ImagePicker.openPicker({
@@ -203,43 +266,66 @@ const RegisterStep8 = ({navigation, route}) => {
 		setBadgeModal(false);
 		setPreventBack(false);
 		setBadgeCert(false);
-		setBadgeGrade('');
+		setBadgeGrade();
 		setBadgeType(0);
 		setFile({});
 	}
 
-	const saveBadgeFileInfo = () => {
+	const saveBadgeFileInfo = async () => {		
+		const fileData = [];
 		if(!file.path){
 			ToastMessage('인증 자료를 첨부해 주세요.');
 			return false;
 		}
 
+		setLoading(true);
+		fileData[0] = {uri: file.path, name: 'badge.png', type: file.mime};
+		let sData = {      
+			basePath: "/api/member/index.php",
+			type: "SetTempImage",
+			dir:'badge',
+			files: fileData,			
+		}
+		const formData = APIs.makeFormData(sData)
+		const response = await APIs.multipartRequest(formData);	
+		//console.log('badgeType :::: ', badgeType);
+		//console.log('SetTempImage :::: ', response);
+
 		if(badgeType == 1){
 			setRealFile1(file);
-			setRealFile1Grade(badgeGrade);
+			setRealFile1Grade(badgeGrade);						
+			setFile1Url(response.data[0]);
 		}else if(badgeType == 2){
 			setRealFile2(file);
 			setRealFile2Grade(badgeGrade);
+			setFile2Url(response.data[0]);
 		}else if(badgeType == 3){
 			setRealFile3(file);
 			setRealFile3Grade(badgeGrade);
+			setFile3Url(response.data[0]);
 		}else if(badgeType == 4){
 			setRealFile4(file);
 			setRealFile4Grade(badgeGrade);
+			setFile4Url(response.data[0]);
 		}else if(badgeType == 5){
 			setRealFile5(file);
 			setRealFile5Grade(badgeGrade);
+			setFile5Url(response.data[0]);
 		}else if(badgeType == 6){
 			setRealFile6(file);
 			setRealFile6Grade(badgeGrade);
+			setFile6Url(response.data[0]);
 		}else if(badgeType == 7){
 			setRealFile7(file);
 			setRealFile7Grade(badgeGrade);
+			setFile7Url(response.data[0]);
 		}else if(badgeType == 8){
 			setRealFile8(file);
 			setRealFile8Grade(badgeGrade);
+			setFile8Url(response.data[0]);
 		}
 
+		setLoading(false);
 		offBadgeModal();
 	}
 
@@ -253,16 +339,32 @@ const RegisterStep8 = ({navigation, route}) => {
 		.finally(() => {});
 	}
 
-	const saveJobCert = () => {
+	const saveJobCert = async () => {
+		const jobFileData = [];
 		if(!jobFile.path){
 			ToastMessage('인증 자료를 첨부해 주세요.');
 			return false;
 		}
 
+		setLoading(true);
 		setRealJobFile(jobFile);
+
+		jobFileData[0] = {uri: jobFile.path, name: 'auth_job.png', type: jobFile.mime};
+		let sData = {      
+			basePath: "/api/member/index.php",
+			type: "SetTempImage",
+			dir:'auth',
+			files: jobFileData,			
+		}
+		const formData = APIs.makeFormData(sData)
+		const response = await APIs.multipartRequest(formData);	
+		setJobFileUrl(response.data[0]);
+
+		setLoading(false);
 		setJobModal(false);
 		setPreventBack(false);
 		setJobFile({});
+		setCertInfo('');
 	}
 
 	const schoolImage = () => {
@@ -275,7 +377,8 @@ const RegisterStep8 = ({navigation, route}) => {
 		.finally(() => {});
 	}
 
-	const saveSchoolCert = () => {
+	const saveSchoolCert = async () => {
+		const schoolFileData = [];
 		if(schoolName == ''){
 			ToastMessage('학교명을 입력해 주세요.');
 			return false;
@@ -285,43 +388,200 @@ const RegisterStep8 = ({navigation, route}) => {
 			ToastMessage('인증 자료를 첨부해 주세요.');
 			return false;
 		}
-
+		
+		setLoading(true);
 		setRealSchoolName(schoolName);
 		setRealSchoolMajor(schoolMajor);
 		setRealSchoolFile(schoolFile);
+
+		schoolFileData[0] = {uri: schoolFile.path, name: 'auth_school.png', type: schoolFile.mime};
+		let sData = {      
+			basePath: "/api/member/index.php",
+			type: "SetTempImage",
+			dir:'auth',
+			files: schoolFileData,			
+		}
+		const formData = APIs.makeFormData(sData)
+		const response = await APIs.multipartRequest(formData);	
+		setSchoolFileUrl(response.data[0]);
+
+		setLoading(false);
 		setSchoolModal(false);
 		setPreventBack(false);
 		setSchoolName('');
 		setSchoolMajor('');
 		setSchoolFile({});
+		setCertInfo('');
 	}
 	
 	const marryImage = () => {
 		ImagePicker.openPicker({})
 		.then(image => {
+			//console.log('image ::: ', image);
 			let megabytes = parseInt(Math.floor(Math.log(image.size) / Math.log(1024)));
-			let selectObj = {path: image.path, mime: image.mime, name:image.filename, size:megabytes}			
+			let selectObj = {path: image.path, mime: image.mime, name:'auth_marry.png', size:megabytes}			
 			setMarryFile(selectObj);
 		})
 		.finally(() => {});
 	}
 
-	const saveMarryCert = () => {
+	const saveMarryCert = async () => {
+		const marryFileData = [];
+		if(marryState == ''){
+			ToastMessage('혼인 여부를 선택해 주세요.');
+			return false;
+		}
+		
 		if(!marryFile.path){
 			ToastMessage('인증 자료를 첨부해 주세요.');
 			return false;
 		}
 
+		setLoading(true);
 		setRealMarryState(marryState);		
 		setRealMarryFile(marryFile);
+
+		marryFileData[0] = {uri: marryFile.path, name: 'auth_marry.png', type: marryFile.mime};
+		let sData = {      
+			basePath: "/api/member/index.php",
+			type: "SetTempImage",
+			dir:'auth',
+			files: marryFileData,			
+		}
+		const formData = APIs.makeFormData(sData)
+		const response = await APIs.multipartRequest(formData);
+		setMarryFileUrl(response.data[0]);
+
+		setLoading(false);
 		setMarryModal(false);
 		setPreventBack(false);
 		setMarryState('');		
 		setMarryFile({});
+		setCertInfo('');
 	}
-	
 
-	const nextStep = () => {	
+	const nextStep = async () => {
+		//setLoading(true);
+		const nextObj2 = {
+			basePath: "/api/member/index.php",
+			type: "SetReigst",
+			prvChk4:route['params']['prvChk4'],
+			accessRoute:route['params']['accessRoute'],
+			member_id:route['params']['member_id'],			
+			member_pw:route['params']['member_pw'],
+			member_name:route['params']['member_nick'],
+			member_nick:route['params']['member_nick'],			
+			member_phone:'010-1234-3336',
+			member_age:'30',
+			member_sex:route['params']['member_sex'],
+			member_main_local:route['params']['member_main_local'],
+			member_main_local_detail:route['params']['member_main_local_detail'],
+			member_sub_local:route['params']['member_sub_local'],
+			member_sub_local_detail:route['params']['member_sub_local_detail'],
+			member_education:route['params']['member_education'],
+			member_education_status:route['params']['member_education_status'],
+			member_job:route['params']['member_job'],
+			member_job_detail:route['params']['member_job_detail'],
+			member_height:route['params']['member_height'],
+			member_weight:route['params']['member_weight'],
+			member_muscle:route['params']['member_muscle'],
+			member_fat:route['params']['member_fat'],
+			member_no_weight:route['params']['member_no_weight'],
+			member_no_muscle:route['params']['member_no_muscle'],
+			member_no_fat:route['params']['member_no_fat'],			
+			member_exercise:route['params']['member_exercise'],
+			member_drink_status:route['params']['member_drink_status'],
+			member_smoke_status:route['params']['member_smoke_status'],
+			member_smoke_type:route['params']['member_smoke_type'],
+			member_mbti:route['params']['mbti_result'],
+			member_religion:route['params']['member_religion'],
+			qnaList:route['params']['qnaList'],
+			member_intro:route['params']['member_intro'],
+			qnaListChk:route['params']['qnaListChk'],
+			member_profile_img:route['params']['fileResData'],
+			device_id: deviceToken,
+			member_firebase_token: firebaseToken,
+		}
+
+		if(route['params']['member_physicalType']){
+			const phyType = route['params']['member_physicalType'];			
+			const phyTypeTrue = [];
+			for(let i=0; i<phyType.length; i++){
+				if(phyType[i].chk){
+					phyTypeTrue.push(phyType[i].physical_name);
+				}
+			}
+			nextObj2.member_physical = phyTypeTrue;				
+		}
+
+		if(route['params']['qnaList']){
+			const interviewList = route['params']['qnaList'];
+			const interviewList2 = [];
+			for(let i=0; i<interviewList.length; i++){				
+				interviewList2.push({mi_subject:interviewList[i].subject, mi_content:interviewList[i].content});
+			}
+			nextObj2.member_interview = interviewList2;			
+		}			
+
+		const badgeFileData = [];
+		if(realFile1.path != undefined){ badgeFileData.push({badge_idx : realFile1Grade, mb_file : file1Url}); }
+		if(realFile2.path != undefined){ badgeFileData.push({badge_idx : realFile2Grade, mb_file : file2Url}); }
+		if(realFile3.path != undefined){ badgeFileData.push({badge_idx : realFile3Grade, mb_file : file3Url}); }
+		if(realFile4.path != undefined){ badgeFileData.push({badge_idx : realFile4Grade, mb_file : file4Url}); }
+		if(realFile5.path != undefined){ badgeFileData.push({badge_idx : realFile5Grade, mb_file : file5Url}); }
+		if(realFile6.path != undefined){ badgeFileData.push({badge_idx : realFile6Grade, mb_file : file6Url}); }
+		if(realFile7.path != undefined){ badgeFileData.push({badge_idx : realFile7Grade, mb_file : file7Url}); }
+		if(realFile8.path != undefined){ badgeFileData.push({badge_idx : realFile8Grade, mb_file : file8Url}); }
+
+		if(badgeFileData.length > 0){
+			nextObj2.member_badge = badgeFileData;
+		}
+
+		const certFileData = [];
+		if(realJobFile.path != undefined){			
+			certFileData.push({
+				pa_idx : 1, 
+				mpa_info1 : route['params']['member_job'], 
+				mpa_info2 : route['params']['member_job_detail'], 
+				mpa_file : jobFileUrl
+			});
+		}
+		if(realSchoolFile.path){
+			certFileData.push({
+				pa_idx : 2, 
+				mpa_info1 : realSchoolName, 
+				mpa_info2 : realSchoolMajor, 
+				mpa_file : schoolFileUrl
+			});
+		}
+		if(realMarryFile.path){
+			certFileData.push({
+				pa_idx : 3, 
+				mpa_info1 : realMarryState, 
+				mpa_info2 : '', 
+				mpa_file : marryFileUrl
+			});
+		}
+
+		if(certFileData.length > 0){
+			nextObj2.member_profile_auth = certFileData;
+		}
+
+		//console.log(nextObj2);				
+		//console.log(route['params']['member_exercise']);		
+
+		let sData = nextObj2
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			AsyncStorage.setItem('member_id', response.data.member_id);
+			AsyncStorage.setItem('member_idx', response.data.member_idx);
+		}
+		//console.log(response);
+		setLoading(false);
+		navigation.navigate('RegisterResult');
+	}
+
+	const moveNav = async (loc) => {
 		nextObj.step8File1 = realFile1;
 		nextObj.step8File2 = realFile2;
 		nextObj.step8File3 = realFile3;
@@ -331,9 +591,9 @@ const RegisterStep8 = ({navigation, route}) => {
 		nextObj.step8File7 = realFile7;
 		nextObj.step8File8 = realFile8;
 		nextObj.step8Grade1 = realFile1Grade;
-		nextObj.step8Grade2 = realFile1Grade;
-		nextObj.step8Grade3 = realFile2Grade;
-		nextObj.step8Grade4 = realFile3Grade;
+		nextObj.step8Grade2 = realFile2Grade;
+		nextObj.step8Grade3 = realFile3Grade;
+		nextObj.step8Grade4 = realFile4Grade;
 		nextObj.step8Grade5 = realFile5Grade;
 		nextObj.step8Grade6 = realFile6Grade;
 		nextObj.step8Grade7 = realFile7Grade;
@@ -344,8 +604,56 @@ const RegisterStep8 = ({navigation, route}) => {
 		nextObj.step8SchoolMajor = realSchoolMajor;
 		nextObj.step8MarryFile = realMarryFile;
 		nextObj.step8MarryState = realMarryState;
+		nextObj.file1Url = file1Url;
+		nextObj.file2Url = file2Url;
+		nextObj.file3Url = file3Url;
+		nextObj.file4Url = file4Url;
+		nextObj.file5Url = file5Url;
+		nextObj.file6Url = file6Url;
+		nextObj.file7Url = file7Url;
+		nextObj.file8Url = file8Url;
+		nextObj.jobFileUrl = jobFileUrl;
+		nextObj.schoolFileUrl = schoolFileUrl;
+		nextObj.marryFileUrl = marryFileUrl;
+		navigation.navigate(loc, nextObj)
+	}
 
-		navigation.navigate('RegisterResult', nextObj);
+	const getBadge2dp = async (idx) => {
+		let gender = '';
+		if(route['params']['member_sex'] == 0){
+			gender = 'm';
+		}else{
+			gender = 'w'
+		}
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetBadgeDetail",
+			bc_idx: idx,
+			m_sex: gender,
+		}
+		const response = await APIs.send(sData);		
+		setBadge2dp(response.data);
+	}
+
+	const getBadgeSubInfo = async (idx) => {		
+		setBadgeCert(true);
+		setBadgeGrade(idx);
+
+		const result = badge2dp.filter((v) => v.badge_idx == idx);
+		setBadgeSub(result);
+	}
+
+	const getCertInfo = async (idx) => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetAuthDetail",
+			pa_idx: idx,
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setCertInfo(response.data[0].pa_info);
+		}
 	}
 
 	const headerHeight = 48;
@@ -361,31 +669,7 @@ const RegisterStep8 = ({navigation, route}) => {
 					<TouchableOpacity 
 						style={[styles.regiStateCircel, styles.regiStateCircelOn]}
 						activeOpacity={opacityVal}
-						onPress={()=>{
-							nextObj.step8File1 = realFile1;
-							nextObj.step8File2 = realFile2;
-							nextObj.step8File3 = realFile3;
-							nextObj.step8File4 = realFile4;
-							nextObj.step8File5 = realFile5;
-							nextObj.step8File6 = realFile6;
-							nextObj.step8File7 = realFile7;
-							nextObj.step8File8 = realFile8;
-							nextObj.step8Grade1 = realFile1Grade;
-							nextObj.step8Grade2 = realFile1Grade;
-							nextObj.step8Grade3 = realFile2Grade;
-							nextObj.step8Grade4 = realFile3Grade;
-							nextObj.step8Grade5 = realFile5Grade;
-							nextObj.step8Grade6 = realFile6Grade;
-							nextObj.step8Grade7 = realFile7Grade;
-							nextObj.step8Grade8 = realFile8Grade;
-							nextObj.step8JobFile = realJobFile;
-							nextObj.step8SchoolFile = realSchoolFile;
-							nextObj.step8SchoolName = realSchoolName;
-							nextObj.step8SchoolMajor = realSchoolMajor;
-							nextObj.step8MarryFile = realMarryFile;
-							nextObj.step8MarryState = realMarryState;
-							navigation.navigate('RegisterStep5', nextObj)
-						}}
+						onPress={()=>{moveNav('RegisterStep5')}}
 					>
 						<View style={styles.regiStateCircel2}></View>
 						<Text style={[styles.regiStateText, styles.regiStateTexOn]}>기본 정보</Text>
@@ -393,31 +677,7 @@ const RegisterStep8 = ({navigation, route}) => {
 					<TouchableOpacity 
 						style={[styles.regiStateCircel, styles.regiStateCircelOn]}
 						activeOpacity={opacityVal}
-						onPress={()=>{
-							nextObj.step8File1 = realFile1;
-							nextObj.step8File2 = realFile2;
-							nextObj.step8File3 = realFile3;
-							nextObj.step8File4 = realFile4;
-							nextObj.step8File5 = realFile5;
-							nextObj.step8File6 = realFile6;
-							nextObj.step8File7 = realFile7;
-							nextObj.step8File8 = realFile8;
-							nextObj.step8Grade1 = realFile1Grade;
-							nextObj.step8Grade2 = realFile1Grade;
-							nextObj.step8Grade3 = realFile2Grade;
-							nextObj.step8Grade4 = realFile3Grade;
-							nextObj.step8Grade5 = realFile5Grade;
-							nextObj.step8Grade6 = realFile6Grade;
-							nextObj.step8Grade7 = realFile7Grade;
-							nextObj.step8Grade8 = realFile8Grade;
-							nextObj.step8JobFile = realJobFile;
-							nextObj.step8SchoolFile = realSchoolFile;
-							nextObj.step8SchoolName = realSchoolName;
-							nextObj.step8SchoolMajor = realSchoolMajor;
-							nextObj.step8MarryFile = realMarryFile;
-							nextObj.step8MarryState = realMarryState;
-							navigation.navigate('RegisterStep6', nextObj)
-						}}
+						onPress={()=>{moveNav('RegisterStep6')}}
 					>
 						<View style={styles.regiStateCircel2}></View>
 						<Text style={[styles.regiStateText, styles.regiStateTexOn]}>프로필 등록</Text>
@@ -425,31 +685,7 @@ const RegisterStep8 = ({navigation, route}) => {
           <TouchableOpacity 
 						style={[styles.regiStateCircel, styles.regiStateCircelOn]}
 						activeOpacity={opacityVal}
-						onPress={()=>{
-							nextObj.step8File1 = realFile1;
-							nextObj.step8File2 = realFile2;
-							nextObj.step8File3 = realFile3;
-							nextObj.step8File4 = realFile4;
-							nextObj.step8File5 = realFile5;
-							nextObj.step8File6 = realFile6;
-							nextObj.step8File7 = realFile7;
-							nextObj.step8File8 = realFile8;
-							nextObj.step8Grade1 = realFile1Grade;
-							nextObj.step8Grade2 = realFile1Grade;
-							nextObj.step8Grade3 = realFile2Grade;
-							nextObj.step8Grade4 = realFile3Grade;
-							nextObj.step8Grade5 = realFile5Grade;
-							nextObj.step8Grade6 = realFile6Grade;
-							nextObj.step8Grade7 = realFile7Grade;
-							nextObj.step8Grade8 = realFile8Grade;
-							nextObj.step8JobFile = realJobFile;
-							nextObj.step8SchoolFile = realSchoolFile;
-							nextObj.step8SchoolName = realSchoolName;
-							nextObj.step8SchoolMajor = realSchoolMajor;
-							nextObj.step8MarryFile = realMarryFile;
-							nextObj.step8MarryState = realMarryState;
-							navigation.navigate('RegisterStep7', nextObj)
-						}}
+						onPress={()=>{moveNav('RegisterStep7')}}
 					>
 						<View style={styles.regiStateCircel2}></View>
             <Text style={[styles.regiStateText, styles.regiStateTexOn]}>소개글</Text>
@@ -469,289 +705,410 @@ const RegisterStep8 = ({navigation, route}) => {
 					</View>
 					<View style={styles.cmDescBox}>
 						<Text style={styles.cmDescText}>프로필 신뢰도와 매칭율이 증가해요.</Text>
+					</View>					
+
+					{badgeGnb.map((item, index) => {
+						if((item.title == '피지컬' && route['params']['member_sex'] != 1) || item.title != '피지컬'){
+							return (
+								<View key={index} style={[styles.badgeBox, styles.mgt40]}>
+									<View style={styles.iptTit}>
+										<Text style={styles.iptTitText}>{item.title}</Text>
+									</View>
+									{item.title == '프로필 인증' ? (
+										<View style={[styles.badgeBtnBox]}>
+											{(item.lists).map((item2, index2) => {
+												return (
+													<TouchableOpacity
+														key={index2}
+														style={[styles.badgeBtn, styles.boxShadow, index2 != 0 ? styles.mgt12 : null]}
+														activeOpacity={
+															item2.pa_idx == 1 && realJobFile.path ? 1 : opacityVal 
+															|| item2.pa_idx == 2 && realSchoolFile.path ? 1 : opacityVal
+															|| item2.pa_idx == 3 && realMarryFile.path ? 1 : opacityVal
+														}
+														onPress={()=>{
+															if(item2.pa_idx == 1){
+																//직업 인증
+																!realJobFile.path ? setJobModal(true) : null
+																!realJobFile.path ? setPreventBack(true) : null
+
+															}else if(item2.pa_idx == 2){
+																//학교 인증
+																!realSchoolFile.path ? setSchoolModal(true) : null
+																!realSchoolFile.path ? setPreventBack(true) : null
+																
+															}else if(item2.pa_idx == 3){
+																//혼인 정보
+																!realMarryFile.path ? setMarryModal(true) : null
+																!realMarryFile.path ? setPreventBack(true) : null
+															}
+															getCertInfo(item2.pa_idx);											
+														}}
+													>
+														<View style={[styles.badgeBtnLeft2]}>
+															<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>{item2.pa_name}</Text>
+															<Text style={styles.badgeBtnLeftText2}>{item2.pa_benefit}</Text>
+														</View>
+
+														{(item2.pa_idx == 1 && realJobFile.path) || (item2.pa_idx == 2 && realSchoolFile.path) || (item2.pa_idx == 3 && realMarryFile.path) ? (
+															<View style={styles.stateView}><Text style={styles.stateViewText}>심사중</Text></View>
+														) : (
+															<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+														)}
+													</TouchableOpacity>
+												)
+											})}
+										</View>
+									) : (
+										<View style={[styles.badgeBtnBox, styles.boxShadow, styles.overHidden]}>
+											{(item.lists).map((item2, index2) => {
+												return (
+													<View key={index2}>
+														{index2 != 0 ? (<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>) : null}
+														<TouchableOpacity															
+															style={styles.badgeBtn}
+															//activeOpacity={realFile3.path ? 1 : opacityVal}
+															activeOpacity={
+																item2.bc_idx == 1 && realFile1.path ? 1 : opacityVal 
+																|| item2.bc_idx == 2 && realFile2.path ? 1 : opacityVal
+																|| item2.bc_idx == 3 && realFile3.path ? 1 : opacityVal
+																|| item2.bc_idx == 4 && realFile4.path ? 1 : opacityVal
+																|| item2.bc_idx == 5 && realFile5.path ? 1 : opacityVal
+																|| item2.bc_idx == 6 && realFile6.path ? 1 : opacityVal
+																|| item2.bc_idx == 7 && realFile7.path ? 1 : opacityVal
+																|| item2.bc_idx == 8 && realFile8.path ? 1 : opacityVal
+															}
+															onPress={()=>{
+																setBadgeTitle(item2.bc_name);
+																setBadgeType(item2.bc_idx);
+																getBadge2dp(item2.bc_idx);
+																if(item2.bc_idx == 1){
+																	!realFile1.path ? setBadgeModal(true) : null
+																	!realFile1.path ? setPreventBack(true) : null		
+																}else if(item2.bc_idx == 2){
+																	!realFile2.path ? setBadgeModal(true) : null
+																	!realFile2.path ? setPreventBack(true) : null																	
+																}else if(item2.bc_idx == 3){
+																	!realFile3.path ? setBadgeModal(true) : null
+																	!realFile3.path ? setPreventBack(true) : null
+																}else if(item2.bc_idx == 4){
+																	!realFile4.path ? setBadgeModal(true) : null
+																	!realFile4.path ? setPreventBack(true) : null
+																}else if(item2.bc_idx == 5){
+																	!realFile5.path ? setBadgeModal(true) : null
+																	!realFile5.path ? setPreventBack(true) : null
+																}else if(item2.bc_idx == 6){
+																	!realFile6.path ? setBadgeModal(true) : null
+																	!realFile6.path ? setPreventBack(true) : null
+																}else if(item2.bc_idx == 7){
+																	!realFile7.path ? setBadgeModal(true) : null
+																	!realFile7.path ? setPreventBack(true) : null
+																}else if(item2.bc_idx == 8){
+																	!realFile8.path ? setBadgeModal(true) : null
+																	!realFile8.path ? setPreventBack(true) : null
+																}
+															}}
+														>
+															<View style={styles.badgeBtnLeft}>									
+																<ImgDomain2 fileWidth={45} fileName={item2.bc_img}/>
+																<Text style={styles.badgeBtnLeftText}>{item2.bc_name}</Text>
+															</View>
+
+															{(item2.bc_idx == 1 && realFile1.path) || (item2.bc_idx == 2 && realFile2.path) || (item2.bc_idx == 3 && realFile3.path)  || (item2.bc_idx == 4 && realFile4.path)  || (item2.bc_idx == 5 && realFile5.path)  || (item2.bc_idx == 6 && realFile6.path)  || (item2.bc_idx == 7 && realFile7.path)  || (item2.bc_idx == 8 && realFile8.path) ? (
+																<View style={styles.stateView}><Text style={styles.stateViewText}>심사중</Text></View>
+															) : (
+																<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+															)}
+														</TouchableOpacity>																								
+													</View>
+												)
+											})}									
+										</View>
+									)}
+									
+								</View>	
+							)
+						}
+					})}
+
+					{/* 코딩 원본 */}
+					<View>
+						{/* {route['params']['mb_gender'] != 2 ? (
+						<View style={[styles.badgeBox, styles.mgt40]}>
+							<View style={styles.iptTit}>
+								<Text style={styles.iptTitText}>피지컬</Text>
+							</View>
+							<View style={[styles.badgeBtnBox, styles.boxShadow]}>
+								<TouchableOpacity
+									style={[styles.badgeBtn]}
+									activeOpacity={realFile1.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realFile1.path ? setBadgeTitle('키 배지') : null
+										!realFile1.path ? setBadgeType(1) : null
+										!realFile1.path ? setBadgeModal(true) : null
+										!realFile1.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={styles.badgeBtnLeft}>									
+										<ImgDomain fileWidth={45} fileName={'b_height.png'}/>
+										<Text style={styles.badgeBtnLeftText}>키 배지</Text>
+									</View>
+									{realFile1.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+								<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
+								<TouchableOpacity
+									style={styles.badgeBtn}
+									activeOpacity={realFile2.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realFile2.path ? setBadgeTitle('골격근량 배지') : null
+										!realFile2.path ? setBadgeType(2) : null
+										!realFile2.path ? setBadgeModal(true) : null
+										!realFile2.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={styles.badgeBtnLeft}>									
+										<ImgDomain fileWidth={45} fileName={'b_muscle.png'}/>
+										<Text style={styles.badgeBtnLeftText}>골격근량 배지</Text>
+									</View>
+									{realFile2.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+							</View>
+						</View>
+						) : null}
+
+						<View style={[styles.badgeBox, styles.mgt40]}>
+							<View style={styles.iptTit}>
+								<Text style={styles.iptTitText}>경제력</Text>
+							</View>
+							<View style={[styles.badgeBtnBox, styles.boxShadow]}>
+								<TouchableOpacity
+									style={styles.badgeBtn}
+									activeOpacity={realFile3.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realFile3.path ? setBadgeTitle('개인 소득 배지') : null
+										!realFile3.path ? setBadgeType(3) : null
+										!realFile3.path ? setBadgeModal(true) : null
+										!realFile3.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={styles.badgeBtnLeft}>									
+										<ImgDomain fileWidth={45} fileName={'b_money.png'}/>
+										<Text style={styles.badgeBtnLeftText}>개인 소득 배지</Text>
+									</View>
+									{realFile3.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+								<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
+								<TouchableOpacity
+									style={styles.badgeBtn}
+									activeOpacity={realFile4.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realFile4.path ? setBadgeTitle('개인 자산 배지') : null
+										!realFile4.path ? setBadgeType(4) : null
+										!realFile4.path ? setBadgeModal(true) : null
+										!realFile4.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={styles.badgeBtnLeft}>									
+										<ImgDomain fileWidth={45} fileName={'b_money2.png'}/>
+										<Text style={styles.badgeBtnLeftText}>개인 자산 배지</Text>
+									</View>
+									{realFile4.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+								<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
+								<TouchableOpacity
+									style={styles.badgeBtn}
+									activeOpacity={realFile5.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realFile5.path ? setBadgeTitle('집안 자산 배지') : null
+										!realFile5.path ? setBadgeType(5) : null
+										!realFile5.path ? setBadgeModal(true) : null
+										!realFile5.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={styles.badgeBtnLeft}>									
+										<ImgDomain fileWidth={45} fileName={'b_money3.png'}/>
+										<Text style={styles.badgeBtnLeftText}>집안 자산 배지</Text>
+									</View>
+									{realFile5.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+								<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
+								<TouchableOpacity
+									style={styles.badgeBtn}
+									activeOpacity={realFile6.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realFile6.path ? setBadgeTitle('차량 배지') : null
+										!realFile6.path ? setBadgeType(6) : null
+										!realFile6.path ? setBadgeModal(true) : null
+										!realFile6.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={styles.badgeBtnLeft}>									
+										<ImgDomain fileWidth={45} fileName={'b_car.png'}/>
+										<Text style={styles.badgeBtnLeftText}>차량 배지</Text>
+									</View>
+									{realFile6.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+							</View>
+						</View>	
+
+						<View style={[styles.badgeBox, styles.mgt40]}>
+							<View style={styles.iptTit}>
+								<Text style={styles.iptTitText}>직업 · 학력</Text>
+							</View>
+							<View style={[styles.badgeBtnBox, styles.boxShadow]}>
+								<TouchableOpacity
+									style={styles.badgeBtn}
+									activeOpacity={realFile7.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realFile7.path ? setBadgeTitle('직업 배지') : null
+										!realFile7.path ? setBadgeType(7) : null
+										!realFile7.path ? setBadgeModal(true) : null
+										!realFile7.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={styles.badgeBtnLeft}>									
+										<ImgDomain fileWidth={45} fileName={'b_job.png'}/>
+										<Text style={styles.badgeBtnLeftText}>직업 배지</Text>
+									</View>
+									{realFile7.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+								<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
+								<TouchableOpacity
+									style={styles.badgeBtn}
+									activeOpacity={realFile8.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realFile8.path ? setBadgeTitle('학력 배지') : null
+										!realFile8.path ? setBadgeType(8) : null
+										!realFile8.path ? setBadgeModal(true) : null
+										!realFile8.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={styles.badgeBtnLeft}>									
+										<ImgDomain fileWidth={45} fileName={'b_school.png'}/>
+										<Text style={styles.badgeBtnLeftText}>학력 배지</Text>
+									</View>
+									{realFile8.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+							</View>
+						</View>
+
+						<View style={[styles.badgeBox, styles.mgt40]}>
+							<View style={styles.iptTit}>
+								<Text style={styles.iptTitText}>프로필 인증</Text>
+							</View>
+							<View style={[styles.badgeBtnBox]}>
+								<TouchableOpacity
+									style={[styles.badgeBtn, styles.boxShadow]}
+									activeOpacity={realJobFile.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realJobFile.path ? setJobModal(true) : null
+										!realJobFile.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={[styles.badgeBtnLeft2]}>
+										<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>직장 인증</Text>
+										<Text style={styles.badgeBtnLeftText2}>인증 혜택</Text>
+									</View>
+									{realJobFile.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+								<TouchableOpacity
+									style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}
+									activeOpacity={realSchoolFile.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realSchoolFile.path ? setSchoolModal(true) : null
+										!realSchoolFile.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={[styles.badgeBtnLeft2]}>
+										<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>학교 인증</Text>
+										<Text style={styles.badgeBtnLeftText2}>인증 혜택</Text>
+									</View>
+									{realSchoolFile.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+								<TouchableOpacity
+									style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}
+									activeOpacity={realMarryFile.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realMarryFile.path ? setMarryModal(true) : null
+										!realMarryFile.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={[styles.badgeBtnLeft2]}>
+										<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>혼인 정보</Text>
+										<Text style={styles.badgeBtnLeftText2}>인증 혜택</Text>
+									</View>
+									{realMarryFile.path ? (
+										<View style={styles.stateView}>
+											<Text style={styles.stateViewText}>심사중</Text>
+										</View>
+									) : (
+										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+									)}
+								</TouchableOpacity>
+							</View>
+						</View> */}
 					</View>
 
-					{route['params']['mb_gender'] != 2 ? (
-					<View style={[styles.badgeBox, styles.mgt40]}>
-						<View style={styles.iptTit}>
-              <Text style={styles.iptTitText}>피지컬</Text>
-            </View>
-						<View style={[styles.badgeBtnBox, styles.boxShadow]}>
-							<TouchableOpacity
-								style={[styles.badgeBtn]}
-								activeOpacity={realFile1.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile1.path ? setBadgeTitle('키 배지') : null
-									!realFile1.path ? setBadgeType(1) : null
-									!realFile1.path ? setBadgeModal(true) : null
-									!realFile1.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>									
-									<ImgDomain fileWidth={45} fileName={'b_height.png'}/>
-									<Text style={styles.badgeBtnLeftText}>키 배지</Text>
-								</View>
-								{realFile1.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile2.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile2.path ? setBadgeTitle('골격근량 배지') : null
-									!realFile2.path ? setBadgeType(2) : null
-									!realFile2.path ? setBadgeModal(true) : null
-									!realFile2.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>									
-									<ImgDomain fileWidth={45} fileName={'b_muscle.png'}/>
-									<Text style={styles.badgeBtnLeftText}>골격근량 배지</Text>
-								</View>
-								{realFile2.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-						</View>
-					</View>
-					) : null}
-
-					<View style={[styles.badgeBox, styles.mgt40]}>
-						<View style={styles.iptTit}>
-              <Text style={styles.iptTitText}>경제력</Text>
-            </View>
-						<View style={[styles.badgeBtnBox, styles.boxShadow]}>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile3.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile3.path ? setBadgeTitle('개인 소득 배지') : null
-									!realFile3.path ? setBadgeType(3) : null
-									!realFile3.path ? setBadgeModal(true) : null
-									!realFile3.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>									
-									<ImgDomain fileWidth={45} fileName={'b_money.png'}/>
-									<Text style={styles.badgeBtnLeftText}>개인 소득 배지</Text>
-								</View>
-								{realFile3.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile4.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile4.path ? setBadgeTitle('개인 자산 배지') : null
-									!realFile4.path ? setBadgeType(4) : null
-									!realFile4.path ? setBadgeModal(true) : null
-									!realFile4.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>									
-									<ImgDomain fileWidth={45} fileName={'b_money2.png'}/>
-									<Text style={styles.badgeBtnLeftText}>개인 자산 배지</Text>
-								</View>
-								{realFile4.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile5.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile5.path ? setBadgeTitle('집안 자산 배지') : null
-									!realFile5.path ? setBadgeType(5) : null
-									!realFile5.path ? setBadgeModal(true) : null
-									!realFile5.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>									
-									<ImgDomain fileWidth={45} fileName={'b_money3.png'}/>
-									<Text style={styles.badgeBtnLeftText}>집안 자산 배지</Text>
-								</View>
-								{realFile5.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile6.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile6.path ? setBadgeTitle('차량 배지') : null
-									!realFile6.path ? setBadgeType(6) : null
-									!realFile6.path ? setBadgeModal(true) : null
-									!realFile6.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>									
-									<ImgDomain fileWidth={45} fileName={'b_car.png'}/>
-									<Text style={styles.badgeBtnLeftText}>차량 배지</Text>
-								</View>
-								{realFile6.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-						</View>
-					</View>	
-
-					<View style={[styles.badgeBox, styles.mgt40]}>
-						<View style={styles.iptTit}>
-              <Text style={styles.iptTitText}>직업 · 학력</Text>
-            </View>
-						<View style={[styles.badgeBtnBox, styles.boxShadow]}>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile7.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile7.path ? setBadgeTitle('직업 배지') : null
-									!realFile7.path ? setBadgeType(7) : null
-									!realFile7.path ? setBadgeModal(true) : null
-									!realFile7.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>									
-									<ImgDomain fileWidth={45} fileName={'b_job.png'}/>
-									<Text style={styles.badgeBtnLeftText}>직업 배지</Text>
-								</View>
-								{realFile7.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile8.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile8.path ? setBadgeTitle('학력 배지') : null
-									!realFile8.path ? setBadgeType(8) : null
-									!realFile8.path ? setBadgeModal(true) : null
-									!realFile8.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>									
-									<ImgDomain fileWidth={45} fileName={'b_school.png'}/>
-									<Text style={styles.badgeBtnLeftText}>학력 배지</Text>
-								</View>
-								{realFile8.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-						</View>
-					</View>
-
-					<View style={[styles.badgeBox, styles.mgt40]}>
-						<View style={styles.iptTit}>
-              <Text style={styles.iptTitText}>프로필 인증</Text>
-            </View>
-						<View style={[styles.badgeBtnBox]}>
-							<TouchableOpacity
-								style={[styles.badgeBtn, styles.boxShadow]}
-								activeOpacity={realJobFile.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realJobFile.path ? setJobModal(true) : null
-									!realJobFile.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={[styles.badgeBtnLeft2]}>
-									<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>직장 인증</Text>
-									<Text style={styles.badgeBtnLeftText2}>인증 혜택</Text>
-								</View>
-								{realJobFile.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}
-								activeOpacity={realSchoolFile.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realSchoolFile.path ? setSchoolModal(true) : null
-									!realSchoolFile.path ? setPreventBack(true) : null
-								}}
-
-								activeOpacity={opacityVal}
-								activeOpacity={realSchoolFile.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realSchoolFile.path ? setSchoolModal(true) : null
-									!realSchoolFile.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={[styles.badgeBtnLeft2]}>
-									<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>학교 인증</Text>
-									<Text style={styles.badgeBtnLeftText2}>인증 혜택</Text>
-								</View>
-								{realSchoolFile.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}
-								activeOpacity={realMarryFile.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realMarryFile.path ? setMarryModal(true) : null
-									!realMarryFile.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={[styles.badgeBtnLeft2]}>
-									<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>혼인 정보</Text>
-									<Text style={styles.badgeBtnLeftText2}>인증 혜택</Text>
-								</View>
-								{realMarryFile.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-						</View>
-					</View>
 				</View>
 			</ScrollView>
 
@@ -777,9 +1134,7 @@ const RegisterStep8 = ({navigation, route}) => {
 						<TouchableOpacity
 							style={styles.headerBackBtn2}
 							activeOpacity={opacityVal}
-							onPress={() => {
-								offBadgeModal();								
-							}}						
+							onPress={() => offBadgeModal()}						
 						>							
 							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
@@ -794,7 +1149,49 @@ const RegisterStep8 = ({navigation, route}) => {
 							</View>
 							<View style={[styles.badgeBox, styles.mgt40]}>
 								<View style={[styles.badgeBtnBox, styles.mgt0]}>
-									<TouchableOpacity
+									{badge2dp.map((item, index) => {
+										return (
+											<TouchableOpacity
+												key={index}
+												style={[
+													styles.badgeBtn
+													, styles.boxShadow
+													, badgeGrade!= '' && badgeGrade != item.badge_idx ? styles.badgeBtnOff : null
+													, badgeGrade==item.badge_idx ? styles.badgeBtnOn : null
+													, index != 0 ? styles.mgt12 : null
+												]}
+												activeOpacity={opacityVal}
+												onPress={()=>getBadgeSubInfo(item.badge_idx)}
+											>
+												<View style={[styles.badgeBtnLeft]}>
+													{badgeGrade!= '' && badgeGrade != item.badge_idx ? (												
+														<ImgDomain2 fileWidth={45} fileName={item.badge_img}/>
+													) : (
+														<ImgDomain2 fileWidth={45} fileName={item.badge_img}/>
+													)}
+													<View style={styles.badgeBtnLeftWrap}>
+														<Text style={[
+															styles.badgeBtnLeftText
+															, styles.mgl0
+															, badgeGrade!= '' && badgeGrade != item.badge_idx ? styles.badgeBtnLeftTextOff : null
+															, badgeGrade==item.badge_idx ? styles.badgeBtnLeftTextOn : null
+														]}>
+															{item.badge_name}
+														</Text>
+														<Text style={[
+															styles.badgeBtnLeftText2
+															, badgeGrade!= '' && badgeGrade != item.badge_idx ? styles.badgeBtnLeftText2Off : null
+															, badgeGrade==item.badge_idx ? styles.badgeBtnLeftText2On : null
+														]}>
+															{item.badge_info}
+														</Text>
+													</View>
+												</View>
+											</TouchableOpacity>
+										)
+									})}
+									
+									{/* <TouchableOpacity
 										style={[
 											styles.badgeBtn
 											, styles.boxShadow
@@ -909,7 +1306,7 @@ const RegisterStep8 = ({navigation, route}) => {
 												</Text>
 											</View>
 										</View>
-									</TouchableOpacity>
+									</TouchableOpacity> */}
 								</View>
 							</View>
 							
@@ -920,7 +1317,7 @@ const RegisterStep8 = ({navigation, route}) => {
 									<Text style={styles.iptTitText}>기준</Text>									
 								</View>
 								<View style={[styles.popInfoBox, styles.mgt8]}>
-									<Text style={styles.popInfoBoxText}>배지 획득 기준 상세 내용</Text>
+									<Text style={styles.popInfoBoxText}>{badgeSub[0].badge_standard}</Text>
 								</View>
 							</View>
 
@@ -928,19 +1325,18 @@ const RegisterStep8 = ({navigation, route}) => {
 								<View style={styles.iptTit}>
 									<Text style={styles.iptTitText}>인증방법</Text>									
 								</View>
-								<View style={[styles.iptSubTit, styles.mgt5]}>
-									<Text style={styles.iptSubTitText}>1. 인증해야 하는 자료 타이틀</Text>									
-								</View>
-								<View style={[styles.popInfoBox, styles.mgt8]}>
-									<Text style={styles.popInfoBoxText}>자료 상세 내용</Text>
-								</View>
-
-								<View style={[styles.iptSubTit, styles.mgt10]}>
-									<Text style={styles.iptSubTitText}>2. 인증해야 하는 자료 타이틀</Text>									
-								</View>
-								<View style={[styles.popInfoBox, styles.mgt8]}>
-									<Text style={styles.popInfoBoxText}>자료 상세 내용</Text>
-								</View>
+								{(badgeSub[0].auth).map((item, index) => {
+									return (
+										<View key={index}>
+											<View style={[styles.iptSubTit, index == 0 ? styles.mgt5 : styles.mgt10]}>
+												<Text style={styles.iptSubTitText}>{index+1}. {item.ba_subject}</Text>									
+											</View>
+											<View style={[styles.popInfoBox, styles.mgt8]}>
+												<Text style={styles.popInfoBoxText}>{item.ba_content}</Text>
+											</View>
+										</View>
+									)
+								})}
 							</View>
 
 							<View style={styles.mgt40}>
@@ -948,13 +1344,13 @@ const RegisterStep8 = ({navigation, route}) => {
 									<Text style={styles.iptTitText}>인증 예시</Text>									
 								</View>
 								<View style={[styles.iptSubTit, styles.mgt5]}>
-									<Text style={styles.iptSubTitText}>제출 자료명</Text>									
+									<Text style={styles.iptSubTitText}>{badgeSub[0].badge_auth_info1}</Text>									
 								</View>
 								<View style={[styles.exampleBox, styles.mgt8]}>
-									<ImgDomain fileWidth={innerWidth} fileName={'example.jpg'}/>
+									<ImgDomain2 fileWidth={innerWidth} fileName={badgeSub[0].badge_auth_img}/>
 								</View>
 								<View style={styles.exampleBoxDesc}>
-									<Text style={styles.exampleBoxDescText}>성함, 금액 등의 필수로 노출되어야 합니다</Text>
+									<Text style={styles.exampleBoxDescText}>{badgeSub[0].badge_auth_info2}</Text>
 								</View>
 							</View>
 
@@ -963,7 +1359,7 @@ const RegisterStep8 = ({navigation, route}) => {
 									<Text style={styles.iptTitText}>인증 자료 첨부</Text>									
 								</View>
 								<View style={[styles.iptSubTit, styles.mgt5]}>
-									<Text style={styles.iptSubTitText}>주민등록번호 뒷자리는 가린 뒤 업로드 해주세요.</Text>									
+									<Text style={styles.iptSubTitText}>{badgeSub[0].badge_auth_info3}</Text>									
 								</View>
 																
 								{file.path ? (
@@ -1033,6 +1429,7 @@ const RegisterStep8 = ({navigation, route}) => {
 							onPress={() => {
 								setJobModal(false);								
 								setPreventBack(false);
+								setCertInfo('');
 							}}						
 						>							
 							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
@@ -1044,11 +1441,15 @@ const RegisterStep8 = ({navigation, route}) => {
 								<Text style={styles.cmTitleText}>직업 인증</Text>
 							</View>
 							<View style={[styles.cmDescBox, styles.cmDescBoxFlex]}>
-								<Text style={styles.cmDescText}>입력한 직업</Text>
-								<View style={styles.cmDescArr}>
-									<ImgDomain fileWidth={5} fileName={'icon_arr6.png'}/>
-								</View>
-								<Text style={styles.cmDescText2}>입력한 직업 상세</Text>
+								<Text style={styles.cmDescText}>{route['params']['member_job']}</Text>								
+								{route['params']['realJobDetail'] ? (
+									<>
+									<View style={styles.cmDescArr}>
+										<ImgDomain fileWidth={5} fileName={'icon_arr6.png'}/>
+									</View>
+									<Text style={styles.cmDescText2}>{route['params']['realJobDetail']}</Text>
+									</>
+								) : null}
 							</View>
 
 							<View style={styles.mgt30}>
@@ -1056,14 +1457,14 @@ const RegisterStep8 = ({navigation, route}) => {
 									<Text style={styles.iptTitText}>인증 방법</Text>
 								</View>
 								<View style={[styles.iptSubTit, styles.mgt5]}>
-									<Text style={styles.iptSubTitText}>1. 본인의 이름과 직장명이 포함된 사원증, 명함</Text>									
+									<Text style={styles.iptSubTitText}>{certInfo}</Text>									
 								</View>
-								<View style={[styles.iptSubTit, styles.mgt5]}>
+								{/* <View style={[styles.iptSubTit, styles.mgt5]}>
 									<Text style={styles.iptSubTitText}>2. 개인사업자의 경우 사업자등록증 등의 자료</Text>									
 								</View>
 								<View style={[styles.iptSubTit, styles.mgt5]}>
 									<Text style={styles.iptSubTitText}>3. 그 외 재직을 증명할 수 있는 자료</Text>									
-								</View>
+								</View> */}
 							</View>
 
 							<View style={styles.mgt40}>
@@ -1138,6 +1539,7 @@ const RegisterStep8 = ({navigation, route}) => {
 							onPress={() => {
 								setSchoolModal(false);								
 								setPreventBack(false);
+								setCertInfo('');
 							}}						
 						>
 							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
@@ -1195,13 +1597,7 @@ const RegisterStep8 = ({navigation, route}) => {
 											<Text style={styles.iptTitText}>인증 방법</Text>
 										</View>
 										<View style={[styles.iptSubTit, styles.mgt5]}>
-											<Text style={styles.iptSubTitText}>1. 본인 이름이 포함된 졸업증명서</Text>									
-										</View>
-										<View style={[styles.iptSubTit, styles.mgt5]}>
-											<Text style={styles.iptSubTitText}>2. 카카오톡 학생증</Text>									
-										</View>
-										<View style={[styles.iptSubTit, styles.mgt5]}>
-											<Text style={styles.iptSubTitText}>3. 그 외 재학 또는 졸업을 증명할 수 있는 자료</Text>									
+											<Text style={styles.iptSubTitText}>{certInfo}</Text>									
 										</View>
 									</View>
 
@@ -1279,6 +1675,7 @@ const RegisterStep8 = ({navigation, route}) => {
 							onPress={() => {
 								setMarryModal(false);								
 								setPreventBack(false);
+								setCertInfo('');
 							}}						
 						>
 							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
@@ -1327,7 +1724,7 @@ const RegisterStep8 = ({navigation, route}) => {
 											<Text style={styles.iptTitText}>인증 방법</Text>
 										</View>
 										<View style={[styles.iptSubTit, styles.mgt5]}>
-											<Text style={styles.iptSubTitText}>1. 혼인 관계 증명서</Text>									
+											<Text style={styles.iptSubTitText}>{certInfo}</Text>									
 										</View>
 									</View>
 
@@ -1459,7 +1856,7 @@ const RegisterStep8 = ({navigation, route}) => {
 const styles = StyleSheet.create({
 	safeAreaView: {flex:1,backgroundColor:'#fff'},
 	gapBox: {height:80,backgroundColor:'#fff'},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
 	cmWrap: {paddingVertical:30,paddingHorizontal:20},
 	cmTitleBox: {position:'relative'},
@@ -1480,9 +1877,9 @@ const styles = StyleSheet.create({
 	regiStateTexOn: {color:'#243B55'},
 
 	iptTit: {},
-  iptTitText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:16,color:'#1e1e1e'},
+  iptTitText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:18,color:'#1e1e1e'},
 	iptSubTit: {},
-	iptSubTitText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:14,color:'#666'},
+	iptSubTitText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:15,color:'#666'},
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
@@ -1532,10 +1929,11 @@ const styles = StyleSheet.create({
     shadowRadius: 2.5,
 		elevation: 4,
 	},
+	overHidden: {overflow:'hidden'},
 	badgeBtnBox: {backgroundColor:'#fff',marginTop:15,},
-	badgeBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'#fff',padding:20,},
+	badgeBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'#fff',paddingVertical:18,paddingHorizontal:20,borderWidth:1,borderColor:'rgba(209,145,60,0)'},
 	badgeBtnOff: {},
-	badgeBtnOn: {shadowColor:'#D1913C',shadowOpacity:0.45,backgroundColor:'#FFFCF8'},
+	badgeBtnOn: {shadowColor:'#D1913C',shadowOpacity:0.45,backgroundColor:'#FFFCF8',borderColor:'rgba(209,145,60,0.1)'},
 	badgeBtnLeft: {flexDirection:'row',alignItems:'center'},
 	badgeBtnLeftWrap: {marginLeft:20,},
 	badgeBtnLeftText: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:20,color:'#1e1e1e',marginLeft:10,},
@@ -1547,7 +1945,7 @@ const styles = StyleSheet.create({
 	btnLine: {height:1,backgroundColor:'#EDEDED'},
 
 	stateView: {alignItems:'center',justifyContent:'center',height:18,paddingHorizontal:6,backgroundColor:'#243B55',borderRadius:10,},
-	stateViewText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:14,color:'#fff'},
+	stateViewText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#fff'},
 
 	popInfoBox: {minHeight:100,backgroundColor:'#F9FAFB',paddingVertical:10,paddingHorizontal:15,borderRadius:5,},
 	popInfoBoxText: {fontFamily:Font.NotoSansRegular,fontSize:13,lineHeight:26,color:'#b8b8b8',},
@@ -1564,7 +1962,7 @@ const styles = StyleSheet.create({
 
 	fileBox: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:15,},
 	fileBoxLeft: {flexDirection:'row',alignItems:'center',},
-	fileBoxLeftView: {width:36,height:36,borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,overflow:'hidden'},
+	fileBoxLeftView: {alignItems:'center',justifyContent:'center',width:36,height:36,borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,overflow:'hidden'},
 	fileBoxLeftImg: {},
 	fileBoxLeftInfo: {marginLeft:10,},
 	fileBoxLeftInfoText: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:18,color:'#1e1e1e',},

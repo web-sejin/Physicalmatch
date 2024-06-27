@@ -226,43 +226,63 @@ const Community = (props) => {
 						</TouchableOpacity>
 					</View>
 				</View>
-				<View style={styles.headerBot}>
-					<TouchableOpacity
-						style={styles.headerTab}
-						activeOpacity={opacityVal}
-						onPress={() => {setTabState(1)}}
-					>
-						<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>자유</Text>
-						{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
-					</TouchableOpacity>
+				<ScrollView horizontal={true} showsHorizontalScrollIndicator = {false} >
+					<View style={styles.headerBot}>
+						<TouchableOpacity
+							style={styles.headerTab}
+							activeOpacity={opacityVal}
+							onPress={() => {setTabState(1)}}
+						>
+							<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>자유</Text>
+							{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
+						</TouchableOpacity>
 
-					<TouchableOpacity
-						style={styles.headerTab}
-						activeOpacity={opacityVal}
-						onPress={() => {setTabState(2)}}
-					>
-						<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>운동</Text>
-						{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
-					</TouchableOpacity>
+						<TouchableOpacity
+							style={styles.headerTab}
+							activeOpacity={opacityVal}
+							onPress={() => {setTabState(2)}}
+						>
+							<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>운동</Text>
+							{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
+						</TouchableOpacity>
 
-					<TouchableOpacity
-						style={styles.headerTab}
-						activeOpacity={opacityVal}
-						onPress={() => {setTabState(3)}}
-					>
-						<Text style={[styles.headerTabText, tabState == 3 ? styles.headerTabTextOn : null]}>프교</Text>
-						{tabState == 3 ? (<View style={styles.activeLine}></View>) : null}
-					</TouchableOpacity>
+						<TouchableOpacity
+							style={styles.headerTab}
+							activeOpacity={opacityVal}
+							onPress={() => {setTabState(3)}}
+						>
+							<Text style={[styles.headerTabText, tabState == 3 ? styles.headerTabTextOn : null]}>프교</Text>
+							{tabState == 3 ? (<View style={styles.activeLine}></View>) : null}
+						</TouchableOpacity>
 
-					<TouchableOpacity
-						style={styles.headerTab}
-						activeOpacity={opacityVal}
-						onPress={() => {setTabState(4)}}
-					>
-						<Text style={[styles.headerTabText, tabState == 4 ? styles.headerTabTextOn : null]}>셀소</Text>
-						{tabState == 4 ? (<View style={styles.activeLine}></View>) : null}
-					</TouchableOpacity>
-				</View>
+						<TouchableOpacity
+							style={styles.headerTab}
+							activeOpacity={opacityVal}
+							onPress={() => {setTabState(4)}}
+						>
+							<Text style={[styles.headerTabText, tabState == 4 ? styles.headerTabTextOn : null]}>셀소</Text>
+							{tabState == 4 ? (<View style={styles.activeLine}></View>) : null}
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							style={styles.headerTab}
+							activeOpacity={opacityVal}
+							onPress={() => {setTabState(5)}}
+						>
+							<Text style={[styles.headerTabText, tabState == 5 ? styles.headerTabTextOn : null]}>추가1</Text>
+							{tabState == 5 ? (<View style={styles.activeLine}></View>) : null}
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							style={styles.headerTab}
+							activeOpacity={opacityVal}
+							onPress={() => {setTabState(6)}}
+						>
+							<Text style={[styles.headerTabText, tabState == 6 ? styles.headerTabTextOn : null]}>추가2</Text>
+							{tabState == 6 ? (<View style={styles.activeLine}></View>) : null}
+						</TouchableOpacity>
+					</View>
+				</ScrollView>
 			</View>
 			
 			<FlatList 				

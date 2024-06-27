@@ -7,9 +7,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import RenderHtml from 'react-native-render-html';
 
-import APIs from "../../assets/APIs";
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -23,7 +22,7 @@ const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
-const UseGuide = (props) => {
+const CompanyInfo = (props) => {
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route
@@ -32,8 +31,7 @@ const UseGuide = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
-  const [tabSt, setTabSt] = useState(0);
-  const [tabCont, setTabCont] = useState();
+	const [company, setCompany] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -70,25 +68,21 @@ const UseGuide = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
-  useEffect(() => {
-    getCont();
-  }, [tabSt]);
+	useEffect(() => {
+		getCompanyInfo();
+	}, [])
 
-  const getCont = async () => {
-    let sData = {      
-      basePath: "/api/etc/index.php",
-			type: "GetGuide",
-      tab: tabSt,
+	const getCompanyInfo = async () => {
+		let sData = {      
+			basePath: "/api/etc/index.php",
+			type: "GetBusinessInfo",
 		}
 		const response = await APIs.send(sData);
-    //console.log(response);
+		//console.log(response);
 		if(response.code == 200){
-      const source = {
-        html: response.data
-      };
-      setTabCont(source);
-    }
-  }
+			setCompany(response.data);
+		}
+	}
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -96,46 +90,68 @@ const UseGuide = (props) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			<Header navigation={navigation} headertitle={'이용 가이드'}/>
+			<Header navigation={navigation} headertitle={'사업자 정보'}/>
 
-      <View style={styles.viewTab}>
-        <TouchableOpacity
-          style={[styles.viewTabBtn, tabSt == 0 ? styles.viewTabBtnOn : null]}
-          activeOpacity={opacityVal}
-          onPress={()=>setTabSt(0)}
-        >
-          <Text style={[styles.viewTabBtnText, tabSt == 0 ? styles.viewTabBtnTextOn : null]}>매칭</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.viewTabBtn, tabSt == 1 ? styles.viewTabBtnOn : null]}
-          activeOpacity={opacityVal}
-          onPress={()=>setTabSt(1)}
-        >
-          <Text style={[styles.viewTabBtnText, tabSt == 1 ? styles.viewTabBtnTextOn : null]}>소셜</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.viewTabBtn, tabSt == 2 ? styles.viewTabBtnOn : null]}
-          activeOpacity={opacityVal}
-          onPress={()=>setTabSt(2)}
-        >
-          <Text style={[styles.viewTabBtnText, tabSt == 2 ? styles.viewTabBtnTextOn : null]}>커뮤니티</Text>
-        </TouchableOpacity>
+      <ScrollView>
+				{company ? (
+				<View style={styles.cmWrap}>
+					{company.business_name ? (
+					<View style={[styles.compView, styles.compView2]}>
+						<Text style={styles.compViewTitle}>사업자명</Text>
+						<Text style={styles.compViewContent}>{company.business_name}</Text>
+					</View>
+					) : null}
+					{company.business_ceo ? (
+					<View style={styles.compView}>
+						<Text style={styles.compViewTitle}>대표</Text>
+						<Text style={styles.compViewContent}>{company.business_ceo}</Text>
+					</View>
+					) : null}
+					{company.business_manager ? (
+					<View style={styles.compView}>
+						<Text style={styles.compViewTitle}>개인정보 책임자</Text>
+						<Text style={styles.compViewContent}>{company.business_manager}</Text>
+					</View>
+					) : null}
+					{company.business_addr ? (
+					<View style={styles.compView}>
+						<Text style={styles.compViewTitle}>주소</Text>
+						<Text style={styles.compViewContent}>{company.business_addr}</Text>
+					</View>
+					) : null}
+					{company.business_num ? (
+					<View style={styles.compView}>
+						<Text style={styles.compViewTitle}>사업자등록번호</Text>
+						<Text style={styles.compViewContent}>{company.business_num}</Text>
+					</View>
+					) : null}
+					{company.business_tel ? (
+					<View style={styles.compView}>
+						<Text style={styles.compViewTitle}>고객센터</Text>
+						<Text style={styles.compViewContent}>{company.business_tel}</Text>
+					</View>
+					) : null}
+					{company.business_fax ? (
+					<View style={styles.compView}>
+						<Text style={styles.compViewTitle}>팩스</Text>
+						<Text style={styles.compViewContent}>{company.business_fax}</Text>
+					</View>
+					) : null}
+					{company.business_email ? (
+					<View style={styles.compView}>
+						<Text style={styles.compViewTitle}>이메일</Text>
+						<Text style={styles.compViewContent}>{company.business_email}</Text>
+					</View>
+					) : null}
+				</View>
+				) : null}
+      </ScrollView>
+
+			{loading ? (
+      <View style={[styles.indicator]}>
+        <ActivityIndicator size="large" color="#D1913C" />
       </View>
-
-      {tabCont ? (
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.cmWrap}>
-            <RenderHtml
-              contentWidth={widnowWidth}
-              source={tabCont}            
-            />
-          </View>
-        </ScrollView>
-      ) : (
-        <View style={[styles.indicator]}>
-          <ActivityIndicator size="large" color="#D1913C" />
-        </View>
-      )}
+      ) : null}
 		</SafeAreaView>
 	)
 }
@@ -145,40 +161,11 @@ const styles = StyleSheet.create({
 	gapBox: {height:80,},
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
-  cmWrap: {paddingHorizontal:20},
-	cmTitleBox: {position:'relative'},
-	cmTitleText: { fontFamily: Font.NotoSansSemiBold, fontSize: 22, lineHeight: 25, color: '#1e1e1e', position: 'relative', zIndex: 10, paddingLeft:1, },
-	cmTitleLine: { width: 61, height: 14, backgroundColor: '#ffd194', position: 'absolute',left:0,bottom:-1,zIndex:9,opacity:0.3},
-  cmDescBox: {marginTop:8,},
-  cmDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},
-
-	viewTab: {flexDirection:'row',},
-  viewTabBtn: {alignItems:'center',justifyContent:'center',width:widnowWidth/3,height:60,paddingTop:12,borderBottomWidth:2,borderBottomColor:'#fff'},
-  viewTabBtnOn: {borderBottomColor:'#141E30'},
-  viewTabBtnText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:18,color:'#141E30',},
-  viewTabBtnTextOn: {fontFamily:Font.NotoSansSemiBold},
-  viewTab2: {flexDirection:'row',alignItems:'center',justifyContent:'center',borderBottomWidth:1,borderBottomColor:'#F2F4F6'},
-  viewTab2Btn: {padding:20,marginLeft:30,},
-  viewTab2BtnText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:15,color:'#888',},
-  viewTab2BtnTextOn: {color:'#141E30'},
-
-  scrollView: {flex:1,backgroundColor:'#F2F4F6'},
-
-	red: {color:'#EE4245'},
-	gray: {color:'#B8B8B8'},
-	gray2: {color:'#DBDBDB'},
-
-  boxShadow2: {
-    borderRadius:5,
-		shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-		elevation: 4,
-	},
+  cmWrap: {paddingVertical:30,paddingHorizontal:20},
+	compView: {marginTop:20,paddingTop:20,borderTopWidth:1,borderTopColor:'#ededed'},
+	compView2: {marginTop:0,paddingTop:0,borderTopWidth:0,},
+	compViewTitle: {fontFamily:Font.NotoSansSemiBold,fontSize:14,lineHeight:17,color:'#333',},
+	compViewContent: {fontFamily:Font.NotoSansRegular,fontSize:13,lineHeight:16,color:'#666',marginTop:10,},
 
 	lineView: {height:6,backgroundColor:'#F2F4F6'},
 	pdt0: {paddingTop:0},
@@ -211,4 +198,4 @@ const styles = StyleSheet.create({
   mgl15: {marginLeft:15},
 })
 
-export default UseGuide
+export default CompanyInfo

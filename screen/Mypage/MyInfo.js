@@ -4,21 +4,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-handler'
-import Postcode from '@actbase/react-daum-postcode';
 import WheelPicker from 'react-native-wheely';
 import DraggableFlatList, {
   ScaleDecorator,
 } from "react-native-draggable-flatlist";
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
+
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -41,51 +42,20 @@ const classList2 = [
 	{ val: 3, txt: '중퇴' },
 ]
 
-const phyList = [
-	{ val: 1, txt: '팔다리가 긴', chk:false },
-	{ val: 2, txt: '비율이 좋은', chk:false },
-	{ val: 3, txt: '성난 팔뚝', chk:false },
-	{ val: 4, txt: '튼튼한 하체', chk:false },
-	{ val: 5, txt: '소두', chk:false },
-	{ val: 6, txt: '체형 종류1', chk:false },
-	{ val: 7, txt: '체형 종류2', chk:false },
-	{ val: 8, txt: '체형 종류3', chk:false },
-	{ val: 9, txt: '체형 종류4', chk:false },
-	{ val: 10, txt: '체형 종류5', chk:false },
-	{ val: 11, txt: '체형 종류6', chk:false },
-	{ val: 12, txt: '체형 종류7', chk:false },
-	{ val: 13, txt: '체형 종류8', chk:false },
-	{ val: 14, txt: '체형 종류9', chk:false },
-]
-
-const sprotList = [
-	{ val: 1, txt: '헬스' },
-	{ val: 2, txt: '필라테스' },
-	{ val: 3, txt: '클라이밍' },
-	{ val: 4, txt: '댄스' },
-	{ val: 5, txt: '수영' },
-	{ val: 6, txt: '등산' },
-	{ val: 7, txt: '골프' },
-	{ val: 8, txt: '축구' },
-	{ val: 9, txt: '복싱' },
-	{ val: 10, txt: '테니스' },
-	{ val: 11, txt: '요가' },
-]
-
 const drinkList = [
-	{ val: 1, txt: '마시지 않음' },
-	{ val: 2, txt: '어쩔 수 없을 때만' },
-	{ val: 3, txt: '가끔 마심' },
-	{ val: 4, txt: '어느정도 즐김' },
-	{ val: 5, txt: '좋아하는 편' },
-	{ val: 6, txt: '매우 즐기는 편' },
+	{ val: 0, txt: '마시지 않음' },
+	{ val: 1, txt: '어쩔 수 없을 때만' },
+	{ val: 2, txt: '가끔 마심' },
+	{ val: 3, txt: '어느정도 즐김' },
+	{ val: 4, txt: '좋아하는 편' },
+	{ val: 5, txt: '매우 즐기는 편' },
 ]
 
 const smokeList = [
-	{ val: 1, txt: '비흡연' },
-	{ val: 2, txt: '금연 중' },
-	{ val: 3, txt: '가끔 피움' },
-	{ val: 4, txt: '흡연 중' },
+	{ val: 0, txt: '비흡연' },
+	{ val: 1, txt: '금연 중' },
+	{ val: 2, txt: '가끔 피움' },
+	{ val: 3, txt: '흡연 중' },
 ]
 
 const smokeSortList = [
@@ -94,22 +64,8 @@ const smokeSortList = [
 	{ val: 3, txt: '액상형 전자담배' },
 ]
 
-const relList = [
-	{ val: 1, txt: '무교' },
-	{ val: 2, txt: '기독교' },
-	{ val: 3, txt: '천주교' },
-	{ val: 4, txt: '불교' },
-	{ val: 5, txt: '기타' },
-]
-
-const exeData = [
-	{ key : 1, period : '주', day : 4, sort : '헬스' },
-	{ key : 2, period : '주', day : 3, sort : '필라테스' },
-	{ key : 3, period : '월', day : 20, sort : '수영' },
-]
-
 const MyInfo = (props) => {
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, member_info, route} = props;
 	const {params} = route
 	const scrollViewRef = useRef();
 	const [routeLoad, setRouteLoad] = useState(false);
@@ -119,15 +75,25 @@ const MyInfo = (props) => {
 	const [keyboardHeight, setKeyboardHeight] = useState(0);
 	const [currFocus, setCurrFocus] = useState('');
 	const [preventBack, setPreventBack] = useState(false);
-	const [loading, setLoading] = useState(false);	
+	const [loading, setLoading] = useState(false);
+	const [memberIdx, setMemberIdx] = useState();
 
-	const [step, setStep] = useState(1);
 	const [heightList, setHeightList] = useState([]);
 	const [weightList, setWeightList] = useState([]);
 	const [muscleList, setMuscleList] = useState([]);
 	const [fatList, setFatList] = useState([]);
 	const [exeList, setExeList] = useState([]);
+	const [sportList, setSportList] = useState([]);
+	const [relList, setRelList] = useState([]);
+	const [jobList, setJobList] = useState([]);
+	const [jobList2, setJobList2] = useState([]);
 	
+	const [nickCert, setNickCert] = useState(true);
+	const [popNick, setPopNick] = useState(false);
+	const [popGender, setPopGender] = useState(false);
+	const [popLocal, setPopLocal] = useState(false);
+	const [popLocal2, setPopLocal2] = useState(false);
+	const [localType, setLocalType] = useState(0);
 	const [popClass, setPopClass] = useState(false);
 	const [popJob, setPopJob] = useState(false);
 	const [popPhysical2, setPopPhysical2] = useState(false);
@@ -137,11 +103,16 @@ const MyInfo = (props) => {
 	const [popMbti, setPopMbti] = useState(false);
 	const [popRel, setPopRel] = useState(false);
 	
+	const [nickBtn, setNickBtn] = useState(false);
+	const [locBtn, setLocBtn] = useState(false);
 	const [jobBtn, setJobBtn] = useState(false);
 	const [exeBtn, setExeBtn] = useState(false);
 	const [phyBtn, setPhyBtn] = useState(false);
 	const [mbtiBtn, setMbtiBtn] = useState(false);
 
+	const [nick, setNick] = useState('');
+	const [realNick, setRealNick] = useState('');
+	const [realGender, setRealGender] = useState();
 	const [realClass, setRealClass] = useState('');
 	const [realClass2, setRealClass2] = useState('');
 	const [job, setJob] = useState('');
@@ -150,14 +121,17 @@ const MyInfo = (props) => {
 	const [realJob, setRealJob] = useState('');
 	const [jobDetail, setJobDetail] = useState('');
 	const [realJobDetail, setRealJobDetail] = useState('');
-	const [phyAry, setPhyAry] = useState(phyList);
+	const [phyAry, setPhyAry] = useState([]);
 	const [phyAryCnt, setPhyAryCnt] = useState(0);
 	const [realPhyAry, setRealPhyAry] = useState([]);
 	const [realPhyAryCnt, setRealPhyAryCnt] = useState(0);
-	const [realDrink, setRealDrink] = useState('');
-	const [realSmoke, setRealSmoke] = useState('');
-	const [realSmokeSort, setRealSmokeSort] = useState('');
-	const [realRel, setRealRel] = useState('');
+	const [realDrink, setRealDrink] = useState();
+	const [realDrinkText, setRealDrinkText] = useState('');
+	const [realSmoke, setRealSmoke] = useState();
+	const [realSmokeText, setRealSmokeText] = useState('');
+	const [realSmokeSort, setRealSmokeSort] = useState();
+	const [realSmokeSortText, setRealSmokeSortText] = useState('');
+	const [realRel, setRealRel] = useState();
 	const [mbtiRes1, setMbtiRes1] = useState('');
 	const [mbtiRes2, setMbtiRes2] = useState('');
 	const [mbtiRes3, setMbtiRes3] = useState('');
@@ -181,10 +155,22 @@ const MyInfo = (props) => {
 	const [realMbti1, setRealMbti1] = useState('');
 	const [realMbti2, setRealMbti2] = useState('');
 	const [realMbti3, setRealMbti3] = useState('');
-	const [realMbti4, setRealMbti4] = useState('');	
+	const [realMbti4, setRealMbti4] = useState('');
+	const [local1, setLocal1] = useState('');
+	const [local2, setLocal2] = useState('');
+	const [localDetail1, setLocalDetail1] = useState('');
+	const [localDetail2, setLocalDetail2] = useState('');
+	const [realLocal1, setRealLocal1] = useState('');
+	const [realLocal2, setRealLocal2] = useState('');
+	const [realLocalDetail1, setRealLocalDetail1] = useState('');
+	const [realLocalDetail2, setRealLocalDetail2] = useState('');
+	const [heightIdx, setHeightIdx] = useState(30);
 	const [height, setHeight] = useState('170cm');
+	const [weightIdx, setWeightIdx] = useState(30);
 	const [weight, setWeight] = useState('60kg');
+	const [muscleIdx, setMuscleIdx] = useState(25);
 	const [muscle, setMuscle] = useState('25kg');
+	const [fatIdx, setFatIdx] = useState(15);
 	const [fat, setFat] = useState('15%');
 	const [noWeight, setNoWeight] = useState(false);
 	const [noMuscle, setNoMuscle] = useState(false);
@@ -199,13 +185,14 @@ const MyInfo = (props) => {
 	const [exeAddSt, setExeAddSt] = useState(false);
 	const [exePeri, setExePeri] = useState('');
 	const [exeDay, setExeDay] = useState('0');
+	const [exeSportIdx, setExeSportIdx] = useState();
 	const [exeSport, setExeSport] = useState('');
 	const [exeRest, setExeRest] = useState(false);	
 	const [realRest, setRealRest] = useState(false);
 	const [realExeList, setRealExeList] = useState([]);
 	const [nextOpen, setNextOpen] = useState(false);
-	const [outerScrollEnabled, setOuterScrollEnabled] = useState(true)
-
+	const [outerScrollEnabled, setOuterScrollEnabled] = useState(true);
+	
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isSubscribed = true;
@@ -217,6 +204,11 @@ const MyInfo = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 
 		Keyboard.dismiss();
@@ -225,12 +217,24 @@ const MyInfo = (props) => {
 	}, [isFocused]);
 
 	useEffect(() => {
+		if(memberIdx){
+			setLoading(true);
+			getMemInfo();
+			getMemInfo2();
+		}
+	}, [memberIdx]);
+
+	useEffect(() => {
     const unsubscribe = navigationUse.addListener('beforeRemove', (e) => {
       // 뒤로 가기 이벤트가 발생했을 때 실행할 로직을 작성합니다.
       // 여기에 원하는 동작을 추가하세요.
       // e.preventDefault();를 사용하면 뒤로 가기를 막을 수 있습니다.
       //console.log('preventBack22 ::: ',preventBack);
       if (preventBack) {        																
+				setPopNick(false);
+				setPopGender(false);
+				setPopLocal(false);
+				setPopLocal2(false);
 				setPopClass(false);
 				setPopJob(false);
 				setPopPhysical2(false);
@@ -304,7 +308,7 @@ const MyInfo = (props) => {
 
 	useEffect(() => {
 		chkTotalVal();
-	}, [realJob, realJobDetail, realHeight, realWeight, realMuscle, realFat, realRest, realExeList, realPhyAryCnt, realRel, realMbti1, realMbti2, realMbti3, realMbti4]);
+	}, [realNick, realGender, realLocal1, realLocal2, realJob, realJobDetail, realHeight, realWeight, realMuscle, realFat, realRest, realExeList, realPhyAryCnt, realRel, realMbti1, realMbti2, realMbti3, realMbti4]);	
 
 	useEffect(() => {		
 		if(realClass != "" && realClass2 != ""){
@@ -315,12 +319,12 @@ const MyInfo = (props) => {
 	}, [realClass, realClass2]);  
 
 	useEffect(() => {
-		if(realDrink != '' && realSmoke != ''){
-			if(realSmoke == '비흡연'){
+		if(realDrink != undefined && realSmoke != undefined){
+			if(realSmoke == 0){
 				setPopDrink(false);
 				setPreventBack(false);
 			}else{
-				if(realSmokeSort != ''){
+				if(realSmokeSort != undefined){
 					setPopDrink(false);
 					setPreventBack(false);
 				}
@@ -402,7 +406,7 @@ const MyInfo = (props) => {
 			setMbtiBtn(true);
 		}else{
 			setMbtiBtn(false);
-		}
+		}		
 	}, [mbti1,mbti2,mbti3,mbti4,mbti5,mbti6,mbti7,mbti8])
 
 	useEffect(() => {
@@ -429,8 +433,300 @@ const MyInfo = (props) => {
 		}
 	}, [exePeri, exeDay, exeSport, exeList]);
 
+	useEffect(() => {
+		getSportData();
+		getRelData();
+		getJobData();
+	}, []);
+
+	const getSportData = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetExerciseList",
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			setSportList(response.data);
+		}
+	}
+
+	const getSportData2 = async (exe) => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetExerciseList",
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			const resAry = response.data;
+			let exeAddList;
+			let exeAddList2 = exeList;
+			exe.map((item, index) => {	
+				exeAddList = {me_rank:item.me_rank, me_cycle:item.me_cycle, me_count:item.me_count, me_name:item.me_name};
+				exeAddList2 = [...exeAddList2, exeAddList];
+			});
+			setExeList(exeAddList2);
+			setRealExeList(exeAddList2);
+		}
+	}
+
+	const getRelData = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetReligionList",
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			setRelList(response.data);
+		}
+	}
+
+	const getJobData = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetCompanyList",
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setJobList(response.data);
+		}		
+	}
+
+	const getJobData2 = async (idx, name) => {
+		setJob(name);
+		setJob1(name);
+		setJobBtn(true);
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetCareerList",
+			company_idx: idx,
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setJobList2(response.data);
+		}
+	}
+
+	const getPhyData = async (v) => {
+		console.log('getPhyData');
+		setPhyAry([]);
+		setPhyAryCnt(0)		
+		setRealPhyAry([]);
+		setRealPhyAryCnt(0);
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetPhysicalList",
+      physical_type: v,
+		}
+		const response = await APIs.send(sData);		
+		//console.log(response.data);
+
+		let phyArray = [...phyAry];
+		if(response.code == 200){
+			setPhyAry(response.data);			
+		}
+	}
+
+	const getPhyData2 = async (v, list) => {
+		setPhyAry([]);
+		setPhyAryCnt(0)		
+		setRealPhyAry([]);
+		setRealPhyAryCnt(0);
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetPhysicalList",
+      physical_type: v,
+		}
+		const response = await APIs.send(sData);			
+		if(response.code == 200){			
+			const resAry = response.data;
+			let newAry = [...resAry];
+	
+			//let fakePhy = list.replace('[', '').replace(']', '').replaceAll('"', '');						
+			//let fakeSplt = fakePhy.split(',');						
+			// for(let i=0; i<list.length; i++){
+			// 	const trimVal = list[i].trim();
+			// 	const result = resAry.findIndex((value) => value.physical_name == trimVal);
+			// 	newAry[result].chk = true;
+			// }			
+			list.map((item, index) => {
+				const result = resAry.findIndex((value) => value.physical_name == item.mp_name);
+				newAry[result].chk = true;
+			})
+
+			setPhyAry(newAry);
+			setRealPhyAry(newAry);
+			setPhyAryCnt(list.length);
+			setRealPhyAryCnt(list.length);
+		}
+	}
+
+	const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyProfile",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+
+		if(response.data.info.member_exercise_yn == 'y'){ 
+			getSportData2(response.data.info.member_exercise);
+		}else{
+			setExeRest(true); setRealRest(true); 
+		}
+
+		if(response.data.info.member_sex){ 
+			setRealGender(response.data.info.member_sex);			
+			getPhyData2(response.data.info.member_sex, response.data.info.member_physical);
+		}		
+
+		if(response.data.info.member_nick){ setRealNick(response.data.info.member_nick); }		
+		if(response.data.info.member_main_local){ setRealLocal1(response.data.info.member_main_local); }
+		if(response.data.info.member_main_local_detail){ setRealLocalDetail1(response.data.info.member_main_local_detail); }
+		if(response.data.info.member_sub_local){ setRealLocal2(response.data.info.member_sub_local); }
+		if(response.data.info.member_sub_local_detail){ setRealLocalDetail2(response.data.info.member_sub_local_detail); }	
+		if(response.data.info.member_education){ setRealClass(response.data.info.member_education); }
+		if(response.data.info.member_education_status){ setRealClass2(response.data.info.member_education_status); }
+		if(response.data.info.member_job){ setRealJob(response.data.info.member_job); }
+		if(response.data.info.member_job_detail){ setRealJobDetail(response.data.info.member_job_detail); }
+		if(response.data.info.member_height){ 
+			let ary = [];
+			for(let i=140; i<=216; i++){ ary.push(i); }	
+			const aryIndx = ary.findIndex((value) => value == response.data.info.member_height);						
+			setHeightIdx(aryIndx);
+			setHeight(response.data.info.member_height);
+			setRealHeight(response.data.info.member_height);
+		}else{
+			setRealNoHeight(false); 
+		}
+
+		if(response.data.info.member_weight){ 
+			let ary2 = [];
+			for(let i=30; i<=120; i++){ ary2.push(i); }	
+			const aryIndx = ary2.findIndex((value) => value == response.data.info.member_weight);
+			setWeightIdx(aryIndx);
+			setWeight(response.data.info.member_weight);
+			setRealWeight(response.data.info.member_weight);
+		}else{
+			setRealNoWeight(false); 
+		}
+
+		if(response.data.info.member_muscle){
+			let ary3 = [];
+			for(let i=0; i<=100; i++){ ary3.push(i); }
+			const aryIndx = ary3.findIndex((value) => value == response.data.info.member_muscle);
+			setMuscleIdx(aryIndx);
+			setMuscle(response.data.info.member_muscle);
+			setRealMuscle(response.data.info.member_muscle);
+		}else{
+			setRealNoMuscle(false);
+		}
+
+		if(response.data.info.member_fat){
+			let ary4 = [];
+			for(let i=0; i<=100; i++){ ary4.push(i); }
+			const aryIndx = ary4.findIndex((value) => value == response.data.info.member_fat);
+			setFatIdx(aryIndx);
+			setFat(response.data.info.member_fat);
+			setRealFat(response.data.info.member_fat);
+		}else{
+			setRealNoFat(false); 
+		}		
+
+		if(response.data.info.member_drink_status){
+			setRealDrink(response.data.info.member_drink_status);
+			setRealDrinkText(drinkList[response.data.info.member_drink_status].txt);
+		}
+		if(response.data.info.member_smoke_status){
+			setRealSmoke(response.data.info.member_smoke_status);
+			setRealSmokeText(smokeList[response.data.info.member_smoke_status].txt);
+		}
+		if(response.data.info.member_smoke_type){
+			setRealSmokeSort(response.data.info.member_smoke_type);
+			setRealSmokeSortText(smokeSortList[response.data.info.member_smoke_type].txt);
+		}
+		if(response.data.info.member_religion){ setRealRel(response.data.info.member_religion); }		
+		
+		setTimeout(function(){
+			setLoading(false);
+		}, 1000)
+	}
+
+	const getMemInfo2 = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);	
+		if(response.data.member_mbti){
+			let state = 0;
+			let state2 = false;
+			let mbtiRes1 = '';
+			let mbtiRes2 = '';
+			let mbtiRes3 = '';
+			let mbtiRes4 = '';
+			const splt = response.data.member_mbti.split('|');			
+			for(let i=0; i<splt.length; i++){
+				if(splt[i] != ''){
+					if(i == 0){
+						setMbti1(splt[i]);
+						setMbti1_2(splt[i]);			
+						state = state+1;
+						mbtiRes1 = splt[i];
+					}else if(i == 1){
+						setMbti2(splt[i]);
+						setMbti2_2(splt[i]);			
+						mbtiRes1 += '('+splt[i]+')';
+					}else if(i == 2){
+						setMbti3(splt[i]);
+						setMbti3_2(splt[i]);			
+						state = state+1;
+						mbtiRes2 = splt[i];
+					}else if(i == 3){
+						setMbti4(splt[i]);
+						setMbti4_2(splt[i]);			
+						mbtiRes2 += '('+splt[i]+')';
+					}else if(i == 4){
+						setMbti5(splt[i]);
+						setMbti5_2(splt[i]);			
+						state = state+1;
+						mbtiRes3 = splt[i];
+					}else if(i == 5){
+						setMbti6(splt[i]);
+						setMbti6_2(splt[i]);			
+						mbtiRes3 += '('+splt[i]+')';
+					}else if(i == 6){
+						setMbti7(splt[i]);
+						setMbti7_2(splt[i]);			
+						state = state+1;
+						mbtiRes4 = splt[i];
+					}else if(i == 7){
+						setMbti8(splt[i]);
+						setMbti8_2(splt[i]);
+						state2 = true;
+						mbtiRes4 += '('+splt[i]+')';
+					}
+				}				
+			}
+			
+			setMbtiRes1(mbtiRes1);
+			setRealMbti1(mbtiRes1);
+			setMbtiRes2(mbtiRes2);
+			setRealMbti2(mbtiRes2);
+			setMbtiRes3(mbtiRes3);
+			setRealMbti3(mbtiRes3);
+			setMbtiRes4(mbtiRes4);
+			setRealMbti4(mbtiRes4);
+		}
+	}
+
 	const chkTotalVal = () => {
-		if(realJob && realHeight && (realRest || realExeList.length > 0) && realPhyAryCnt > 0 && realRel && realClass && realClass2 && realDrink && realSmoke && realMbti1 && realMbti2 && realMbti3 && realMbti4){
+		if(realNick && realGender != undefined && realLocal1 && realJob && realHeight && (realRest || realExeList.length > 0) && realPhyAryCnt > 0 && realRel && realClass && realClass2 && realDrink != undefined && realSmoke != undefined && realMbti1 && realMbti2 && realMbti3 && realMbti4){
 			setNextOpen(true);
 		}else{
 			setNextOpen(false);
@@ -438,10 +734,9 @@ const MyInfo = (props) => {
 	}
 
 	const physical_ary = (v) => {
-		let add_state = true;
-		
-		let selectCon = phyAry.map((item) => {
-			if(item.val === v){							
+		let add_state = true;		
+		let selectCon = phyAry.map((item) => {						
+			if(item.physical_idx === v){
 				if(item.chk){			
 					setPhyAryCnt(phyAryCnt-1);
 					return {...item, chk: false};
@@ -469,45 +764,51 @@ const MyInfo = (props) => {
 	const removeSport = (v) => {	
     let selectCon = [];
 		exeList.map((item, index) => {
-			if(item.key != v){
-				let exeAddList = {key : item.key, period : item.period, day : item.day, sort : item.sort};
+			if(item.me_rank != v){
+				let exeAddList = {me_rank:item.me_rank, me_cycle:item.me_cycle, me_count:item.me_count, me_name:item.me_name};
 				selectCon = [...selectCon, exeAddList];
 			}
 		});
 
 		let selectCon2 = selectCon.map((item, index) => {
-			return {...item, key: index+1};
+			return {...item, me_rank: index+1};
 		});
 
 		setExeList(selectCon2);
 	}
 
 	const renderItem = ({ item, drag, isActive }: RenderItemParams<Item>) => {
+		let cycleText = '';
+		if(item.me_cycle == 0){
+			cycleText = '주';
+		}else if(item.me_cycle == 1){
+			cycleText = '월';
+		}
     return (
-      <ScaleDecorator>
+      // <ScaleDecorator>
         <View style={[styles.exeSortCont]}>
 					<TouchableOpacity
 						style={styles.exeSortContBtn1}
 						activeOpacity={opacityVal}
 						onPress={() => {
-							removeSport(item.key);
+							removeSport(item.me_rank);
 						}}
 					>
-						<ImgDomain fileWidth={22} fileName={'icon_minus1.png'}/>					
+						<ImgDomain fileWidth={22} fileName={'icon_minus1.png'} />						
 					</TouchableOpacity>
 					<View style={styles.exeSortContBox}>
-						<Text style={[styles.exeSortContBoxText, styles.exeSortContBoxText1]}>{item.period} {item.day}일</Text>
-						<Text style={[styles.exeSortContBoxText, styles.exeSortContBoxText2]}>{item.sort}</Text>
+						<Text style={[styles.exeSortContBoxText, styles.exeSortContBoxText1]}>{cycleText} {item.me_count}일</Text>
+						<Text style={[styles.exeSortContBoxText, styles.exeSortContBoxText2]}>{item.me_name}</Text>
 					</View>
 					<TouchableOpacity
 						style={styles.exeSortContBtn2}
 						activeOpacity={opacityVal}		
-						onLongPress={drag}							
+						onPressIn={drag}							
 					>
-						<ImgDomain fileWidth={18} fileName={'icon_chg.png'}/>				
+						<ImgDomain fileWidth={18} fileName={'icon_chg.png'}/>
 					</TouchableOpacity>
 				</View>
-      </ScaleDecorator>
+      // </ScaleDecorator>
     );
   };
 											
@@ -539,8 +840,58 @@ const MyInfo = (props) => {
 		}
 	}
 
-	const checkPopVal = (v) => {
-		if(v == 'job'){
+	const checkPopVal = async (v) => {
+		if(v == 'nick'){
+			if(nick == ''){
+				ToastMessage('닉네임을 입력해 주세요.');
+				return false;
+			}
+
+			const spe = nick.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
+			if(spe >= 0){
+				ToastMessage('닉네임은 한글, 숫자, 영문만 사용 가능합니다.');
+				return false;
+			}
+
+			if(nick.length < 2 || nick.length > 8){
+				ToastMessage('닉네임은 2~8자리 입력이 가능합니다.');
+				return false;
+			}
+
+			let sData = {      
+				basePath: "/api/member/index.php",
+				type: "IsDuplicationNick",
+				member_nick: nick,
+			}
+			const response = await APIs.send(sData);
+			if(response.code == 200){
+				setPopNick(false);
+				setRealNick(nick);
+				setPreventBack(false);
+				setNickCert(true);
+				//ToastMessage('사용할 수 있는 닉네임 입니다.');
+			}else{
+				setNickCert(false);
+				ToastMessage('이미 사용 중이거나 사용할 수 없는 닉네임 입니다.');      
+			}
+
+			
+		}else if(v == 'local'){
+			if(local1 == ''){
+				ToastMessage('주 활동 지역을 입력해 주세요.');
+				return false;
+			}								
+
+			setPopLocal(false);
+			setRealLocal1(local1);
+			setRealLocalDetail1(localDetail1);
+			if(local2 != ''){
+				setRealLocal2(local2);
+				setRealLocalDetail2(localDetail2);
+			}
+			setPreventBack(false);
+
+		}else if(v == 'job'){
 			if(job == ''){
 				ToastMessage('직업을 입력 또는 선택해 주세요.');
 				return false;
@@ -608,7 +959,7 @@ const MyInfo = (props) => {
 				}
 
 				if(exeDay == '0'){
-					ToastMessage('0일 이상의 수를 입력해 주세요.');
+					ToastMessage('0일 이상을 입력해 주세요.');
 					return false;
 				}
 
@@ -616,9 +967,22 @@ const MyInfo = (props) => {
 					ToastMessage('종목을 선택해 주세요.');
 					return false;
 				}
+
+				const sportAryChk = exeList.find(it => it.me_name == exeSport);
+				if(sportAryChk){
+					ToastMessage('이미 선택한 종목입니다.\n다른 종목을 선택해 주세요.');
+					return false;
+				}							
 				
+				cycle = 0;
+				if(exePeri == '월'){
+					cycle = 1;
+				}else if(exePeri == '주'){
+					cycle = 0;
+				}
+
 				const keyOd = (exeList.length)+1;
-				let exeAddList = {key : keyOd, period : exePeri, day : exeDay, sort : exeSport};
+				let exeAddList = {me_rank:keyOd, me_cycle:cycle, me_count:exeDay, me_name:exeSport};
 				let exeAddList2 = [...exeList, exeAddList];					
 				setExeList(exeAddList2);							
 			}
@@ -632,8 +996,63 @@ const MyInfo = (props) => {
 			setExeAddSt(false);
 			setExePeri('');
 			setExeDay('0');
+			setExeSportIdx();
 			setExeSport('');
 		}
+	}
+
+	const nextStep = async () => {
+		//if(realNick == ''){ ToastMessage('닉네임을 입력해 주세요.'); return false; }
+		//if(realGender != 0 && realGender != 1){ ToastMessage('성별을 선택해 주세요.'); return false; }
+		//if(realLocal1 == ''){ ToastMessage('주 활동 지역을 입력해 주세요.'); return false; }
+		if(realClass == '' || realClass2 == ''){ ToastMessage('최종학력을 선택해 주세요.'); return false; }
+		if(realJob == ''){ ToastMessage('직업을 압력 또는 선택해 주세요.'); return false; }
+		if(realHeight == ''){ ToastMessage('피지컬(키)을 선택해 주세요.'); return false; }
+		if(!realRest && realExeList.length < 1){ ToastMessage('운동을 선택해 주세요.'); return false; }
+		if(realPhyAryCnt < 1){ ToastMessage('체형을 2~5개를 선택해 주세요.'); return false; }
+		if(realDrink == undefined || realSmoke == undefined){ ToastMessage('음주 · 흡연을 선택해 주세요.'); return false; }
+		if(realMbti1 == '' || realMbti2 == '' || realMbti3 == '' || realMbti4 == ''){ ToastMessage('MBTI를 선택해 주세요.'); return false; }
+		if(realRel == '' || realRel == undefined){ ToastMessage('종교를 선택해 주세요.'); return false; }
+
+		const nextObj = {
+			basePath: "/api/member/",
+			type:'SetBasicInfo',
+			member_idx:memberIdx,						
+			member_education:realClass,
+			member_education_status:realClass2,
+			member_job:realJob,
+			member_job_detail:realJobDetail,
+			member_height:realHeight,
+			member_weight:realWeight,
+			member_muscle:realMuscle,
+			member_fat:realFat,
+			member_no_weight:realNoWeight,
+			member_no_muscle:realNoMuscle,
+			member_no_fat:realFat,
+			member_exercise:realExeList,
+			member_drink_status:realDrink,
+			member_smoke_status:realSmoke,
+			member_smoke_type:realSmokeSort,
+			member_mbti:mbti1_2+'|'+mbti2_2+'|'+mbti3_2+'|'+mbti4_2+'|'+mbti5_2+'|'+mbti6_2+'|'+mbti7_2+'|'+mbti8_2,
+			member_religion:realRel,
+		}
+	
+		const phyTypeTrue = [];
+		for(let i=0; i<realPhyAry.length; i++){
+			if(realPhyAry[i].chk){
+				phyTypeTrue.push(realPhyAry[i].physical_name);
+			}
+		}
+		nextObj.member_physical = phyTypeTrue;
+		
+		let sData = nextObj
+		const response = await APIs.send(sData);
+		console.log(response);
+
+		// const formData = new FormData();
+		// formData.append('type', 'GetMyInfo');
+		// formData.append('member_idx', idx);
+		// const mem_info = await member_info(formData);
 	}
 
 	const headerHeight = 48;
@@ -646,6 +1065,74 @@ const MyInfo = (props) => {
 
 			<ScrollView>		
 				<View style={styles.regiStepList}>
+					{/* <TouchableOpacity
+						style={styles.regiStep5Btn}
+						activeOpacity={opacityVal}
+						onPress={() => {
+							setPopNick(true);
+							setNick(realNick);
+							setPreventBack(true);
+						}}
+					>
+						<View style={styles.regiStep5BtnLeft}>
+							{realNick ? (
+								<ImgDomain fileWidth={24} fileName={'icon1_2.png'}/>
+							) : (
+								<ImgDomain fileWidth={24} fileName={'icon1.png'}/>
+							)}
+							<Text style={styles.regiStep5BtnLeftText}>닉네임</Text>
+						</View>
+						<View style={styles.regiStep5BtnRight}>
+							<Text style={styles.regiStep5BtnRightText}>{realNick}</Text>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
+						</View>
+					</TouchableOpacity> */}
+
+					{/* <TouchableOpacity
+						style={styles.regiStep5Btn}
+						activeOpacity={opacityVal}
+						onPress={() => {
+							setPopGender(true);
+							setPreventBack(true);
+						}}
+					>
+						<View style={styles.regiStep5BtnLeft}>
+							{realGender == 0 || realGender == 1 ? (
+								<ImgDomain fileWidth={24} fileName={'icon2_2.png'}/>
+							) : (
+								<ImgDomain fileWidth={24} fileName={'icon2.png'}/>
+							)}
+							<Text style={styles.regiStep5BtnLeftText}>성별</Text>
+						</View>
+						<View style={styles.regiStep5BtnRight}>
+							{realGender == 0 ? (<Text style={styles.regiStep5BtnRightText}>남자</Text>) : null}
+							{realGender == 1 ? (<Text style={styles.regiStep5BtnRightText}>여자</Text>) : null}
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
+						</View>
+					</TouchableOpacity> */}
+
+					{/* <TouchableOpacity
+						style={styles.regiStep5Btn}
+						activeOpacity={opacityVal}
+						onPress={() => {
+							setPopLocal(true);
+							setPreventBack(true);
+						}}
+					>
+						<View style={styles.regiStep5BtnLeft}>
+							{realLocal1 ? (
+								<ImgDomain fileWidth={24} fileName={'icon3_2.png'}/>
+							) : (
+								<ImgDomain fileWidth={24} fileName={'icon3.png'}/>
+							)}
+							<Text style={styles.regiStep5BtnLeftText}>지역</Text>
+						</View>
+						<View style={styles.regiStep5BtnRight}>
+							<Text style={styles.regiStep5BtnRightText}>{realLocal1}</Text>
+							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
+						</View>
+					</TouchableOpacity> */}
+
 					<TouchableOpacity
 						style={styles.regiStep5Btn}
 						activeOpacity={opacityVal}
@@ -655,11 +1142,11 @@ const MyInfo = (props) => {
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
-							{realClass ? (								
-								<ImgDomain fileWidth={24} fileName={'icon4_2.png'}/>								
-							) : (								
-								<ImgDomain fileWidth={24} fileName={'icon4.png'}/>								
-							)}	
+							{realClass ? (
+								<ImgDomain fileWidth={24} fileName={'icon4_2.png'}/>
+							) : (
+								<ImgDomain fileWidth={24} fileName={'icon4.png'}/>
+							)}
 							<Text style={styles.regiStep5BtnLeftText}>최종학력</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
@@ -680,9 +1167,9 @@ const MyInfo = (props) => {
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
-							{realJob ? (								
+							{realJob ? (
 								<ImgDomain fileWidth={24} fileName={'icon5_2.png'}/>
-							) : (								
+							) : (
 								<ImgDomain fileWidth={24} fileName={'icon5.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>직업</Text>
@@ -696,7 +1183,7 @@ const MyInfo = (props) => {
 					<TouchableOpacity
 						style={styles.regiStep5Btn}
 						activeOpacity={opacityVal}
-						onPress={() => {														
+						onPress={() => {									
 							if(realHeight != '') setHeight(realHeight); 
 							if(realWeight != '') setWeight(realWeight); 
 							if(realMuscle != '') setMuscle(realMuscle); 
@@ -706,20 +1193,20 @@ const MyInfo = (props) => {
 							setNoFat(realNoFat);
 
 							setPopPhysical2(true);
-							setPreventBack(true);
+							setPreventBack(true);								
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
-							{realHeight ? (								
+							{realHeight ? (
 								<ImgDomain fileWidth={24} fileName={'icon6_2.png'}/>
-							) : (								
+							) : (
 								<ImgDomain fileWidth={24} fileName={'icon6.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>피지컬</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
 							{realHeight ? (
-							<Text style={styles.regiStep5BtnRightText}>{realHeight}</Text>
+							<Text style={styles.regiStep5BtnRightText}>{realHeight}cm</Text>
 							) : null}
 							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
@@ -740,7 +1227,7 @@ const MyInfo = (props) => {
 						<View style={styles.regiStep5BtnLeft}>
 							{exeRest || realExeList.length > 0 ? (
 								<ImgDomain fileWidth={24} fileName={'icon7_2.png'}/>
-							) : (								
+							) : (
 								<ImgDomain fileWidth={24} fileName={'icon7.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>운동</Text>
@@ -760,18 +1247,23 @@ const MyInfo = (props) => {
 					<TouchableOpacity
 						style={styles.regiStep5Btn}
 						activeOpacity={opacityVal}
-						onPress={() => {							
-							if(realPhyAry.length > 0){
-								setPhyAry(realPhyAry);
-							}
-							setPopPhysical(true);
-							setPreventBack(true);							
+						onPress={() => {			
+							if(realGender == undefined){
+								ToastMessage('성별을 먼저 선택해 주세요.');
+								return false;								
+							}else{
+								if(realPhyAry.length > 0){
+									setPhyAry(realPhyAry);
+								}
+								setPopPhysical(true);
+								setPreventBack(true);
+							}																		
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realPhyAryCnt >= 2 ? (
 								<ImgDomain fileWidth={24} fileName={'icon8_2.png'}/>
-							) : (								
+							) : (
 								<ImgDomain fileWidth={24} fileName={'icon8.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>체형</Text>
@@ -791,7 +1283,7 @@ const MyInfo = (props) => {
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
-							{realDrink != '' && realSmoke != '' ? (
+							{realDrink != undefined && realSmoke != undefined ? (								
 								<ImgDomain fileWidth={24} fileName={'icon9_2.png'}/>
 							) : (								
 								<ImgDomain fileWidth={24} fileName={'icon9.png'}/>
@@ -799,7 +1291,7 @@ const MyInfo = (props) => {
 							<Text style={styles.regiStep5BtnLeftText}>음주 · 흡연</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
-							{realDrink != '' && realSmoke != '' ? (
+							{realDrink != undefined && realSmoke != undefined ? (
 							<Text style={styles.regiStep5BtnRightText}>입력완료</Text>	
 							) : null}
 							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
@@ -825,8 +1317,8 @@ const MyInfo = (props) => {
 					>
 						<View style={styles.regiStep5BtnLeft}>
 							{realMbti1 && realMbti2 && realMbti3 && realMbti4 ? (
-								<ImgDomain fileWidth={24} fileName={'icon10_2.png'}/>
-							) : (								
+								<ImgDomain fileWidth={24} fileName={'icon10_2.png'}/>								
+							) : (
 								<ImgDomain fileWidth={24} fileName={'icon10.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>MBTI</Text>
@@ -848,20 +1340,24 @@ const MyInfo = (props) => {
 						<View style={styles.regiStep5BtnLeft}>
 							{realRel ? (
 								<ImgDomain fileWidth={24} fileName={'icon11_2.png'}/>
-							) : (								
+							) : (
 								<ImgDomain fileWidth={24} fileName={'icon11.png'}/>
 							)}
 							<Text style={styles.regiStep5BtnLeftText}>종교</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
-							<Text style={styles.regiStep5BtnRightText}>{realRel}</Text>
+							{realRel == 1 ? (<Text style={styles.regiStep5BtnRightText}>무교</Text>) : null}
+							{realRel == 2 ? (<Text style={styles.regiStep5BtnRightText}>기독교</Text>) : null}
+							{realRel == 3 ? (<Text style={styles.regiStep5BtnRightText}>천주교</Text>) : null}
+							{realRel == 4 ? (<Text style={styles.regiStep5BtnRightText}>불교</Text>) : null}
+							{realRel == 5 ? (<Text style={styles.regiStep5BtnRightText}>기타</Text>) : null}
 							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
 				</View>		
 			</ScrollView>
 
-			<View style={styles.nextFix}>
+      <View style={styles.nextFix}>
         <TouchableOpacity 
 					style={[styles.nextBtn, nextOpen ? null : styles.nextBtnOff]}
 					activeOpacity={opacityVal}
@@ -870,6 +1366,244 @@ const MyInfo = (props) => {
 					<Text style={styles.nextBtnText}>저장하기</Text>
 				</TouchableOpacity>
 			</View>
+						
+			{/* 닉네임 */}
+			{popNick ? (
+			<View style={styles.cmPop}>
+				<TouchableOpacity 
+					style={styles.popBack} 
+					activeOpacity={1} 
+					onPress={()=>{
+						Keyboard.dismiss();
+					}}
+				>
+				</TouchableOpacity>
+				<KeyboardAvoidingView
+					keyboardVerticalOffset={0}
+					behavior={behavior}
+				>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View style={{...styles.prvPop, top:keyboardHeight}}>
+							<TouchableOpacity
+								style={styles.pop_x}					
+								onPress={() => {
+									setPopNick(false);
+									setPreventBack(false);
+								}}
+							>
+								<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+							</TouchableOpacity>		
+							<View style={styles.popTitle}>
+								<Text style={styles.popTitleText}>닉네임을 입력해 주세요</Text>
+								<Text style={styles.popTitleDesc}>프로필 작성 후 변경이 불가합니다.</Text>
+							</View>
+							<View style={[styles.popIptBox]}>									
+								<TextInput
+									value={nick}
+									onChangeText={(v) => {
+										setNick(v);
+										chkNick(v);
+									}}
+									onFocus={()=>{
+										setCurrFocus('nick');
+									}}
+									placeholder={'한글, 숫자, 영문만 사용 가능 / 2~8자'}
+									placeholderTextColor="#DBDBDB"
+									style={[styles.input]}
+									returnKyeType='done'
+								/>
+								{nickCert ? null : (
+									<Text style={styles.alertText}>* 이미 사용 중이거나 사용할 수 없는 닉네임 입니다.</Text>
+								)}								
+							</View>															
+							<View style={styles.popBtnBox}>
+								<TouchableOpacity 
+									style={[styles.popBtn, nickBtn ? null : styles.nextBtnOff]}
+									activeOpacity={opacityVal}
+									onPress={() => {checkPopVal('nick')}}
+								>
+									<Text style={styles.popBtnText}>저장하기</Text>
+								</TouchableOpacity>
+							</View>
+						</View>
+					</TouchableWithoutFeedback>
+				</KeyboardAvoidingView>
+			</View>
+			) : null}
+
+			{/*성별*/}
+			{popGender ? (
+			<View style={styles.cmPop}>
+				<TouchableOpacity 
+					style={styles.popBack} 
+					activeOpacity={1} 
+					onPress={()=>{
+						Keyboard.dismiss();
+						setPopGender(false);
+					}}
+				>
+				</TouchableOpacity>
+				<View style={styles.prvPop}>
+					<TouchableOpacity
+						style={styles.pop_x}					
+						onPress={() => {
+							setPopGender(false);
+							setPreventBack(false);
+						}}
+					>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+					</TouchableOpacity>			
+					<View style={styles.popTitle}>
+						<Text style={styles.popTitleText}>성별을 선택해 주세요</Text>
+					</View>
+					<ScrollView>
+						<View style={styles.popRadioBox}>
+							<TouchableOpacity
+								style={[styles.popRadioBoxBtn, realGender == 0 ? styles.popRadioBoxBtnOn : null]}
+								activeOpacity={opacityVal}
+								onPress={()=>{									
+									setPopGender(false);
+									setRealGender(0);
+									setPreventBack(false);
+									getPhyData(0);
+								}}
+							>
+								<Text style={[styles.popRadioBoxBtnText, realGender == 0 ? styles.popRadioBoxBtnTextOn : null]}>남자</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.popRadioBoxBtn,  realGender == 1 ? styles.popRadioBoxBtnOn : null]}
+								activeOpacity={opacityVal}
+								onPress={()=>{
+									setPopGender(false);
+									setRealGender(1);
+									setPreventBack(false);
+									getPhyData(1);
+								}}
+							>
+								<Text style={[styles.popRadioBoxBtnText, realGender == 1 ? styles.popRadioBoxBtnTextOn : null]}>여자</Text>
+							</TouchableOpacity>
+						</View>
+					</ScrollView>
+				</View>
+			</View>
+			) : null}
+
+			{/*지역*/}
+			{popLocal ? (
+			<View style={styles.cmPop}>
+				<TouchableOpacity 
+					style={styles.popBack} 
+					activeOpacity={1} 
+					onPress={()=>{
+						Keyboard.dismiss();
+					}}
+				>
+				</TouchableOpacity>
+				<View style={{...styles.prvPop}}>
+					<TouchableOpacity
+						style={styles.pop_x}					
+						onPress={() => {
+							setPopLocal(false);
+							setPreventBack(false);
+						}}
+					>
+						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+					</TouchableOpacity>		
+					<View style={styles.popTitle}>
+						<Text style={styles.popTitleText}>활동 지역을 입력해 주세요</Text>
+					</View>
+					<View style={[styles.popIptBox]}>									
+						<View style={styles.popRadioTitle}>
+							<Text style={styles.popRadioTitleText}>주 활동 지역 <Text style={styles.red}>*</Text></Text>
+						</View>
+						<TouchableOpacity
+							style={styles.localBtn}
+							activeOpacity={opacityVal}
+							onPress={() => {
+								setLocalType(1);
+								setPopLocal2(true);
+							}}
+						>
+							{local1 != '' ? (
+								<Text style={[styles.localBtnText, styles.localBtnText2]}>{local1}</Text>
+							) : (
+								<Text style={styles.localBtnText}>구까지만 표시 돼요</Text>
+							)}
+						</TouchableOpacity>
+					</View>			
+					<View style={[styles.popIptBox, styles.mgt20]}>
+						<View	style={styles.popRadioTitle}>
+							<Text style={styles.popRadioTitleText}>부 활동 지역 <Text style={styles.gray}>[선택]</Text></Text>
+						</View>
+						<TouchableOpacity
+							style={styles.localBtn}
+							activeOpacity={opacityVal}
+							onPress={() => {
+								setLocalType(2);
+								setPopLocal2(true);
+							}}
+						>
+							{local2 != '' ? (
+								<Text style={[styles.localBtnText, styles.localBtnText2]}>{local2}</Text>
+							) : (
+								<Text style={styles.localBtnText}>주 활동 지역과 겹치면 안 적어도 돼요</Text>
+							)}							
+						</TouchableOpacity>
+					</View>												
+					<View style={styles.popBtnBox}>
+						<TouchableOpacity 
+							style={[styles.popBtn, locBtn ? null : styles.nextBtnOff]}
+							activeOpacity={opacityVal}
+							onPress={() => {checkPopVal('local')}}
+						>
+							<Text style={styles.popBtnText}>저장하기</Text>
+						</TouchableOpacity>
+					</View>
+				</View>
+			</View>
+			) : null}
+
+			{popLocal2 ? (
+			<>
+			<TouchableOpacity 
+				style={styles.popBack} 
+				activeOpacity={1} 
+				onPress={()=>{
+					Keyboard.dismiss();
+				}}
+			>
+			</TouchableOpacity>	
+			<View style={{...styles.prvPop, ...styles.prvPop3}}>
+				<TouchableOpacity
+					style={styles.pop_x}					
+					onPress={() => {
+						setPopLocal2(false);
+						setPreventBack(false);
+					}}
+				>
+					<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+				</TouchableOpacity>
+				<Postcode
+					style={{ width: innerWidth-40, height: innerHeight-90, }}
+					jsOptions={{ animation: true }}
+					onSelected={data => {
+						//console.log(JSON.stringify(data))
+						const kakaoAddr = data;
+						//console.log(data);				
+						if(localType == 1){
+							setLocal1(kakaoAddr.sido+' '+kakaoAddr.sigungu);
+							setLocalDetail1(kakaoAddr.address);
+							setLocBtn(true);
+						}else if(localType == 2){
+							setLocal2(kakaoAddr.sido+' '+kakaoAddr.sigungu);
+							setLocalDetail2(kakaoAddr.address);
+						}
+						setPopLocal2(false);
+					}}
+				/>
+			</View>
+			</>
+			) : null}
 
 			{/*학력*/}
 			{popClass ? (
@@ -1007,94 +1741,20 @@ const MyInfo = (props) => {
 									</View>
 									<ScrollView>
 										<View style={styles.jobList}>
-										<TouchableOpacity
-												style={[styles.jobSelect, styles.mgt0]}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명1');
-													setJob1('대분류명1');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명1</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명2');
-													setJob1('대분류명2');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명2</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명3');
-													setJob1('대분류명3');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명3</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명4');
-													setJob1('대분류명4');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명4</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명5');
-													setJob1('대분류명5');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명5</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명6');
-													setJob1('대분류명6');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명6</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명7');
-													setJob1('대분류명7');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명7</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명8');
-													setJob1('대분류명8');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명8</Text>
-											</TouchableOpacity>
+											{jobList.map((item, index) => {
+												return (
+													<TouchableOpacity
+														key={index}
+														style={[styles.jobSelect, index == 0 ? styles.mgt0 : null]}
+														activeOpacity={opacityVal}
+														onPress={()=>{
+															getJobData2(item.company_idx, item.company_name);															
+														}}
+													>
+														<Text style={styles.jobSelectText}>{item.company_name}</Text>
+													</TouchableOpacity>
+												)
+											})}
 										</View>
 									</ScrollView>
 								</View>
@@ -1104,28 +1764,22 @@ const MyInfo = (props) => {
 									</View>
 									<ScrollView>
 										<View style={styles.jobList}>
-											<TouchableOpacity
-												style={[styles.jobSelect, styles.mgt0]}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob(job1+' (업직종명1)');
-													setJob2('업직종명1');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>업직종명1</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob(job1+' (업직종명2)');
-													setJob2('업직종명2');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>업직종명2</Text>
-											</TouchableOpacity>
+											{jobList2.map((item, index) => {
+												return (
+													<TouchableOpacity
+														key={index}
+														style={[styles.jobSelect, index == 0 ? styles.mgt0 : null]}
+														activeOpacity={opacityVal}
+														onPress={(v)=>{
+															setJob(`${job1} (${item.career_name})`);
+															setJob2(item.career_name);
+															setJobBtn(true);
+														}}
+													>
+														<Text style={styles.jobSelectText}>{item.career_name}</Text>
+													</TouchableOpacity>
+												)
+											})}
 										</View>
 									</ScrollView>
 								</View>
@@ -1189,10 +1843,11 @@ const MyInfo = (props) => {
 						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>			
 					<View style={styles.popTitle}>
-						<Text style={styles.popTitleText}>피지컬을 입력해 주세요</Text>
+						<Text style={styles.popTitleText}>피지컬을 선택해 주세요</Text>
 					</View>
 					<ScrollView
 						scrollEnabled={true}
+						nestedScrollEnabled={true}
 					>
 						<View style={styles.popRadioBox}>
 							<View style={styles.popRadioTitle}>
@@ -1201,16 +1856,16 @@ const MyInfo = (props) => {
 							{heightList.length > 0 ? (
 							<View style={styles.wheelpciker}>
 								<WheelPicker
-									flatListProps={{ nestedScrollEnabled: true }}
-									selectedIndex={height}
+									flatListProps={{ nestedScrollEnabled: true }}									
 									options={heightList}
 									itemHeight={40}
-									selectedIndex={30}
+									selectedIndex={heightIdx}
 									visibleRest={1}
 									itemTextStyle={styles.activeStyle2}
 									containerStyle={styles.activeStyle3}									
 									onChange={(index) => {
-										//console.log(heightList[index]);
+										//console.log(index);
+										setHeightIdx(index);
 										setHeight(heightList[index]);
 									}}
 								/>
@@ -1223,7 +1878,10 @@ const MyInfo = (props) => {
 								<TouchableOpacity
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
-									onPress={() => {setNoWeight(!noWeight)}}
+									onPress={() => {
+										setWeight();
+										setNoWeight(!noWeight);
+									}}
 								>
 									{noWeight ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
@@ -1236,15 +1894,15 @@ const MyInfo = (props) => {
 							{!noWeight && weightList.length > 0 ? (
 							<View style={styles.wheelpciker}>
 								<WheelPicker
-									flatListProps={{ nestedScrollEnabled: true }}
-									selectedIndex={muscle}
+									flatListProps={{ nestedScrollEnabled: true }}									
 									options={weightList}
 									itemHeight={40}
-									selectedIndex={30}
+									selectedIndex={weightIdx}
 									visibleRest={1}
 									itemTextStyle={styles.activeStyle2}
 									containerStyle={styles.activeStyle3}									
 									onChange={(index) => {
+										setWeightIdx(index);
 										setWeight(weightList[index]);
 									}}
 								/>
@@ -1257,7 +1915,10 @@ const MyInfo = (props) => {
 								<TouchableOpacity
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
-									onPress={() => {setNoMuscle(!noMuscle)}}
+									onPress={() => {
+										setMuscle();
+										setNoMuscle(!noMuscle);
+									}}
 								>
 									{noMuscle ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
@@ -1270,15 +1931,15 @@ const MyInfo = (props) => {
 							{!noMuscle && muscleList.length > 0 ? (
 							<View style={styles.wheelpciker}>
 								<WheelPicker
-									flatListProps={{ nestedScrollEnabled: true }}
-									selectedIndex={muscle}
+									flatListProps={{ nestedScrollEnabled: true }}									
 									options={muscleList}
 									itemHeight={40}
-									selectedIndex={25}
+									selectedIndex={muscleIdx}
 									visibleRest={1}
 									itemTextStyle={styles.activeStyle2}
 									containerStyle={styles.activeStyle3}
-									onChange={(index) => {										
+									onChange={(index) => {	
+										setMuscleIdx(index);									
 										setMuscle(muscleList[index]);
 									}}
 								/>
@@ -1291,7 +1952,10 @@ const MyInfo = (props) => {
 								<TouchableOpacity
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
-									onPress={() => {setNoFat(!noFat)}}
+									onPress={() => {
+										setFat();
+										setNoFat(!noFat);
+									}}
 								>
 									{noFat ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
@@ -1304,15 +1968,15 @@ const MyInfo = (props) => {
 							{!noFat && fatList.length > 0 ? (
 							<View style={styles.wheelpciker}>
 								<WheelPicker
-									flatListProps={{ nestedScrollEnabled: true }}
-									selectedIndex={fat}
+									flatListProps={{ nestedScrollEnabled: true }}									
 									options={fatList}
 									itemHeight={40}
-									selectedIndex={15}
+									selectedIndex={fatIdx}
 									visibleRest={1}
 									itemTextStyle={styles.activeStyle2}
 									containerStyle={styles.activeStyle3}
 									onChange={(index) => {
+										setFatIdx(index);
 										setFat(fatList[index]);
 									}}
 								/>
@@ -1346,6 +2010,7 @@ const MyInfo = (props) => {
 						setExeAddSt(false);
 						setExePeri('');
 						setExeDay('0');
+						setExeSportIdx();
 						setExeSport('');
 					}}
 				>
@@ -1360,6 +2025,7 @@ const MyInfo = (props) => {
 							setExeAddSt(false);
 							setExePeri('');
 							setExeDay('0');
+							setExeSportIdx();
 							setExeSport('');
 						}}
 					>
@@ -1401,7 +2067,7 @@ const MyInfo = (props) => {
 							onDragEnd={({ data }) => {
 								setExeList(data);								
 							}}
-							keyExtractor={(item) => item.key}
+							keyExtractor={(item) => item.me_rank}
 							renderItem={renderItem}
 							ref={scrollViewRef}
 						/>														
@@ -1493,17 +2159,18 @@ const MyInfo = (props) => {
 									<Text style={styles.popRadioTitleText}>종목</Text>
 								</View>						
 								<View style={styles.physicalList}>
-									{sprotList.map((item, index) => {
+									{sportList.map((item, index) => {
 										return(
 											<TouchableOpacity
 												key={index}
-												style={[styles.phyBtn, exeSport == item.txt ? styles.phyBtnOn : null]}
+												style={[styles.phyBtn, exeSport == item.exercise_name ? styles.phyBtnOn : null]}
 												activeOpacity={opacityVal}
 												onPress={() => {
-													setExeSport(item.txt);
+													setExeSportIdx(item.exercise_idx);
+													setExeSport(item.exercise_name);
 												}}
 											>
-												<Text style={[styles.phyBtnText, exeSport == item.txt ? styles.phyBtnTextOn : null]}>{item.txt}</Text>
+												<Text style={[styles.phyBtnText, exeSport == item.exercise_name ? styles.phyBtnTextOn : null]}>{item.exercise_name}</Text>
 											</TouchableOpacity>
 										)
 									})}							
@@ -1561,12 +2228,12 @@ const MyInfo = (props) => {
 										style={[styles.phyBtn, item.chk ? styles.phyBtnOn : null]}
 										activeOpacity={opacityVal}
 										onPress={() => {
-											physical_ary(item.val);
+											physical_ary(item.physical_idx);
 											//console.log(phyAry.length);											
 											//setPhyAry([item.val, ...phyAry]);
 										}}
 									>
-										<Text style={[styles.phyBtnText, item.chk ? styles.phyBtnTextOn : null]}>{item.txt}</Text>
+										<Text style={[styles.phyBtnText, item.chk ? styles.phyBtnTextOn : null]}>{item.physical_name}</Text>
 									</TouchableOpacity>
 								)
 							})}							
@@ -1620,13 +2287,14 @@ const MyInfo = (props) => {
 									return (
 										<TouchableOpacity
 											key={index}
-											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realDrink == item.txt ? styles.popRadioBoxBtnOn : null]}
+											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realDrink == item.val ? styles.popRadioBoxBtnOn : null]}
 											activeOpacity={opacityVal}
 											onPress={()=>{
-												setRealDrink(item.txt);									
+												setRealDrink(item.val);
+												setRealDrinkText(item.txt);
 											}}
 										>
-											<Text style={[styles.popRadioBoxBtnText, realDrink == item.txt ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
+											<Text style={[styles.popRadioBoxBtnText, realDrink == item.val ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
 										</TouchableOpacity>
 									)
 								})}
@@ -1641,19 +2309,24 @@ const MyInfo = (props) => {
 									return (
 										<TouchableOpacity
 											key={index}
-											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realSmoke == item.txt ? styles.popRadioBoxBtnOn : null]}
+											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realSmoke == item.val ? styles.popRadioBoxBtnOn : null]}
 											activeOpacity={opacityVal}
 											onPress={()=>{
-												setRealSmoke(item.txt);									
+												if(item.val == 0){
+													setRealSmokeSort();
+													setRealSmokeSortText('');
+												}
+												setRealSmoke(item.val);									
+												setRealSmokeText(item.txt);
 											}}
 										>
-											<Text style={[styles.popRadioBoxBtnText, realSmoke == item.txt ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
+											<Text style={[styles.popRadioBoxBtnText, realSmoke == item.val ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
 										</TouchableOpacity>
 									)
 								})}
 							</View>
 						</View>
-						{realSmoke != '' && realSmoke != '비흡연' ? (
+						{realSmoke && realSmoke != 0 ? (
 						<View style={[styles.popRadioBox, styles.mgt30]}>
 							<View style={styles.popRadioTitle}>
 								<Text style={styles.popRadioTitleText}>종류</Text>
@@ -1663,13 +2336,14 @@ const MyInfo = (props) => {
 									return (
 										<TouchableOpacity
 											key={index}
-											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realSmokeSort == item.txt ? styles.popRadioBoxBtnOn : null]}
+											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realSmokeSort == item.val ? styles.popRadioBoxBtnOn : null]}
 											activeOpacity={opacityVal}
 											onPress={()=>{
-												setRealSmokeSort(item.txt);									
+												setRealSmokeSort(item.val);
+												setRealSmokeSortText(item.txt);
 											}}
 										>
-											<Text style={[styles.popRadioBoxBtnText, realSmokeSort == item.txt ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
+											<Text style={[styles.popRadioBoxBtnText, realSmokeSort == item.val ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
 										</TouchableOpacity>
 									)
 								})}
@@ -1809,7 +2483,7 @@ const MyInfo = (props) => {
 												if(mbti3 == 'S'){
 													setMbti4('N');
 												}else{
-													setMbti4('S');
+													setMbti4('N');
 												}			
 											}else{
 												setMbti4('');
@@ -1817,7 +2491,7 @@ const MyInfo = (props) => {
 										}
 									}}
 								>
-									{mbti4 != '' ? (
+									{mbti4 != '' ? (										
 										<View style={styles.popRadioBoxBtn4Img}>
 											<ImgDomain fileWidth={30} fileName={'mbti_2_on.png'}/>
 										</View>
@@ -1999,15 +2673,15 @@ const MyInfo = (props) => {
 								return(
 									<TouchableOpacity
 										key={index}
-										style={[styles.popRadioBoxBtn, item.txt == realRel ? styles.popRadioBoxBtnOn : null]}
+										style={[styles.popRadioBoxBtn, item.religion_idx == realRel ? styles.popRadioBoxBtnOn : null]}
 										activeOpacity={opacityVal}
 										onPress={()=>{
 											setPopRel(false);
-											setRealRel(item.txt);
+											setRealRel(item.religion_idx);
 											setPreventBack(false);
 										}}
 									>
-										<Text style={[styles.popRadioBoxBtnText, item.txt == realRel ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
+										<Text style={[styles.popRadioBoxBtnText, item.religion_idx == realRel ? styles.popRadioBoxBtnTextOn : null]}>{item.religion_name}</Text>
 									</TouchableOpacity>
 								)
 							})}
@@ -2019,9 +2693,10 @@ const MyInfo = (props) => {
 
 			{loading ? (
       <View style={[styles.indicator]}>
-        <ActivityIndicator size="large" color="#D1913C" />
+        <ActivityIndicator size="large" color="#fff" />
       </View>
       ) : null}
+
 		</SafeAreaView>
 	)
 }
@@ -2029,7 +2704,7 @@ const MyInfo = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
 	gapBox: {height:86,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
 	regiStateBarBox: {paddingTop:30,paddingBottom:56,paddingHorizontal:55,overflow:'hidden'},
   regiStateBar: {height:18,backgroundColor:'#eee',borderRadius:20,flexDirection:'row',justifyContent:'space-between'},
@@ -2195,4 +2870,14 @@ const styles = StyleSheet.create({
 	pdb0: {paddingBottom:0},
 })
 
-export default MyInfo
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+		member_logout: (user) => dispatch(UserAction.member_logout(user)), //로그아웃
+		member_out: (user) => dispatch(UserAction.member_out(user)), //회원탈퇴
+	})
+)(MyInfo);

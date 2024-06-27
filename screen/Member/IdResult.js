@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
@@ -17,11 +18,12 @@ const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
-const IdResult = ({navigation, route}) => {	
+const IdResult = (props) => {	
+	const {navigation, route} = props;
+	const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
-  const [certnumber, setCertnumber] = useState('');
-  const [certSt, setCertSt] = useState(false);
+  const [id, setId] = useState(params?.result_id);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -49,7 +51,7 @@ const IdResult = ({navigation, route}) => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.cmWrap}>
             <View style={styles.cmTitleBox}>
-              <Text style={styles.cmTitleText}>physical123</Text>
+              <Text style={styles.cmTitleText}>{id}</Text>
             </View>
 
             <View style={styles.cmDescBox}>
@@ -62,7 +64,7 @@ const IdResult = ({navigation, route}) => {
 				<TouchableOpacity 
 					style={[styles.nextBtn, styles.nextBtn3]}
 					activeOpacity={opacityVal}
-					onPress={() => navigation.navigate('FindPw')}
+					onPress={() => navigation.navigate('FindPw', {result_id:id})}
 				>
 					<Text style={[styles.nextBtnText, styles.nextBtnText3]}>비밀번호 찾기</Text>
 				</TouchableOpacity>

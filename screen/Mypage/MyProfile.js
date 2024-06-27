@@ -4,17 +4,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-handler'
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
+import RenderHtml from 'react-native-render-html';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
+
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -26,22 +30,52 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const MyProfile = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, member_info, member_logout, member_out, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
-	const [keyboardStatus, setKeyboardStatus] = useState(0);
+	const [memberIdx, setMemberIdx] = useState();
+	const [reject, setReject] = useState(false);
 
   const [file1, setFile1] = useState({});
+	const [file1Base, setFile1Base] = useState(0); //0:기존 없음, 1:기존 있음
+	const [file1St, setFile1St] = useState(0); //0:없음 1:그대로, 2:변경 또는 추가, 3:삭제
+	const [file1Idx, setFile1Idx] = useState();
+
 	const [file2, setFile2] = useState({});
+	const [file2Base, setFile2Base] = useState(0);
+	const [file2St, setFile2St] = useState(0);
+	const [file2Idx, setFile2Idx] = useState();
+
 	const [file3, setFile3] = useState({});
+	const [file3Base, setFile3Base] = useState(0);
+	const [file3St, setFile3St] = useState(0);
+	const [file3Idx, setFile3Idx] = useState();
+
 	const [file4, setFile4] = useState({});
+	const [file4Base, setFile4Base] = useState(0);
+	const [file4St, setFile4St] = useState(0);
+	const [file4Idx, setFile4Idx] = useState();
+
 	const [file5, setFile5] = useState({});
+	const [file5Base, setFile5Base] = useState(0);
+	const [file5St, setFile5St] = useState(0);
+	const [file5Idx, setFile5Idx] = useState();
+
 	const [file6, setFile6] = useState({});
+	const [file6Base, setFile6Base] = useState(0);
+	const [file6St, setFile6St] = useState(0);
+	const [file6Idx, setFile6Idx] = useState();
+
   const [file7, setFile7] = useState({});
+	const [file7Base, setFile7Base] = useState(0);
+	const [file7St, setFile7St] = useState(0);
+	const [file7Idx, setFile7Idx] = useState();
+
 	const [guideModal, setGuideModal] = useState(false);
+	const [guideCont, setGuideCont] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -54,6 +88,11 @@ const MyProfile = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
@@ -79,11 +118,63 @@ const MyProfile = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+	useEffect(() => {
+		getMemImg();
+		getGuideCont();
+	}, [memberIdx]);
+
+	const getMemImg = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyProfile",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    console.log(response);
+		if(response.code == 200){
+			setReject(false);
+			response.data.img.map((item, index) => {
+				if(index == 0){
+					setFile1(item);
+					setFile1Base(1);
+					setFile1St(1);
+					setFile1Idx(item.mti_idx);
+				}else if(index == 1){
+					setFile2(item);
+					setFile2Base(1);
+					setFile2St(1);
+					setFile2Idx(item.mti_idx);
+				}else if(index == 2){
+					setFile3(item);
+					setFile3Base(1);
+					setFile3St(1);
+					setFile3Idx(item.mti_idx);
+				}else if(index == 3){
+					setFile4(item);
+					setFile4Base(1);
+					setFile4St(1);
+					setFile4Idx(item.mti_idx);
+				}else if(index == 4){
+					setFile5(item);
+					setFile5Base(1);
+					setFile5St(1);
+					setFile5Idx(item.mti_idx);
+				}else if(index == 5){
+					setFile6(item);
+					setFile6Base(1);
+					setFile6St(1);
+					setFile6Idx(item.mti_idx);
+				}
+			})
+		}
+	}
+
 	const chooseImage = (v) => {
-		let imgWidth = 992;
-		let imgHeight = 992*1.355;
+		let imgWidth = 1024;
+		let imgHeight = 1024*1.355;
 		if(v == 7){
-			imgHeight = 992;
+			imgHeight = 1024;
 		}
 
     ImagePicker.openPicker({
@@ -95,18 +186,25 @@ const MyProfile = (props) => {
 			let selectObj = {idx: v, path: image.path, mime: image.mime}			
 			if(v == 1){
 				setFile1(selectObj);
+				setFile1St(2);
 			}else if(v == 2){
 				setFile2(selectObj);
+				setFile2St(2);
 			}else if(v == 3){
 				setFile3(selectObj);
+				setFile3St(2);
 			}else if(v == 4){
 				setFile4(selectObj);
+				setFile4St(2);
 			}else if(v == 5){
 				setFile5(selectObj);
+				setFile5St(2);
 			}else if(v == 6){
 				setFile6(selectObj);
+				setFile6St(2);
 			}else if(v == 7){
 				setFile7(selectObj);
+				setFile7St(2);
 			}
 		})
 		.finally(() => {
@@ -114,23 +212,131 @@ const MyProfile = (props) => {
 		});
   };
 
-	const submit = () => {
-    const nextObj = {};
-
-		if(!file1.path || !file2.path || !file3.path){
+	const submit = async () => {
+		if((!file1.path && !file1.mti_img) || (!file2.path && !file2.mti_img) || (!file3.path && !file3.mti_img)){
 			ToastMessage('대표 및 필수 영역의 사진을 등록해 주세요.');
 			return false;
-		}		
+		}
+
+		const fileData = [];
+		const idxData = [];
+
+		if(file1St == 2){		
+			fileData[fileData.length] = {uri: file1.path, name: 'profile1.png', type: file1.mime}; 
+			if(file1Idx){ idxData.push(file1Idx); }
+		}
+
+		if(file2St == 2){
+			console.log('2');
+			fileData[fileData.length] = {uri: file2.path, name: 'profile2.png', type: file2.mime};
+			if(file2Idx){ idxData.push(file2Idx); }
+		}
+
+		if(file3St == 2){
+			fileData[fileData.length] = {uri: file3.path, name: 'profile3.png', type: file3.mime};
+			if(file3Idx){ idxData.push(file3Idx); }
+		}
+
+		if(file4St == 2 || file4St == 3){
+			if(file4St == 2){
+				fileData[fileData.length] = {uri: file4.path, name: 'profile4.png', type: file4.mime}; 
+			}
+			if(file4Idx){ idxData.push(file4Idx); }
+		}
+
+		if(file5St == 2 || file5St == 3){
+			if(file5St == 2){
+				fileData[fileData.length] = {uri: file5.path, name: 'profile5.png', type: file5.mime}; 
+			}
+			if(file5Idx){ idxData.push(file5Idx); }
+		}
+
+		if(file6St == 2 || file6St == 3){
+			if(file6St == 2){
+				fileData[fileData.length] = {uri: file6.path, name: 'profile6.png', type: file6.mime}; 
+			}
+			if(file6Idx){ idxData.push(file6Idx); }
+		}
+
+		const miniFileData = [];
+		const miniIdxData = [];
+		if(file7St == 2 || file7St == 3){
+			if(file7St == 2){
+				miniFileData.push({uri: file7.path, name: 'mini_profile.png', type: file7.mime}); 
+			}
+			if(file7Idx){ miniIdxData.push(file7Idx); }
+		}
+
+		// console.log('miniFileData ::: ', miniFileData);
+		// console.log('miniIdxData ::: ', miniIdxData);
+
+		if(fileData.length < 1 && idxData.length < 1 && miniFileData.length < 1 && miniIdxData.length < 1){
+			ToastMessage('변경된 내용이 없어 심사등록을 할 수 없습니다.');
+			return false;
+		}
 		
-    if(file1.path){ nextObj.file1 = file1; }
-		if(file2.path){ nextObj.file2 = file2; }
-    if(file3.path){ nextObj.file3 = file3; }
-    if(file4.path){ nextObj.file4 = file4; }
-    if(file5.path){ nextObj.file5 = file5; }
-    if(file6.path){ nextObj.file6 = file6; }
-    if(file7.path){ nextObj.file7 = file7; }
-		
-		console.log(nextObj);
+		// console.log('fileData ::: ', fileData);
+		// console.log('idxData ::: ', idxData);
+
+		let sData = {
+			basePath: "/api/member/",
+			type: "SetProfileImg",
+			member_idx: memberIdx,
+			member_files: fileData,
+			chk_idx: idxData,
+			mini_files: miniFileData,
+			chk_mini_idx: miniIdxData,
+		};
+
+		const formData = APIs.makeFormData(sData)		
+		const response = await APIs.multipartRequest(formData);    
+		//console.log(response);
+		if(response.code == 200){
+			ToastMessage('심사 등록이 완료되었습니다.');
+
+			setTimeout(function(){
+				navigation.navigate('ProfieModify', {reload:true});
+			}, 500);
+		}
+	}
+
+	const deleteImg = (v) => {
+		if(v == 1){
+			setFile1({});
+			if(file1Base == 1){ setFile1St(3); }else{ setFile1St(0); }			
+		}else if(v == 2){
+			setFile2({});
+			if(file2Base == 1){ setFile2St(3); }else{ setFile2St(0); }			
+		}else if(v == 3){
+			setFile3({});
+			if(file3Base == 1){ setFile3St(3); }else{ setFile3St(0); }			
+		}else if(v == 4){
+			setFile4({});
+			if(file4Base == 1){ setFile4St(3); }else{ setFile4St(0); }			
+		}else if(v == 5){
+			setFile5({});
+			if(file5Base == 1){ setFile5St(3); }else{ setFile5St(0); }			
+		}else if(v == 6){
+			setFile6({});
+			if(file6Base == 1){ setFile6St(3); }else{ setFile6St(0); }			
+		}else if(v == 7){
+			setFile7({});
+			if(file7Base == 1){ setFile7St(3); }else{ setFile7St(0); }			
+		}
+	}
+
+	const getGuideCont = async () => {
+		let sData = {      
+      basePath: "/api/etc/",
+			type: "GetProfileGuide",
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			const source = {
+        html: response.data
+      };
+      setGuideCont(source);
+		}
 	}
 
 	const headerHeight = 48;
@@ -140,15 +346,15 @@ const MyProfile = (props) => {
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'프로필 사진'} />
-
-      <View style={styles.reject}>
-       <View style={styles.rejectBox}>
-          <Text style={styles.rejectText}>반려 사유 메세지</Text>
-        </View>
-      </View>
-
 			<ScrollView>
-        <View style={styles.cmWrap}>
+        <View style={[styles.cmWrap, reject ? styles.cmWrap2 : null ]}>
+					{reject ? (
+					<View style={styles.reject}>
+						<View style={styles.rejectBox}>
+							<Text style={styles.rejectText}>반려 사유 메세지</Text>
+						</View>
+					</View>
+					) : null}
 					<View style={styles.regiTypingView}>
 						<View style={styles.cmTitleBox}>
 							<Text style={styles.cmTitleText}>사진을 등록해 주세요!</Text>
@@ -159,80 +365,110 @@ const MyProfile = (props) => {
 					</View>
 
 					<View style={styles.imgBox}>
-						<TouchableOpacity
-							style={[styles.imgBtn]}
-							activeOpacity={opacityVal}
-							onPress={() => {chooseImage(1)}}
-						>
-							{file1.path ? (
-								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file1.path }} />
-							) : (
-								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
-							)}							
-							<Text style={styles.imgText}>대표</Text>
-						</TouchableOpacity>
+						<View style={styles.imgBoxView}>
+							{file1.path || file1.mti_img ? (
+								<TouchableOpacity style={[styles.imgBtnClose]} activeOpacity={opacityVal} onPress={() => {deleteImg(1)}}>
+									<ImgDomain fileWidth={20} fileName={'icon_power_x.png'}/>
+								</TouchableOpacity>
+							) : null}
+							<TouchableOpacity
+								style={[styles.imgBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {chooseImage(1)}}
+							>
+								{file1.mti_img ? (<ImgDomain2 fileWidth={(innerWidth/3)-7} fileName={file1.mti_img}/>) : null}
+								{file1.path ? (<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file1.path }} />) : null}
+								{!file1.path && !file1.mti_img ? (<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>) : null}
+								<Text style={styles.imgText}>대표</Text>
+							</TouchableOpacity>
+						</View>
+						
+						<View style={styles.imgBoxView}>
+							{file2.path || file2.mti_img ? (
+								<TouchableOpacity style={[styles.imgBtnClose]} activeOpacity={opacityVal} onPress={() => {deleteImg(2)}}>
+									<ImgDomain fileWidth={20} fileName={'icon_power_x.png'}/>
+								</TouchableOpacity>
+							) : null}
+							<TouchableOpacity
+								style={[styles.imgBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {chooseImage(2)}}
+							>
+								{file2.mti_img ? (<ImgDomain2 fileWidth={(innerWidth/3)-7} fileName={file2.mti_img}/>) : null}
+								{file2.path ? (<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file2.path }} />) : null}
+								{!file2.path && !file2.mti_img ? (<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>) : null}
+								<Text style={styles.imgText}>필수</Text>
+							</TouchableOpacity>
+						</View>
 
-						<TouchableOpacity
-							style={[styles.imgBtn]}
-							activeOpacity={opacityVal}
-							onPress={() => {chooseImage(2)}}
-						>
-							{file2.path ? (
-								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file2.path }} />
-							) : (
-								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
-							)}
-							<Text style={styles.imgText}>필수</Text>
-						</TouchableOpacity>
+						<View style={styles.imgBoxView}>
+							{file3.path || file3.mti_img ? (
+								<TouchableOpacity style={[styles.imgBtnClose]} activeOpacity={opacityVal} onPress={() => {deleteImg(3)}}>
+									<ImgDomain fileWidth={20} fileName={'icon_power_x.png'}/>
+								</TouchableOpacity>
+							) : null}
+							<TouchableOpacity
+								style={[styles.imgBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {chooseImage(3)}}
+							>
+								{file3.mti_img ? (<ImgDomain2 fileWidth={(innerWidth/3)-7} fileName={file3.mti_img}/>) : null}
+								{file3.path ? (<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file3.path }} />) : null}
+								{!file3.path && !file3.mti_img ? (<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>) : null}
+								<Text style={styles.imgText}>필수</Text>
+							</TouchableOpacity>
+						</View>
 
-						<TouchableOpacity
-							style={[styles.imgBtn]}
-							activeOpacity={opacityVal}
-							onPress={() => {chooseImage(3)}}
-						>
-							{file3.path ? (
-								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file3.path }} />
-							) : (
-								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
-							)}
-							<Text style={styles.imgText}>필수</Text>
-						</TouchableOpacity>
+						<View style={[styles.imgBoxView, styles.mgt10]}>
+							{file4.path || file4.mti_img ? (
+								<TouchableOpacity style={[styles.imgBtnClose]} activeOpacity={opacityVal} onPress={() => {deleteImg(4)}}>
+									<ImgDomain fileWidth={20} fileName={'icon_power_x.png'}/>
+								</TouchableOpacity>
+							) : null}
+							<TouchableOpacity
+								style={[styles.imgBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {chooseImage(4)}}
+							>
+								{file4.mti_img ? (<ImgDomain2 fileWidth={(innerWidth/3)-7} fileName={file4.mti_img}/>) : null}
+								{file4.path ? (<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file4.path }} />) : null}
+								{!file4.path && !file4.mti_img ? (<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>) : null}
+							</TouchableOpacity>
+						</View>
 
-						<TouchableOpacity
-							style={[styles.imgBtn, styles.mgt10]}
-							activeOpacity={opacityVal}
-							onPress={() => {chooseImage(4)}}
-						>
-							{file4.path ? (
-								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file4.path }} />
-							) : (
-								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
-							)}
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							style={[styles.imgBtn, styles.mgt10]}
-							activeOpacity={opacityVal}
-							onPress={() => {chooseImage(5)}}
-						>
-							{file5.path ? (
-								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file5.path }} />
-							) : (
-								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
-							)}
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							style={[styles.imgBtn, styles.mgt10]}
-							activeOpacity={opacityVal}
-							onPress={() => {chooseImage(6)}}
-						>
-							{file6.path ? (
-								<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file6.path }} />
-							) : (
-								<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>
-							)}
-						</TouchableOpacity>
+						<View style={[styles.imgBoxView, styles.mgt10]}>
+							{file5.path || file5.mti_img ? (
+								<TouchableOpacity style={[styles.imgBtnClose]} activeOpacity={opacityVal} onPress={() => {deleteImg(5)}}>
+									<ImgDomain fileWidth={20} fileName={'icon_power_x.png'}/>
+								</TouchableOpacity>
+							) : null}
+							<TouchableOpacity
+								style={[styles.imgBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {chooseImage(5)}}
+							>
+								{file5.mti_img ? (<ImgDomain2 fileWidth={(innerWidth/3)-7} fileName={file5.mti_img}/>) : null}
+								{file5.path ? (<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file5.path }} />) : null}
+								{!file5.path && !file5.mti_img ? (<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>) : null}
+							</TouchableOpacity>
+						</View>
+						
+						<View style={[styles.imgBoxView, styles.mgt10]}>
+							{file6.path || file6.mti_img ? (
+								<TouchableOpacity style={[styles.imgBtnClose]} activeOpacity={opacityVal} onPress={() => {deleteImg(6)}}>
+									<ImgDomain fileWidth={20} fileName={'icon_power_x.png'}/>
+								</TouchableOpacity>
+							) : null}
+							<TouchableOpacity
+								style={[styles.imgBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {chooseImage(6)}}
+							>
+								{file6.mti_img ? (<ImgDomain2 fileWidth={(innerWidth/3)-7} fileName={file6.mti_img}/>) : null}
+								{file6.path ? (<AutoHeightImage width={(innerWidth/3)-7} source={{ uri: file6.path }} />) : null}
+								{!file6.path && !file6.mti_img ? (<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'img_back.jpg'}/>) : null}
+							</TouchableOpacity>
+						</View>
 					</View>
 
 					<TouchableOpacity
@@ -240,6 +476,7 @@ const MyProfile = (props) => {
 						activeOpacity={opacityVal}
 						onPress={()=>{
 							setGuideModal(true);
+							setPreventBack(true);
 						}}
 					>
 						<Text style={styles.guideBtnText}>사진 등록 가이드</Text>
@@ -281,13 +518,15 @@ const MyProfile = (props) => {
                     <Text style={styles.reqUserDetailText}>수락까지 잠시 기다려주세요!</Text>
                   </View>
                 </View>
+								{file7.path ? (
                 <TouchableOpacity
                   style={styles.reqOkBtn}
                   activeOpacity={opacityVal}
-                  onPress={() => setFile7({})}
+                  onPress={() => deleteImg(7)}
                 >
 									<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
                 </TouchableOpacity>
+								) : null}
               </View>
             </View>
           </View>
@@ -296,7 +535,7 @@ const MyProfile = (props) => {
 
       <View style={styles.nextFix}>
         <TouchableOpacity 
-					style={[styles.nextBtn, file1.path && file2.path && file3.path ? null : styles.nextBtnOff]}
+					style={[styles.nextBtn, (file1.path || file1.mti_img) && (file2.path || file2.mti_img) && (file3.path || file3.mti_img) ? null : styles.nextBtnOff]}
 					activeOpacity={opacityVal}
 					onPress={() => submit()}
 				>
@@ -307,7 +546,10 @@ const MyProfile = (props) => {
       <Modal
 				visible={guideModal}
 				animationType={"none"}
-				onRequestClose={() => {setGuideModal(false)}}
+				onRequestClose={() => {
+					setGuideModal(false);
+					setPreventBack(false);
+				}}
 			>
 				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
 				<View style={styles.header}>	
@@ -315,14 +557,20 @@ const MyProfile = (props) => {
 					<TouchableOpacity
 						style={styles.headerBackBtn2}
 						activeOpacity={opacityVal}
-						onPress={() => {setGuideModal(false)}}						
+						onPress={() => {
+							setGuideModal(false);
+							setPreventBack(false);
+						}}						
 					>
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
 				<ScrollView>
 					<View style={styles.guidePopCont}>
-						<Text style={styles.guidePopContText}>사진 심사 기준입니다.</Text>
+						<RenderHtml
+              contentWidth={widnowWidth}
+              source={guideCont}            
+            />
 					</View>
 				</ScrollView>
 			</Modal>
@@ -341,11 +589,12 @@ const styles = StyleSheet.create({
 	gapBox: {height:80,},
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
-  reject: {paddingHorizontal:20,paddingBottom:10,},
+  reject: {marginBottom:30,},
   rejectBox: {padding:15,backgroundColor:'rgba(255,120,122,0.1)',borderRadius:5,},
   rejectText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#DE282A'},
 
   cmWrap: {paddingTop:30,paddingBottom:50,paddingHorizontal:20},
+	cmWrap2: {paddingTop:0,},
 	cmTitleBox: {position:'relative'},
 	cmTitleText: { fontFamily: Font.NotoSansSemiBold, fontSize: 22, lineHeight: 25, color: '#1e1e1e', position: 'relative', zIndex: 10, paddingLeft:1, },
 	cmTitleLine: { width: 61, height: 14, backgroundColor: '#ffd194', position: 'absolute',left:0,bottom:-1,zIndex:9,opacity:0.3},
@@ -402,6 +651,8 @@ const styles = StyleSheet.create({
 	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},
 
 	imgBox: {flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between',alignItems:'flex-start',marginTop:30,},
+	imgBoxView: {position:'relative'},
+	imgBtnClose: {alignItems:'center',justifyContent:'center',width:25,height:25,backgroundColor:'#fff',borderRadius:50,position:'absolute',top:-10,right:-10,zIndex:10,},
 	imgBtn: {borderRadius:5,overflow:'hidden',position:'relative',borderWidth:1,borderColor:'#EDEDED'},
 	imgText: {width:43,height:21,backgroundColor:'#fff',borderRadius:50,fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:21,textAlign:'center',color:'#243B55',position:'absolute',right:5,bottom:5,},
 

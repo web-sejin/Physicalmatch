@@ -21,6 +21,9 @@ import {connect} from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
+
+import APIs from "../assets/APIs";
+import ToastMessage from "../components/ToastMessage";
 import Font from '../assets/common/Font';
 import ImgDomain from '../assets/common/ImgDomain';
 import messaging from '@react-native-firebase/messaging';
@@ -40,9 +43,36 @@ const opacityVal = 0.8;
 
 const TabBarMenu = (props) => {
   const {state, navigation, chatInfo} = props;
+  const [memberIdx, setMemberIdx] = useState();
+  const [memberType, setMemberType] = useState(0);
   const screenName = state.routes[state.index].name; 
 
   //console.log('screenName : ',screenName);
+  useEffect(() => {
+    AsyncStorage.getItem('member_idx', (err, result) => {		
+      //console.log('member_idx :::: ', result);		
+      setMemberIdx(result);
+    });
+  }, []);
+
+  useEffect(() => {
+    if(memberIdx){
+      getMemInfo();
+    }
+  }, [memberIdx]);
+
+  const getMemInfo = async () => {
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+	
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+		  setMemberType(response.data.member_type);
+    }
+  }
 
   return (
     <>
@@ -51,7 +81,12 @@ const TabBarMenu = (props) => {
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
         onPress={() => {
-          navigation.navigate('Home');
+          if(memberType == 1){
+            navigation.navigate('Home');
+          }else{
+            ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+            return false;
+          }          
         }}
       >
         <View style={styles.tabIcon}>

@@ -6,8 +6,10 @@ import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/n
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import AsyncStorage from '@react-native-community/async-storage';
 import {connect} from 'react-redux';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
@@ -21,33 +23,6 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const MyPoint = (props) => {
-	const pointData = [
-		[
-			'2024.05.16',
-			[
-				{idx:1, time:'00:00:00', useType:'사용', useMethod:'사용 사유', usePoint:100, remainPoint:200},
-				{idx:2, time:'00:00:00', useType:'충전', useMethod:'하트 충전', usePoint:150, remainPoint:300},
-				{idx:3, time:'00:00:00', useType:'사용', useMethod:'사용 사유', usePoint:200, remainPoint:400},
-			]
-		],
-		[
-			'2024.05.15',
-			[
-				{idx:4, time:'00:00:00', useType:'사용', useMethod:'사용 사유', usePoint:100, remainPoint:200},
-				{idx:5, time:'00:00:00', useType:'충전', useMethod:'하트 충전', usePoint:150, remainPoint:300},
-				{idx:6, time:'00:00:00', useType:'사용', useMethod:'사용 사유', usePoint:200, remainPoint:400},
-			]
-		],
-		[
-			'2024.05.14',
-			[
-				{idx:7, time:'00:00:00', useType:'사용', useMethod:'사용 사유', usePoint:100, remainPoint:200},
-				{idx:8, time:'00:00:00', useType:'충전', useMethod:'하트 충전', usePoint:150, remainPoint:300},
-				{idx:9, time:'00:00:00', useType:'사용', useMethod:'사용 사유', usePoint:200, remainPoint:400},
-			]
-		],
-	];
-
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route
@@ -57,8 +32,9 @@ const MyPoint = (props) => {
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [refreshing, setRefreshing] = useState(false);
-	const [pointList, setPointList] = useState(pointData);
-	const [currPoint, setCurrPoint] = useState('20,000');
+	const [pointList, setPointList] = useState([]);
+	const [currPoint, setCurrPoint] = useState(0);
+	const [memberIdx, setMemberIdx] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -71,6 +47,10 @@ const MyPoint = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
@@ -95,29 +75,57 @@ const MyPoint = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+	useEffect(() => {
+		if(memberIdx){
+			getMyPoint();
+		}
+	}, [memberIdx]);
+
+	const getMyPoint = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetPointList",
+			member_idx: 1,
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			if(response.msg == 'EMPTY'){
+				setPointList([]);
+				setCurrPoint(0);
+			}else if(response.data.length > 0){
+				setPointList(response.data);
+				setCurrPoint(response.data[0].list[0].pl_left_point);
+			}
+		}
+	}
+
 	const getList = ({item, index}) => (		
 		<View style={styles.pointDateView}>
 			<View style={styles.pointDate}>
-				<Text style={styles.pointDateText}>{item[0]}</Text>
+				<Text style={styles.pointDateText}>{item.date}</Text>
 			</View>
 			<View style={styles.pointDateBox}>
-				{item[1].map((item2, index2) => {
+				{item.list.map((item2, index2) => {					
 					return (
 						<View key={index2} style={styles.pointDateBoxWrap}>
 							<View style={styles.pointUse}>
-								<Text style={styles.pointUseDate}>{item2.time}</Text>
-								<Text style={[styles.pointUseType, item2.useType == '사용' ? styles.blue : null, item2.useType == '충전' ? styles.red : null]}>{item2.useType}</Text>
+								<Text style={styles.pointUseDate}>{item2.created_His}</Text>
+								{item2.pl_type == 0 ? (
+									<Text style={[styles.pointUseType, styles.red]}>충전</Text>
+								) : (
+									<Text style={[styles.pointUseType, styles.blue]}>사용</Text>
+								)}								
 							</View>
 							<View style={styles.pointUseMethod}>
-								<Text style={styles.pointUseMethodText}>{item2.useMethod}</Text>
-								<Text style={[styles.pointUsePoint, item2.useType == '사용' ? styles.blue : null, item2.useType == '충전' ? styles.red : null]}>{item2.usePoint}</Text>
+								<Text style={styles.pointUseMethodText}>{item2.pl_content}</Text>
+								<Text style={[styles.pointUsePoint, item2.pl_type == 0 ? styles.red : null, item2.pl_type == 1 ? styles.blue : null]}>{item2.pl_point}</Text>
 							</View>
 							<View style={styles.pointRemain}>
-								<Text style={[styles.pointRemainText]}>{item2.remainPoint}</Text>
+								<Text style={[styles.pointRemainText]}>{item2.pl_left_point}</Text>
 							</View>
 						</View>
 					)
-				})}
+				})}					
 			</View>
 		</View>
 	)
@@ -196,17 +204,11 @@ const MyPoint = (props) => {
 				ListFooterComponent={
 					<View style={{height:50,backgroundColor:'#fff'}}></View>
 				}
-				// ListEmptyComponent={
-				// 	isLoading ? (
-				// 	<View style={styles.notData}>
-				// 		<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
-				// 	</View>
-				// 	) : (
-				// 		<View style={[styles.indicator]}>
-				// 			<ActivityIndicator size="large" />
-				// 		</View>
-				// 	)
-				// }
+				ListEmptyComponent={
+					<View style={styles.notData}>
+						<Text style={styles.notDataText}>포인트를 사용한 내역이 없습니다.</Text>
+					</View>
+				}
 			/>	
 
 			{loading ? (
@@ -255,6 +257,9 @@ const styles = StyleSheet.create({
 	pointUsePoint: {fontFamily:Font.NotoSansBold,fontSize:14,lineHeight:17,},
 	pointRemain: {alignItems:'flex-end'},
 	pointRemainText: {textAlign:'right',fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#1e1e1e'},
+
+	notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	red: {color:'#F22D2D'},
 	blue: {color:'#116FDA'},

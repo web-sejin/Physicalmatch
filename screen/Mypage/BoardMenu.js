@@ -112,13 +112,21 @@ const BoardMenu = (props) => {
           >
             <Text style={styles.btnText}>피지컬 매치란?</Text>
             <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
-          </TouchableOpacity>
+          </TouchableOpacity>          
           <TouchableOpacity
             style={[styles.btn, styles.btnLine]}
             activeOpacity={opacityVal}
             onPress={()=>{navigation.navigate('CsCenter')}}
           >
             <Text style={styles.btnText}>고객센터</Text>
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.btn, styles.btnLine]}
+            activeOpacity={opacityVal}
+            onPress={()=>{navigation.navigate('CompanyInfo')}}
+          >
+            <Text style={styles.btnText}>사업자 정보</Text>
             <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
         </View>

@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
@@ -35,7 +36,9 @@ const RegisterStep2 = ({ navigation, route }) => {
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
   const [active, setActive] = useState(false);
+  const [routeList, setRouteList] = useState([]);
   const [accessRoute, setAccessRoute] = useState(0);
+  const [loading, setLoading] = useState(false);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -53,6 +56,21 @@ const RegisterStep2 = ({ navigation, route }) => {
 		Toast.hide();
 		return () => isSubscribed = false;
   }, [isFocused]);
+
+  useEffect(() => {
+    setLoading(true);
+    getRoute();    
+  }, []);
+
+  const getRoute = async () => {
+    let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetConnectList",
+		}
+		const response = await APIs.send(sData); 
+    setRouteList(response.data);
+    setLoading(false);
+  }
   
   const nextStep = () => {
     if (accessRoute == 0) {
@@ -89,27 +107,27 @@ const RegisterStep2 = ({ navigation, route }) => {
               </View>
 
               <View style={styles.certBox}>
-                {radioList.map((item, index) => {
+                {routeList.map((item, index) => {                  
                   return (
                     <TouchableOpacity 
                       key={index}
-                      style={[styles.radioBtn, index != 0 ? styles.mgt10 : null, item.val == accessRoute ? styles.radioBtnOn : null]}
+                      style={[styles.radioBtn, index != 0 ? styles.mgt10 : null, item.cp_idx == accessRoute ? styles.radioBtnOn : null]}
                       activeOpacity={opacityVal}
                       onPress={() => {
-                        setAccessRoute(item.val);
+                        setAccessRoute(item.cp_idx);
                         setActive(true);
                       }}
                     >
-                      {item.val == accessRoute ? (
+                      {item.cp_idx == accessRoute ? (
                         <>
-                        <Text style={[styles.radioBtnLabel, styles.radioBtnLabelOn]}>{item.txt}</Text>
+                        <Text style={[styles.radioBtnLabel, styles.radioBtnLabelOn]}>{item.cp_name}</Text>
                         <View style={[styles.circle, styles.circleOn]}>
                           <View style={styles.innerCircle}></View>
                         </View>
                         </>
                       ) : (
                         <>
-                        <Text style={[styles.radioBtnLabel]}>{item.txt}</Text>
+                        <Text style={[styles.radioBtnLabel]}>{item.cp_name}</Text>
                         <View style={styles.circle}></View>
                         </>    
                       )}
@@ -129,7 +147,13 @@ const RegisterStep2 = ({ navigation, route }) => {
             <Text style={styles.nextBtnText}>다음</Text>
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>      
+      </KeyboardAvoidingView> 
+
+      {loading ? (
+      <View style={[styles.indicator]}>
+        <ActivityIndicator size="large" color="#D1913C" />
+      </View>
+      ) : null}
 		</SafeAreaView>
 	)
 }
@@ -137,8 +161,7 @@ const RegisterStep2 = ({ navigation, route }) => {
 const styles = StyleSheet.create({
 	safeAreaView: {flex:1,backgroundColor:'#fff'},
 	gapBox: {height:80,backgroundColor:'#fff'},
-	indicator: {height:widnowHeight-185, display:'flex', alignItems:'center', justifyContent:'center'},
-  indicator2: { marginTop: 62 },
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
   
   cmWrap: {paddingVertical:30,paddingHorizontal:20},
   cmTitleBox: {},

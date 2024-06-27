@@ -65,6 +65,8 @@ import ModifyLogin from './Mypage/ModifyLogin';
 import Alim from './Mypage/Alim';
 import Shop from './Shop';
 import Shop2 from './Shop2';
+import CompanyInfo from './Mypage/CompanyInfo';
+import Disable from './Disable';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -152,6 +154,8 @@ const WholeStack = () => {
       <Stack.Screen name="Alim" component={Alim} />
       <Stack.Screen name="Shop" component={Shop} />
       <Stack.Screen name="Shop2" component={Shop2} />
+      <Stack.Screen name="CompanyInfo" component={CompanyInfo} />
+      <Stack.Screen name="Disable" component={Disable} />
     </Stack.Navigator>
   );
 };

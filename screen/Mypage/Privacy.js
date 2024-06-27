@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -35,9 +36,11 @@ const Privacy = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
+  const [privacy, setPrivacy] = useState('');
+  const [provision, setProvision] = useState('');
   const [st1, setSt1] = useState(false);
   const [st2, setSt2] = useState(false);
-  const [onOff, setOnOff] = useState();
+  const [onOff, setOnOff] = useState(true);
   const [onOffBg, setOnOffBg] = useState();
   const [onOffEvent, setOnOffEvent] = useState(new Animated.Value(0));
 
@@ -92,8 +95,35 @@ const Privacy = (props) => {
 		).start();
 	}, [onOff]);
 
+  useEffect(() => {
+    getPrivacy();
+    getProvision();
+  }, []);  
+
   const chgOnOff = async () => {
     setOnOff(!onOff);
+  }
+
+  const getPrivacy = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetTerms",
+			terms_num: 2,
+		};
+
+		const response = await APIs.send(sData);
+    setPrivacy(response.data);
+  }
+
+  const getProvision = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetTerms",
+			terms_num: 1,
+		};
+
+		const response = await APIs.send(sData);
+    setProvision(response.data);
   }
 
 	const headerHeight = 48;
@@ -125,7 +155,7 @@ const Privacy = (props) => {
             </TouchableOpacity>
             {st1 ? (
             <View style={styles.guidePopCont2}>
-              <Text style={styles.guidePopCont2Text}>내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. </Text>
+              <Text style={styles.guidePopCont2Text}>{privacy}</Text>
             </View>
             ) : null}
           </View>
@@ -148,7 +178,7 @@ const Privacy = (props) => {
             </TouchableOpacity>
             {st2 ? (
             <View style={styles.guidePopCont2}>
-              <Text style={styles.guidePopCont2Text}>내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. 내용이 입력됩니다. </Text>
+              <Text style={styles.guidePopCont2Text}>{provision}</Text>
             </View>
             ) : null}
           </View>
@@ -164,7 +194,10 @@ const Privacy = (props) => {
           <TouchableOpacity 
             style={[styles.onOffBtn, !onOff ? styles.onOffBtn2 : null]}
             activeOpacity={opacityVal}
-            onPress={()=>chgOnOff()}
+            onPress={()=>{
+              //chgOnOff();
+              ToastMessage('개인정보 및 이용약관 동의는 피지컬매치 이용기간 동안 필수항목으로 해제할 수 없습니다.');
+            }}
           >
             <Animated.View 
               style={{
@@ -197,13 +230,13 @@ const styles = StyleSheet.create({
 	guidePopContBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',position:'relative',paddingVertical:20,borderBottomWidth:1,borderBottomColor:'#DBDBDB'},
 	guidePopContBtn2: {borderBottomWidth:0,paddingBottom:11,},
 	guidePopContBtnTitle: {flexDirection:'row',alignItems:'center',},
-	guidePopContBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginLeft:2,},
+	guidePopContBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:18,color:'#1e1e1e',marginLeft:2,},
 	guidePopCont2: {paddingVertical:10,paddingHorizontal:15,backgroundColor:'#F9FAFB',borderBottomWidth:1,borderBottomColor:'#DBDBDB'},
 	guidePopCont2Text: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e',},
 
   onOff: {flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
   onOffInfo: {},
-  onOffInfoTitle: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},
+  onOffInfoTitle: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:18,color:'#1e1e1e'},
   onOffInfoDesc: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:16,color:'#888888',marginTop:7,},
   onOffBtn: {width:36,height:15,backgroundColor:'rgba(36,59,85,0.4)',borderRadius:20,position:'relative'},
   onOffBtn2: {backgroundColor:'#DBDBDB'},

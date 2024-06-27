@@ -4,24 +4,31 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
+
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
 
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
-const Login = ({navigation, route}) => {	
+const Login = (props) => {	
+	const {navigation, userInfo, member_info, member_login, route} = props;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
+	const [loading, setLoading] = useState(false);
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
+	const [deviceToken, setDeviceToken] = useState('');
+	const [firebaseToken, setFirebaseToken] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -34,6 +41,16 @@ const Login = ({navigation, route}) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('appToken', (err, result) => {
+				//console.log('appToken :::: ', result);
+				setFirebaseToken(result);
+			});
+	
+			AsyncStorage.getItem('deviceId', (err, result) => {		
+				//console.log('deviceId :::: ', result);		
+				setDeviceToken(result);
+			});
 		}
 		Keyboard.dismiss();
 		Toast.hide();
@@ -41,6 +58,9 @@ const Login = ({navigation, route}) => {
 	}, [isFocused]);
   
   const sendLogin = async () => {
+		let appToken = '';
+		let deviceId = '';
+		
 		if(!id || id == ""){
 			ToastMessage('아이디를 입력해 주세요.');
 			return false;
@@ -50,7 +70,57 @@ const Login = ({navigation, route}) => {
 			ToastMessage('비밀번호를 입력해 주세요.');
 			return false;
 		}
+
+		setLoading(true);
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "SetLogin",
+			member_id: id,
+			member_pw: pw,
+			device_id: deviceToken,
+			firebase_token: firebaseToken,
+		}
+		const response = await APIs.send(sData);
+		console.log(response);
+		if(response.code == 200){
+			setLoading(false);
+			AsyncStorage.setItem('member_id', id);
+			AsyncStorage.setItem('member_idx', response.data.member_idx);
+			saveRedux(response.data.member_idx, response.data.member_type);						
+		}else{
+			setLoading(false);
+			if(response.msg == 'INVALID ID'){
+				ToastMessage('아이디를 다시 확인해 주세요.');
+				return false;
+			}else if(response.msg == 'INVALID PW'){
+				ToastMessage('비밀번호를 다시 확인해 주세요.');
+				return false;
+			}
+		}
   }
+
+	const saveRedux = async (idx, type) => {
+			const formData = new FormData();
+			formData.append('type', 'GetMyInfo');
+			formData.append('member_idx', idx);
+			const mem_info = await member_info(formData);
+
+			const formData2 = new FormData();
+			formData2.append('type', 'SetLogin');
+			formData2.append('member_id', id);
+			formData2.append('member_pw', pw);
+			formData2.append('device_id', deviceToken);
+			formData2.append('firebase_token', firebaseToken);
+			//const mem_login = await member_login(formData2);
+			
+			//console.log('mem_info', mem_info);
+			if(type == 0){
+				navigation.navigate('RegisterResult');
+			}else if(type == 1){
+				navigation.navigate('TabNavigation', {screen:'Home'});
+			}
+	}
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -118,6 +188,12 @@ const Login = ({navigation, route}) => {
 					</TouchableOpacity>
 				</View>
       </KeyboardAvoidingView>
+
+			{loading ? (
+      <View style={[styles.indicator]}>
+        <ActivityIndicator size="large" color="#D1913C" />
+      </View>
+      ) : null}
 		</SafeAreaView>
 	)
 }
@@ -125,8 +201,7 @@ const Login = ({navigation, route}) => {
 const styles = StyleSheet.create({
 	safeAreaView: {flex:1,backgroundColor:'#fff'},
 	gapBox: {height:80,backgroundColor:'#fff'},
-	indicator: {height:widnowHeight-185, display:'flex', alignItems:'center', justifyContent:'center'},
-  indicator2: { marginTop: 62 },
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
   
   cmWrap: {paddingVertical:30,paddingHorizontal:20},
   cmTitleBox: {position:'relative'},
@@ -149,4 +224,13 @@ const styles = StyleSheet.create({
 	bold: {fontFamily:Font.NotoSansBold},
 })
 
-export default Login
+//export default Login
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		member_login: (user) => dispatch(UserAction.member_login(user)), //회원 로그인
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+	})
+)(Login);

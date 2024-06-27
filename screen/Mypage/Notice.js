@@ -6,8 +6,10 @@ import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/n
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-community/async-storage';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -39,7 +41,9 @@ const Notice = (props) => {
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-  const [noticeList, setNoticeList] = useState(data);
+	const [memberIdx, setMemberIdx] = useState();
+  const [noticeList, setNoticeList] = useState([]);
+	const [openIdx, setOpenIdx] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -52,6 +56,10 @@ const Notice = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
@@ -76,6 +84,22 @@ const Notice = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+	useEffect(() => {
+		getNoticeList();
+	}, []);	
+
+	const getNoticeList = async () => {
+		let sData = {      
+      basePath: "/api/etc/index.php",
+			type: "GetNotice",
+		}
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setNoticeList(response.data);
+		}
+	}
+
   const openCont = (v) => {
     let selectCon = noticeList.map((item) => {
 			if(item.idx === v){							
@@ -97,25 +121,32 @@ const Notice = (props) => {
       <TouchableOpacity
         style={[styles.guidePopContBtn, item.open ? styles.guidePopContBtn2 : null]}
         activeOpacity={opacityVal}
-        onPress={()=>{openCont(item.idx)}}
+        onPress={()=>{
+					//openCont(item.notice_idx);
+					if(item.notice_idx == openIdx){
+						setOpenIdx();
+					}else{
+						setOpenIdx(item.notice_idx);
+					}					
+				}}
       >
         <View style={{width:innerWidth-20}}>
           <View style={styles.guidePopContBtnTitle}>
-            <Text style={styles.guidePopContBtnText}>{item.subject}</Text>
+            <Text style={styles.guidePopContBtnText}>{item.notice_subject}</Text>
           </View>
           <View style={styles.guidePopContBtnDate}>
-            <Text style={styles.guidePopContBtnDateText}>{item.date}</Text>
+            <Text style={styles.guidePopContBtnDateText}>{item.created_at}</Text>
           </View>
         </View>
-        {item.open ? (
+        {item.notice_idx == openIdx ? (
 					<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
         ) : (
 					<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
         )}
       </TouchableOpacity>
-      {item.open ? (
+      {item.notice_idx == openIdx ? (
       <View style={styles.guidePopCont2}>
-        <Text style={styles.guidePopCont2Text}>{item.content}</Text>
+        <Text style={styles.guidePopCont2Text}>{item.notice_content}</Text>
       </View>
       ) : null}
     </View>
@@ -163,17 +194,11 @@ const Notice = (props) => {
 				onRefresh={onRefresh}
 				ListHeaderComponent={<View style={{height:10,backgroundColor:'#fff'}}></View>}
 				ListFooterComponent={<View style={{height:10,backgroundColor:'#fff'}}></View>}
-				// ListEmptyComponent={
-				// 	isLoading ? (
-				// 	<View style={styles.notData}>
-				// 		<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
-				// 	</View>
-				// 	) : (
-				// 		<View style={[styles.indicator]}>
-				// 			<ActivityIndicator size="large" />
-				// 		</View>
-				// 	)
-				// }
+				ListEmptyComponent={
+					<View style={styles.notData}>
+						<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
+					</View>	
+				}
 			/>	
 
 			{loading ? (
@@ -200,6 +225,9 @@ const styles = StyleSheet.create({
   guidePopContBtnDateText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#888'},
 	guidePopCont2: {paddingVertical:10,paddingHorizontal:15,backgroundColor:'#F9FAFB',borderBottomWidth:1,borderBottomColor:'#DBDBDB'},
 	guidePopCont2Text: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e',},
+
+	notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	red: {color:'#EE4245'},
 	gray: {color:'#B8B8B8'},

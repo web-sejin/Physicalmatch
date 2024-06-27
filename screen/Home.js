@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
-import {ActivityIndicator, Alert, Button, Dimensions, ImageBackground, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
+import {ActivityIndicator, Alert, Button, BackHandler, Dimensions, ImageBackground, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
@@ -7,6 +7,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
 
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+
+import APIs from "../assets/APIs"
 import Font from "../assets/common/Font";
 import ToastMessage from "../components/ToastMessage";
 import ImgDomain from '../assets/common/ImgDomain';
@@ -91,13 +95,15 @@ const Home = (props) => {
 		{ 'idx': 5, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
 		{ 'idx': 6, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },		
 	];
+
+	let timeOut;
 	
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
-	const {params} = route	
+	const {navigation, userInfo, member_info, route} = props;
+	const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
-	const [preventBack, setPreventBack] = useState(false);
+	const [backPressCount, setBackPressCount] = useState(0);
 	const [loading, setLoading] = useState(false);
 
 	const [tabState, setTabState] = useState(1); //추천, 관심	
@@ -141,7 +147,6 @@ const Home = (props) => {
 	const [distance2, setDistance2] = useState(50);
 	const [recentAccess, setRecentAccess] = useState(7);
 	const [prdIdx, setPrdIdx] = useState(1);
-	const [myAccount, setMyAccount] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -149,20 +154,44 @@ const Home = (props) => {
 
 		if(!isFocused){
 			
-		}else{
-			if(params['account'] && params['account'] == 'off'){
-				setMyAccount(false);
-			}else{
-				setMyAccount(true);
-			}						
+		}else{			
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			//console.log('userInfo ::: ', userInfo);
 		}
 
 		Keyboard.dismiss();
 		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
+
+	useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+				console.log(backPressCount);
+        if (backPressCount === 0) {
+          setBackPressCount(1);
+          ToastAndroid.show('한 번 더 누르면 종료됩니다.', ToastAndroid.SHORT);
+					
+          setTimeout(() => {
+            setBackPressCount(0);
+          }, 2000); // 2초 내에 두 번 클릭을 기다림
+
+          return true;
+        } else {
+          BackHandler.exitApp();
+          return true;
+        }
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+      return () => {
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+      };
+    }, [backPressCount])
+  );
 
 	useEffect(() => {
 		const date = new Date();
@@ -210,6 +239,38 @@ const Home = (props) => {
 			setLoading(false);
 		}, 300);
 	}, [])
+
+	useEffect(() => {
+		getTest();
+	}, [])
+
+	const getTest = async () => {
+		let sData = {
+			basePath: "/api/index.php",
+			type: "testOne",
+		}
+	
+		//const response = await APIs.send(sData);
+		//console.log('response ::: ', response.data[0].notice_content);
+	}
+
+	//리덕스 샘플
+	// const testApi = async (idx) => {
+	// 	const formData = new FormData();
+	// 	formData.append('type', 'GetMyProfile');
+	// 	formData.append('member_idx', 1);
+
+	// 	const mem_info = await member_info(formData);
+
+	// 	console.log('mem_info', mem_info);
+	// 	console.log('userInfo', userInfo);
+	// }
+
+	// useEffect(() => {
+	// 	//로그인 api가 성공했을 때 실행 시켜 리덕스에 담는다!!
+	// 	//정보수정도 같은 원리!!
+	// 	testApi(1);
+	// }, [])
 
 	const getMatchCard = async(v) => {
 		setTabState(v);
@@ -261,14 +322,6 @@ const Home = (props) => {
 		
 	}
 
-	const accountReset = async () => {
-		setLoading(true);
-		setTimeout(function(){
-			setLoading(false);
-			setMyAccount(true);
-		}, 1000);		
-	}
-
 	const saveFilterSubmit = async () => {
 		// console.log('a ::: ',realAgeMin-realAgeMax);
 		// console.log('b ::: ',realAgeMin2-realAgeMax2);
@@ -311,610 +364,801 @@ const Home = (props) => {
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
 
-			{myAccount ? (
-			<>
-				<View style={styles.header}>
-					<View style={styles.headerTop}>
-						<View style={styles.headerTitle}>
-							<Text style={styles.headerTitleText}>Matching</Text>
-						</View>
-						<View style={styles.headerLnb}>
-							<TouchableOpacity
-								style={styles.headerLnbBtn}
-								activeOpacity={opacityVal}
-								onPress={() => {setFilterPop(true)}}
-							>
-								<ImgDomain fileWidth={24} fileName={'icon_option.png'} />
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={styles.headerLnbBtn}
-								activeOpacity={opacityVal}
-								onPress={() => {navigation.navigate('Shop')}}
-							>
-								<ImgDomain fileWidth={24} fileName={'icon_shop.png'} />
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={styles.headerLnbBtn}
-								activeOpacity={opacityVal}
-								onPress={() => {navigation.navigate('Alim')}}
-							>
-								{/* <ImgDomain fileWidth={24} fileName={'icon_alim_off.png'} /> */}
-								<ImgDomain fileWidth={24} fileName={'icon_alim_on.png'} />
-							</TouchableOpacity>
-						</View>
+			<View style={styles.header}>
+				<View style={styles.headerTop}>
+					<View style={styles.headerTitle}>
+						<Text style={styles.headerTitleText}>Matching</Text>
 					</View>
-					<View style={styles.headerBot}>
+					<View style={styles.headerLnb}>
 						<TouchableOpacity
-							style={styles.headerTab}
+							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {getMatchCard(1)}}
+							onPress={() => {setFilterPop(true)}}
 						>
-							<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>추천카드</Text>
-							{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
+							<ImgDomain fileWidth={24} fileName={'icon_option.png'} />
 						</TouchableOpacity>
 						<TouchableOpacity
-							style={styles.headerTab}
+							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {getMatchCard(2)}}
+							onPress={() => {navigation.navigate('Shop')}}
 						>
-							<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>관심카드</Text>
-							{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
+							<ImgDomain fileWidth={24} fileName={'icon_shop.png'} />
+						</TouchableOpacity>
+						<TouchableOpacity
+							style={styles.headerLnbBtn}
+							activeOpacity={opacityVal}
+							onPress={() => {navigation.navigate('Alim')}}
+						>
+							{/* <ImgDomain fileWidth={24} fileName={'icon_alim_off.png'} /> */}
+							<ImgDomain fileWidth={24} fileName={'icon_alim_on.png'} />
 						</TouchableOpacity>
 					</View>
 				</View>
-
-				{tabState == 2 ? (
-				<View style={styles.state2Tab}>
+				<View style={styles.headerBot}>
 					<TouchableOpacity
-						style={styles.state2TabBtn}
+						style={styles.headerTab}
 						activeOpacity={opacityVal}
-						onPress={()=>{getInterest(1)}}
+						onPress={() => {getMatchCard(1)}}
 					>
-						<Text style={[styles.state2TabBtnText, tabState2 == 1 ? styles.state2TabBtnTextOn : null]}>찜&교환한 카드</Text>
+						<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>추천카드</Text>
+						{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 					<TouchableOpacity
-						style={styles.state2TabBtn}
+						style={styles.headerTab}
 						activeOpacity={opacityVal}
-						onPress={()=>{getInterest(2)}}
+						onPress={() => {getMatchCard(2)}}
 					>
-						<Text style={[styles.state2TabBtnText, tabState2 == 2 ? styles.state2TabBtnTextOn : null]}>호감 카드</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={styles.state2TabBtn}
-						activeOpacity={opacityVal}
-						onPress={()=>{getInterest(3)}}
-					>
-						<Text style={[styles.state2TabBtnText, tabState2 == 3 ? styles.state2TabBtnTextOn : null]}>매칭된 카드</Text>
+						<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>관심카드</Text>
+						{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 				</View>
-				) : null}
+			</View>
 
-				<ScrollView>
-					<View style={[styles.cmWrap, tabState == 1 ? styles.cmWrap2 : null]}>
-						{tabState == 1 && cardList.length > 0 ? (
-						<View>
-							<View style={styles.todayFreeArea}>
-								<View style={[styles.todayFreeAreaWrap, styles.boxShadow]}>
-									<LinearGradient
-										colors={['#D1913C', '#FFD194', '#D1913C']}
-										start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
-										style={[styles.grediant]}
-									>
-										{todayFree > 0 ? (
-											<TouchableOpacity
-												style={[styles.todayFreeBtn]}
-												activeOpacity={opacityVal}
-												onPress={() => {
-													// if(todayFree < 1){
-													// 	ToastMessage('이미 모두 사용했습니다.');
-													// 	return false;
-													// }
-													setTodayFree(todayFree - 1);
-												}}
-											>
-												<Text style={styles.todayFreeBtnText}>무료 소개 받기 ({todayFree}/2)</Text>
-											</TouchableOpacity>
-										) : (
-											<>
-											<TouchableOpacity
-												style={[styles.todayFreeBtn]}
-												activeOpacity={opacityVal}
-												onPress={() => setAddIntroPop(true)}
-											>
-												<Text style={styles.todayFreeBtnText}>추가 소개 받기 (00개)</Text>
-											</TouchableOpacity>
+			{tabState == 2 ? (
+			<View style={styles.state2Tab}>
+				<TouchableOpacity
+					style={styles.state2TabBtn}
+					activeOpacity={opacityVal}
+					onPress={()=>{getInterest(1)}}
+				>
+					<Text style={[styles.state2TabBtnText, tabState2 == 1 ? styles.state2TabBtnTextOn : null]}>찜&교환한 카드</Text>
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={styles.state2TabBtn}
+					activeOpacity={opacityVal}
+					onPress={()=>{getInterest(2)}}
+				>
+					<Text style={[styles.state2TabBtnText, tabState2 == 2 ? styles.state2TabBtnTextOn : null]}>호감 카드</Text>
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={styles.state2TabBtn}
+					activeOpacity={opacityVal}
+					onPress={()=>{getInterest(3)}}
+				>
+					<Text style={[styles.state2TabBtnText, tabState2 == 3 ? styles.state2TabBtnTextOn : null]}>매칭된 카드</Text>
+				</TouchableOpacity>
+			</View>
+			) : null}
 
-											<TouchableOpacity
-												style={[styles.todayFreeBtn, styles.mgt10]}
-												activeOpacity={opacityVal}
-												onPress={() => {
-													if(filterSave){
-														setUnAddIntroPop2(true);
-													}else{
-														setUnAddIntroPop1(true);
-													}
-												}}
-											>
-												<Text style={styles.todayFreeBtnText}>추가 소개 받기 불가</Text>
-											</TouchableOpacity>
-											</>
-										)}
-									</LinearGradient>
-								</View>
-							</View>								
+			<ScrollView>
+				<View style={[styles.cmWrap, tabState == 1 ? styles.cmWrap2 : null]}>
+					{tabState == 1 && cardList.length > 0 ? (
+					<View>
+						<View style={styles.todayFreeArea}>
+							<View style={[styles.todayFreeAreaWrap, styles.boxShadow]}>
+								<LinearGradient
+									colors={['#D1913C', '#FFD194', '#D1913C']}
+									start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
+									style={[styles.grediant]}
+								>
+									{todayFree > 0 ? (
+										<TouchableOpacity
+											style={[styles.todayFreeBtn]}
+											activeOpacity={opacityVal}
+											onPress={() => {
+												// if(todayFree < 1){
+												// 	ToastMessage('이미 모두 사용했습니다.');
+												// 	return false;
+												// }
+												setTodayFree(todayFree - 1);
+											}}
+										>
+											<Text style={styles.todayFreeBtnText}>무료 소개 받기 ({todayFree}/2)</Text>
+										</TouchableOpacity>
+									) : (
+										<>
+										<TouchableOpacity
+											style={[styles.todayFreeBtn]}
+											activeOpacity={opacityVal}
+											onPress={() => setAddIntroPop(true)}
+										>
+											<Text style={styles.todayFreeBtnText}>추가 소개 받기 (00개)</Text>
+										</TouchableOpacity>
 
-							{/* D-7 */}
-							<View style={styles.cardView}>
-								<View style={styles.dday}>
-									<View style={styles.ddayLine}></View>
-									<Text style={styles.ddayText}>D-7</Text>
-								</View>
-								{cardList.map((item, index) => {
-									return (	
-										item.dday == 7 ? (
-											<Card 
-												navigation={navigation}
-												key={index}
-												propsNick={item.name}
-												propsJob={item.job}
-												propsAge={item.age}
-												propsArea={item.area}
-												propsHeight={item.height}
-												propsWeight={item.weight}
-												propsBadgeCnt={item.badgeCnt}
-												propsFlip={item.isFlipped}
-												propsOpen={item.open}
-											/>
-										) : null				
-									)
-								})}
+										<TouchableOpacity
+											style={[styles.todayFreeBtn, styles.mgt10]}
+											activeOpacity={opacityVal}
+											onPress={() => {
+												if(filterSave){
+													setUnAddIntroPop2(true);
+												}else{
+													setUnAddIntroPop1(true);
+												}
+											}}
+										>
+											<Text style={styles.todayFreeBtnText}>추가 소개 받기 불가</Text>
+										</TouchableOpacity>
+										</>
+									)}
+								</LinearGradient>
 							</View>
+						</View>								
 
-							{/* D-6 */}
-							<View style={styles.cardView}>
-								<View style={styles.dday}>
-									<View style={styles.ddayLine}></View>
-									<Text style={styles.ddayText}>D-6</Text>
-								</View>
-								{cardList.map((item, index) => {
-									return (	
-										item.dday == 6 ? (
-											<Card 
-												navigation={navigation}
-												key={index}
-												propsNick={item.name}
-												propsJob={item.job}
-												propsAge={item.age}
-												propsArea={item.area}
-												propsHeight={item.height}
-												propsWeight={item.weight}
-												propsBadgeCnt={item.badgeCnt}
-												propsFlip={item.isFlipped}
-												propsOpen={item.open}
-											/>
-										) : null				
-									)
-								})}
+						{/* D-7 */}
+						<View style={styles.cardView}>
+							<View style={styles.dday}>
+								<View style={styles.ddayLine}></View>
+								<Text style={styles.ddayText}>D-7</Text>
 							</View>
-
-							{/* D-5 */}
-							<View style={styles.cardView}>
-								<View style={styles.dday}>
-									<View style={styles.ddayLine}></View>
-									<Text style={styles.ddayText}>D-5</Text>
-								</View>
-								{cardList.map((item, index) => {
-									return (	
-										item.dday == 5 ? (
-											<Card 
-												navigation={navigation}
-												key={index}
-												propsNick={item.name}
-												propsJob={item.job}
-												propsAge={item.age}
-												propsArea={item.area}
-												propsHeight={item.height}
-												propsWeight={item.weight}
-												propsBadgeCnt={item.badgeCnt}
-												propsFlip={item.isFlipped}
-												propsOpen={item.open}
-											/>
-										) : null				
-									)
-								})}
-							</View>
-
+							{cardList.map((item, index) => {
+								return (	
+									item.dday == 7 ? (
+										<Card 
+											navigation={navigation}
+											key={index}
+											propsNick={item.name}
+											propsJob={item.job}
+											propsAge={item.age}
+											propsArea={item.area}
+											propsHeight={item.height}
+											propsWeight={item.weight}
+											propsBadgeCnt={item.badgeCnt}
+											propsFlip={item.isFlipped}
+											propsOpen={item.open}
+										/>
+									) : null				
+								)
+							})}
 						</View>
-						) : null}
 
-						{tabState == 2 ? (
-						<View>
-							{tabState2 == 1 ? (
-							<View>			
-								{/* 찜한 카드	*/}
-								{data1List.length > 0 ? (
-								<View style={styles.interestBox}>
-									<View style={styles.interestBoxTitle}>
-										<Text style={styles.interestBoxTitleText}>찜한 카드</Text>
-									</View>
-									<View style={styles.cardView}>
-										{data1List.map((item, index) => {
-											if(item.leave && !item.isFlipped){
-												return (
-													<TouchableOpacity 
-														key={index}
-														style={[styles.cardBtn, styles.cardBtn2]}
-														activeOpacity={opacityVal2}
-														onPress={() => {													
-															setLeavePop(true);
-														}}
-													>
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-														</View>
-													</TouchableOpacity>
-												)
-											}else{
-												return (
-													<Card2 
-														navigation={navigation}
-														key={index}
-														propsNick={item.name}													
-														propsAge={item.age}													
-														propsHeight={item.height}													
-														propsFlip={item.isFlipped}
-														propsDday={item.dday}
-													/>
-												)
-											}
-										})}
-									</View>
-								</View>
-								) : null}
+						{/* D-6 */}
+						<View style={styles.cardView}>
+							<View style={styles.dday}>
+								<View style={styles.ddayLine}></View>
+								<Text style={styles.ddayText}>D-6</Text>
+							</View>
+							{cardList.map((item, index) => {
+								return (	
+									item.dday == 6 ? (
+										<Card 
+											navigation={navigation}
+											key={index}
+											propsNick={item.name}
+											propsJob={item.job}
+											propsAge={item.age}
+											propsArea={item.area}
+											propsHeight={item.height}
+											propsWeight={item.weight}
+											propsBadgeCnt={item.badgeCnt}
+											propsFlip={item.isFlipped}
+											propsOpen={item.open}
+										/>
+									) : null				
+								)
+							})}
+						</View>
 
-								{/* 교환한 프로필 */}
-								{data2List.length > 0 ? (
-								<View style={[styles.interestBox, styles.mgt50]}>
-									<View style={styles.interestBoxTitle}>
-										<Text style={styles.interestBoxTitleText}>교환한 프로필</Text>
-									</View>
-									<View style={styles.cardView}>
-										{data2List.map((item, index) => {
-											if(item.leave && !item.isFlipped){
-												return (
-													<TouchableOpacity 
-														key={index}
-														style={[styles.cardBtn, styles.cardBtn2]}
-														activeOpacity={opacityVal2}
-														onPress={() => {													
-															setLeavePop(true);
-														}}
-													>
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-														</View>
-													</TouchableOpacity>
-												)
-											}else{
-												return (
-													<Card2 
-														navigation={navigation}
-														key={index}
-														propsNick={item.name}													
-														propsAge={item.age}													
-														propsHeight={item.height}													
-														propsFlip={item.isFlipped}
-														propsDday={item.dday}
-													/>
-												)
-											}
-										})}
-									</View>
+						{/* D-5 */}
+						<View style={styles.cardView}>
+							<View style={styles.dday}>
+								<View style={styles.ddayLine}></View>
+								<Text style={styles.ddayText}>D-5</Text>
+							</View>
+							{cardList.map((item, index) => {
+								return (	
+									item.dday == 5 ? (
+										<Card 
+											navigation={navigation}
+											key={index}
+											propsNick={item.name}
+											propsJob={item.job}
+											propsAge={item.age}
+											propsArea={item.area}
+											propsHeight={item.height}
+											propsWeight={item.weight}
+											propsBadgeCnt={item.badgeCnt}
+											propsFlip={item.isFlipped}
+											propsOpen={item.open}
+										/>
+									) : null				
+								)
+							})}
+						</View>
+
+					</View>
+					) : null}
+
+					{tabState == 2 ? (
+					<View>
+						{tabState2 == 1 ? (
+						<View>			
+							{/* 찜한 카드	*/}
+							{data1List.length > 0 ? (
+							<View style={styles.interestBox}>
+								<View style={styles.interestBoxTitle}>
+									<Text style={styles.interestBoxTitleText}>찜한 카드</Text>
 								</View>
-								) : null}
+								<View style={styles.cardView}>
+									{data1List.map((item, index) => {
+										if(item.leave && !item.isFlipped){
+											return (
+												<TouchableOpacity 
+													key={index}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal2}
+													onPress={() => {													
+														setLeavePop(true);
+													}}
+												>
+													<View style={[styles.cardCont, styles.cardCont2]}>																												
+														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+													</View>
+												</TouchableOpacity>
+											)
+										}else{
+											return (
+												<Card2 
+													navigation={navigation}
+													key={index}
+													propsNick={item.name}													
+													propsAge={item.age}													
+													propsHeight={item.height}													
+													propsFlip={item.isFlipped}
+													propsDday={item.dday}
+												/>
+											)
+										}
+									})}
+								</View>
 							</View>
 							) : null}
 
-							{tabState2 == 2 ? (
-							<View>				
-								{/* 받은 좋아요 */}
-								{data3List.length > 0 ? (
-								<View style={styles.interestBox}>
-									<View style={styles.interestBoxTitle}>
-										<Text style={styles.interestBoxTitleText}>받은 좋아요</Text>
-									</View>
-									<View style={styles.cardView}>
-										{data3List.map((item, index) => {
-											if(item.leave && !item.isFlipped){
-												return (
-													<TouchableOpacity 
-														key={index}
-														style={[styles.cardBtn, styles.cardBtn2]}
-														activeOpacity={opacityVal2}
-														onPress={() => {													
-															setLeavePop(true);
-														}}
-													>
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-														</View>
-													</TouchableOpacity>
-												)
-											}else{
-												return (
-													<Card2 
-														navigation={navigation}
-														key={index}
-														propsNick={item.name}													
-														propsAge={item.age}													
-														propsHeight={item.height}													
-														propsFlip={item.isFlipped}
-														propsDday={item.dday}
-													/>
-												)
-											}
-										})}
-									</View>
+							{/* 교환한 프로필 */}
+							{data2List.length > 0 ? (
+							<View style={[styles.interestBox, styles.mgt50]}>
+								<View style={styles.interestBoxTitle}>
+									<Text style={styles.interestBoxTitleText}>교환한 프로필</Text>
 								</View>
-								) : null}
-								
-								{/* 보낸 좋아요 */}
-								{data4List.length > 0 ? (
-								<View style={[styles.interestBox, styles.mgt50]}>
-									<View style={styles.interestBoxTitle}>
-										<Text style={styles.interestBoxTitleText}>보낸 좋아요</Text>
-									</View>
-									<View style={styles.cardView}>
-										{data4List.map((item, index) => {
-											if(item.leave && !item.isFlipped){
-												return (
-													<TouchableOpacity 
-														key={index}
-														style={[styles.cardBtn, styles.cardBtn2]}
-														activeOpacity={opacityVal2}
-														onPress={() => {													
-															setLeavePop(true);
-														}}
-													>
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-														</View>
-													</TouchableOpacity>
-												)
-											}else{
-												return (
-													<Card2 
-														navigation={navigation}
-														key={index}
-														propsNick={item.name}													
-														propsAge={item.age}													
-														propsHeight={item.height}													
-														propsFlip={item.isFlipped}
-														propsDday={item.dday}
-													/>
-												)
-											}
-										})}
-									</View>
+								<View style={styles.cardView}>
+									{data2List.map((item, index) => {
+										if(item.leave && !item.isFlipped){
+											return (
+												<TouchableOpacity 
+													key={index}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal2}
+													onPress={() => {													
+														setLeavePop(true);
+													}}
+												>
+													<View style={[styles.cardCont, styles.cardCont2]}>																												
+														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+													</View>
+												</TouchableOpacity>
+											)
+										}else{
+											return (
+												<Card2 
+													navigation={navigation}
+													key={index}
+													propsNick={item.name}													
+													propsAge={item.age}													
+													propsHeight={item.height}													
+													propsFlip={item.isFlipped}
+													propsDday={item.dday}
+												/>
+											)
+										}
+									})}
 								</View>
-								) : null}
+							</View>
+							) : null}
+						</View>
+						) : null}
 
-								{/* 주고받은 호감 */}
-								{data5List.length > 0 ? (
-								<View style={[styles.interestBox, styles.mgt50]}>
-									<View style={styles.interestBoxTitle}>
-										<Text style={styles.interestBoxTitleText}>주고받은 호감</Text>
-									</View>
-									<View style={styles.cardView}>
-										{data5List.map((item, index) => {
-											if(item.leave && !item.isFlipped){
-												return (
-													<TouchableOpacity 
-														key={index}
-														style={[styles.cardBtn, styles.cardBtn2]}
-														activeOpacity={opacityVal2}
-														onPress={() => {													
-															setLeavePop(true);
-														}}
-													>
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-														</View>
-													</TouchableOpacity>
-												)
-											}else{
-												return (
-													<Card2 
-														navigation={navigation}
-														key={index}
-														propsNick={item.name}													
-														propsAge={item.age}													
-														propsHeight={item.height}													
-														propsFlip={item.isFlipped}
-														propsDday={item.dday}
-													/>
-												)
-											}
-										})}
-									</View>
+						{tabState2 == 2 ? (
+						<View>				
+							{/* 받은 좋아요 */}
+							{data3List.length > 0 ? (
+							<View style={styles.interestBox}>
+								<View style={styles.interestBoxTitle}>
+									<Text style={styles.interestBoxTitleText}>받은 좋아요</Text>
 								</View>
-								) : null}
-
-								{/* 받은 호감 */}
-								{data6List.length > 0 ? (
-								<View style={[styles.interestBox, styles.mgt50]}>
-									<View style={styles.interestBoxTitle}>
-										<Text style={styles.interestBoxTitleText}>받은 호감</Text>
-									</View>
-									<View style={styles.cardView}>
-										{data6List.map((item, index) => {
-											if(item.leave && !item.isFlipped){
-												return (
-													<TouchableOpacity 
-														key={index}
-														style={[styles.cardBtn, styles.cardBtn2]}
-														activeOpacity={opacityVal2}
-														onPress={() => {													
-															setLeavePop(true);
-														}}
-													>
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-														</View>
-													</TouchableOpacity>
-												)
-											}else{
-												return (
-													<Card2 
-														navigation={navigation}
-														key={index}
-														propsNick={item.name}													
-														propsAge={item.age}													
-														propsHeight={item.height}													
-														propsFlip={item.isFlipped}
-														propsDday={item.dday}
-													/>
-												)
-											}
-										})}
-									</View>
+								<View style={styles.cardView}>
+									{data3List.map((item, index) => {
+										if(item.leave && !item.isFlipped){
+											return (
+												<TouchableOpacity 
+													key={index}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal2}
+													onPress={() => {													
+														setLeavePop(true);
+													}}
+												>
+													<View style={[styles.cardCont, styles.cardCont2]}>																												
+														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+													</View>
+												</TouchableOpacity>
+											)
+										}else{
+											return (
+												<Card2 
+													navigation={navigation}
+													key={index}
+													propsNick={item.name}													
+													propsAge={item.age}													
+													propsHeight={item.height}													
+													propsFlip={item.isFlipped}
+													propsDday={item.dday}
+												/>
+											)
+										}
+									})}
 								</View>
-								) : null}
-
-								{/* 보낸 호감 */}
-								{data7List.length > 0 ? (
-								<View style={[styles.interestBox, styles.mgt50]}>
-									<View style={styles.interestBoxTitle}>
-										<Text style={styles.interestBoxTitleText}>보낸 호감</Text>
-									</View>
-									<View style={styles.cardView}>
-										{data7List.map((item, index) => {
-											if(item.leave && !item.isFlipped){
-												return (
-													<TouchableOpacity 
-														key={index}
-														style={[styles.cardBtn, styles.cardBtn2]}
-														activeOpacity={opacityVal2}
-														onPress={() => {													
-															setLeavePop(true);
-														}}
-													>
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-														</View>
-													</TouchableOpacity>
-												)
-											}else{
-												return (
-													<Card2 
-														navigation={navigation}
-														key={index}
-														propsNick={item.name}													
-														propsAge={item.age}													
-														propsHeight={item.height}													
-														propsFlip={item.isFlipped}
-														propsDday={item.dday}
-													/>
-												)
-											}
-										})}
-									</View>
-								</View>
-								) : null}					
 							</View>
 							) : null}
 							
-							{tabState2 == 3 ? (
-							<View>			
-								{/* 매칭된 이성 */}
-								{data8List.length > 0 ? (
-								<View style={styles.interestBox}>
-									<View style={styles.interestBoxTitle}>
-										<Text style={styles.interestBoxTitleText}>매칭된 이성</Text>
-									</View>
-									<View style={styles.interestBoxDesc}>
-										<Text style={styles.interestBoxDescText}>매칭을 축하합니다!</Text>										
-										<ImgDomain fileWidth={12} fileName={'icon_pang.png'} />
-									</View>
-									<View style={styles.cardView}>
-										{data8List.map((item, index) => {
-											if(item.leave && !item.isFlipped){
-												return (
-													<TouchableOpacity 
-														key={index}
-														style={[styles.cardBtn, styles.cardBtn2]}
-														activeOpacity={opacityVal2}
-														onPress={() => {													
-															setLeavePop(true);
-														}}
-													>
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
-															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-														</View>
-													</TouchableOpacity>
-												)
-											}else{
-												return (
-													<Card2 
-														navigation={navigation}
-														key={index}
-														propsNick={item.name}													
-														propsAge={item.age}													
-														propsHeight={item.height}													
-														propsFlip={item.isFlipped}
-														propsDday={item.dday}
-													/>
-												)
-											}
-										})}
-									</View>
+							{/* 보낸 좋아요 */}
+							{data4List.length > 0 ? (
+							<View style={[styles.interestBox, styles.mgt50]}>
+								<View style={styles.interestBoxTitle}>
+									<Text style={styles.interestBoxTitleText}>보낸 좋아요</Text>
 								</View>
-								) : null}
+								<View style={styles.cardView}>
+									{data4List.map((item, index) => {
+										if(item.leave && !item.isFlipped){
+											return (
+												<TouchableOpacity 
+													key={index}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal2}
+													onPress={() => {													
+														setLeavePop(true);
+													}}
+												>
+													<View style={[styles.cardCont, styles.cardCont2]}>																												
+														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+													</View>
+												</TouchableOpacity>
+											)
+										}else{
+											return (
+												<Card2 
+													navigation={navigation}
+													key={index}
+													propsNick={item.name}													
+													propsAge={item.age}													
+													propsHeight={item.height}													
+													propsFlip={item.isFlipped}
+													propsDday={item.dday}
+												/>
+											)
+										}
+									})}
+								</View>
+							</View>
+							) : null}
+
+							{/* 주고받은 호감 */}
+							{data5List.length > 0 ? (
+							<View style={[styles.interestBox, styles.mgt50]}>
+								<View style={styles.interestBoxTitle}>
+									<Text style={styles.interestBoxTitleText}>주고받은 호감</Text>
+								</View>
+								<View style={styles.cardView}>
+									{data5List.map((item, index) => {
+										if(item.leave && !item.isFlipped){
+											return (
+												<TouchableOpacity 
+													key={index}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal2}
+													onPress={() => {													
+														setLeavePop(true);
+													}}
+												>
+													<View style={[styles.cardCont, styles.cardCont2]}>																												
+														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+													</View>
+												</TouchableOpacity>
+											)
+										}else{
+											return (
+												<Card2 
+													navigation={navigation}
+													key={index}
+													propsNick={item.name}													
+													propsAge={item.age}													
+													propsHeight={item.height}													
+													propsFlip={item.isFlipped}
+													propsDday={item.dday}
+												/>
+											)
+										}
+									})}
+								</View>
+							</View>
+							) : null}
+
+							{/* 받은 호감 */}
+							{data6List.length > 0 ? (
+							<View style={[styles.interestBox, styles.mgt50]}>
+								<View style={styles.interestBoxTitle}>
+									<Text style={styles.interestBoxTitleText}>받은 호감</Text>
+								</View>
+								<View style={styles.cardView}>
+									{data6List.map((item, index) => {
+										if(item.leave && !item.isFlipped){
+											return (
+												<TouchableOpacity 
+													key={index}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal2}
+													onPress={() => {													
+														setLeavePop(true);
+													}}
+												>
+													<View style={[styles.cardCont, styles.cardCont2]}>																												
+														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+													</View>
+												</TouchableOpacity>
+											)
+										}else{
+											return (
+												<Card2 
+													navigation={navigation}
+													key={index}
+													propsNick={item.name}													
+													propsAge={item.age}													
+													propsHeight={item.height}													
+													propsFlip={item.isFlipped}
+													propsDday={item.dday}
+												/>
+											)
+										}
+									})}
+								</View>
+							</View>
+							) : null}
+
+							{/* 보낸 호감 */}
+							{data7List.length > 0 ? (
+							<View style={[styles.interestBox, styles.mgt50]}>
+								<View style={styles.interestBoxTitle}>
+									<Text style={styles.interestBoxTitleText}>보낸 호감</Text>
+								</View>
+								<View style={styles.cardView}>
+									{data7List.map((item, index) => {
+										if(item.leave && !item.isFlipped){
+											return (
+												<TouchableOpacity 
+													key={index}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal2}
+													onPress={() => {													
+														setLeavePop(true);
+													}}
+												>
+													<View style={[styles.cardCont, styles.cardCont2]}>																												
+														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+													</View>
+												</TouchableOpacity>
+											)
+										}else{
+											return (
+												<Card2 
+													navigation={navigation}
+													key={index}
+													propsNick={item.name}													
+													propsAge={item.age}													
+													propsHeight={item.height}													
+													propsFlip={item.isFlipped}
+													propsDday={item.dday}
+												/>
+											)
+										}
+									})}
+								</View>
+							</View>
+							) : null}					
+						</View>
+						) : null}
+						
+						{tabState2 == 3 ? (
+						<View>			
+							{/* 매칭된 이성 */}
+							{data8List.length > 0 ? (
+							<View style={styles.interestBox}>
+								<View style={styles.interestBoxTitle}>
+									<Text style={styles.interestBoxTitleText}>매칭된 이성</Text>
+								</View>
+								<View style={styles.interestBoxDesc}>
+									<Text style={styles.interestBoxDescText}>매칭을 축하합니다!</Text>										
+									<ImgDomain fileWidth={12} fileName={'icon_pang.png'} />
+								</View>
+								<View style={styles.cardView}>
+									{data8List.map((item, index) => {
+										if(item.leave && !item.isFlipped){
+											return (
+												<TouchableOpacity 
+													key={index}
+													style={[styles.cardBtn, styles.cardBtn2]}
+													activeOpacity={opacityVal2}
+													onPress={() => {													
+														setLeavePop(true);
+													}}
+												>
+													<View style={[styles.cardCont, styles.cardCont2]}>																												
+														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+													</View>
+												</TouchableOpacity>
+											)
+										}else{
+											return (
+												<Card2 
+													navigation={navigation}
+													key={index}
+													propsNick={item.name}													
+													propsAge={item.age}													
+													propsHeight={item.height}													
+													propsFlip={item.isFlipped}
+													propsDday={item.dday}
+												/>
+											)
+										}
+									})}
+								</View>
 							</View>
 							) : null}
 						</View>
 						) : null}
 					</View>
-				</ScrollView>
-				<View style={styles.gapBox}></View>			
+					) : null}
+				</View>
+			</ScrollView>
+			<View style={styles.gapBox}></View>			
 
-				{/* 필터 */}
-				<Modal
-					visible={filterPop}
-					animationType={"none"}
-					onRequestClose={() => setFilterPop(false)}
-				>
-					{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
-					<View style={styles.modalHeader}>					
-						<TouchableOpacity
-							style={styles.headerBackBtn2}
-							activeOpacity={opacityVal}
-							onPress={() => setFilterPop(false)}						
-						>							
-							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'} />
-						</TouchableOpacity>		
-						<TouchableOpacity 
-							style={styles.filterResetBtn}
-							activeOpacity={opacityVal}
-							onPress={()=>{console.log('초기화 작업 진행!!')}}
-						>
-							<ImgDomain fileWidth={13} fileName={'icon_refresh.png'} />
-							<Text style={styles.filterResetText}>초기화</Text>
-						</TouchableOpacity>				
-					</View>
-					<ScrollView>
-						<View style={[styles.cmWrap, styles.cmWrap2]}>
+			{/* 필터 */}
+			<Modal
+				visible={filterPop}
+				animationType={"none"}
+				onRequestClose={() => setFilterPop(false)}
+			>
+				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
+				<View style={styles.modalHeader}>					
+					<TouchableOpacity
+						style={styles.headerBackBtn2}
+						activeOpacity={opacityVal}
+						onPress={() => setFilterPop(false)}						
+					>							
+						<ImgDomain fileWidth={8} fileName={'icon_header_back.png'} />
+					</TouchableOpacity>		
+					<TouchableOpacity 
+						style={styles.filterResetBtn}
+						activeOpacity={opacityVal}
+						onPress={()=>{console.log('초기화 작업 진행!!')}}
+					>
+						<ImgDomain fileWidth={13} fileName={'icon_refresh.png'} />
+						<Text style={styles.filterResetText}>초기화</Text>
+					</TouchableOpacity>				
+				</View>
+				<ScrollView>
+					<View style={[styles.cmWrap, styles.cmWrap2]}>
+						<View style={styles.filterTitle}>
+							<Text style={styles.filterTitleText}>선호 카드 설정</Text>
+						</View>
+						<View style={styles.filterDesc}>
+							<Text style={styles.filterDescText}>나에게 소개 될 카드를 설정합니다.</Text>
+						</View>
+						<View style={[styles.msBox, styles.mgt30]}>
+							<View style={[styles.msTitleBox, styles.mgb10]}>
+								<Text style={styles.msTitleBoxText1}>나이</Text>
+								<Text style={styles.msTitleBoxText2}>{ageMin}년생~{ageMax}년생+</Text>
+							</View>
+							<MultiSlider								
+								selectedStyle={{
+									height:2,
+									backgroundColor: '#D1913C',
+								}}
+								unselectedStyle={{
+									height:2,
+									backgroundColor: '#DBDBDB',
+								}}
+								optionsArray={ageAryIdx}
+								values={[
+									nonCollidingMultiSliderValue[0],
+									nonCollidingMultiSliderValue[1],
+								]}
+								markerOffsetY={1}
+								sliderLength={innerWidth}
+								min={ageMaxInt}
+								max={ageMinInt}
+								step={1}
+								enableLabel={false}
+								enabledOne={true}
+								enabledTwo={true}
+								customMarker={() => (
+									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
+								)}
+								onValuesChange={(e) => {
+									//console.log(e);
+									const first = ageAry[e[0]];
+									const last = ageAry[e[1]];
+									
+									let yearString = first.toString();
+									setRealAgeMin(yearString);
+									yearString = yearString.substr(2,2);
+
+									let yearString2 = last.toString();
+									setRealAgeMax(yearString2);
+									yearString2 = yearString2.substr(2,2);
+									
+									setAgeMin(yearString);
+									setAgeMax(yearString2);
+									setNonCollidingMultiSliderValue(e);
+								}}
+							/>
+						</View>
+						<View style={[styles.msBox, styles.mgt50]}>
+							<View style={[styles.msTitleBox, styles.mgb25]}>
+								<Text style={styles.msTitleBoxText1}>거리</Text>
+							</View>
+							<View style={[styles.msTitleBox]}>
+								<TouchableOpacity 
+									style={styles.msCheckBox}
+									activeOpacity={opacityVal}
+									onPress={()=>{setDistanceStandard(1)}}
+								>
+									{distanceStandard == 1 ? (
+										<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
+											<View style={styles.msCheckBoxCircleIn}></View>
+										</View>
+									) : (
+										<View style={styles.msCheckBoxCircle}></View>
+									)}
+									
+									<Text style={styles.msCheckBoxText}>주활동 지역 기준</Text>
+								</TouchableOpacity>
+								<Text style={styles.msTitleBoxText2}>{distance}km 이내</Text>
+							</View>
+							<MultiSlider								
+								selectedStyle={{
+									height:2,
+									backgroundColor: '#D1913C',
+								}}
+								unselectedStyle={{
+									height:2,
+									backgroundColor: '#DBDBDB',
+								}}
+								optionsArray={[10, 15, 20, 25, 30, 50, 70, 100, 150, 200, 300, 500]}
+								values={[distance]}
+								markerOffsetY={1}
+								sliderLength={innerWidth}
+								value={[0]}
+								min={10}
+								max={500}
+								step={1}
+								enableLabel={false}
+								enabledOne={true}
+								enabledTwo={false}
+								allowOverlap={true}
+								customMarker={() => (
+									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
+								)}
+								onValuesChange={(e) => {
+									//console.log(e);
+									setDistance(e[0]);
+								}}
+							/>
+						</View>
+						<View style={[styles.msBox, styles.mgt30]}>
+							<View style={[styles.msTitleBox]}>
+								<TouchableOpacity 
+									style={styles.msCheckBox}
+									activeOpacity={opacityVal}
+									onPress={()=>{setDistanceStandard(2)}}
+								>
+									{distanceStandard == 2 ? (
+										<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
+											<View style={styles.msCheckBoxCircleIn}></View>
+										</View>
+									) : (
+										<View style={styles.msCheckBoxCircle}></View>
+									)}
+									
+									<Text style={styles.msCheckBoxText}>부활동 지역 기준</Text>
+								</TouchableOpacity>
+								<Text style={styles.msTitleBoxText2}>{distance2}km 이내</Text>
+							</View>
+							<MultiSlider								
+								selectedStyle={{
+									height:2,
+									backgroundColor: '#D1913C',
+								}}
+								unselectedStyle={{
+									height:2,
+									backgroundColor: '#DBDBDB',
+								}}
+								optionsArray={[10, 15, 20, 25, 30, 50, 70, 100, 150, 200, 300, 500]}
+								values={[distance2]}
+								markerOffsetY={1}
+								sliderLength={innerWidth}
+								value={[0]}
+								min={10}
+								max={500}
+								step={1}
+								enableLabel={false}
+								enabledOne={true}
+								enabledTwo={false}
+								allowOverlap={true}
+								customMarker={() => (
+									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
+								)}
+								onValuesChange={(e) => {
+									//console.log(e);
+									setDistance2(e[0]);
+								}}
+							/>
+						</View>
+						<View style={[styles.msBox, styles.mgt50]}>
+							<View style={[styles.msTitleBox, styles.mgb25]}>
+								<Text style={styles.msTitleBoxText1}>최근 접속일 수</Text>
+								<Text style={styles.msTitleBoxText2}>{recentAccess}일 이내 접속자</Text>
+							</View>
+							<View style={styles.multiSliderCustom}>
+								<View style={styles.multiSliderDotBack}>
+									<View style={[styles.multiSliderDotBackOn, recentAccess == 14 ? styles.w33p : null, recentAccess == 21 ? styles.w66p : null, recentAccess == 28 ? styles.w100p : null]}></View>
+								</View>
+								<TouchableOpacity 
+									style={[styles.multiSliderDot, styles.boxShadow]}
+									activeOpacity={1}
+									onPress={()=>{setRecentAccess(7)}}
+								>
+								</TouchableOpacity>
+								<TouchableOpacity 
+									style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 14 ? styles.multiSliderDotOff : null]}
+									activeOpacity={1}
+									onPress={()=>{setRecentAccess(14)}}
+								>									
+								</TouchableOpacity>
+								<TouchableOpacity 
+									style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 21 ? styles.multiSliderDotOff : null]}
+									activeOpacity={1}
+									onPress={()=>{setRecentAccess(21)}}
+								>									
+								</TouchableOpacity>
+								<TouchableOpacity 
+									style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 28 ? styles.multiSliderDotOff : null]}
+									activeOpacity={1}
+									onPress={()=>{setRecentAccess(28)}}
+								>									
+								</TouchableOpacity>
+							</View>
+						</View>
+						<View style={[styles.msBox, styles.mgt60]}>
 							<View style={styles.filterTitle}>
-								<Text style={styles.filterTitleText}>선호 카드 설정</Text>
+								<Text style={styles.filterTitleText}>내 카드 설정</Text>
 							</View>
 							<View style={styles.filterDesc}>
-								<Text style={styles.filterDescText}>나에게 소개 될 카드를 설정합니다.</Text>
+								<Text style={styles.filterDescText}>내 카드가 소개 될 카드를 설정합니다.</Text>
 							</View>
 							<View style={[styles.msBox, styles.mgt30]}>
 								<View style={[styles.msTitleBox, styles.mgb10]}>
 									<Text style={styles.msTitleBoxText1}>나이</Text>
-									<Text style={styles.msTitleBoxText2}>{ageMin}년생~{ageMax}년생+</Text>
+									<Text style={styles.msTitleBoxText2}>{ageMin2}년생~{ageMax2}년생+</Text>
 								</View>
+
 								<MultiSlider								
 									selectedStyle={{
 										height:2,
@@ -926,13 +1170,13 @@ const Home = (props) => {
 									}}
 									optionsArray={ageAryIdx}
 									values={[
-										nonCollidingMultiSliderValue[0],
-										nonCollidingMultiSliderValue[1],
+										nonCollidingMultiSliderValue2[0],
+										nonCollidingMultiSliderValue2[1],
 									]}
 									markerOffsetY={1}
 									sliderLength={innerWidth}
-									min={ageMaxInt}
-									max={ageMinInt}
+									min={ageMinInt}
+									max={ageMaxInt}
 									step={1}
 									enableLabel={false}
 									enabledOne={true}
@@ -941,611 +1185,354 @@ const Home = (props) => {
 										<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
 									)}
 									onValuesChange={(e) => {
-										//console.log(e);
 										const first = ageAry[e[0]];
 										const last = ageAry[e[1]];
 										
 										let yearString = first.toString();
-										setRealAgeMin(yearString);
+										setRealAgeMin2(yearString);
 										yearString = yearString.substr(2,2);
 
 										let yearString2 = last.toString();
-										setRealAgeMax(yearString2);
+										setRealAgeMax2(yearString2);
 										yearString2 = yearString2.substr(2,2);
 										
-										setAgeMin(yearString);
-										setAgeMax(yearString2);
-										setNonCollidingMultiSliderValue(e);
+										setAgeMin2(yearString);
+										setAgeMax2(yearString2);
+										setNonCollidingMultiSliderValue2(e);
 									}}
 								/>
-							</View>
-							<View style={[styles.msBox, styles.mgt50]}>
-								<View style={[styles.msTitleBox, styles.mgb25]}>
-									<Text style={styles.msTitleBoxText1}>거리</Text>
-								</View>
-								<View style={[styles.msTitleBox]}>
-									<TouchableOpacity 
-										style={styles.msCheckBox}
-										activeOpacity={opacityVal}
-										onPress={()=>{setDistanceStandard(1)}}
-									>
-										{distanceStandard == 1 ? (
-											<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
-												<View style={styles.msCheckBoxCircleIn}></View>
-											</View>
-										) : (
-											<View style={styles.msCheckBoxCircle}></View>
-										)}
-										
-										<Text style={styles.msCheckBoxText}>주활동 지역 기준</Text>
-									</TouchableOpacity>
-									<Text style={styles.msTitleBoxText2}>{distance}km 이내</Text>
-								</View>
-								<MultiSlider								
-									selectedStyle={{
-										height:2,
-										backgroundColor: '#D1913C',
-									}}
-									unselectedStyle={{
-										height:2,
-										backgroundColor: '#DBDBDB',
-									}}
-									optionsArray={[10, 15, 20, 25, 30, 50, 70, 100, 150, 200, 300, 500]}
-									values={[distance]}
-									markerOffsetY={1}
-									sliderLength={innerWidth}
-									value={[0]}
-									min={10}
-									max={500}
-									step={1}
-									enableLabel={false}
-									enabledOne={true}
-									enabledTwo={false}
-									allowOverlap={true}
-									customMarker={() => (
-										<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
-									)}
-									onValuesChange={(e) => {
-										//console.log(e);
-										setDistance(e[0]);
-									}}
-								/>
-							</View>
-							<View style={[styles.msBox, styles.mgt30]}>
-								<View style={[styles.msTitleBox]}>
-									<TouchableOpacity 
-										style={styles.msCheckBox}
-										activeOpacity={opacityVal}
-										onPress={()=>{setDistanceStandard(2)}}
-									>
-										{distanceStandard == 2 ? (
-											<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
-												<View style={styles.msCheckBoxCircleIn}></View>
-											</View>
-										) : (
-											<View style={styles.msCheckBoxCircle}></View>
-										)}
-										
-										<Text style={styles.msCheckBoxText}>부활동 지역 기준</Text>
-									</TouchableOpacity>
-									<Text style={styles.msTitleBoxText2}>{distance2}km 이내</Text>
-								</View>
-								<MultiSlider								
-									selectedStyle={{
-										height:2,
-										backgroundColor: '#D1913C',
-									}}
-									unselectedStyle={{
-										height:2,
-										backgroundColor: '#DBDBDB',
-									}}
-									optionsArray={[10, 15, 20, 25, 30, 50, 70, 100, 150, 200, 300, 500]}
-									values={[distance2]}
-									markerOffsetY={1}
-									sliderLength={innerWidth}
-									value={[0]}
-									min={10}
-									max={500}
-									step={1}
-									enableLabel={false}
-									enabledOne={true}
-									enabledTwo={false}
-									allowOverlap={true}
-									customMarker={() => (
-										<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
-									)}
-									onValuesChange={(e) => {
-										//console.log(e);
-										setDistance2(e[0]);
-									}}
-								/>
-							</View>
-							<View style={[styles.msBox, styles.mgt50]}>
-								<View style={[styles.msTitleBox, styles.mgb25]}>
-									<Text style={styles.msTitleBoxText1}>최근 접속일 수</Text>
-									<Text style={styles.msTitleBoxText2}>{recentAccess}일 이내 접속자</Text>
-								</View>
-								<View style={styles.multiSliderCustom}>
-									<View style={styles.multiSliderDotBack}>
-										<View style={[styles.multiSliderDotBackOn, recentAccess == 14 ? styles.w33p : null, recentAccess == 21 ? styles.w66p : null, recentAccess == 28 ? styles.w100p : null]}></View>
-									</View>
-									<TouchableOpacity 
-										style={[styles.multiSliderDot, styles.boxShadow]}
-										activeOpacity={1}
-										onPress={()=>{setRecentAccess(7)}}
-									>
-									</TouchableOpacity>
-									<TouchableOpacity 
-										style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 14 ? styles.multiSliderDotOff : null]}
-										activeOpacity={1}
-										onPress={()=>{setRecentAccess(14)}}
-									>									
-									</TouchableOpacity>
-									<TouchableOpacity 
-										style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 21 ? styles.multiSliderDotOff : null]}
-										activeOpacity={1}
-										onPress={()=>{setRecentAccess(21)}}
-									>									
-									</TouchableOpacity>
-									<TouchableOpacity 
-										style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 28 ? styles.multiSliderDotOff : null]}
-										activeOpacity={1}
-										onPress={()=>{setRecentAccess(28)}}
-									>									
-									</TouchableOpacity>
-								</View>
-							</View>
-							<View style={[styles.msBox, styles.mgt60]}>
-								<View style={styles.filterTitle}>
-									<Text style={styles.filterTitleText}>내 카드 설정</Text>
-								</View>
-								<View style={styles.filterDesc}>
-									<Text style={styles.filterDescText}>내 카드가 소개 될 카드를 설정합니다.</Text>
-								</View>
-								<View style={[styles.msBox, styles.mgt30]}>
-									<View style={[styles.msTitleBox, styles.mgb10]}>
-										<Text style={styles.msTitleBoxText1}>나이</Text>
-										<Text style={styles.msTitleBoxText2}>{ageMin2}년생~{ageMax2}년생+</Text>
-									</View>
-
-									<MultiSlider								
-										selectedStyle={{
-											height:2,
-											backgroundColor: '#D1913C',
-										}}
-										unselectedStyle={{
-											height:2,
-											backgroundColor: '#DBDBDB',
-										}}
-										optionsArray={ageAryIdx}
-										values={[
-											nonCollidingMultiSliderValue2[0],
-											nonCollidingMultiSliderValue2[1],
-										]}
-										markerOffsetY={1}
-										sliderLength={innerWidth}
-										min={ageMinInt}
-										max={ageMaxInt}
-										step={1}
-										enableLabel={false}
-										enabledOne={true}
-										enabledTwo={true}
-										customMarker={() => (
-											<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
-										)}
-										onValuesChange={(e) => {
-											const first = ageAry[e[0]];
-											const last = ageAry[e[1]];
-											
-											let yearString = first.toString();
-											setRealAgeMin2(yearString);
-											yearString = yearString.substr(2,2);
-
-											let yearString2 = last.toString();
-											setRealAgeMax2(yearString2);
-											yearString2 = yearString2.substr(2,2);
-											
-											setAgeMin2(yearString);
-											setAgeMax2(yearString2);
-											setNonCollidingMultiSliderValue2(e);
-										}}
-									/>
-								</View>
-							</View>
-						</View>
-					</ScrollView>
-					<View style={styles.nextFix}>
-						<TouchableOpacity 
-							style={[styles.nextBtn]}
-							activeOpacity={opacityVal}
-							onPress={() => {saveFilterSubmit()}}
-						>
-							<Text style={styles.nextBtnText}>저장하기</Text>
-						</TouchableOpacity>
-					</View>
-
-					<Toast config={toastConfig2} />
-				</Modal>
-
-				{/* 탈퇴 회원 알림 */}
-				<Modal
-					visible={leavePop}
-					transparent={true}
-					animationType={"none"}
-					onRequestClose={() => setLeavePop(false)}
-				>
-					<View style={styles.cmPop}>
-						<TouchableOpacity 
-							style={styles.popBack} 
-							activeOpacity={1} 
-							onPress={()=>{setLeavePop(false)}}
-						>
-						</TouchableOpacity>
-						<View style={styles.prvPop}>
-							<TouchableOpacity
-								style={styles.pop_x}					
-								onPress={() => {setLeavePop(false)}}
-							>								
-								<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
-							</TouchableOpacity>		
-							<View style={[styles.popTitle, styles.popTitleFlex]}>							
-								<View style={styles.popTitleFlexWrap}>
-									<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>탈퇴한 회원이에요</Text>
-								</View>
-								<ImgDomain fileWidth={18} fileName={'emiticon1.png'} />
-							</View>
-							<View style={styles.popBtnBox}>
-								<TouchableOpacity 
-									style={[styles.popBtn]}
-									activeOpacity={opacityVal}
-									onPress={() => {setLeavePop(false)}}
-								>
-									<Text style={styles.popBtnText}>확인</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-					</View>
-				</Modal>
-
-				{/* 추가 소개 알림 */}
-				<Modal
-					visible={addIntroPop}
-					transparent={true}
-					animationType={"none"}
-					onRequestClose={() => setAddIntroPop(false)}
-				>
-					<View style={styles.cmPop}>
-						<TouchableOpacity 
-							style={styles.popBack} 
-							activeOpacity={1} 
-							onPress={()=>{setAddIntroPop(false)}}
-						>
-						</TouchableOpacity>
-						<View style={styles.prvPop}>
-							<TouchableOpacity
-								style={styles.pop_x}					
-								onPress={() => {setAddIntroPop(false)}}
-							>								
-								<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
-							</TouchableOpacity>		
-							<View style={[styles.popTitle]}>
-								<Text style={styles.popTitleText}>추가 소개 받으시겠어요?</Text>							
-							</View>
-							<View style={styles.pointBox}>
-								<ImgDomain fileWidth={24} fileName={'coin.png'} />
-								<Text style={styles.pointBoxText}>100</Text>
-							</View>						
-							<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
-							<TouchableOpacity 
-									style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
-									activeOpacity={opacityVal}
-									onPress={() => {setAddIntroPop(false)}}
-								>
-									<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
-								</TouchableOpacity>
-								<TouchableOpacity 
-									style={[styles.popBtn, styles.popBtn2]}
-									activeOpacity={opacityVal}
-									onPress={() => {
-										setAddIntroPop(false);
-										setCashPop(true);
-									}}
-								>
-									<Text style={styles.popBtnText}>네</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-					</View>
-				</Modal>
-
-				{/* 포인트 구매 팝업 */}
-				<Modal
-					visible={cashPop}
-					transparent={true}
-					animationType={"none"}
-					onRequestClose={() => setCashPop(false)}
-				>
-					<TouchableOpacity 
-						style={[styles.popBack, styles.popBack2]} 
-						activeOpacity={1} 
-						onPress={()=>{setCashPop(false)}}
-					>
-					</TouchableOpacity>
-					<View style={styles.prvPopBot}>
-						<View style={[styles.popTitle]}>
-							<Text style={styles.popBotTitleText}>더 많은 인연을 만나보세요</Text>							
-							<Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 즉시 다음 인연을!</Text>
-						</View>					
-						<View style={styles.productList}>
-							<TouchableOpacity
-								style={[styles.productBtn, prdIdx==1 ? styles.productBtnOn : null]}
-								activeOpacity={opacityVal}
-								onPress={()=>{setPrdIdx(1)}}
-							>
-								<Text style={styles.productText1}>000</Text>
-								<View style={styles.productBest}></View>							
-								<Text style={[styles.productText3, prdIdx==1 ? styles.productText3On : null]}>개당 ￦000</Text>
-								<Text style={styles.productText4}>￦50,000</Text>
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={[styles.productBtn, prdIdx==2 ? styles.productBtnOn : null]}
-								activeOpacity={opacityVal}
-								onPress={()=>{setPrdIdx(2)}}
-							>
-								<Text style={styles.productText1}>000</Text>
-								<View style={[styles.productBest, styles.productBest2]}>
-									<Text style={styles.productText2}>BEST</Text>
-								</View>
-								<Text style={[styles.productText3, prdIdx==2 ? styles.productText3On : null]}>개당 ￦000</Text>
-								<Text style={styles.productText4}>￦50,000</Text>
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={[styles.productBtn, prdIdx==3 ? styles.productBtnOn : null]}
-								activeOpacity={opacityVal}
-								onPress={()=>{setPrdIdx(3)}}
-							>
-								<Text style={styles.productText1}>000</Text>
-								<View style={styles.productBest}></View>
-								<Text style={[styles.productText3, prdIdx==3 ? styles.productText3On : null]}>개당 ￦000</Text>
-								<Text style={styles.productText4}>￦50,000</Text>
-							</TouchableOpacity>
-						</View>
-						<View style={[styles.popBtnBox]}>
-							<TouchableOpacity 
-								style={[styles.popBtn]}
-								activeOpacity={opacityVal}
-								onPress={() => {setCashPop(false)}}
-							>
-								<Text style={styles.popBtnText}>지금 구매하기</Text>
-							</TouchableOpacity>
-							<TouchableOpacity 
-								style={[styles.popBtn, styles.popBtnOff2]}
-								activeOpacity={opacityVal}
-								onPress={() => {setCashPop(false)}}
-							>
-								<Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
-							</TouchableOpacity>						
-						</View>
-					</View>
-				</Modal>
-
-				{/* 소개 카드 없음 - 필터 미사용 */}
-				<Modal
-					visible={unAddIntroPop1}
-					transparent={true}
-					animationType={"none"}
-					onRequestClose={() => setUnAddIntroPop1(false)}
-				>
-					<View style={styles.cmPop}>
-						<TouchableOpacity 
-							style={styles.popBack} 
-							activeOpacity={1} 
-							onPress={()=>{setUnAddIntroPop1(false)}}
-						>
-						</TouchableOpacity>
-						<View style={styles.prvPop}>
-							<TouchableOpacity
-								style={styles.pop_x}					
-								onPress={() => {setUnAddIntroPop1(false)}}
-							>								
-								<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
-							</TouchableOpacity>		
-							<View>
-								<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
-							</View>
-							<View style={[styles.popTitle, styles.popTitleFlex]}>							
-								<View style={styles.popTitleFlexWrap}>
-									<Text style={[styles.popTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
-								</View>
-								<ImgDomain fileWidth={18} fileName={'emiticon2.png'} />
-							</View>
-							<View>
-								<Text style={[styles.popTitleDesc, styles.mgt0]}>새로운 회원이 들어올때까지 커뮤니티를 즐겨보세요!</Text>
-							</View>
-							<View style={styles.popBtnBox}>
-								<TouchableOpacity 
-									style={[styles.popBtn]}
-									activeOpacity={opacityVal}
-									onPress={() => {navigation.navigate('Community')}}
-								>
-									<Text style={styles.popBtnText}>커뮤니티 바로가기</Text>
-								</TouchableOpacity>
-								<TouchableOpacity 
-									style={[styles.popBtn, styles.popBtnOff2]}
-									activeOpacity={opacityVal}
-									onPress={() => {setUnAddIntroPop1(false)}}
-								>
-									<Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-					</View>
-				</Modal>
-
-				{/* 소개 카드 없음 - 필터 사용 */}
-				<Modal
-					visible={unAddIntroPop2}
-					transparent={true}
-					animationType={"none"}
-					onRequestClose={() => setUnAddIntroPop2(false)}
-				>
-					<View style={styles.cmPop}>
-						<TouchableOpacity 
-							style={styles.popBack} 
-							activeOpacity={1} 
-							onPress={()=>{setUnAddIntroPop2(false)}}
-						>
-						</TouchableOpacity>
-						<View style={styles.prvPop}>
-							<TouchableOpacity
-								style={styles.pop_x}					
-								onPress={() => {setUnAddIntroPop2(false)}}
-							>								
-								<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
-							</TouchableOpacity>		
-							<View>
-								<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
-							</View>
-							<View style={[styles.popTitle, styles.popTitleFlex]}>							
-								<View style={styles.popTitleFlexWrap}>
-									<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
-								</View>
-								<ImgDomain fileWidth={14} fileName={'emiticon2.png'} />
-							</View>
-							<View>
-								<Text style={[styles.popTitleDesc, styles.mgt0]}>추가 소개를 받고 싶다면 필터 범위를 넓혀보세요!</Text>
-							</View>
-							<View style={styles.popBtnBox}>
-								<TouchableOpacity 
-									style={[styles.popBtn]}
-									activeOpacity={opacityVal}
-									onPress={() => {
-										setUnAddIntroPop2(false);
-										setFilterPop(true);
-									}}
-								>
-									<Text style={styles.popBtnText}>필터 설정 바로가기</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-					</View>
-				</Modal>
-
-				{/* 회원가입 축하 */}
-				<Modal
-					visible={welcomePop}
-					transparent={true}
-					animationType={"none"}
-					onRequestClose={() => setWelcomePop(false)}
-				>
-					<TouchableOpacity 
-						style={[styles.popBack, styles.popBack2]} 
-						activeOpacity={1} 
-						onPress={()=>{setWelcomePop(false)}}
-					>
-					</TouchableOpacity>
-					<View style={styles.prvPopBot2}>
-						<ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/welcome.png'}} resizeMode="cover" >
-							<View style={styles.prvPopBot2Wrap}>
-								<View style={styles.prvPopBot2Title}>
-									<View style={styles.prvPopBot2View}>
-										<ImgDomain fileWidth={20} fileName={'icon_match_success.png'} />
-										<View style={styles.prvPopBot2ViewIn}>
-											<Text style={styles.prvPopBot2ViewText}>가입축하</Text>
-										</View>
-									</View>
-									<View style={[styles.prvPopBot2View, styles.prvPopBot2View2]}>
-										<ImgDomain fileWidth={24} fileName={'coin2.png'} />
-										<View style={styles.prvPopBot2ViewIn}>
-											<Text style={[styles.prvPopBot2ViewText, styles.prvPopBot2ViewText2]}>00개</Text>
-										</View>
-									</View>
-									<View style={styles.prvPopBot2View}>
-										<View style={styles.prvPopBot2ViewIn}>
-											<Text style={styles.prvPopBot2ViewText}>증정</Text>
-										</View>
-										<ImgDomain fileWidth={20} fileName={'icon_match_success.png'} />
-									</View>
-								</View>
-								<View style={styles.prvPopBot2Desc}>
-									<Text style={styles.prvPopBot2DescText}>하이엔드 소개팅 앱 피지컬 매치에서</Text>
-									<Text style={styles.prvPopBot2DescText}>NO.1 육각형 회원들과 만나 보세요</Text>
-								</View>
-							</View>							
-						</ImageBackground>
-						{/* <AutoHeightImage width={widnowWidth} source={require('../assets/image/welcome.png')} resizeMethod='resize' /> */}
-					</View>
-				</Modal>
-
-				{loading ? (
-				<View style={[styles.indicator]}>
-					<ActivityIndicator size="large" color="#D1913C" />
-				</View>
-				) : null}
-			</>
-
-			) : (
-			<Modal
-				visible={true}
-				animationType={"none"}
-			>
-				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
-				<ScrollView>
-					<View style={styles.accImg}>						
-						<ImgDomain fileWidth={42} fileName={'logo_navy.png'} />
-						<View style={styles.accCircle}>
-							<ImgDomain fileWidth={84} fileName={'account_off.jpg'} />
-						</View>
-					</View>
-					<View style={styles.accInfo}>
-						<View style={styles.accInfoNick}>
-							<Text style={styles.accInfoNickText}>닉네임최대여덟자</Text>
-						</View>
-						<View style={styles.accInfoTitle}>
-							<Text style={styles.accInfoTitleText}>비활성화 상태입니다.</Text>
-						</View>
-						<View style={styles.accInfoDesc}>
-							<Text style={styles.accInfoDescText}>피지컬 매치의 육각형 회원들이</Text>
-						</View>
-						<View style={styles.accInfoDesc}>
-							<Text style={styles.accInfoDescText}>회원님을 기다리고 있어요!</Text>
-						</View>
-						<View style={styles.accInfoDesc}>
-							<Text style={styles.accInfoDescText}>좋은 인연과 커뮤니티를</Text>
-						</View>
-						<View style={styles.accInfoDesc}>
-							<Text style={styles.accInfoDescText}>다시 만나보세요</Text>
-							<View style={{position:'relative',top:2,}}>
-								<ImgDomain fileWidth={24} fileName={'icon_heart2.png'} />
 							</View>
 						</View>
 					</View>
 				</ScrollView>
-
-				<View style={[styles.popBtnBox, styles.popBtnBox2]}>
+				<View style={styles.nextFix}>
 					<TouchableOpacity 
-						style={[styles.popBtn]}
+						style={[styles.nextBtn]}
 						activeOpacity={opacityVal}
-						onPress={() => {accountReset()}}
+						onPress={() => {saveFilterSubmit()}}
 					>
-						<Text style={styles.popBtnText}>비활성화 해제</Text>
-					</TouchableOpacity>
-					<TouchableOpacity 
-						style={[styles.popBtn, styles.popBtnOff2]}
-						activeOpacity={opacityVal}
-						onPress={() => {}}
-					>
-						<Text style={[styles.popBtnText, styles.popBtnOffText]}>로그아웃</Text>
+						<Text style={styles.nextBtnText}>저장하기</Text>
 					</TouchableOpacity>
 				</View>
 
-				{loading ? (
-				<View style={[styles.indicator]}>
-					<ActivityIndicator size="large" color="#D1913C" />
-				</View>
-				) : null}
+				<Toast config={toastConfig2} />
 			</Modal>
-			)}
+
+			{/* 탈퇴 회원 알림 */}
+			<Modal
+				visible={leavePop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setLeavePop(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setLeavePop(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setLeavePop(false)}}
+						>								
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+						</TouchableOpacity>		
+						<View style={[styles.popTitle, styles.popTitleFlex]}>							
+							<View style={styles.popTitleFlexWrap}>
+								<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>탈퇴한 회원이에요</Text>
+							</View>
+							<ImgDomain fileWidth={18} fileName={'emiticon1.png'} />
+						</View>
+						<View style={styles.popBtnBox}>
+							<TouchableOpacity 
+								style={[styles.popBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {setLeavePop(false)}}
+							>
+								<Text style={styles.popBtnText}>확인</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+			{/* 추가 소개 알림 */}
+			<Modal
+				visible={addIntroPop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setAddIntroPop(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setAddIntroPop(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setAddIntroPop(false)}}
+						>								
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+						</TouchableOpacity>		
+						<View style={[styles.popTitle]}>
+							<Text style={styles.popTitleText}>추가 소개 받으시겠어요?</Text>							
+						</View>
+						<View style={styles.pointBox}>
+							<ImgDomain fileWidth={24} fileName={'coin.png'} />
+							<Text style={styles.pointBoxText}>100</Text>
+						</View>						
+						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
+						<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
+								activeOpacity={opacityVal}
+								onPress={() => {setAddIntroPop(false)}}
+							>
+								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2]}
+								activeOpacity={opacityVal}
+								onPress={() => {
+									setAddIntroPop(false);
+									setCashPop(true);
+								}}
+							>
+								<Text style={styles.popBtnText}>네</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+			{/* 포인트 구매 팝업 */}
+			<Modal
+				visible={cashPop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setCashPop(false)}
+			>
+				<TouchableOpacity 
+					style={[styles.popBack, styles.popBack2]} 
+					activeOpacity={1} 
+					onPress={()=>{setCashPop(false)}}
+				>
+				</TouchableOpacity>
+				<View style={styles.prvPopBot}>
+					<View style={[styles.popTitle]}>
+						<Text style={styles.popBotTitleText}>더 많은 인연을 만나보세요</Text>							
+						<Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 즉시 다음 인연을!</Text>
+					</View>					
+					<View style={styles.productList}>
+						<TouchableOpacity
+							style={[styles.productBtn, prdIdx==1 ? styles.productBtnOn : null]}
+							activeOpacity={opacityVal}
+							onPress={()=>{setPrdIdx(1)}}
+						>
+							<Text style={styles.productText1}>000</Text>
+							<View style={styles.productBest}></View>							
+							<Text style={[styles.productText3, prdIdx==1 ? styles.productText3On : null]}>개당 ￦000</Text>
+							<Text style={styles.productText4}>￦50,000</Text>
+						</TouchableOpacity>
+						<TouchableOpacity
+							style={[styles.productBtn, prdIdx==2 ? styles.productBtnOn : null]}
+							activeOpacity={opacityVal}
+							onPress={()=>{setPrdIdx(2)}}
+						>
+							<Text style={styles.productText1}>000</Text>
+							<View style={[styles.productBest, styles.productBest2]}>
+								<Text style={styles.productText2}>BEST</Text>
+							</View>
+							<Text style={[styles.productText3, prdIdx==2 ? styles.productText3On : null]}>개당 ￦000</Text>
+							<Text style={styles.productText4}>￦50,000</Text>
+						</TouchableOpacity>
+						<TouchableOpacity
+							style={[styles.productBtn, prdIdx==3 ? styles.productBtnOn : null]}
+							activeOpacity={opacityVal}
+							onPress={()=>{setPrdIdx(3)}}
+						>
+							<Text style={styles.productText1}>000</Text>
+							<View style={styles.productBest}></View>
+							<Text style={[styles.productText3, prdIdx==3 ? styles.productText3On : null]}>개당 ￦000</Text>
+							<Text style={styles.productText4}>￦50,000</Text>
+						</TouchableOpacity>
+					</View>
+					<View style={[styles.popBtnBox]}>
+						<TouchableOpacity 
+							style={[styles.popBtn]}
+							activeOpacity={opacityVal}
+							onPress={() => {setCashPop(false)}}
+						>
+							<Text style={styles.popBtnText}>지금 구매하기</Text>
+						</TouchableOpacity>
+						<TouchableOpacity 
+							style={[styles.popBtn, styles.popBtnOff2]}
+							activeOpacity={opacityVal}
+							onPress={() => {setCashPop(false)}}
+						>
+							<Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
+						</TouchableOpacity>						
+					</View>
+				</View>
+			</Modal>
+
+			{/* 소개 카드 없음 - 필터 미사용 */}
+			<Modal
+				visible={unAddIntroPop1}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setUnAddIntroPop1(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setUnAddIntroPop1(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setUnAddIntroPop1(false)}}
+						>								
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+						</TouchableOpacity>		
+						<View>
+							<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
+						</View>
+						<View style={[styles.popTitle, styles.popTitleFlex]}>							
+							<View style={styles.popTitleFlexWrap}>
+								<Text style={[styles.popTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
+							</View>
+							<ImgDomain fileWidth={18} fileName={'emiticon2.png'} />
+						</View>
+						<View>
+							<Text style={[styles.popTitleDesc, styles.mgt0]}>새로운 회원이 들어올때까지 커뮤니티를 즐겨보세요!</Text>
+						</View>
+						<View style={styles.popBtnBox}>
+							<TouchableOpacity 
+								style={[styles.popBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {navigation.navigate('Community')}}
+							>
+								<Text style={styles.popBtnText}>커뮤니티 바로가기</Text>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtnOff2]}
+								activeOpacity={opacityVal}
+								onPress={() => {setUnAddIntroPop1(false)}}
+							>
+								<Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+			{/* 소개 카드 없음 - 필터 사용 */}
+			<Modal
+				visible={unAddIntroPop2}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setUnAddIntroPop2(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setUnAddIntroPop2(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setUnAddIntroPop2(false)}}
+						>								
+							<ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+						</TouchableOpacity>		
+						<View>
+							<Text style={styles.popTitleText}>더 이상 소개 받을 수 있는</Text>
+						</View>
+						<View style={[styles.popTitle, styles.popTitleFlex]}>							
+							<View style={styles.popTitleFlexWrap}>
+								<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
+							</View>
+							<ImgDomain fileWidth={14} fileName={'emiticon2.png'} />
+						</View>
+						<View>
+							<Text style={[styles.popTitleDesc, styles.mgt0]}>추가 소개를 받고 싶다면 필터 범위를 넓혀보세요!</Text>
+						</View>
+						<View style={styles.popBtnBox}>
+							<TouchableOpacity 
+								style={[styles.popBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {
+									setUnAddIntroPop2(false);
+									setFilterPop(true);
+								}}
+							>
+								<Text style={styles.popBtnText}>필터 설정 바로가기</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+			{/* 회원가입 축하 */}
+			<Modal
+				visible={welcomePop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setWelcomePop(false)}
+			>
+				<TouchableOpacity 
+					style={[styles.popBack, styles.popBack2]} 
+					activeOpacity={1} 
+					onPress={()=>{setWelcomePop(false)}}
+				>
+				</TouchableOpacity>
+				<View style={styles.prvPopBot2}>
+					<ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/welcome.png'}} resizeMode="cover" >
+						<View style={styles.prvPopBot2Wrap}>
+							<View style={styles.prvPopBot2Title}>
+								<View style={styles.prvPopBot2View}>
+									<ImgDomain fileWidth={20} fileName={'icon_match_success.png'} />
+									<View style={styles.prvPopBot2ViewIn}>
+										<Text style={styles.prvPopBot2ViewText}>가입축하</Text>
+									</View>
+								</View>
+								<View style={[styles.prvPopBot2View, styles.prvPopBot2View2]}>
+									<ImgDomain fileWidth={24} fileName={'coin2.png'} />
+									<View style={styles.prvPopBot2ViewIn}>
+										<Text style={[styles.prvPopBot2ViewText, styles.prvPopBot2ViewText2]}>00개</Text>
+									</View>
+								</View>
+								<View style={styles.prvPopBot2View}>
+									<View style={styles.prvPopBot2ViewIn}>
+										<Text style={styles.prvPopBot2ViewText}>증정</Text>
+									</View>
+									<ImgDomain fileWidth={20} fileName={'icon_match_success.png'} />
+								</View>
+							</View>
+							<View style={styles.prvPopBot2Desc}>
+								<Text style={styles.prvPopBot2DescText}>하이엔드 소개팅 앱 피지컬 매치에서</Text>
+								<Text style={styles.prvPopBot2DescText}>NO.1 육각형 회원들과 만나 보세요</Text>
+							</View>
+						</View>							
+					</ImageBackground>
+					{/* <AutoHeightImage width={widnowWidth} source={require('../assets/image/welcome.png')} resizeMethod='resize' /> */}
+				</View>
+			</Modal>
+
+			{loading ? (
+			<View style={[styles.indicator]}>
+				<ActivityIndicator size="large" color="#D1913C" />
+			</View>
+			) : null}
 			
 		</SafeAreaView>
 	)
@@ -1765,4 +1752,11 @@ const styles = StyleSheet.create({
 	w100p: {width:innerWidth},
 })
 
-export default Home
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+	})
+)(Home);

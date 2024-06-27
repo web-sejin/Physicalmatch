@@ -3,14 +3,12 @@ import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, Tou
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-handler'
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
@@ -30,10 +28,10 @@ const MyCert = (props) => {
   const [pageSt, setPageSt] = useState(false);
 	const navigationUse = useNavigation();
 	const [keyboardStatus, setKeyboardStatus] = useState(false);
-	const [keyboardHeight, setKeyboardHeight] = useState(0);
-	const [currFocus, setCurrFocus] = useState('');
+	const [keyboardHeight, setKeyboardHeight] = useState(0);	
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [memberIdx, setMemberIdx] = useState();
 	const [deletePop, setDeletePop] = useState(false);
 	const [deleteType, setDeleteType] = useState(); //1=>직장, 2=>학교, 3=>혼인
 	const [file, setFile] = useState({});
@@ -45,6 +43,7 @@ const MyCert = (props) => {
 
 	const [jobFile, setJobFile] = useState({});
 	const [realJobFile, setRealJobFile] = useState({});
+	const [jobApiRes, setJobApiRes] = useState({});
 
 	const [schoolFile, setSchoolFile] = useState({});
 	const [realSchoolFile, setRealSchoolFile] = useState({});
@@ -52,11 +51,15 @@ const MyCert = (props) => {
 	const [realSchoolName, setRealSchoolName] = useState('');
 	const [schoolMajor, setSchoolMajor] = useState('');
 	const [realSchoolMajor, setRealSchoolMajor] = useState('');
+	const [schoolApiRes, setSchoolApiRes] = useState({});
 
 	const [marryFile, setMarryFile] = useState({});
 	const [realMarryFile, setRealMarryFile] = useState({});
 	const [marryState, setMarryState] = useState('');
 	const [realMarryState, setRealMarryState] = useState('');
+	const [marryApiRes, setmarryApiRes] = useState({});
+
+	const [deleteTitle, setDeleteTitle] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -69,6 +72,11 @@ const MyCert = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 		Keyboard.dismiss();
 		Toast.hide();
@@ -112,6 +120,35 @@ const MyCert = (props) => {
 
 		});
   };
+
+	useEffect(() => {
+		if(memberIdx){
+			//setLoading(true);
+			getAuthInfo();
+		}
+	}, [memberIdx]);
+
+	const getAuthInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyProfileAuthList",
+			member_idx: memberIdx,
+		};
+	
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			response.data.map((item, index) => {
+				if(item.pa_name == '직업 인증'){
+					setJobApiRes(item);
+				}else if(item.pa_name == '학교 인증'){
+					setSchoolApiRes(item);
+				}else if(item.pa_name == '혼인 정보'){
+					setmarryApiRes(item);
+				}
+			})
+		}
+	}	
 
 	const jobImage = () => {
 		ImagePicker.openPicker({})
@@ -224,34 +261,57 @@ const MyCert = (props) => {
               <Text style={styles.iptTitText}>프로필 인증</Text>
             </View>
 						<View style={[styles.badgeBtnBox]}>
-							<TouchableOpacity
-								style={[styles.badgeBtn, styles.boxShadow]}
-								activeOpacity={realJobFile.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realJobFile.path ? setJobModal(true) : null
-									!realJobFile.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={[styles.badgeBtnLeft2]}>
-									<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>직장 인증</Text>
-									<Text style={styles.badgeBtnLeftText2}>포인트 지급</Text>
+							{jobApiRes.auth_yn == 'y' || jobApiRes.auth_yn == 'i' ? (
+								<View style={[styles.badgeBtn, styles.boxShadow]}>
+									<View style={[styles.badgeBtnLeft2]}>
+										<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>직장 인증</Text>
+										<Text style={styles.badgeBtnLeftText2}>포인트 지급</Text>
+									</View>
+									<View style={styles.badgeBtnRight}>
+										{jobApiRes.auth_yn == 'y' ? (
+											<TouchableOpacity
+												activeOpacity={opacityVal}
+												onPress={()=>{
+													setDeleteTitle('직장 인증');
+													setDeleteType(1);
+													setDeletePop(true);
+												}}
+											>										
+												<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
+											</TouchableOpacity>											
+										) : (
+											<View style={styles.stateView}>
+												<Text style={styles.stateViewText}>심사중</Text>
+											</View>
+										)}												
+									</View>
 								</View>
-								<View style={styles.badgeBtnRight}>
-									{realJobFile.path ? (
-										<View style={styles.stateView}>
-											<Text style={styles.stateViewText}>심사중</Text>
-										</View>
-									) : (
-										<>
-										<View style={styles.stateView2}>
-											<Text style={styles.stateViewText2}>반려</Text>
-										</View>
-										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-										</>									
-									)}
-								</View>
-							</TouchableOpacity>
-
+							) : (
+								<TouchableOpacity
+									style={[styles.badgeBtn, styles.boxShadow]}
+									activeOpacity={realJobFile.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realJobFile.path ? setJobModal(true) : null
+										!realJobFile.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={[styles.badgeBtnLeft2]}>
+										<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>직장 인증</Text>
+										<Text style={styles.badgeBtnLeftText2}>포인트 지급</Text>
+									</View>
+									<View style={styles.badgeBtnRight}>										
+										{jobApiRes.auth_yn == 'n' ? (
+											<>
+											<View style={styles.stateView2}>
+												<Text style={styles.stateViewText2}>반려</Text>
+											</View>
+											<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+											</>	
+										) : null}
+									</View>
+								</TouchableOpacity>
+							)}
+							
 							{/* <TouchableOpacity
 								style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}
 								activeOpacity={realSchoolFile.path ? 1 : opacityVal}
@@ -286,51 +346,96 @@ const MyCert = (props) => {
 									)}
 								</View>
 							</TouchableOpacity> */}
-							<View style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}>
-								<View style={[styles.badgeBtnLeft2]}>
-									<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>학교 인증</Text>
-									<Text style={styles.badgeBtnLeftText2}>포인트 지급</Text>
+							{schoolApiRes.auth_yn == 'y' || schoolApiRes.auth_yn == 'i' ? (
+								<View style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}>
+									<View style={[styles.badgeBtnLeft2]}>
+										<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>학교 인증</Text>
+										<Text style={styles.badgeBtnLeftText2}>포인트 지급</Text>
+									</View>
+									<View style={styles.badgeBtnRight}>
+										<TouchableOpacity
+											activeOpacity={opacityVal}
+											onPress={()=>{
+												setDeleteTitle('학교 인증');
+												setDeleteType(2);
+												setDeletePop(true);
+											}}
+										>										
+											<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
+										</TouchableOpacity>		
+									</View>
 								</View>
-								<View style={styles.badgeBtnRight}>
-									<TouchableOpacity
-										activeOpacity={opacityVal}
-										onPress={()=>{
-											setDeleteType(2);
-											setDeletePop(true);
-										}}
-									>										
-										<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
-									</TouchableOpacity>		
-								</View>
-							</View>
+							) : (
+								<TouchableOpacity
+									style={[styles.badgeBtn, styles.boxShadow]}
+									activeOpacity={realSchoolFile.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realSchoolFile.path ? setSchoolModal(true) : null
+										!realSchoolFile.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={[styles.badgeBtnLeft2]}>
+										<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>학교 인증</Text>
+										<Text style={styles.badgeBtnLeftText2}>포인트 지급</Text>
+									</View>
+									<View style={styles.badgeBtnRight}>										
+										{schoolApiRes.auth_yn == 'n' ? (
+											<>
+											<View style={styles.stateView2}>
+												<Text style={styles.stateViewText2}>반려</Text>
+											</View>
+											<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+											</>	
+										) : null}
+									</View>
+								</TouchableOpacity>
+							)}
 
-							<TouchableOpacity
-								style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}
-								activeOpacity={realMarryFile.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realMarryFile.path ? setMarryModal(true) : null
-									!realMarryFile.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={[styles.badgeBtnLeft2]}>
-									<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>혼인 정보</Text>
-									<Text style={styles.badgeBtnLeftText2}>포인트 지급</Text>
+							{marryApiRes.auth_yn == 'y' || marryApiRes.auth_yn == 'i' ? (
+								<View style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}>
+									<View style={[styles.badgeBtnLeft2]}>
+										<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>혼인 정보</Text>
+										<Text style={styles.badgeBtnLeftText2}>포인트 지급</Text>
+									</View>
+									<View style={styles.badgeBtnRight}>
+										<TouchableOpacity
+											activeOpacity={opacityVal}
+											onPress={()=>{
+												setDeleteTitle('혼인 정보');
+												setDeleteType(3);
+												setDeletePop(true);
+											}}
+										>										
+											<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
+										</TouchableOpacity>		
+									</View>
 								</View>
-								<View style={styles.badgeBtnRight}>
-									{realMarryFile.path ? (
-										<View style={styles.stateView}>
-											<Text style={styles.stateViewText}>심사중</Text>
-										</View>
-									) : (
-										<>
-										<View style={styles.stateView2}>
-											<Text style={styles.stateViewText2}>반려</Text>
-										</View>
-										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-										</>									
-									)}
-								</View>
-							</TouchableOpacity>
+							) : (
+								<TouchableOpacity
+									style={[styles.badgeBtn, styles.boxShadow]}
+									activeOpacity={realMarryFile.path ? 1 : opacityVal}
+									onPress={()=>{
+										!realMarryFile.path ? setMarryModal(true) : null
+										!realMarryFile.path ? setPreventBack(true) : null
+									}}
+								>
+									<View style={[styles.badgeBtnLeft2]}>
+										<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>혼인 정보</Text>
+										<Text style={styles.badgeBtnLeftText2}>포인트 지급</Text>
+									</View>
+									<View style={styles.badgeBtnRight}>										
+										{marryApiRes.auth_yn == 'n' ? (
+											<>
+											<View style={styles.stateView2}>
+												<Text style={styles.stateViewText2}>반려</Text>
+											</View>
+											<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+											</>	
+										) : null}
+									</View>
+								</TouchableOpacity>
+							)}
+							
 						</View>
 					</View>
 				</View>
@@ -758,7 +863,7 @@ const MyCert = (props) => {
 							<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
-              <Text style={styles.popTitleText}>인증 항목을 삭제하시겠어요?</Text>
+              <Text style={styles.popTitleText}>{deleteTitle} 항목을 삭제하시겠어요?</Text>
 						</View>
             <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.mgt50]}>
 						  <TouchableOpacity 

@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
@@ -29,6 +30,7 @@ const BlockPeople = ({navigation, route}) => {
   const navigationUse = useNavigation();
 	const [keyboardStatus, setKeyboardStatus] = useState(false);
 	const [keyboardHeight, setKeyboardHeight] = useState(0);
+	const [currFocus, setCurrFocus] = useState('');
 	const [preventBack, setPreventBack] = useState(false);
   const [blockNumberList, setBlockNumberList] = useState([]);
   const [blockNameList, setBlockNameList] = useState([]);
@@ -38,6 +40,10 @@ const BlockPeople = ({navigation, route}) => {
   const [name, setName] = useState('');
   const [blockModal, setBlockModal] = useState(false);
 	const [blockModal2, setBlockModal2] = useState(false);
+	const [memberIdx, setMemberIdx] = useState();
+	const [memberId, setMemberId] = useState();
+	const [firebaseToken, setFirebaseToken] = useState();
+	const [deviceToken, setDeviceToken] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -50,6 +56,26 @@ const BlockPeople = ({navigation, route}) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('appToken', (err, result) => {
+				//console.log('appToken :::: ', result);
+				setFirebaseToken(result);
+			});
+	
+			AsyncStorage.getItem('deviceId', (err, result) => {		
+				//console.log('deviceId :::: ', result);		
+				setDeviceToken(result);
+			});
+
+			AsyncStorage.getItem('member_id', (err, result) => {		
+				//console.log('member_id :::: ', result);		
+				setMemberId(result);
+			});
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 		Toast.hide();
 		return () => isSubscribed = false;
@@ -61,9 +87,7 @@ const BlockPeople = ({navigation, route}) => {
       // 여기에 원하는 동작을 추가하세요.
       // e.preventDefault();를 사용하면 뒤로 가기를 막을 수 있습니다.
       //console.log('preventBack22 ::: ',preventBack);
-      if (preventBack) {        
-				setPopNick(false);
-				setPopGender(false);
+      if (preventBack) {       
 				e.preventDefault();
       } else {
         //console.log('뒤로 가기 이벤트 발생!');								
@@ -72,6 +96,34 @@ const BlockPeople = ({navigation, route}) => {
 
     return unsubscribe;
   }, [navigationUse, preventBack]);
+
+	useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardStatus(true);
+			if(Platform.OS != 'ios'){
+				if(currFocus == 'phone'){
+					setKeyboardHeight((e.endCoordinates.height/2)*-1);
+				}else if(currFocus == 'name'){
+					setKeyboardHeight((e.endCoordinates.height/2)*-1);
+				}else{
+					setKeyboardHeight(0);
+				}
+				//console.log('currFocus ::: ',currFocus);
+			}
+			//console.log(e.endCoordinates.height);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardStatus(false);
+			if(Platform.OS != 'ios'){
+				setKeyboardHeight(0);
+			}
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [currFocus]);
   
 	useEffect(() => {
 		if (number.length === 10) {
@@ -81,25 +133,72 @@ const BlockPeople = ({navigation, route}) => {
 		if (number.length === 13) {
 			setNumber(number.replace(/-/g, '').replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'));
 		}			
+
+		if(number.length > 13){
+			setNumber(number.substr(0,13));
+		}
 	}, [number]);
+
+	useEffect(() => {
+		if(memberIdx){
+			getBlockPhone();
+			getBlockName();
+		}
+	}, [memberIdx]);
+
+	const getBlockPhone = async () => {		
+		let sData = {
+			basePath: "/api/member/index.php",
+			type: "GetBlockList",
+			member_idx: memberIdx,
+			block_table: 'phone',
+		};
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			let ary = [];
+			response.data.map((item, index) => {
+				ary = [...ary, item.block_phone];				
+			})
+			setBlockNumberList(ary);
+			setRealBlockNumberList(ary);
+		}
+	}
+
+	const getBlockName = async () => {
+		let sData = {
+			basePath: "/api/member/index.php",
+			type: "GetBlockList",
+			member_idx: memberIdx,
+			block_table: 'name',
+		};
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			let ary = [];
+			response.data.map((item, index) => {
+				ary = [...ary, item.block_name];				
+			})
+			setBlockNameList(ary);
+			setRealBlockNameList(ary);
+		}
+	}
 
 	const blockInsert = (v) => {
 		let state = true;
 		let ary = blockNumberList;
 		let ary2 = blockNameList;
-		if(v == 'number'){
+		if(v == 'phone'){
 			if(number == ''){
 				ToastMessage('번호를 입력해 주세요.');
 				return false;
 			}
 
 			if(number.length != 13){
-				ToastMessage('번호를 정확하게 입력해 주세요.');
+				ToastMessage('번호를 정확하게 입력해 주세요');
 				return false;
 			}
 
 			for(let i=0; i<blockNumberList.length; i++){
-				if(blockNumberList[i]['phoneNumber'] == number){
+				if(blockNumberList[i] == number){
 					state = false;
 					break;
 				}
@@ -110,8 +209,7 @@ const BlockPeople = ({navigation, route}) => {
 				return false;
 			}
 
-			let blockCont = {phoneNumber : number};
-			ary = [...ary, blockCont];
+			ary = [...ary, number];
 			setBlockNumberList(ary);
 			setNumber('');
 
@@ -123,7 +221,7 @@ const BlockPeople = ({navigation, route}) => {
 			}
 
 			for(let i=0; i<blockNameList.length; i++){
-				if(blockNameList[i]['name'] == name){
+				if(blockNameList[i] == name){
 					state = false;
 					break;
 				}
@@ -134,8 +232,8 @@ const BlockPeople = ({navigation, route}) => {
 				return false;
 			}
 
-			let blockCont = {name : name};
-			ary2 = [...ary2, blockCont];
+			ary2 = [...ary2, name];
+			console.log(ary2);
 			setBlockNameList(ary2);
 			setName('');
 		}
@@ -144,11 +242,10 @@ const BlockPeople = ({navigation, route}) => {
 	const removeData = (v, z) => {
 		let selectCon = [];
 
-		if(v == 'number'){			
+		if(v == 'phone'){			
 			blockNumberList.map((item, index) => {
-				if(item.phoneNumber != z){
-					let aryList = {phoneNumber : item.phoneNumber};
-					selectCon = [...selectCon, aryList];
+				if(item != z){
+					selectCon = [...selectCon, item];
 				}
 			});
 
@@ -157,14 +254,39 @@ const BlockPeople = ({navigation, route}) => {
 		}else if(v == 'name'){
 
 			blockNameList.map((item, index) => {
-				if(item.name != z){
-					let aryList = {name : item.name};
-					selectCon = [...selectCon, aryList];
+				if(item != z){
+					selectCon = [...selectCon, item];
 				}
 			});
 
 			setBlockNameList(selectCon);
 		}
+	}
+
+	const saveBlock = async (v) => {
+		let sData = {
+			basePath: "/api/member/index.php",
+			type: "SetBlocks",
+			member_idx: memberIdx,
+			block_table: v,
+		};
+		if(v == 'phone'){
+			setRealBlockNumberList(blockNumberList);			
+			sData.block_val = blockNumberList;
+		}else if(v == 'name'){
+			setRealBlockNameList(blockNameList);
+			sData.block_val = blockNameList;			
+		}
+		
+		const response = await APIs.send(sData);
+		console.log(response);
+		if(response.code == 200){
+			ToastMessage('등록되었습니다.');
+		}
+		
+		setBlockModal(false);
+		setBlockModal2(false);
+		setPreventBack(false);
 	}
 
   const headerHeight = 48;
@@ -235,8 +357,8 @@ const BlockPeople = ({navigation, route}) => {
 					keyboardVerticalOffset={0}
 					behavior={behavior}
 				>
-					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-						<View style={{...styles.prvPop, }}>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>						
+						<View style={{...styles.prvPop, top:keyboardHeight}}>
 							<TouchableOpacity
 								style={styles.pop_x}					
 								onPress={() => {
@@ -255,6 +377,9 @@ const BlockPeople = ({navigation, route}) => {
 									onChangeText={(v) => {
 										setNumber(v);
 									}}
+									onFocus={()=>{
+										setCurrFocus('phone');
+									}}
                   maxLength={13}                
                   keyboardType="number-pad"
 									placeholder={'010-0000-0000'}
@@ -265,7 +390,7 @@ const BlockPeople = ({navigation, route}) => {
 								<TouchableOpacity
 									style={styles.btn}
 									activeOpacity={opacityVal}
-									onPress={() => {blockInsert('number')}}
+									onPress={() => {blockInsert('phone')}}
 								>
 									<Text style={styles.btnText}>등록</Text>
 								</TouchableOpacity>
@@ -283,12 +408,12 @@ const BlockPeople = ({navigation, route}) => {
 												key={index}
 												style={styles.blockLi}
 											>
-												<Text style={styles.blockLiText}>{item.phoneNumber}</Text>
+												<Text style={styles.blockLiText}>{item}</Text>
 												<TouchableOpacity
 													style={styles.blockRemove}
 													activeOpacity={opacityVal}
 													onPress={() => {
-														removeData('number', item.phoneNumber);
+														removeData('phone', item);
 													}}
 												>
 													<ImgDomain fileWidth={22} fileName={'icon_minus3.png'}/>
@@ -302,11 +427,7 @@ const BlockPeople = ({navigation, route}) => {
 								<TouchableOpacity 
 									style={[styles.popBtn]}
 									activeOpacity={opacityVal}
-									onPress={() => {
-										setRealBlockNumberList(blockNumberList);
-										setBlockModal(false);
-										setPreventBack(false);
-									}}
+									onPress={() => saveBlock('phone')}
 								>
 									<Text style={styles.popBtnText}>저장하기</Text>
 								</TouchableOpacity>
@@ -331,8 +452,8 @@ const BlockPeople = ({navigation, route}) => {
 					keyboardVerticalOffset={0}
 					behavior={behavior}
 				>
-					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-						<View style={{...styles.prvPop, }}>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>						
+						<View style={{...styles.prvPop, top:keyboardHeight}}>
 							<TouchableOpacity
 								style={styles.pop_x}					
 								onPress={() => {
@@ -352,7 +473,10 @@ const BlockPeople = ({navigation, route}) => {
 									value={name}
 									onChangeText={(v) => {
 										setName(v);
-									}}          
+									}}
+									onFocus={()=>{
+										setCurrFocus('name');
+									}}
 									placeholder={'차단하고 싶은 이름을 작성해주세요.'}
 									placeholderTextColor="#DBDBDB"
 									style={[styles.input]}
@@ -379,12 +503,12 @@ const BlockPeople = ({navigation, route}) => {
 												key={index}
 												style={styles.blockLi}
 											>
-												<Text style={styles.blockLiText}>{item.name}</Text>
+												<Text style={styles.blockLiText}>{item}</Text>
 												<TouchableOpacity
 													style={styles.blockRemove}
 													activeOpacity={opacityVal}
 													onPress={() => {
-														removeData('name', item.name);
+														removeData('name', item);
 													}}
 												>													
 													<ImgDomain fileWidth={22} fileName={'icon_minus3.png'}/>
@@ -398,11 +522,7 @@ const BlockPeople = ({navigation, route}) => {
 								<TouchableOpacity 
 									style={[styles.popBtn]}
 									activeOpacity={opacityVal}
-									onPress={() => {
-										setRealBlockNameList(blockNameList);
-										setBlockModal2(false);
-										setPreventBack(false);
-									}}
+									onPress={() => saveBlock('name')}
 								>
 									<Text style={styles.popBtnText}>저장하기</Text>
 								</TouchableOpacity>

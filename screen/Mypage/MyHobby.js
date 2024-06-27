@@ -7,7 +7,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
 import RNPickerSelect from 'react-native-picker-select';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -21,34 +23,7 @@ const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
-const MyHobby = (props) => {	
-	const dep1 = [
-		{idx:1, txt:'활동'},
-		{idx:2, txt:'감명을 준 사람'},
-		{idx:3, txt:'연예인'},
-	];
-	
-	let dep2 = [
-		[
-			{dep2Idx:1, dep1Idx:1, txt:'액션'},
-			{dep2Idx:2, dep1Idx:1, txt:'코미디'},
-			{dep2Idx:3, dep1Idx:1, txt:'멜로'},
-			{dep2Idx:4, dep1Idx:1, txt:'스릴러'},
-			{dep2Idx:5, dep1Idx:1, txt:'드라마'},
-		],
-		[
-			{dep2Idx:6, dep1Idx:2, txt:'SF'},
-			{dep2Idx:7, dep1Idx:2, txt:'애니'},
-			{dep2Idx:8, dep1Idx:2, txt:'예능'},
-			{dep2Idx:9, dep1Idx:2, txt:'유튜브'},
-		],
-		[
-			{dep2Idx:10, dep1Idx:3, txt:'숏폼'},
-			{dep2Idx:11, dep1Idx:3, txt:'디즈니'},
-			{dep2Idx:12, dep1Idx:3, txt:'마블'},
-		]
-	]
-
+const MyHobby = (props) => {
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route
@@ -57,7 +32,8 @@ const MyHobby = (props) => {
 	const [preventBack, setPreventBack] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [loading, setLoading] = useState(false);
-	const [depth1List, setDepth1List] = useState(dep1); //카테고리 리스트
+	const [memberIdx, setMemberIdx] = useState();
+	const [depth1List, setDepth1List] = useState([]); //카테고리 리스트
 	const [depth2List, setDepth2List] = useState([]);
 	
 	const [addKeyword, setAddKeyword] = useState('');
@@ -77,6 +53,10 @@ const MyHobby = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
 		}
 
 		Keyboard.dismiss();
@@ -84,63 +64,126 @@ const MyHobby = (props) => {
 		return () => isSubscribed = false;
 	}, [isFocused]);
 
-	const arySet = (currRoomIdx, dep2Idx, dep1Idx, txt) => {
-		let ary = [];
-		if(keywordAry.length > 0){
-			for(let i=0; i<keywordAry.length; i++){
-				if(keywordAry[i].dep1Idx == dep1Idx && keywordAry[i].dep2Idx == dep2Idx){
-					//console.log('이미 있음 ::: ',txt);
-					ToastMessage('이미 선택한 키워드입니다.');
-					return false;					
-				}else{										
-					ary = keywordAry;
-					let obj = {dep2Idx:dep2Idx, dep2Val:txt, dep1Idx:dep1Idx, dep1Val:depth1};
-					ary = [...ary, obj];
+	useEffect(() => {
+		if(memberIdx){
+			getMyHobby();
+		}
+	}, [memberIdx])
 
-					const asc = ary.sort((a,b) => {
-						if((a.dep1Idx)+(a.dep2Idx) > (b.dep1Idx)+(b.dep2Idx)) return 1;
-						if((a.dep1Idx)+(a.dep2Idx) < (b.dep1Idx)+(b.dep2Idx)) return -1;
-						return 0;
-					});
+	const getMyHobby = async () => {	
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetMyHobby",
+			member_idx: memberIdx,
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			setDepth1List(response.category);
 
-					setKeywordAry(asc);
-				}
+			if(response.data.length > 0){
+				let newAry = [];
+				response.data.map((item, index) => {
+					const exp = item.hk_names.split('|');
+					for(let j=0; j<exp.length; j++){
+						let newObj = {dep2Val:'', dep2Val:exp[j], dep1Idx:item.hc_idx, dep1Val:item.hc_name};
+						newAry = [...newAry, newObj];
+					}
+					//
+				});
+				//console.log(newAry);
+				setKeywordAry(newAry);
 			}
-		}else{
-			let obj = {dep2Idx:dep2Idx, dep2Val:txt, dep1Idx:dep1Idx, dep1Val:depth1};
-			ary = [...ary, obj];
-			setKeywordAry(ary);
-		}		
+		}
 	}
 
-	const removeKeyword = (idx1, idx2) => {
+	const GetHobbyList = async (idx) => {
+		setCurrRoomIdx(idx);
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetHobbyList",
+			hc_idx: idx,
+		}
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){			
+			setDepth2List(response.data);
+		}
+	}
+
+	const arySet = (dep1Idx, txt) => {
+		let ary = [];
+		let state = true;
+		if(keywordAry.length > 0){
+			for(let i=0; i<keywordAry.length; i++){
+				//console.log(keywordAry[i]);
+				if(keywordAry[i].dep1Idx == dep1Idx && keywordAry[i].dep2Val == txt){					
+					state = false;
+					ToastMessage('이미 선택한 키워드입니다.');					
+					return false;
+				}															
+			}
+
+			if(state){
+				ary = keywordAry;
+				let obj = {dep2Val:txt, dep1Idx:dep1Idx, dep1Val:depth1};
+				ary = [...ary, obj];
+
+				const asc = ary.sort((a,b) => {
+					if((a.dep1Idx) > (b.dep1Idx)) return 1;
+					if((a.dep1Idx) < (b.dep1Idx)) return -1;
+					return 0;
+				});
+
+				setKeywordAry(asc);
+			}
+		}else{
+			let obj = {dep2Val:txt, dep1Idx:dep1Idx, dep1Val:depth1};
+			ary = [...ary, obj];
+			setKeywordAry(ary);
+		}
+	}
+
+	const removeKeyword = (idx1, val) => {
 		let selectCon = [];
 		keywordAry.map((item, index) => {
-			if(item.dep1Idx == idx1 && item.dep2Idx == idx2){
+			if(item.dep1Idx == idx1 && item.dep2Val == val){
 				// console.log(item.dep2Val);
 				// console.log(item.dep1Idx+' ::: '+idx1);
-				// console.log(item.dep2Idx+' ::: '+idx2);
 				// console.log('///////////////');
 			}else{
-				let obj = {dep2Idx:item.dep2Idx, dep2Val:item.dep2Val, dep1Idx:item.dep1Idx, dep1Val:item.dep1Val};
+				let obj = {dep2Val:item.dep2Val, dep1Idx:item.dep1Idx, dep1Val:item.dep1Val};
 				selectCon = [...selectCon, obj];
 			}
 		});
 		setKeywordAry(selectCon);
 	}
 
-	const addKeywordChk = () => {
+	const addKeywordChk = async () => {
+		let nextStep = false;
 		if(addKeyword == '' || addKeyword.length < 2){
 			ToastMessage('2글자 이상의 키워드를 입력해 주세요.');
 			return false;
 		}
-		
-		let ary = depth2List;
-		let newObj = {dep2Idx:keywordTotal+1, dep1Idx:currRoomIdx, txt:addKeyword}
-		ary = [...ary, newObj];
-		setDepth2List(ary);
-		setKeywordTotal(keywordTotal+1);
-		setAddKeyword('');
+
+		let sData = {      
+      basePath: "/api/etc/index.php",
+			type: "SetFilter",
+			txt: addKeyword,
+		}
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			nextStep = true;
+		}
+
+		if(nextStep){
+			arySet(depth1, addKeyword);
+			setAddKeyword('');
+		}else{
+			ToastMessage('사용할 수 없는 키워드입니다.');
+			return false;
+		}
 	}
 
 	const submitKeyword = async () => {
@@ -148,8 +191,37 @@ const MyHobby = (props) => {
 			ToastMessage('1개 이상의 키워드를 선택해 주세요.');
 			return false;
 		}
-
 		
+		let submitAry = [];
+		let key_idx = 0;
+		keywordAry.map((item, index) => {
+			let objList = {};
+			if(key_idx != item.dep1Idx){
+				const result = keywordAry.filter((value) => value.dep1Idx == item.dep1Idx);
+				let names = "";
+				result.map((item2, index2) => {
+					if(names != ""){ names += "|"; }
+					names += item2.dep2Val;
+				});								
+				key_idx = item.dep1Idx;
+				objList = {hc_idx:key_idx, hk_names:names}
+				submitAry = [...submitAry, objList]
+			}
+		});
+		
+		setLoading(true);
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "SetMyHobby",
+			member_idx: memberIdx,
+			hobby_data: submitAry,
+		}
+		//console.log(sData);
+		const response = await APIs.send(sData);		
+		setLoading(false);
+		if(response.code == 200){
+			navigation.navigate('ProfieModify');
+		}
 	}
 
 	return (
@@ -172,22 +244,16 @@ const MyHobby = (props) => {
 								onValueChange={(value, index) => {
 									setDepth1(value);
 									if(value){
-										setCurrRoomIdx(value);										
-										setDepth2List(dep2[index-1]);
+										GetHobbyList(value);										
 									}else{
 										setCurrRoomIdx('');							
 										setDepth2List([]);
 									}
 								}}
-								placeholder={{
-									label: '선택해주세요.',
-									inputLabel: '선택해주세요.',
-									value: '',
-									color: '#666',
-								}}
+								placeholder={{}}
 								items={depth1List.map(item => ({
-									label: item.txt,
-									value: item.idx,
+									label: item.hc_name,
+									value: item.hc_idx,
 								 }))}
 								fixAndroidTouchableBug={true}
 								useNativeAndroidPickerStyle={false}
@@ -240,10 +306,10 @@ const MyHobby = (props) => {
 													style={styles.dep2Btn}
 													activeOpacity={opacityVal}
 													onPress={()=>{
-														arySet(currRoomIdx, item.dep2Idx, item.dep1Idx, item.txt);
+														arySet(depth1, item.hk_name);
 													}}
 												>
-													<Text style={styles.dep2BtnText}>{item.txt}</Text>
+													<Text style={styles.dep2BtnText}>{item.hk_name}</Text>
 												</TouchableOpacity>
 											)
 										})}
@@ -260,12 +326,12 @@ const MyHobby = (props) => {
 							</View>
 							<View style={styles.myKeyword}>
 								{depth1List.map((item, index) => {									
-									let dep2Len = keywordAry.filter((value) => value.dep1Idx == item.idx);
+									let dep2Len = keywordAry.filter((value) => value.dep1Idx == item.hc_idx);
 									if(dep2Len.length > 0){
 										return (
 											<View key={index} style={styles.myKeywordView}>
 												<View style={styles.myKeywordViewTh}>
-													<Text style={styles.myKeywordViewThText}>{item.txt}</Text>
+													<Text style={styles.myKeywordViewThText}>{item.hc_name}</Text>
 												</View>
 												<ScrollView
 													horizontal={true}
@@ -278,7 +344,7 @@ const MyHobby = (props) => {
 																style={styles.myKeywordBtn}
 																activeOpacity={opacityVal}
 																onPress={()=>{
-																	removeKeyword(item2.dep1Idx, item2.dep2Idx);
+																	removeKeyword(item2.dep1Idx, item2.dep2Val);
 																}}
 															>
 																<Text style={styles.myKeywordBtnText}>{item2.dep2Val}</Text>

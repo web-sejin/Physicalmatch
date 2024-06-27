@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
@@ -18,7 +19,6 @@ const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
 const RegisterStep3 = ({navigation, route}) => {	
-
   const prvChk4 = route['params']['prvChk4'];
   const accessRoute = route['params']['accessRoute'];
 
@@ -27,6 +27,7 @@ const RegisterStep3 = ({navigation, route}) => {
   const [state, setState] = useState(false);
   const [id, setId] = useState('');
   const [certId, setCertId] = useState(false);  
+  const [loading, setLoading] = useState(false);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -83,11 +84,11 @@ const RegisterStep3 = ({navigation, route}) => {
     navigation.navigate('RegisterStep4', {
       prvChk4:prvChk4,
       accessRoute:accessRoute, 
-      mb_id:id,
+      member_id:id,
     })
   }
 
-  const cert_id = () => {
+  const cert_id = async () => {
     if(!id || id == ""){
 			ToastMessage('아이디를 입력해 주세요.');
 			return false;
@@ -95,6 +96,15 @@ const RegisterStep3 = ({navigation, route}) => {
 
     if(id.length < 3 || id.length > 30){
       ToastMessage('아이디를 6~30자 내로 입력해 주세요.');
+			return false;
+    }
+
+    const korean = id.search(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/);
+    const num = id.search(/[0-9]/g);
+    const eng = id.search(/[a-z]/ig);		
+
+    if(korean > -1){      
+      ToastMessage('한글은 사용할 수 없습니다.');
 			return false;
     }
     
@@ -107,9 +117,22 @@ const RegisterStep3 = ({navigation, route}) => {
     }
     
     Keyboard.dismiss();
-    setCertId(true);
-    setState(true);
-    ToastMessage('사용할 수 있는 아이디 입니다.');
+
+    let sData = {      
+      basePath: "/api/member/index.php",
+			type: "IsDuplicationId",
+      member_id: id,
+		}
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+      setCertId(true);
+      setState(true);
+      ToastMessage('사용할 수 있는 아이디 입니다.');
+    }else{
+      setCertId(false);
+      setState(false);
+      ToastMessage('이미 사용 중이거나 사용할 수 없는 아이디 입니다.');      
+    }    
   }
 
   const headerHeight = 48;
@@ -174,7 +197,13 @@ const RegisterStep3 = ({navigation, route}) => {
             <Text style={styles.nextBtnText}>다음</Text>
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>      
+      </KeyboardAvoidingView>
+
+      {loading ? (
+      <View style={[styles.indicator]}>
+        <ActivityIndicator size="large" color="#D1913C" />
+      </View>
+      ) : null}
 		</SafeAreaView>
 	)
 }
@@ -182,8 +211,7 @@ const RegisterStep3 = ({navigation, route}) => {
 const styles = StyleSheet.create({
 	safeAreaView: {flex:1,backgroundColor:'#fff'},
 	gapBox: {height:80,backgroundColor:'#fff'},
-	indicator: {height:widnowHeight-185, display:'flex', alignItems:'center', justifyContent:'center'},
-  indicator2: { marginTop: 62 },
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
   
   cmWrap: {paddingVertical:30,paddingHorizontal:20},
   cmTitleBox: {position:'relative'},

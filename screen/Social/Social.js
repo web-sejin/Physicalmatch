@@ -1,15 +1,14 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -67,6 +66,7 @@ const Social = (props) => {
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
+	const [memberIdx, setMemberIdx] = useState();
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [socialList, setSocialList] = useState([]);
 	const [filterMonth, setFilterMonth] = useState([]);
@@ -104,6 +104,15 @@ const Social = (props) => {
 			//console.log("isFocused");
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
+
+			if(params?.reload){
+        getSocialList();
+        //delete params?.reload;
+      }
 		}
 
 		Keyboard.dismiss();
@@ -226,6 +235,10 @@ const Social = (props) => {
 			setLoading(false);
 		}, 1000);
 	}, [])
+
+	const getSocialList = async () => {
+		
+	}
 
 	const getList = ({item, index}) => (
 		<View style={styles.socialLi}>

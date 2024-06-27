@@ -82,7 +82,7 @@ const SocialView = (props) => {
   const [data1List, setData1List] = useState(Data1);
   const [data1List2, setData1List2] = useState(Data2);
 
-  const [userType, setUserType] = useState(1); //1=>호스트, 2=>게스트
+  const [userType, setUserType] = useState(2); //1=>호스트, 2=>게스트
   const [userType2, setUserType2] = useState(0); //1=>정회원, 0=>비회원
   const [nick, setNick] = useState('');
   const [age, setAge] = useState('');

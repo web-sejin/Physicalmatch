@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
@@ -17,12 +18,16 @@ const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
-const PwResult = ({navigation, route}) => {	
+const PwResult = (props) => {	
+	const {navigation, route} = props;
+	const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
+	const [loading, setLoading] = useState(false);
   const [state, setState] = useState(false);
   const [pw, setPw] = useState('');
-  const [pw2, setPw2] = useState('');  
+  const [pw2, setPw2] = useState(''); 
+	const [idx, setIdx] = useState(params?.idx);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -65,6 +70,27 @@ const PwResult = ({navigation, route}) => {
 			ToastMessage('비밀번호가 일치하지 않습니다. 다시 입력해 주세요.');
 			return false;
     }
+
+		setLoading(true);
+		let sData = {
+			basePath: "/api/member/",
+			type: "UpdatePw",
+      member_idx: idx,
+			member_pw: pw,
+		};
+
+		const response = await APIs.send(sData);
+		console.log(response);
+		if(response.code == 200){
+			ToastMessage('비밀번호가 변경되었습니다. 잠시후 로그인 화면으로 이동합니다.');
+			setTimeout(function(){
+				setLoading(false);
+				navigation.navigate('Login');
+			}, 2000);
+		}else{
+			
+		}
+		return false;
   }
 
   const checkVal = () => {
@@ -133,7 +159,13 @@ const PwResult = ({navigation, route}) => {
 						<Text style={styles.nextBtnText}>저장</Text>
 					</TouchableOpacity>
 				</View>
-      </KeyboardAvoidingView>      
+      </KeyboardAvoidingView> 
+
+			{loading ? (
+      <View style={[styles.indicator]}>
+        <ActivityIndicator size="large" color="#D1913C" />
+      </View>
+      ) : null}
 		</SafeAreaView>
 	)
 }
@@ -141,8 +173,7 @@ const PwResult = ({navigation, route}) => {
 const styles = StyleSheet.create({
 	safeAreaView: {flex:1,backgroundColor:'#fff'},
 	gapBox: {height:80,backgroundColor:'#fff'},
-	indicator: {height:widnowHeight-185, display:'flex', alignItems:'center', justifyContent:'center'},
-  indicator2: { marginTop: 62 },
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
   
   cmWrap: {paddingVertical:30,paddingHorizontal:20},
   cmTitleBox: {position:'relative'},

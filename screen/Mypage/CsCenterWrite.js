@@ -9,7 +9,9 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import RNPickerSelect from 'react-native-picker-select';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -24,12 +26,6 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const CsCenterWrite = (props) => {
-  const data = [
-		{idx:1, txt:'문의유형1'},
-		{idx:2, txt:'문의유형2'},
-		{idx:3, txt:'문의유형3'},
-	];
-
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route	
@@ -37,13 +33,23 @@ const CsCenterWrite = (props) => {
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [memberIdx, setMemberIdx] = useState();
   const [locPop, setLocPop] = useState(false);
   const [ImagePop, setImagePop] = useState(false);
-  const [cateList, setCateList] = useState(data);
+  const [cateList, setCateList] = useState([]);
   const [state, setState] = useState(false);
   const [cate, setCate] = useState('');
   const [subject, setSubject] = useState('');
   const [phoneImage, setPhoneImage] = useState({});
+  const [phoneImage2, setPhoneImage2] = useState({});
+  const [phoneImage3, setPhoneImage3] = useState({});
+  const [phoneImage4, setPhoneImage4] = useState({});
+  const [phoneImage5, setPhoneImage5] = useState({});
+  const [phoneImage6, setPhoneImage6] = useState({});
+  const [phoneImage7, setPhoneImage7] = useState({});
+  const [phoneImage8, setPhoneImage8] = useState({});
+  const [phoneImage9, setPhoneImage9] = useState({});
+  const [phoneImage10, setPhoneImage10] = useState({});
   const [content, setContent] = useState('');
 
 	const isFocused = useIsFocused();
@@ -55,6 +61,10 @@ const CsCenterWrite = (props) => {
 			//console.log("isFocused");      
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
 		}
 
 		Keyboard.dismiss();
@@ -96,7 +106,23 @@ const CsCenterWrite = (props) => {
     }
   }, [cate, subject, content, phoneImage]);
 
-  const chooseImage = () => {
+  useEffect(() => {
+    getCateList();
+  }, []);
+
+  const getCateList = async () => {
+    let sData = {      
+      basePath: "/api/etc/index.php",
+			type: "GetInquiryCategory",
+		}
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setCateList(response.data);
+		}
+  }
+
+  const chooseImage = (v) => {
     ImagePicker.openPicker({
       //width: 300,
       //height: 400,
@@ -104,8 +130,28 @@ const CsCenterWrite = (props) => {
     })
 		.then(image => {      
 			let selectObj = {path: image.path, mime: image.mime}			
-      console.log(selectObj);
-      setPhoneImage(selectObj);
+      //console.log(selectObj);
+      if(v == 1){
+        setPhoneImage(selectObj);
+      }else if(v == 2){
+        setPhoneImage2(selectObj);
+      }else if(v == 3){
+        setPhoneImage3(selectObj);
+      }else if(v == 4){
+        setPhoneImage4(selectObj);
+      }else if(v == 5){
+        setPhoneImage5(selectObj);
+      }else if(v == 6){
+        setPhoneImage6(selectObj);
+      }else if(v == 7){
+        setPhoneImage7(selectObj);
+      }else if(v == 8){
+        setPhoneImage8(selectObj);
+      }else if(v == 9){
+        setPhoneImage9(selectObj);
+      }else if(v == 10){
+        setPhoneImage10(selectObj);
+      }
 		})
 		.finally(() => {
       
@@ -114,6 +160,7 @@ const CsCenterWrite = (props) => {
 
   const writeUpdate = async () => {    
     if(cate == ''){
+      Keyboard.dismiss();
       ToastMessage('문의 유형을 선택해 주세요.');
       return false;
     }
@@ -128,11 +175,37 @@ const CsCenterWrite = (props) => {
       return false;
     }
 
-    Keyboard.dismiss;
+    Keyboard.dismiss();
     setLoading(true);
-    setTimeout(function(){
-      setLoading(false);
-    }, 1000);
+
+    const fileData = [];		
+		if(phoneImage.path){ fileData[0] = {uri: phoneImage.path, name: 'inquery_file.png', type: phoneImage.mime}; }
+    if(phoneImage2.path){ fileData[fileData.length] = {uri: phoneImage2.path, name: 'inquery_file2.png', type: phoneImage2.mime}; }    
+    if(phoneImage3.path){ fileData[fileData.length] = {uri: phoneImage3.path, name: 'inquery_file3.png', type: phoneImage3.mime}; }
+    if(phoneImage4.path){ fileData[fileData.length] = {uri: phoneImage4.path, name: 'inquery_file4.png', type: phoneImage4.mime}; }
+    if(phoneImage5.path){ fileData[fileData.length] = {uri: phoneImage5.path, name: 'inquery_file5.png', type: phoneImage5.mime}; }
+    if(phoneImage6.path){ fileData[fileData.length] = {uri: phoneImage6.path, name: 'inquery_file6.png', type: phoneImage6.mime}; }
+    if(phoneImage7.path){ fileData[fileData.length] = {uri: phoneImage7.path, name: 'inquery_file7.png', type: phoneImage7.mime}; }
+    if(phoneImage8.path){ fileData[fileData.length] = {uri: phoneImage8.path, name: 'inquery_file8.png', type: phoneImage8.mime}; }
+    if(phoneImage9.path){ fileData[fileData.length] = {uri: phoneImage9.path, name: 'inquery_file9.png', type: phoneImage9.mime}; }
+    if(phoneImage10.path){ fileData[fileData.length] = {uri: phoneImage10.path, name: 'inquery_file10.png', type: phoneImage10.mime}; }
+
+    let sData = {      
+      basePath: "/api/etc/index.php",
+			type: "SetInquiry",
+      member_idx: memberIdx,
+      ic_idx: cate,
+      inquiry_subject: subject,
+      inquiry_content: content,
+      inquiry_files: fileData,
+		}
+    const formData = APIs.makeFormData(sData)
+		const response = await APIs.multipartRequest(formData);
+		//console.log(response);
+    setLoading(false);
+    if(response.code == 200){
+      navigation.navigate('CsCenter', {reload:true});
+    }
   }
 
   const headerHeight = 48;
@@ -161,15 +234,10 @@ const CsCenterWrite = (props) => {
                       onValueChange={(value, index) => {
                         setCate(value);
                       }}
-                      placeholder={{
-                        label: '문의 유형을 선택해주세요.',
-                        inputLabel: '문의 유형을 선택해주세요.',
-                        value: '',
-                        color: '#666',
-                      }}
+                      placeholder={{}}
                       items={cateList.map(item => ({
-                        label: item.txt,
-                        value: item.idx,
+                        label: item.ic_name,
+                        value: item.ic_idx,
                       }))}
                       fixAndroidTouchableBug={true}
                       useNativeAndroidPickerStyle={false}
@@ -250,19 +318,129 @@ const CsCenterWrite = (props) => {
                   <View style={[styles.iptTit]}>                    
                   <Text style={styles.iptTitText}>사진 등록</Text>
                   </View>
-                  <View style={styles.imgBox}>
-                    <TouchableOpacity
-                      style={[styles.imgBtn]}
-                      activeOpacity={opacityVal}
-                      onPress={() => chooseImage()}
-                    >
-                      {phoneImage.path != '' && phoneImage.path != undefined ? (
-                        <AutoHeightImage width={62} source={{ uri: phoneImage.path }} />
-                      ) : (
-                        <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
-                      )}
-                    </TouchableOpacity>
-                  </View>                  
+                  <ScrollView horizontal={true} showsHorizontalScrollIndicator = {false}>
+                    <View style={styles.imgBox}>
+                      <TouchableOpacity
+                        style={[styles.imgBtn, styles.mgl0]}
+                        activeOpacity={opacityVal}
+                        onPress={() => chooseImage(1)}
+                      >
+                        {phoneImage.path != '' && phoneImage.path != undefined ? (
+                          <AutoHeightImage width={62} source={{ uri: phoneImage.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
+                        )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.imgBtn]}
+                        activeOpacity={opacityVal}
+                        onPress={() => chooseImage(2)}
+                      >
+                        {phoneImage2.path != '' && phoneImage2.path != undefined ? (
+                          <AutoHeightImage width={62} source={{ uri: phoneImage2.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
+                        )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.imgBtn]}
+                        activeOpacity={opacityVal}
+                        onPress={() => chooseImage(3)}
+                      >
+                        {phoneImage3.path != '' && phoneImage3.path != undefined ? (
+                          <AutoHeightImage width={62} source={{ uri: phoneImage3.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
+                        )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.imgBtn]}
+                        activeOpacity={opacityVal}
+                        onPress={() => chooseImage(4)}
+                      >
+                        {phoneImage4.path != '' && phoneImage4.path != undefined ? (
+                          <AutoHeightImage width={62} source={{ uri: phoneImage4.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
+                        )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.imgBtn]}
+                        activeOpacity={opacityVal}
+                        onPress={() => chooseImage(5)}
+                      >
+                        {phoneImage5.path != '' && phoneImage5.path != undefined ? (
+                          <AutoHeightImage width={62} source={{ uri: phoneImage5.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
+                        )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.imgBtn]}
+                        activeOpacity={opacityVal}
+                        onPress={() => chooseImage(6)}
+                      >
+                        {phoneImage6.path != '' && phoneImage6.path != undefined ? (
+                          <AutoHeightImage width={62} source={{ uri: phoneImage6.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
+                        )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.imgBtn]}
+                        activeOpacity={opacityVal}
+                        onPress={() => chooseImage(7)}
+                      >
+                        {phoneImage7.path != '' && phoneImage7.path != undefined ? (
+                          <AutoHeightImage width={62} source={{ uri: phoneImage7.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
+                        )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.imgBtn]}
+                        activeOpacity={opacityVal}
+                        onPress={() => chooseImage(8)}
+                      >
+                        {phoneImage8.path != '' && phoneImage8.path != undefined ? (
+                          <AutoHeightImage width={62} source={{ uri: phoneImage8.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
+                        )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.imgBtn]}
+                        activeOpacity={opacityVal}
+                        onPress={() => chooseImage(9)}
+                      >
+                        {phoneImage9.path != '' && phoneImage9.path != undefined ? (
+                          <AutoHeightImage width={62} source={{ uri: phoneImage9.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
+                        )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.imgBtn]}
+                        activeOpacity={opacityVal}
+                        onPress={() => chooseImage(10)}
+                      >
+                        {phoneImage10.path != '' && phoneImage10.path != undefined ? (
+                          <AutoHeightImage width={62} source={{ uri: phoneImage10.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={62} fileName={'img_back2.png'}/>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </ScrollView>             
                 </View>                   
               </View>
             </>
@@ -334,7 +512,7 @@ const styles = StyleSheet.create({
 	txtCntText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#b8b8b8'},
 
   imgBox: {flexDirection:'row',marginTop:20,},
-	imgBtn: {alignItems:'center',justifyContent:'center',width:62,height:62,borderRadius:5,overflow:'hidden',position:'relative',borderWidth:1,borderColor:'#EDEDED'},
+	imgBtn: {alignItems:'center',justifyContent:'center',width:62,height:62,borderRadius:5,overflow:'hidden',position:'relative',borderWidth:1,borderColor:'#EDEDED',marginLeft:7,},
 	imgText: {width:43,height:21,backgroundColor:'#fff',borderRadius:50,fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:21,textAlign:'center',color:'#243B55',position:'absolute',right:5,bottom:5,},
 
   phoneGallery : {flexDirection:'row',height:48,marginBottom:40,},

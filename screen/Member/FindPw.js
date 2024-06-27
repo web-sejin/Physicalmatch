@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
@@ -17,10 +18,12 @@ const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
-const FindPw = ({navigation, route}) => {	
+const FindPw = (props) => {	
+  const {navigation, route} = props;
+	const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
-  const [id, setId] = useState('');
+  const [id, setId] = useState(params?.result_id);
   const [certnumber, setCertnumber] = useState('');
   const [certSt, setCertSt] = useState(false);
 
@@ -50,10 +53,11 @@ const FindPw = ({navigation, route}) => {
 		// 	ToastMessage('번호 인증을 완료해 주세요.');
 		// 	return false;
     // }
+    setCertnumber('010-1234-3336');
     setCertSt(true);
   }
 
-  const result_pw = () => {
+  const result_pw = async () => {
     if(id == ""){
 			ToastMessage('아이디를 입력해 주세요.');
 			return false;
@@ -64,7 +68,20 @@ const FindPw = ({navigation, route}) => {
 			return false;
     }
 
-    navigation.navigate('PwResult');
+    let sData = {
+			basePath: "/api/member/",
+			type: "SetFindPw",
+      member_id: id,
+			member_phone: certnumber,
+		};
+
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+      navigation.navigate('PwResult', {idx:response.data});
+    }else{ 
+      ToastMessage('일치하는 정보가 없습니다.');
+      return false;
+    }    
   }
 
   const headerHeight = 48;

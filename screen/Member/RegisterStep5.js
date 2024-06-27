@@ -15,6 +15,7 @@ import DraggableFlatList, {
   ScaleDecorator,
 } from "react-native-draggable-flatlist";
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
@@ -41,51 +42,20 @@ const classList2 = [
 	{ val: 3, txt: '중퇴' },
 ]
 
-const phyList = [
-	{ val: 1, txt: '팔다리가 긴', chk:false },
-	{ val: 2, txt: '비율이 좋은', chk:false },
-	{ val: 3, txt: '성난 팔뚝', chk:false },
-	{ val: 4, txt: '튼튼한 하체', chk:false },
-	{ val: 5, txt: '소두', chk:false },
-	{ val: 6, txt: '체형 종류1', chk:false },
-	{ val: 7, txt: '체형 종류2', chk:false },
-	{ val: 8, txt: '체형 종류3', chk:false },
-	{ val: 9, txt: '체형 종류4', chk:false },
-	{ val: 10, txt: '체형 종류5', chk:false },
-	{ val: 11, txt: '체형 종류6', chk:false },
-	{ val: 12, txt: '체형 종류7', chk:false },
-	{ val: 13, txt: '체형 종류8', chk:false },
-	{ val: 14, txt: '체형 종류9', chk:false },
-]
-
-const sprotList = [
-	{ val: 1, txt: '헬스' },
-	{ val: 2, txt: '필라테스' },
-	{ val: 3, txt: '클라이밍' },
-	{ val: 4, txt: '댄스' },
-	{ val: 5, txt: '수영' },
-	{ val: 6, txt: '등산' },
-	{ val: 7, txt: '골프' },
-	{ val: 8, txt: '축구' },
-	{ val: 9, txt: '복싱' },
-	{ val: 10, txt: '테니스' },
-	{ val: 11, txt: '요가' },
-]
-
 const drinkList = [
-	{ val: 1, txt: '마시지 않음' },
-	{ val: 2, txt: '어쩔 수 없을 때만' },
-	{ val: 3, txt: '가끔 마심' },
-	{ val: 4, txt: '어느정도 즐김' },
-	{ val: 5, txt: '좋아하는 편' },
-	{ val: 6, txt: '매우 즐기는 편' },
+	{ val: 0, txt: '마시지 않음' },
+	{ val: 1, txt: '어쩔 수 없을 때만' },
+	{ val: 2, txt: '가끔 마심' },
+	{ val: 3, txt: '어느정도 즐김' },
+	{ val: 4, txt: '좋아하는 편' },
+	{ val: 5, txt: '매우 즐기는 편' },
 ]
 
 const smokeList = [
-	{ val: 1, txt: '비흡연' },
-	{ val: 2, txt: '금연 중' },
-	{ val: 3, txt: '가끔 피움' },
-	{ val: 4, txt: '흡연 중' },
+	{ val: 0, txt: '비흡연' },
+	{ val: 1, txt: '금연 중' },
+	{ val: 2, txt: '가끔 피움' },
+	{ val: 3, txt: '흡연 중' },
 ]
 
 const smokeSortList = [
@@ -94,25 +64,11 @@ const smokeSortList = [
 	{ val: 3, txt: '액상형 전자담배' },
 ]
 
-const relList = [
-	{ val: 1, txt: '무교' },
-	{ val: 2, txt: '기독교' },
-	{ val: 3, txt: '천주교' },
-	{ val: 4, txt: '불교' },
-	{ val: 5, txt: '기타' },
-]
-
-const exeData = [
-	{ key : 1, period : '주', day : 4, sort : '헬스' },
-	{ key : 2, period : '주', day : 3, sort : '필라테스' },
-	{ key : 3, period : '월', day : 20, sort : '수영' },
-]
-
-const RegisterStep5 = ({navigation, route}) => {	
+const RegisterStep5 = ({navigation, route}) => {		
 	const prvChk4 = route['params']['prvChk4'];
   const accessRoute = route['params']['accessRoute'];
-  const mb_id = route['params']['mb_id'];
-	const mb_pw = route['params']['mb_pw'];
+  const member_id = route['params']['member_id'];
+	const member_pw = route['params']['member_pw'];
 
 	const scrollViewRef = useRef();
 	const [routeLoad, setRouteLoad] = useState(false);
@@ -129,7 +85,12 @@ const RegisterStep5 = ({navigation, route}) => {
 	const [muscleList, setMuscleList] = useState([]);
 	const [fatList, setFatList] = useState([]);
 	const [exeList, setExeList] = useState([]);
+	const [sportList, setSportList] = useState([]);
+	const [relList, setRelList] = useState([]);
+	const [jobList, setJobList] = useState([]);
+	const [jobList2, setJobList2] = useState([]);
 
+	const [nickCert, setNickCert] = useState(true);
 	const [popNick, setPopNick] = useState(false);
 	const [popGender, setPopGender] = useState(false);
 	const [popLocal, setPopLocal] = useState(false);
@@ -153,7 +114,7 @@ const RegisterStep5 = ({navigation, route}) => {
 
 	const [nick, setNick] = useState('');
 	const [realNick, setRealNick] = useState('');
-	const [realGender, setRealGender] = useState(0);
+	const [realGender, setRealGender] = useState();
 	const [realClass, setRealClass] = useState('');
 	const [realClass2, setRealClass2] = useState('');
 	const [job, setJob] = useState('');
@@ -162,14 +123,17 @@ const RegisterStep5 = ({navigation, route}) => {
 	const [realJob, setRealJob] = useState('');
 	const [jobDetail, setJobDetail] = useState('');
 	const [realJobDetail, setRealJobDetail] = useState('');
-	const [phyAry, setPhyAry] = useState(phyList);
+	const [phyAry, setPhyAry] = useState([]);
 	const [phyAryCnt, setPhyAryCnt] = useState(0);
 	const [realPhyAry, setRealPhyAry] = useState([]);
 	const [realPhyAryCnt, setRealPhyAryCnt] = useState(0);
-	const [realDrink, setRealDrink] = useState('');
-	const [realSmoke, setRealSmoke] = useState('');
-	const [realSmokeSort, setRealSmokeSort] = useState('');
-	const [realRel, setRealRel] = useState('');
+	const [realDrink, setRealDrink] = useState();
+	const [realDrinkText, setRealDrinkText] = useState('');
+	const [realSmoke, setRealSmoke] = useState();
+	const [realSmokeText, setRealSmokeText] = useState('');
+	const [realSmokeSort, setRealSmokeSort] = useState();
+	const [realSmokeSortText, setRealSmokeSortText] = useState('');
+	const [realRel, setRealRel] = useState();
 	const [mbtiRes1, setMbtiRes1] = useState('');
 	const [mbtiRes2, setMbtiRes2] = useState('');
 	const [mbtiRes3, setMbtiRes3] = useState('');
@@ -196,11 +160,19 @@ const RegisterStep5 = ({navigation, route}) => {
 	const [realMbti4, setRealMbti4] = useState('');
 	const [local1, setLocal1] = useState('');
 	const [local2, setLocal2] = useState('');
+	const [localDetail1, setLocalDetail1] = useState('');
+	const [localDetail2, setLocalDetail2] = useState('');
 	const [realLocal1, setRealLocal1] = useState('');
 	const [realLocal2, setRealLocal2] = useState('');
+	const [realLocalDetail1, setRealLocalDetail1] = useState('');
+	const [realLocalDetail2, setRealLocalDetail2] = useState('');
+	const [heightIdx, setHeightIdx] = useState(30);
 	const [height, setHeight] = useState('170cm');
+	const [weightIdx, setWeightIdx] = useState(30);
 	const [weight, setWeight] = useState('60kg');
+	const [muscleIdx, setMuscleIdx] = useState(25);
 	const [muscle, setMuscle] = useState('25kg');
+	const [fatIdx, setFatIdx] = useState(15);
 	const [fat, setFat] = useState('15%');
 	const [noWeight, setNoWeight] = useState(false);
 	const [noMuscle, setNoMuscle] = useState(false);
@@ -215,6 +187,7 @@ const RegisterStep5 = ({navigation, route}) => {
 	const [exeAddSt, setExeAddSt] = useState(false);
 	const [exePeri, setExePeri] = useState('');
 	const [exeDay, setExeDay] = useState('0');
+	const [exeSportIdx, setExeSportIdx] = useState();
 	const [exeSport, setExeSport] = useState('');
 	const [exeRest, setExeRest] = useState(false);	
 	const [realRest, setRealRest] = useState(false);
@@ -233,33 +206,7 @@ const RegisterStep5 = ({navigation, route}) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);		
-
-			if(route['params']['mb_nick']){ setRealNick(route['params']['mb_nick']);}
-			if(route['params']['mb_gender']){ setRealGender(route['params']['mb_gender']);}
-			if(route['params']['mb_local1']){ setRealLocal1(route['params']['mb_local1']);}
-			if(route['params']['mb_local2']){ setRealLocal2(route['params']['mb_local2']);}
-			if(route['params']['mb_class1']){ setRealClass(route['params']['mb_class1']);}
-			if(route['params']['mb_class2']){ setRealClass2(route['params']['mb_class2']);}
-			if(route['params']['mb_job']){ setRealJob(route['params']['mb_job']);}
-			if(route['params']['mb_jobDetail']){ setRealJobDetail(route['params']['mb_jobDetail']);}
-			if(route['params']['mb_height']){ setRealHeight(route['params']['mb_height']);}
-			if(route['params']['mb_weight']){ setRealWeight(route['params']['mb_weight']);}
-			if(route['params']['mb_muscle']){ setRealMuscle(route['params']['mb_muscle']);}
-			if(route['params']['mb_fat']){ setRealFat(route['params']['mb_fat']);}
-			if(route['params']['mb_no_weight']){ setRealNoWeight(route['params']['mb_no_weight']);}
-			if(route['params']['mb_no_muscle']){ setRealNoMuscle(route['params']['mb_no_muscle']);}
-			if(route['params']['mb_no_fat']){ setRealNoFat(route['params']['mb_no_fat']);}
-			if(route['params']['mb_rest']){ setRealRest(route['params']['mb_rest']);}
-			if(route['params']['mb_exercise']){ setRealExeList(route['params']['mb_exercise']);}
-			if(route['params']['mb_physicalType']){ setRealPhyAry(route['params']['mb_physicalType']);}
-			if(route['params']['mb_drink']){ setRealDrink(route['params']['mb_drink']);}
-			if(route['params']['mb_smoke']){ setRealSmoke(route['params']['mb_smoke']);}
-			if(route['params']['mb_smokeSort']){ setRealSmokeSort(route['params']['mb_smokeSort']);}
-			if(route['params']['mb_mbit1']){ setRealMbti1(route['params']['mb_mbit1']);}
-			if(route['params']['mb_mbit2']){ setRealMbti2(route['params']['mb_mbit2']);}
-			if(route['params']['mb_mbit3']){ setRealMbti3(route['params']['mb_mbit3']);}
-			if(route['params']['mb_mbit4']){ setRealMbti4(route['params']['mb_mbit4']);}
-			if(route['params']['mb_religion']){ setRealRel(route['params']['mb_religion']);}
+			routeSave();
 		}
 		Keyboard.dismiss();
 		Toast.hide();
@@ -352,6 +299,10 @@ const RegisterStep5 = ({navigation, route}) => {
 		chkTotalVal();
 	}, [realNick, realGender, realLocal1, realLocal2, realJob, realJobDetail, realHeight, realWeight, realMuscle, realFat, realRest, realExeList, realPhyAryCnt, realRel, realMbti1, realMbti2, realMbti3, realMbti4]);
 
+	useEffect(() => {				
+		
+	}, [realGender])
+
 	useEffect(() => {		
 		if(realClass != "" && realClass2 != ""){
 			setPopClass(false);
@@ -361,12 +312,12 @@ const RegisterStep5 = ({navigation, route}) => {
 	}, [realClass, realClass2]);  
 
 	useEffect(() => {
-		if(realDrink != '' && realSmoke != ''){
-			if(realSmoke == '비흡연'){
+		if(realDrink != undefined && realSmoke != undefined){
+			if(realSmoke == 0){
 				setPopDrink(false);
 				setPreventBack(false);
 			}else{
-				if(realSmokeSort != ''){
+				if(realSmokeSort != undefined){
 					setPopDrink(false);
 					setPreventBack(false);
 				}
@@ -475,8 +426,127 @@ const RegisterStep5 = ({navigation, route}) => {
 		}
 	}, [exePeri, exeDay, exeSport, exeList]);
 
+	useEffect(() => {
+		getSportData();
+		getRelData();
+		getJobData();
+	}, []);
+
+	const getSportData = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetExerciseList",
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			setSportList(response.data);
+		}
+	}
+
+	const getRelData = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetReligionList",
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			setRelList(response.data);
+		}
+	}
+
+	const getJobData = async () => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetCompanyList",
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setJobList(response.data);
+		}		
+	}
+
+	const getJobData2 = async (idx, name) => {
+		setJob(name);
+		setJob1(name);
+		setJobBtn(true);
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetCareerList",
+			company_idx: idx,
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setJobList2(response.data);
+		}
+	}
+
+	const getPhyData = async (v) => {		
+		setPhyAry([]);
+		setPhyAryCnt(0)		
+		setRealPhyAry([]);
+		setRealPhyAryCnt(0);
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetPhysicalList",
+      physical_type: v,
+		}
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setPhyAry(response.data);
+		}
+	}
+
+	const routeSave = () => {
+		if(route['params']['member_nick']){ setRealNick(route['params']['member_nick']);}
+		if(route['params']['member_sex']){ setRealGender(route['params']['member_sex']);}
+		if(route['params']['member_main_local']){ setRealLocal1(route['params']['member_main_local']);}
+		if(route['params']['member_main_local_detail']){ 
+			//console.log(route['params']['member_main_local_detail']);
+			setRealLocalDetail1(route['params']['member_main_local_detail']);
+		}
+		if(route['params']['member_sub_local']){ setRealLocal2(route['params']['member_sub_local']);}		
+		if(route['params']['member_sub_local_detail']){ 
+			//console.log(route['params']['member_sub_local_detail']);
+			setRealLocalDetail2(route['params']['member_sub_local_detail']);
+		}
+		if(route['params']['member_education']){ setRealClass(route['params']['member_education']);}
+		if(route['params']['member_education_status']){ setRealClass2(route['params']['member_education_status']);}
+		if(route['params']['member_job']){ setRealJob(route['params']['member_job']);}
+		if(route['params']['member_job_detail']){ setRealJobDetail(route['params']['member_job_detail']);}
+		if(route['params']['member_height']){ setRealHeight(route['params']['member_height']);}
+		if(route['params']['member_weight']){ setRealWeight(route['params']['member_weight']);}
+		if(route['params']['member_muscle']){ setRealMuscle(route['params']['member_muscle']);}
+		if(route['params']['member_fat']){ setRealFat(route['params']['member_fat']);}
+		if(route['params']['member_no_weight']){ setRealNoWeight(route['params']['member_no_weight']);}
+		if(route['params']['member_no_muscle']){ setRealNoMuscle(route['params']['member_no_muscle']);}
+		if(route['params']['member_no_fat']){ setRealNoFat(route['params']['member_no_fat']);}
+		if(route['params']['member_rest']){ setRealRest(route['params']['member_rest']);}
+		if(route['params']['member_exercise']){ setRealExeList(route['params']['member_exercise']);}
+		if(route['params']['member_physicalType']){ setRealPhyAry(route['params']['member_physicalType']);}
+		if(route['params']['member_drink_status']){ 
+			setRealDrink(route['params']['member_drink_status']);
+			setRealDrinkText(route['params']['member_drinkText']);
+		}
+		if(route['params']['member_smoke_status']){ 
+			setRealSmoke(route['params']['member_smoke_status']);
+			setRealSmokeText(route['params']['member_smokeText']);
+		}
+		if(route['params']['member_smoke_type']){ 
+			setRealSmokeSort(route['params']['member_smoke_type']);
+			setRealSmokeSortText(route['params']['member_smokeSortText']);
+		}
+		if(route['params']['member_mbit1']){ setRealMbti1(route['params']['member_mbit1']);}
+		if(route['params']['member_mbit2']){ setRealMbti2(route['params']['member_mbit2']);}
+		if(route['params']['member_mbit3']){ setRealMbti3(route['params']['member_mbit3']);}
+		if(route['params']['member_mbit4']){ setRealMbti4(route['params']['member_mbit4']);}
+		if(route['params']['member_religion']){ setRealRel(route['params']['member_religion']);}
+	}
+
 	const chkTotalVal = () => {
-		if(realNick && realGender && realLocal1 && realJob && realHeight && (realRest || realExeList.length > 0) && realPhyAryCnt > 0 && realRel && realClass && realClass2 && realDrink && realSmoke && realMbti1 && realMbti2 && realMbti3 && realMbti4){
+		if(realNick && realGender != undefined && realLocal1 && realJob && realHeight && (realRest || realExeList.length > 0) && realPhyAryCnt > 0 && realRel && realClass && realClass2 && realDrink != undefined && realSmoke != undefined && realMbti1 && realMbti2 && realMbti3 && realMbti4){
 			setNextOpen(true);
 		}else{
 			setNextOpen(false);
@@ -487,7 +557,7 @@ const RegisterStep5 = ({navigation, route}) => {
 		let add_state = true;
 		
 		let selectCon = phyAry.map((item) => {
-			if(item.val === v){							
+			if(item.physical_idx === v){							
 				if(item.chk){			
 					setPhyAryCnt(phyAryCnt-1);
 					return {...item, chk: false};
@@ -515,20 +585,26 @@ const RegisterStep5 = ({navigation, route}) => {
 	const removeSport = (v) => {	
     let selectCon = [];
 		exeList.map((item, index) => {
-			if(item.key != v){
-				let exeAddList = {key : item.key, period : item.period, day : item.day, sort : item.sort};
+			if(item.me_rank != v){
+				let exeAddList = {me_rank:item.me_rank, me_cycle:item.me_cycle, me_count:item.me_count, me_name:item.me_name};
 				selectCon = [...selectCon, exeAddList];
 			}
 		});
 
 		let selectCon2 = selectCon.map((item, index) => {
-			return {...item, key: index+1};
+			return {...item, me_rank: index+1};
 		});
 
 		setExeList(selectCon2);
 	}
 
 	const renderItem = ({ item, drag, isActive }: RenderItemParams<Item>) => {
+		let cycleText = '';
+		if(item.me_cycle == 0){
+			cycleText = '주';
+		}else if(item.me_cycle == 1){
+			cycleText = '월';
+		}
     return (
       // <ScaleDecorator>
         <View style={[styles.exeSortCont]}>
@@ -536,14 +612,14 @@ const RegisterStep5 = ({navigation, route}) => {
 						style={styles.exeSortContBtn1}
 						activeOpacity={opacityVal}
 						onPress={() => {
-							removeSport(item.key);
+							removeSport(item.me_rank);
 						}}
 					>
 						<ImgDomain fileWidth={22} fileName={'icon_minus1.png'} />						
 					</TouchableOpacity>
 					<View style={styles.exeSortContBox}>
-						<Text style={[styles.exeSortContBoxText, styles.exeSortContBoxText1]}>{item.period} {item.day}일</Text>
-						<Text style={[styles.exeSortContBoxText, styles.exeSortContBoxText2]}>{item.sort}</Text>
+						<Text style={[styles.exeSortContBoxText, styles.exeSortContBoxText1]}>{cycleText} {item.me_count}일</Text>
+						<Text style={[styles.exeSortContBoxText, styles.exeSortContBoxText2]}>{item.me_name}</Text>
 					</View>
 					<TouchableOpacity
 						style={styles.exeSortContBtn2}
@@ -585,7 +661,7 @@ const RegisterStep5 = ({navigation, route}) => {
 		}
 	}
 
-	const checkPopVal = (v) => {
+	const checkPopVal = async (v) => {
 		if(v == 'nick'){
 			if(nick == ''){
 				ToastMessage('닉네임을 입력해 주세요.');
@@ -603,19 +679,36 @@ const RegisterStep5 = ({navigation, route}) => {
 				return false;
 			}
 
-			setPopNick(false);
-			setRealNick(nick);
-			setPreventBack(false);
+			let sData = {      
+				basePath: "/api/member/index.php",
+				type: "IsDuplicationNick",
+				member_nick: nick,
+			}
+			const response = await APIs.send(sData);
+			if(response.code == 200){
+				setPopNick(false);
+				setRealNick(nick);
+				setPreventBack(false);
+				setNickCert(true);
+				//ToastMessage('사용할 수 있는 닉네임 입니다.');
+			}else{
+				setNickCert(false);
+				ToastMessage('이미 사용 중이거나 사용할 수 없는 닉네임 입니다.');      
+			}
+
+			
 		}else if(v == 'local'){
 			if(local1 == ''){
 				ToastMessage('주 활동 지역을 입력해 주세요.');
 				return false;
-			}
+			}								
 
 			setPopLocal(false);
 			setRealLocal1(local1);
+			setRealLocalDetail1(localDetail1);
 			if(local2 != ''){
 				setRealLocal2(local2);
+				setRealLocalDetail2(localDetail2);
 			}
 			setPreventBack(false);
 
@@ -696,14 +789,21 @@ const RegisterStep5 = ({navigation, route}) => {
 					return false;
 				}
 
-				const sportAryChk = exeList.find(it => it.sort == exeSport);
+				const sportAryChk = exeList.find(it => it.me_name == exeSport);
 				if(sportAryChk){
 					ToastMessage('이미 선택한 종목입니다.\n다른 종목을 선택해 주세요.');
 					return false;
-				}				
+				}							
 				
+				cycle = 0;
+				if(exePeri == '월'){
+					cycle = 1;
+				}else if(exePeri == '주'){
+					cycle = 0;
+				}
+
 				const keyOd = (exeList.length)+1;
-				let exeAddList = {key : keyOd, period : exePeri, day : exeDay, sort : exeSport};
+				let exeAddList = {me_rank:keyOd, me_cycle:cycle, me_count:exeDay, me_name:exeSport};
 				let exeAddList2 = [...exeList, exeAddList];					
 				setExeList(exeAddList2);							
 			}
@@ -717,58 +817,65 @@ const RegisterStep5 = ({navigation, route}) => {
 			setExeAddSt(false);
 			setExePeri('');
 			setExeDay('0');
+			setExeSportIdx();
 			setExeSport('');
 		}
 	}	
 
 	const nextStep = () => {
 		if(realNick == ''){ ToastMessage('닉네임을 입력해 주세요.'); return false; }
-		if(realGender == ''){ ToastMessage('성별을 선택해 주세요.'); return false; }
+		if(realGender != 0 && realGender != 1){ ToastMessage('성별을 선택해 주세요.'); return false; }
 		if(realLocal1 == ''){ ToastMessage('주 활동 지역을 입력해 주세요.'); return false; }
 		if(realClass == '' || realClass2 == ''){ ToastMessage('최종학력을 선택해 주세요.'); return false; }
 		if(realJob == ''){ ToastMessage('직업을 압력 또는 선택해 주세요.'); return false; }
 		if(realHeight == ''){ ToastMessage('피지컬(키)을 선택해 주세요.'); return false; }
 		if(!realRest && realExeList.length < 1){ ToastMessage('운동을 선택해 주세요.'); return false; }
 		if(realPhyAryCnt < 1){ ToastMessage('체형을 2~5개를 선택해 주세요.'); return false; }
-		if(realDrink == '' || realSmoke == ''){ ToastMessage('음주 · 흡연을 선택해 주세요.'); return false; }
+		if(realDrink == undefined || realSmoke == undefined){ ToastMessage('음주 · 흡연을 선택해 주세요.'); return false; }
 		if(realMbti1 == '' || realMbti2 == '' || realMbti3 == '' || realMbti4 == ''){
 			ToastMessage('MBTI를 선택해 주세요.'); return false;
 		}
-		if(realRel == ''){ ToastMessage('종교를 선택해 주세요.'); return false; }
+				
+		if(realRel == '' || realRel == undefined){ ToastMessage('종교를 선택해 주세요.'); return false; }
 
 		const nextObj = {
 			prvChk4:prvChk4,
 			accessRoute:accessRoute,
-			mb_id:mb_id,
-			mb_pw:mb_pw,
-			mb_nick:realNick,
-			mb_gender:realGender,
-			mb_local1:realLocal1,
-			mb_local2:realLocal2,
-			mb_class1:realClass,
-			mb_class2:realClass2,
-			mb_job:realJob,
-			mb_jobDetail:realJobDetail,
-			mb_height:realHeight,
-			mb_weight:realWeight,
-			mb_muscle:realMuscle,
-			mb_fat:realFat,
-			mb_no_weight:realNoWeight,
-			mb_no_muscle:realNoMuscle,
-			mb_no_fat:realFat,
-			mb_rest:realRest,
-			mb_exercise:realExeList,
-			mb_physicalType:realPhyAry,
-			mb_drink:realDrink,
-			mb_smoke:realSmoke,
-			mb_smokeSort:realSmokeSort,
-			mb_mbit1:realMbti1,
-			mb_mbit2:realMbti2,
-			mb_mbit3:realMbti3,
-			mb_mbit4:realMbti4,
-			mb_religion:realRel
+			member_id:member_id,
+			member_pw:member_pw,
+			member_nick:realNick,
+			member_sex:realGender,
+			member_main_local:realLocal1,
+			member_main_local_detail:realLocalDetail1,
+			member_sub_local:realLocal2,
+			member_sub_local_detail:realLocalDetail2,
+			member_education:realClass,
+			member_education_status:realClass2,
+			member_job:realJob,
+			member_job_detail:realJobDetail,
+			member_height:realHeight,
+			member_weight:realWeight,
+			member_muscle:realMuscle,
+			member_fat:realFat,
+			member_no_weight:realNoWeight,
+			member_no_muscle:realNoMuscle,
+			member_no_fat:realFat,
+			member_rest:realRest,
+			member_exercise:realExeList,
+			member_physicalType:realPhyAry,
+			member_drink_status:realDrink,
+			member_drinkText:realDrinkText,
+			member_smoke_status:realSmoke,
+			member_smokeText:realSmokeText,
+			member_smoke_type:realSmokeSort,
+			member_smokeSortText:realSmokeSortText,
+			member_mbit1:realMbti1,
+			member_mbit2:realMbti2,
+			member_mbit3:realMbti3,
+			member_mbit4:realMbti4,
+			mbti_result: mbti1_2+'|'+mbti2_2+'|'+mbti3_2+'|'+mbti4_2+'|'+mbti5_2+'|'+mbti6_2+'|'+mbti7_2+'|'+mbti8_2,
+			member_religion:realRel
 		}
-
 		if(route['params']['file1']){ nextObj.file1 = route['params']['file1']; }
 		if(route['params']['file2']){ nextObj.file2 = route['params']['file2']; }
 		if(route['params']['file3']){ nextObj.file3 = route['params']['file3']; }
@@ -776,8 +883,9 @@ const RegisterStep5 = ({navigation, route}) => {
 		if(route['params']['file5']){ nextObj.file5 = route['params']['file5']; }
 		if(route['params']['file6']){ nextObj.file6 = route['params']['file6']; }
 		if(route['params']['qnaList']){ nextObj.qnaList = route['params']['qnaList']; }
-		if(route['params']['intro']){ nextObj.intro = route['params']['intro']; }
-		if(route['params']['qnaListData']){ nextObj.qnaListData = route['params']['qnaListData']; }
+		if(route['params']['member_intro']){ nextObj.member_intro = route['params']['member_intro']; }
+		//if(route['params']['qnaListData']){ nextObj.qnaListData = route['params']['qnaListData']; }
+		if(route['params']['qnaListChk']){ nextObj.qnaListChk = route['params']['qnaListChk']; }
 		if(route['params']['step8File1']){ nextObj.step8File1 = route['params']['step8File1']; }
 		if(route['params']['step8File2']){ nextObj.step8File2 = route['params']['step8File2']; }
 		if(route['params']['step8File3']){ nextObj.step8File3 = route['params']['step8File3']; }
@@ -800,6 +908,17 @@ const RegisterStep5 = ({navigation, route}) => {
 		if(route['params']['step8SchoolMajor']){ nextObj.step8SchoolMajor = route['params']['step8SchoolMajor']; }
 		if(route['params']['step8MarryFile']){ nextObj.step8MarryFile = route['params']['step8MarryFile']; }
 		if(route['params']['step8MarryState']){ nextObj.step8MarryState = route['params']['step8MarryState']; }
+		if(route['params']['file1Url']){ nextObj.file1Url = route['params']['file1Url']; }
+		if(route['params']['file2Url']){ nextObj.file2Url = route['params']['file2Url']; }
+		if(route['params']['file3Url']){ nextObj.file3Url = route['params']['file3Url']; }
+		if(route['params']['file4Url']){ nextObj.file4Url = route['params']['file4Url']; }
+		if(route['params']['file5Url']){ nextObj.file5Url = route['params']['file5Url']; }
+		if(route['params']['file6Url']){ nextObj.file6Url = route['params']['file6Url']; }
+		if(route['params']['file7Url']){ nextObj.file7Url = route['params']['file7Url']; }
+		if(route['params']['file8Url']){ nextObj.file8Url = route['params']['file8Url']; }
+		if(route['params']['jobFileUrl']){ nextObj.jobFileUrl = route['params']['jobFileUrl']; }
+		if(route['params']['schoolFileUrl']){ nextObj.schoolFileUrl = route['params']['schoolFileUrl']; }
+		if(route['params']['marryFileUrl']){ nextObj.marryFileUrl = route['params']['marryFileUrl']; }
 
 		navigation.navigate('RegisterStep6', nextObj);
 	}
@@ -876,7 +995,7 @@ const RegisterStep5 = ({navigation, route}) => {
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
-							{realGender == 1 || realGender == 2 ? (
+							{realGender == 0 || realGender == 1 ? (
 								<ImgDomain fileWidth={24} fileName={'icon2_2.png'}/>
 							) : (
 								<ImgDomain fileWidth={24} fileName={'icon2.png'}/>
@@ -884,13 +1003,8 @@ const RegisterStep5 = ({navigation, route}) => {
 							<Text style={styles.regiStep5BtnLeftText}>성별</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
-							{realGender == 0 ? null : (
-								realGender == 1 ? (
-									<Text style={styles.regiStep5BtnRightText}>남자</Text>
-								) : (
-									<Text style={styles.regiStep5BtnRightText}>여자</Text>
-								)
-							)}
+							{realGender == 0 ? (<Text style={styles.regiStep5BtnRightText}>남자</Text>) : null}
+							{realGender == 1 ? (<Text style={styles.regiStep5BtnRightText}>여자</Text>) : null}
 							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
@@ -967,7 +1081,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					<TouchableOpacity
 						style={styles.regiStep5Btn}
 						activeOpacity={opacityVal}
-						onPress={() => {														
+						onPress={() => {									
 							if(realHeight != '') setHeight(realHeight); 
 							if(realWeight != '') setWeight(realWeight); 
 							if(realMuscle != '') setMuscle(realMuscle); 
@@ -977,7 +1091,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setNoFat(realNoFat);
 
 							setPopPhysical2(true);
-							setPreventBack(true);
+							setPreventBack(true);								
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
@@ -1031,12 +1145,17 @@ const RegisterStep5 = ({navigation, route}) => {
 					<TouchableOpacity
 						style={styles.regiStep5Btn}
 						activeOpacity={opacityVal}
-						onPress={() => {							
-							if(realPhyAry.length > 0){
-								setPhyAry(realPhyAry);
-							}
-							setPopPhysical(true);
-							setPreventBack(true);							
+						onPress={() => {			
+							if(realGender == undefined){
+								ToastMessage('성별을 먼저 선택해 주세요.');
+								return false;								
+							}else{
+								if(realPhyAry.length > 0){
+									setPhyAry(realPhyAry);
+								}
+								setPopPhysical(true);
+								setPreventBack(true);
+							}																		
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
@@ -1062,7 +1181,7 @@ const RegisterStep5 = ({navigation, route}) => {
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
-							{realDrink != '' && realSmoke != '' ? (								
+							{realDrink != undefined && realSmoke != undefined ? (								
 								<ImgDomain fileWidth={24} fileName={'icon9_2.png'}/>
 							) : (								
 								<ImgDomain fileWidth={24} fileName={'icon9.png'}/>
@@ -1070,7 +1189,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							<Text style={styles.regiStep5BtnLeftText}>음주 · 흡연</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
-							{realDrink != '' && realSmoke != '' ? (
+							{realDrink != undefined && realSmoke != undefined ? (
 							<Text style={styles.regiStep5BtnRightText}>입력완료</Text>	
 							) : null}
 							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
@@ -1125,7 +1244,11 @@ const RegisterStep5 = ({navigation, route}) => {
 							<Text style={styles.regiStep5BtnLeftText}>종교</Text>
 						</View>
 						<View style={styles.regiStep5BtnRight}>
-							<Text style={styles.regiStep5BtnRightText}>{realRel}</Text>
+							{realRel == 1 ? (<Text style={styles.regiStep5BtnRightText}>무교</Text>) : null}
+							{realRel == 2 ? (<Text style={styles.regiStep5BtnRightText}>기독교</Text>) : null}
+							{realRel == 3 ? (<Text style={styles.regiStep5BtnRightText}>천주교</Text>) : null}
+							{realRel == 4 ? (<Text style={styles.regiStep5BtnRightText}>불교</Text>) : null}
+							{realRel == 5 ? (<Text style={styles.regiStep5BtnRightText}>기타</Text>) : null}
 							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
 					</TouchableOpacity>
@@ -1187,7 +1310,9 @@ const RegisterStep5 = ({navigation, route}) => {
 									style={[styles.input]}
 									returnKyeType='done'
 								/>
-								<Text style={styles.alertText}>* 이미 존재하는 닉네임입니다.</Text>
+								{nickCert ? null : (
+									<Text style={styles.alertText}>* 이미 사용 중이거나 사용할 수 없는 닉네임 입니다.</Text>
+								)}								
 							</View>															
 							<View style={styles.popBtnBox}>
 								<TouchableOpacity 
@@ -1232,26 +1357,28 @@ const RegisterStep5 = ({navigation, route}) => {
 					<ScrollView>
 						<View style={styles.popRadioBox}>
 							<TouchableOpacity
-								style={[styles.popRadioBoxBtn, realGender == 1 ? styles.popRadioBoxBtnOn : null]}
+								style={[styles.popRadioBoxBtn, realGender == 0 ? styles.popRadioBoxBtnOn : null]}
+								activeOpacity={opacityVal}
+								onPress={()=>{									
+									setPopGender(false);
+									setRealGender(0);
+									setPreventBack(false);
+									getPhyData(0);
+								}}
+							>
+								<Text style={[styles.popRadioBoxBtnText, realGender == 0 ? styles.popRadioBoxBtnTextOn : null]}>남자</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.popRadioBoxBtn,  realGender == 1 ? styles.popRadioBoxBtnOn : null]}
 								activeOpacity={opacityVal}
 								onPress={()=>{
 									setPopGender(false);
 									setRealGender(1);
 									setPreventBack(false);
+									getPhyData(1);
 								}}
 							>
-								<Text style={[styles.popRadioBoxBtnText, realGender == 1 ? styles.popRadioBoxBtnTextOn : null]}>남자</Text>
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={[styles.popRadioBoxBtn,  realGender == 2 ? styles.popRadioBoxBtnOn : null]}
-								activeOpacity={opacityVal}
-								onPress={()=>{
-									setPopGender(false);
-									setRealGender(2);
-									setPreventBack(false);
-								}}
-							>
-								<Text style={[styles.popRadioBoxBtnText, realGender == 2 ? styles.popRadioBoxBtnTextOn : null]}>여자</Text>
+								<Text style={[styles.popRadioBoxBtnText, realGender == 1 ? styles.popRadioBoxBtnTextOn : null]}>여자</Text>
 							</TouchableOpacity>
 						</View>
 					</ScrollView>
@@ -1363,9 +1490,11 @@ const RegisterStep5 = ({navigation, route}) => {
 						//console.log(data);				
 						if(localType == 1){
 							setLocal1(kakaoAddr.sido+' '+kakaoAddr.sigungu);
+							setLocalDetail1(kakaoAddr.address);
 							setLocBtn(true);
 						}else if(localType == 2){
 							setLocal2(kakaoAddr.sido+' '+kakaoAddr.sigungu);
+							setLocalDetail2(kakaoAddr.address);
 						}
 						setPopLocal2(false);
 					}}
@@ -1510,94 +1639,20 @@ const RegisterStep5 = ({navigation, route}) => {
 									</View>
 									<ScrollView>
 										<View style={styles.jobList}>
-										<TouchableOpacity
-												style={[styles.jobSelect, styles.mgt0]}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명1');
-													setJob1('대분류명1');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명1</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명2');
-													setJob1('대분류명2');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명2</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명3');
-													setJob1('대분류명3');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명3</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명4');
-													setJob1('대분류명4');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명4</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명5');
-													setJob1('대분류명5');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명5</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명6');
-													setJob1('대분류명6');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명6</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명7');
-													setJob1('대분류명7');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명7</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob('대분류명8');
-													setJob1('대분류명8');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>대분류명8</Text>
-											</TouchableOpacity>
+											{jobList.map((item, index) => {
+												return (
+													<TouchableOpacity
+														key={index}
+														style={[styles.jobSelect, index == 0 ? styles.mgt0 : null]}
+														activeOpacity={opacityVal}
+														onPress={()=>{
+															getJobData2(item.company_idx, item.company_name);															
+														}}
+													>
+														<Text style={styles.jobSelectText}>{item.company_name}</Text>
+													</TouchableOpacity>
+												)
+											})}
 										</View>
 									</ScrollView>
 								</View>
@@ -1607,28 +1662,22 @@ const RegisterStep5 = ({navigation, route}) => {
 									</View>
 									<ScrollView>
 										<View style={styles.jobList}>
-											<TouchableOpacity
-												style={[styles.jobSelect, styles.mgt0]}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob(job1+' (업직종명1)');
-													setJob2('업직종명1');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>업직종명1</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												style={styles.jobSelect}
-												activeOpacity={opacityVal}
-												onPress={(v)=>{
-													setJob(job1+' (업직종명2)');
-													setJob2('업직종명2');
-													setJobBtn(true);
-												}}
-											>
-												<Text style={styles.jobSelectText}>업직종명2</Text>
-											</TouchableOpacity>
+											{jobList2.map((item, index) => {
+												return (
+													<TouchableOpacity
+														key={index}
+														style={[styles.jobSelect, index == 0 ? styles.mgt0 : null]}
+														activeOpacity={opacityVal}
+														onPress={(v)=>{
+															setJob(`${job1} (${item.career_name})`);
+															setJob2(item.career_name);
+															setJobBtn(true);
+														}}
+													>
+														<Text style={styles.jobSelectText}>{item.career_name}</Text>
+													</TouchableOpacity>
+												)
+											})}
 										</View>
 									</ScrollView>
 								</View>
@@ -1692,10 +1741,11 @@ const RegisterStep5 = ({navigation, route}) => {
 						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 					</TouchableOpacity>			
 					<View style={styles.popTitle}>
-						<Text style={styles.popTitleText}>피지컬을 입력해 주세요</Text>
+						<Text style={styles.popTitleText}>피지컬을 선택해 주세요</Text>
 					</View>
 					<ScrollView
 						scrollEnabled={true}
+						nestedScrollEnabled={true}
 					>
 						<View style={styles.popRadioBox}>
 							<View style={styles.popRadioTitle}>
@@ -1704,16 +1754,16 @@ const RegisterStep5 = ({navigation, route}) => {
 							{heightList.length > 0 ? (
 							<View style={styles.wheelpciker}>
 								<WheelPicker
-									flatListProps={{ nestedScrollEnabled: true }}
-									selectedIndex={height}
+									flatListProps={{ nestedScrollEnabled: true }}									
 									options={heightList}
 									itemHeight={40}
-									selectedIndex={30}
+									selectedIndex={heightIdx}
 									visibleRest={1}
 									itemTextStyle={styles.activeStyle2}
 									containerStyle={styles.activeStyle3}									
 									onChange={(index) => {
-										//console.log(heightList[index]);
+										//console.log(index);
+										setHeightIdx(index);
 										setHeight(heightList[index]);
 									}}
 								/>
@@ -1726,7 +1776,10 @@ const RegisterStep5 = ({navigation, route}) => {
 								<TouchableOpacity
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
-									onPress={() => {setNoWeight(!noWeight)}}
+									onPress={() => {
+										setWeight();
+										setNoWeight(!noWeight);
+									}}
 								>
 									{noWeight ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
@@ -1739,15 +1792,15 @@ const RegisterStep5 = ({navigation, route}) => {
 							{!noWeight && weightList.length > 0 ? (
 							<View style={styles.wheelpciker}>
 								<WheelPicker
-									flatListProps={{ nestedScrollEnabled: true }}
-									selectedIndex={muscle}
+									flatListProps={{ nestedScrollEnabled: true }}									
 									options={weightList}
 									itemHeight={40}
-									selectedIndex={30}
+									selectedIndex={weightIdx}
 									visibleRest={1}
 									itemTextStyle={styles.activeStyle2}
 									containerStyle={styles.activeStyle3}									
 									onChange={(index) => {
+										setWeightIdx(index);
 										setWeight(weightList[index]);
 									}}
 								/>
@@ -1760,7 +1813,10 @@ const RegisterStep5 = ({navigation, route}) => {
 								<TouchableOpacity
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
-									onPress={() => {setNoMuscle(!noMuscle)}}
+									onPress={() => {
+										setMuscle();
+										setNoMuscle(!noMuscle);
+									}}
 								>
 									{noMuscle ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
@@ -1773,15 +1829,15 @@ const RegisterStep5 = ({navigation, route}) => {
 							{!noMuscle && muscleList.length > 0 ? (
 							<View style={styles.wheelpciker}>
 								<WheelPicker
-									flatListProps={{ nestedScrollEnabled: true }}
-									selectedIndex={muscle}
+									flatListProps={{ nestedScrollEnabled: true }}									
 									options={muscleList}
 									itemHeight={40}
-									selectedIndex={25}
+									selectedIndex={muscleIdx}
 									visibleRest={1}
 									itemTextStyle={styles.activeStyle2}
 									containerStyle={styles.activeStyle3}
-									onChange={(index) => {										
+									onChange={(index) => {	
+										setMuscleIdx(index);									
 										setMuscle(muscleList[index]);
 									}}
 								/>
@@ -1794,7 +1850,10 @@ const RegisterStep5 = ({navigation, route}) => {
 								<TouchableOpacity
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
-									onPress={() => {setNoFat(!noFat)}}
+									onPress={() => {
+										setFat();
+										setNoFat(!noFat);
+									}}
 								>
 									{noFat ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
@@ -1807,15 +1866,15 @@ const RegisterStep5 = ({navigation, route}) => {
 							{!noFat && fatList.length > 0 ? (
 							<View style={styles.wheelpciker}>
 								<WheelPicker
-									flatListProps={{ nestedScrollEnabled: true }}
-									selectedIndex={fat}
+									flatListProps={{ nestedScrollEnabled: true }}									
 									options={fatList}
 									itemHeight={40}
-									selectedIndex={15}
+									selectedIndex={fatIdx}
 									visibleRest={1}
 									itemTextStyle={styles.activeStyle2}
 									containerStyle={styles.activeStyle3}
 									onChange={(index) => {
+										setFatIdx(index);
 										setFat(fatList[index]);
 									}}
 								/>
@@ -1849,6 +1908,7 @@ const RegisterStep5 = ({navigation, route}) => {
 						setExeAddSt(false);
 						setExePeri('');
 						setExeDay('0');
+						setExeSportIdx();
 						setExeSport('');
 					}}
 				>
@@ -1863,6 +1923,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							setExeAddSt(false);
 							setExePeri('');
 							setExeDay('0');
+							setExeSportIdx();
 							setExeSport('');
 						}}
 					>
@@ -1904,7 +1965,7 @@ const RegisterStep5 = ({navigation, route}) => {
 							onDragEnd={({ data }) => {
 								setExeList(data);								
 							}}
-							keyExtractor={(item) => item.key}
+							keyExtractor={(item) => item.me_rank}
 							renderItem={renderItem}
 							ref={scrollViewRef}
 						/>														
@@ -1996,17 +2057,18 @@ const RegisterStep5 = ({navigation, route}) => {
 									<Text style={styles.popRadioTitleText}>종목</Text>
 								</View>						
 								<View style={styles.physicalList}>
-									{sprotList.map((item, index) => {
+									{sportList.map((item, index) => {
 										return(
 											<TouchableOpacity
 												key={index}
-												style={[styles.phyBtn, exeSport == item.txt ? styles.phyBtnOn : null]}
+												style={[styles.phyBtn, exeSport == item.exercise_name ? styles.phyBtnOn : null]}
 												activeOpacity={opacityVal}
 												onPress={() => {
-													setExeSport(item.txt);
+													setExeSportIdx(item.exercise_idx);
+													setExeSport(item.exercise_name);
 												}}
 											>
-												<Text style={[styles.phyBtnText, exeSport == item.txt ? styles.phyBtnTextOn : null]}>{item.txt}</Text>
+												<Text style={[styles.phyBtnText, exeSport == item.exercise_name ? styles.phyBtnTextOn : null]}>{item.exercise_name}</Text>
 											</TouchableOpacity>
 										)
 									})}							
@@ -2064,12 +2126,12 @@ const RegisterStep5 = ({navigation, route}) => {
 										style={[styles.phyBtn, item.chk ? styles.phyBtnOn : null]}
 										activeOpacity={opacityVal}
 										onPress={() => {
-											physical_ary(item.val);
+											physical_ary(item.physical_idx);
 											//console.log(phyAry.length);											
 											//setPhyAry([item.val, ...phyAry]);
 										}}
 									>
-										<Text style={[styles.phyBtnText, item.chk ? styles.phyBtnTextOn : null]}>{item.txt}</Text>
+										<Text style={[styles.phyBtnText, item.chk ? styles.phyBtnTextOn : null]}>{item.physical_name}</Text>
 									</TouchableOpacity>
 								)
 							})}							
@@ -2123,13 +2185,14 @@ const RegisterStep5 = ({navigation, route}) => {
 									return (
 										<TouchableOpacity
 											key={index}
-											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realDrink == item.txt ? styles.popRadioBoxBtnOn : null]}
+											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realDrink == item.val ? styles.popRadioBoxBtnOn : null]}
 											activeOpacity={opacityVal}
 											onPress={()=>{
-												setRealDrink(item.txt);									
+												setRealDrink(item.val);
+												setRealDrinkText(item.txt);
 											}}
 										>
-											<Text style={[styles.popRadioBoxBtnText, realDrink == item.txt ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
+											<Text style={[styles.popRadioBoxBtnText, realDrink == item.val ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
 										</TouchableOpacity>
 									)
 								})}
@@ -2144,19 +2207,24 @@ const RegisterStep5 = ({navigation, route}) => {
 									return (
 										<TouchableOpacity
 											key={index}
-											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realSmoke == item.txt ? styles.popRadioBoxBtnOn : null]}
+											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realSmoke == item.val ? styles.popRadioBoxBtnOn : null]}
 											activeOpacity={opacityVal}
 											onPress={()=>{
-												setRealSmoke(item.txt);									
+												if(item.val == 0){
+													setRealSmokeSort();
+													setRealSmokeSortText('');
+												}
+												setRealSmoke(item.val);									
+												setRealSmokeText(item.txt);
 											}}
 										>
-											<Text style={[styles.popRadioBoxBtnText, realSmoke == item.txt ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
+											<Text style={[styles.popRadioBoxBtnText, realSmoke == item.val ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
 										</TouchableOpacity>
 									)
 								})}
 							</View>
 						</View>
-						{realSmoke != '' && realSmoke != '비흡연' ? (
+						{realSmoke && realSmoke != 0 ? (
 						<View style={[styles.popRadioBox, styles.mgt30]}>
 							<View style={styles.popRadioTitle}>
 								<Text style={styles.popRadioTitleText}>종류</Text>
@@ -2166,13 +2234,14 @@ const RegisterStep5 = ({navigation, route}) => {
 									return (
 										<TouchableOpacity
 											key={index}
-											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realSmokeSort == item.txt ? styles.popRadioBoxBtnOn : null]}
+											style={[styles.popRadioBoxBtn, styles.popRadioBoxBtn3, realSmokeSort == item.val ? styles.popRadioBoxBtnOn : null]}
 											activeOpacity={opacityVal}
 											onPress={()=>{
-												setRealSmokeSort(item.txt);									
+												setRealSmokeSort(item.val);
+												setRealSmokeSortText(item.txt);
 											}}
 										>
-											<Text style={[styles.popRadioBoxBtnText, realSmokeSort == item.txt ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
+											<Text style={[styles.popRadioBoxBtnText, realSmokeSort == item.val ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
 										</TouchableOpacity>
 									)
 								})}
@@ -2367,7 +2436,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										if(mbti5 == ''){
-											ToastMessage('S 와 N 중 하나를 먼저 선택해 주세요.');
+											ToastMessage('T 와 F 중 하나를 먼저 선택해 주세요.');
 										}else{
 											if(mbti6 == ''){
 												if(mbti5 == 'T'){
@@ -2428,7 +2497,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										if(mbti7 == ''){
-											ToastMessage('S 와 N 중 하나를 먼저 선택해 주세요.');
+											ToastMessage('J 와 P 중 하나를 먼저 선택해 주세요.');
 										}else{
 											if(mbti8 == ''){
 												if(mbti7 == 'J'){
@@ -2502,15 +2571,15 @@ const RegisterStep5 = ({navigation, route}) => {
 								return(
 									<TouchableOpacity
 										key={index}
-										style={[styles.popRadioBoxBtn, item.txt == realRel ? styles.popRadioBoxBtnOn : null]}
+										style={[styles.popRadioBoxBtn, item.religion_idx == realRel ? styles.popRadioBoxBtnOn : null]}
 										activeOpacity={opacityVal}
 										onPress={()=>{
 											setPopRel(false);
-											setRealRel(item.txt);
+											setRealRel(item.religion_idx);
 											setPreventBack(false);
 										}}
 									>
-										<Text style={[styles.popRadioBoxBtnText, item.txt == realRel ? styles.popRadioBoxBtnTextOn : null]}>{item.txt}</Text>
+										<Text style={[styles.popRadioBoxBtnText, item.religion_idx == realRel ? styles.popRadioBoxBtnTextOn : null]}>{item.religion_name}</Text>
 									</TouchableOpacity>
 								)
 							})}
@@ -2572,7 +2641,7 @@ const styles = StyleSheet.create({
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
 	popBtnBox: {marginTop:30,},
 	popBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#243B55',borderRadius:5,},
-	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},
+	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},
 
 	popRadioBox: {paddingBottom:10,},
 	popRadioTitle: {},
@@ -2581,12 +2650,12 @@ const styles = StyleSheet.create({
 	span: {fontFamily:Font.NotoSansRegular,color:'#B8B8B8'},
 	popRadioFlex: {flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between'},
 	popRadioBoxBtn: {height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,marginTop:10,paddingHorizontal:15,justifyContent:'center'},
-	popRadioBoxBtnText: {fontFamily:Font.NotoSansMedium,fontSize:15,color:'#666'},
+	popRadioBoxBtnText: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:20,color:'#666'},
 	
 	popRadioType2: {flexDirection:'row',flexWrap:'wrap',},
 	popRadioBoxBtn2: {justifyContent:'center',height:38,borderWidth:1,borderColor:'#ededed',borderRadius:50,paddingHorizontal:16,marginTop:8,marginRight:8,},
 	popRadioBoxBtn2On: {backgroundColor:'rgba(209,145,60, 0.15)',borderColor:'#D1913C'},
-	popRadioBoxBtn2Text: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:38,color:'#666',},
+	popRadioBoxBtn2Text: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:36,color:'#666',},
 	popRadioBoxBtn2TextOn: {color:'#D1913C'},
 
 	popRadioBoxBtn3: {width:(innerWidth/2)-25},
@@ -2594,7 +2663,7 @@ const styles = StyleSheet.create({
 	popRadioBoxBtn4: {width:(innerWidth/3)-20,height:(innerWidth/3)-20,alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,marginTop:10,},
 	popRadioBoxBtn4Text: {fontFamily:Font.NotoSansMedium,fontSize:24,lineHeight:31,color:'#666',marginBottom:5,},
 	popRadioBoxBtn4Img: {marginBottom:5,},
-	popRadioBoxBtn4TextDesc: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:15},
+	popRadioBoxBtn4TextDesc: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:15,color:'#666'},
 
 	popRadioBoxBtn5: {width:52,height:33,paddingHorizontal:0,},
 	popRadioBoxBtn5Text: {textAlign:'center',fontSize:13,lineHeight:33,color:'#1e1e1e'},

@@ -7,7 +7,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import RenderHtml from 'react-native-render-html';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -30,7 +32,8 @@ const About = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
-  const [tabSt, setTabSt] = useState(1);
+  const [tabSt, setTabSt] = useState(0);
+  const [tabCont, setTabCont] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -67,8 +70,24 @@ const About = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
-  const change = async (v) => {
-    setTabSt(v);
+  useEffect(() => {
+    getCont();
+  }, [tabSt]);
+
+  const getCont = async () => {
+    let sData = {      
+      basePath: "/api/etc/index.php",
+			type: "GetPhysical",
+      tab: tabSt,
+		}
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){
+      const source = {
+        html: response.data
+      };
+      setTabCont(source);
+    }
   }
 
 	const headerHeight = 48;
@@ -81,36 +100,42 @@ const About = (props) => {
 
       <View style={styles.viewTab}>
         <TouchableOpacity
+          style={[styles.viewTabBtn, tabSt == 0 ? styles.viewTabBtnOn : null]}
+          activeOpacity={opacityVal}
+          onPress={()=>setTabSt(0)}
+        >
+          <Text style={[styles.viewTabBtnText, tabSt == 0 ? styles.viewTabBtnTextOn : null]}>스토리</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
           style={[styles.viewTabBtn, tabSt == 1 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>change(1)}
+          onPress={()=>setTabSt(1)}
         >
-          <Text style={[styles.viewTabBtnText, tabSt == 1 ? styles.viewTabBtnTextOn : null]}>스토리</Text>
+          <Text style={[styles.viewTabBtnText, tabSt == 1 ? styles.viewTabBtnTextOn : null]}>강점</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.viewTabBtn, tabSt == 2 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>change(2)}
+          onPress={()=>setTabSt(2)}
         >
-          <Text style={[styles.viewTabBtnText, tabSt == 2 ? styles.viewTabBtnTextOn : null]}>강점</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.viewTabBtn, tabSt == 3 ? styles.viewTabBtnOn : null]}
-          activeOpacity={opacityVal}
-          onPress={()=>change(3)}
-        >
-          <Text style={[styles.viewTabBtnText, tabSt == 3 ? styles.viewTabBtnTextOn : null]}>가입조건</Text>
+          <Text style={[styles.viewTabBtnText, tabSt == 2 ? styles.viewTabBtnTextOn : null]}>가입조건</Text>
         </TouchableOpacity>
       </View>
 
-			<ScrollView style={styles.scrollView}>
-			</ScrollView>
-
-			{loading ? (
-      <View style={[styles.indicator]}>
-        <ActivityIndicator size="large" color="#D1913C" />
-      </View>
-      ) : null}
+			{tabCont ? (
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.cmWrap}>
+            <RenderHtml
+              contentWidth={widnowWidth}
+              source={tabCont}            
+            />
+          </View>
+        </ScrollView>
+      ) : (
+        <View style={[styles.indicator]}>
+          <ActivityIndicator size="large" color="#D1913C" />
+        </View>
+      )}
 		</SafeAreaView>
 	)
 }
@@ -120,7 +145,7 @@ const styles = StyleSheet.create({
 	gapBox: {height:80,},
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
-  cmWrap: {paddingTop:30,paddingBottom:50,paddingHorizontal:20},
+  cmWrap: {paddingHorizontal:20},
 	cmTitleBox: {position:'relative'},
 	cmTitleText: { fontFamily: Font.NotoSansSemiBold, fontSize: 22, lineHeight: 25, color: '#1e1e1e', position: 'relative', zIndex: 10, paddingLeft:1, },
 	cmTitleLine: { width: 61, height: 14, backgroundColor: '#ffd194', position: 'absolute',left:0,bottom:-1,zIndex:9,opacity:0.3},

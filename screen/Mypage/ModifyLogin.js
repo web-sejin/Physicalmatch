@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
 	title: {marginBottom:10,},
 	titleText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},
 
-	input: {justifyContent:'center',width:innerWidth,height:36,borderBottomWidth:1,borderBottomColor:'#1e1e1e',paddingHorizontal:5,fontFamily:Font.NotoSansRegular,fontSize:16,lineHeight:19,color:'#1e1e1e'},
+	input: {justifyContent:'center',width:innerWidth,height:36,borderBottomWidth:1,borderBottomColor:'#1e1e1e',fontFamily:Font.NotoSansRegular,fontSize:15,color:'#1e1e1e',},
 	input2: {borderBottomColor:'#DBDBDB'},
 	inputText: {fontFamily:Font.NotoSansRegular,fontSize:16,lineHeight:19,color:'#1e1e1e'},	
 

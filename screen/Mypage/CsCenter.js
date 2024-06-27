@@ -6,12 +6,15 @@ import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/n
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-community/async-storage';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -22,24 +25,18 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const CsCenter = (props) => {
-  const data = [
-    {idx:1, cate:'질문 유형', subject:'질문 제목1 질문 제목1 질문 제목1 질문 제목1 질문 제목1 질문 제목1', date:'2024.00.00', content:'내용이 입력됩니다.1', stateString:'답변 완료', state:3, ansDatetime:'2024.00.00 00:00', ansContent:'답변 내용이 입력됩니다. 답변 내용이 입력됩니다. 답변 내용이 입력됩니다. 답변 내용이 입력됩니다. ', open:false,},
-    {idx:2, cate:'질문 유형', subject:'질문 제목2', date:'2024.00.00', content:'내용이 입력됩니다.2', stateString:'확인중', state:1, open:false,},
-    {idx:3, cate:'질문 유형', subject:'질문 제목3', date:'2024.00.00', content:'내용이 입력됩니다.3', stateString:'문의 접수', state:2, open:false,},
-    {idx:4, cate:'질문 유형', subject:'질문 제목4', date:'2024.00.00', content:'내용이 입력됩니다.4', stateString:'답변 완료', state:3, ansDatetime:'2024.00.00 00:00', ansContent:'답변 내용이 입력됩니다. 답변 내용이 입력됩니다. 답변 내용이 입력됩니다. 답변 내용이 입력됩니다. ', open:false,},
-    {idx:5, cate:'질문 유형', subject:'질문 제목5', date:'2024.00.00', content:'내용이 입력됩니다.5', stateString:'답변 완료', state:3, ansDatetime:'2024.00.00 00:00', ansContent:'답변 내용이 입력됩니다. 답변 내용이 입력됩니다. 답변 내용이 입력됩니다. 답변 내용이 입력됩니다. ', open:false,},
-  ]
-
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
-	const {params} = route
+	const {navigation, route} = props;
+	const {params} = route  
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-  const [noticeList, setNoticeList] = useState(data);
+  const [noticeList, setNoticeList] = useState([]);  
+	const [openIdx, setOpenIdx] = useState();
+  const [memberIdx, setMemberIdx] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -52,6 +49,16 @@ const CsCenter = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
+
+      if(params?.reload){        
+        onRefresh();
+        delete params?.reload;
+      }
+      
 		}
 
     Keyboard.dismiss();
@@ -76,71 +83,100 @@ const CsCenter = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
-  const openCont = (v) => {
-    let selectCon = noticeList.map((item) => {
-			if(item.idx === v){							
-				if(item.open){
-					return {...item, open: false};
-				}else{
-					return {...item, open: true};
-				}
-			}else{
-				return {...item, open: item.open};
-			}
-		});
+  useEffect(() => {
+		if(memberIdx){
+			getInquery();
+		}
+	}, [memberIdx]);
 
-    setNoticeList(selectCon);
+  const getInquery = async () => {
+    let sData = {      
+      basePath: "/api/etc/index.php",
+			type: "GetInquiryList",
+      member_idx: memberIdx,
+		}
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setNoticeList(response.data);
+		}
   }
 
-  const getList = ({item, index}) => (		
-		<View style={[styles.guidePopContBox]}>
-      <TouchableOpacity
-        style={[styles.guidePopContBtn, item.open ? styles.guidePopContBtn2 : null, index == 0 ? styles.pdt10 : null]}
-        activeOpacity={opacityVal}
-        onPress={()=>{openCont(item.idx)}}
-      >
-        <View style={{width:innerWidth-20}}>
-          <View style={styles.guidePopContBtnTitle}>
-            <View style={styles.ansState}>
-              <Text style={styles.ansStateText}>{item.stateString}</Text>
+  const openCont = (idx) => {
+    let updateAry = [...noticeList];
+    const result = updateAry.findIndex((v) => v.inquiry_idx === idx);
+    updateAry[result].is_chk = !(updateAry[result].is_chk);    
+    setNoticeList(updateAry);
+  }
+
+  const getList = ({item, index}) => {
+    let stateString = '';
+    if(item.inquiry_status == 0){
+      stateString = '문의 접수';
+    }else if(item.inquiry_status == 1){
+      stateString = '확인중';
+    }else if(item.inquiry_status == 2){
+      stateString = '답변 완료';
+    }    
+
+    return(
+      <View style={[styles.guidePopContBox]}>
+        <TouchableOpacity
+          style={[styles.guidePopContBtn, item.open ? styles.guidePopContBtn2 : null, index == 0 ? styles.pdt10 : null]}
+          activeOpacity={opacityVal}
+          onPress={()=>{openCont(item.inquiry_idx)}}
+        >
+          <View style={{width:innerWidth-20}}>
+            <View style={styles.guidePopContBtnTitle}>
+              <View style={styles.ansState}>
+                <Text style={styles.ansStateText}>{stateString}</Text>
+              </View>
+              <View style={styles.csTitle}>
+                <Text style={styles.guidePopContBtnText}>{item.inquiry_subject}</Text>
+              </View>
             </View>
-            <View style={styles.csTitle}>
-              <Text style={styles.guidePopContBtnText}>{item.subject}</Text>
+            <View style={styles.guidePopContBtnDate}>
+              <Text style={styles.guidePopContBtnDateText}>{item.ic_name} · {item.created_at}</Text>
             </View>
           </View>
-          <View style={styles.guidePopContBtnDate}>
-            <Text style={styles.guidePopContBtnDateText}>{item.cate} · {item.date}</Text>
+          {item.is_chk ? (
+            <ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
+          ) : (
+            <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+          )}
+        </TouchableOpacity>
+        {item.is_chk ? (
+          <>
+          <View style={styles.csContent}>
+            {item.file.length > 0 ? (
+              item.file.map((item2, index2) => {
+                return (
+                  <View key={index2} style={styles.csContImg}>
+                    <ImgDomain2 fileWidth={innerWidth} fileName={item2.if_file} />
+                  </View>
+                )
+              })
+            ) : null}
+            <View style={styles.csContentView}>
+              <Text style={styles.csContentViewText}>{item.inquiry_content}</Text>
+            </View>
           </View>
-        </View>
-        {item.open ? (
-          <ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
-        ) : (
-          <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-        )}
-      </TouchableOpacity>
-      {item.open ? (
-        <>
-        <View style={styles.csContent}>
-          <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/commu_sample.jpg'}} resizeMethod='resize' style={styles.csContImg} />
-          <View style={styles.csContentView}>
-            <Text style={styles.csContentViewText}>{item.content}</Text>
+          {item.inquiry_status == 2 ? (
+          <View style={styles.guidePopCont2}>
+            <View style={styles.ansTitle}>
+              <Text style={styles.ansTitleText}>답변</Text>
+            </View>
+            <View style={styles.ansDatetime}>
+              <Text style={styles.ansDatetimeText}>{item.updated_at}</Text>
+            </View>
+            <Text style={styles.guidePopCont2Text}>{item.inquiry_reply}</Text>
           </View>
-        </View>
-        {item.state == 3 ? (
-        <View style={styles.guidePopCont2}>
-          <View style={styles.ansTitle}>
-            <Text style={styles.ansTitleText}>답변</Text>
-          </View>
-          <View style={styles.ansDatetime}>
-            <Text style={styles.ansDatetimeText}>{item.ansDatetime}</Text>
-          </View>
-          <Text style={styles.guidePopCont2Text}>{item.ansContent}</Text>
-        </View>
+          ) : null}
+          </>
         ) : null}
-        </>
-      ) : null}
-    </View>
-	)
+      </View>
+    )
+	}
 
 	const onScroll = (e) => {
 		const {contentSize, layoutMeasurement, contentOffset} = e.nativeEvent;
@@ -155,11 +191,7 @@ const CsCenter = (props) => {
 
 	const onRefresh = () => {
 		if(!refreshing) {
-			setRefreshing(true);
-			//getItemList();
-			setTimeout(() => {
-				setRefreshing(false);
-			}, 2000);
+			getInquery();
 		}
 	}
 
@@ -188,17 +220,11 @@ const CsCenter = (props) => {
 				onEndReached={moreData}
 				onRefresh={onRefresh}
 				ListFooterComponent={<View style={{height:10,backgroundColor:'#fff'}}></View>}
-				// ListEmptyComponent={
-				// 	isLoading ? (
-				// 	<View style={styles.notData}>
-				// 		<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
-				// 	</View>
-				// 	) : (
-				// 		<View style={[styles.indicator]}>
-				// 			<ActivityIndicator size="large" />
-				// 		</View>
-				// 	)
-				// }
+				ListEmptyComponent={
+					<View style={styles.notData}>
+						<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
+					</View>
+				}
 			/>
 
       <View style={styles.nextFix}>
@@ -223,7 +249,7 @@ const CsCenter = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
 	gapBox: {height:80,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
   cmWrap: {paddingHorizontal:20,},
 	guidePopContBox: {},
@@ -248,13 +274,16 @@ const styles = StyleSheet.create({
   csInfoWrap: {padding:5,backgroundColor:'#EDF2FE',borderRadius:2,},
   csInfoText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#1e1e1e'},
   csContent: {paddingTop:20,paddingBottom:10,},
-  csContImg: {borderRadius:5,marginBottom:15,},
+  csContImg: {borderRadius:5,marginBottom:15,overflow:'hidden'},
   csContentView: {},
   csContentViewText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e',},
   ansTitle: {},
   ansTitleText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:16,color:'#1e1e1e',},
   ansDatetime: {marginBottom:5,},
   ansDatetimeText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#888'},
+
+  notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	red: {color:'#EE4245'},
 	gray: {color:'#B8B8B8'},

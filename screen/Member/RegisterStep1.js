@@ -9,12 +9,13 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
 
-const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
+const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
@@ -82,20 +83,28 @@ const RegisterStep1 = ({navigation, route}) => {
     })
 	}
 
-	const popupAction = (idx) => {
+	const popupAction = async (idx) => {
 		if(idx == 1){
 			setPrvTitle('서비스 이용약관');
-			setPrvContent('서비스 이용약관 약관입니다.');
 		}else if(idx == 2){
 			setPrvTitle('개인정보 수집 및 이용약관');
-			setPrvContent('개인정보 수집 및 이용 동의 약관입니다.');
 		}else if(idx == 3){
 			setPrvTitle('민감정보 이용약관');
-			setPrvContent('민감정보 이용 동의 약관입니다.');
 		}else if(idx == 4){
 			setPrvTitle('마케팅 수신 약관');
-			setPrvContent('마케팅 수신 동의 약관입니다.');
 		}
+		let sData = {      
+      basePath: "/api/etc/",
+			type: "GetTerms",
+			terms_num: idx,
+		}
+		
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setPrvContent(response.data);
+		}
+
 		setPrvPopSt(true);
 		setPreventBack(true);
 	}
@@ -322,7 +331,7 @@ const styles = StyleSheet.create({
 	chkView: {flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
 	chkboxBtn: {flexDirection:'row',alignItems:'center'},
 	chkBox: { width: 21, height: 21, backgroundColor: '#fff', borderWidth: 1, borderColor: '#dbdbdb', borderRadius: 2, position: 'relative' },
-	chkBoxCont: {width:12,height:12,backgroundColor:'#D1913C',borderRadius:2,position:'absolute',left:3,top:3,},
+	chkBoxCont: {width:12,height:12,backgroundColor:'#D1913C',borderRadius:1,position:'absolute',left:3.5,top:3.5,},
 	chkBoxCont2: {left:3.5,top:3.5},
 	allChkLabel: {fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:20,color:'#1E1E1E',marginLeft:8, position:'relative',top:LabelTop},
 	etcChkLabel: {fontFamily: Font.NotoSansRegular, fontSize: 15, lineHeight: 20, color: '#1E1E1E',marginLeft:8 },
@@ -353,9 +362,9 @@ const styles = StyleSheet.create({
 	prvPop: {position:'absolute',left:20,top:stBarHt,width:innerWidth,height:innerHeight,backgroundColor:'#fff',borderRadius:10},
 	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
 	popTitle: {paddingTop:50,paddingBottom:20,},
-	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:20,},
+	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1e1e1e'},
 	prvPopCont: {padding:20,paddingTop:10,},
-	prvPopContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:19,}
+	prvPopContText: {fontFamily:Font.NotoSansRegular,fontSize:13,lineHeight:19,color:'#1e1e1e'}
 })
 
 export default RegisterStep1

@@ -4,14 +4,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-community/async-storage';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
+import { advanceAnimationByFrame } from 'react-native-reanimated';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -32,7 +37,7 @@ const Alim = (props) => {
   ]
 
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -40,8 +45,9 @@ const Alim = (props) => {
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-  const [tabSt, setTabSt] = useState(1);
-  const [alimList, setAlimList] = useState(data);
+  const [tabSt, setTabSt] = useState(0);
+  const [alimList, setAlimList] = useState([]);
+  const [memberIdx, setMemberIdx] = useState(userInfo?.data.member_idx);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -54,6 +60,14 @@ const Alim = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      if(userInfo?.data.member_idx){        
+        setMemberIdx(userInfo?.data.member_idx);
+      }else{
+        AsyncStorage.getItem('member_idx', (err, result) => {		
+          setMemberIdx(result);
+        });
+      }
 		}
 
     Keyboard.dismiss();
@@ -78,6 +92,35 @@ const Alim = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+  useEffect(() => {
+    if(memberIdx){     
+      setLoading(true); 
+      getAlimList(tabSt);
+    }
+  }, [memberIdx]);
+
+  const getAlimList = async (type) => {    
+    let sData = {      
+      basePath: "/api/member/",
+			type: "GetAlarmList",
+      member_idx: memberIdx,
+      alarm_type: type,
+		}
+		const response = await APIs.send(sData);
+    console.log(response);
+		if(response.code == 200){
+      if(response.msg == 'EMPTY'){
+        setAlimList([]);
+      }else{
+        setAlimList(response.data);
+      }
+    }else{
+      setAlimList([]);
+    }
+    
+    setLoading(false);
+  }
+
   const getList = ({item, index}) => {
 		return (
       <TouchableOpacity
@@ -85,25 +128,27 @@ const Alim = (props) => {
         activeOpacity={1}            
       >
         <View style={styles.alimInfo}>
+          {item.alarm_category_text ? (
           <View style={styles.alimType}>
-            <Text style={styles.alimTypeText}>유형</Text>
+            <Text style={styles.alimTypeText}>{item.alarm_category_text}</Text>
           </View>
+          ) : null}
           <View style={styles.alimDate}>
-            <Text style={styles.alimDateText}>2024.00.00</Text>
+            <Text style={styles.alimDateText}>{item.created_at_text}</Text>
           </View>
-          <View style={styles.alimDate}>
+          {/* <View style={styles.alimDate}>
             <Text style={styles.alimDateText}>MON</Text>
           </View>
           <View style={styles.alimDate}>
             <Text style={styles.alimDateText}>00:00</Text>
-          </View>
+          </View> */}
         </View>
         <View style={styles.alimSubject}>
-          <Text style={styles.alimSubjectText}>디바이스 알림창에 노출되는 문구는 20자까지 입력 가능합니다.</Text>
+          <Text style={styles.alimSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.alarm_subject}</Text>
         </View>
         <View style={styles.alimCont}>
           <Text style={styles.alimContText} numberOfLines={3} ellipsizeMode='tail'>
-            서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다.
+          {item.alarm_content}
           </Text>
         </View>
       </TouchableOpacity>
@@ -132,7 +177,9 @@ const Alim = (props) => {
 	}
 
   const change = async (v) => {
+    setLoading(true);
     setTabSt(v);
+    getAlimList(v);
   }
 
 	const headerHeight = 48;
@@ -145,18 +192,18 @@ const Alim = (props) => {
 
       <View style={styles.viewTab}>
         <TouchableOpacity
+          style={[styles.viewTabBtn, tabSt == 0 ? styles.viewTabBtnOn : null]}
+          activeOpacity={opacityVal}
+          onPress={()=>change(0)}
+        >
+          <Text style={[styles.viewTabBtnText, tabSt == 0 ? styles.viewTabBtnTextOn : null]}>일반 알림</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
           style={[styles.viewTabBtn, tabSt == 1 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
           onPress={()=>change(1)}
         >
-          <Text style={[styles.viewTabBtnText, tabSt == 1 ? styles.viewTabBtnTextOn : null]}>일반 알림</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.viewTabBtn, tabSt == 2 ? styles.viewTabBtnOn : null]}
-          activeOpacity={opacityVal}
-          onPress={()=>change(2)}
-        >
-          <Text style={[styles.viewTabBtnText, tabSt == 2 ? styles.viewTabBtnTextOn : null]}>댓글 알림</Text>
+          <Text style={[styles.viewTabBtnText, tabSt == 1 ? styles.viewTabBtnTextOn : null]}>댓글 알림</Text>
         </TouchableOpacity>
       </View>
 
@@ -173,17 +220,11 @@ const Alim = (props) => {
 				onRefresh={onRefresh}
 				ListHeaderComponent={<View style={{height:10,backgroundColor:'#fff'}}></View>}
         ListFooterComponent={<View style={{height:10,backgroundColor:'#fff'}}></View>}
-				// ListEmptyComponent={
-				// 	isLoading ? (
-				// 	<View style={styles.notData}>
-				// 		<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
-				// 	</View>
-				// 	) : (
-				// 		<View style={[styles.indicator]}>
-				// 			<ActivityIndicator size="large" />
-				// 		</View>
-				// 	)
-				// }
+				ListEmptyComponent={
+					<View style={styles.notData}>
+						<Text style={styles.notDataText}>등록된 알림이 없습니다.</Text>
+					</View>
+				}
 			/>		
 
 			{loading ? (
@@ -220,14 +261,17 @@ const styles = StyleSheet.create({
   alimLi: {paddingVertical:20,},
   alimLiBo: {borderTopWidth:1,borderTopColor:'#DBDBDB'},
   alimInfo: {flexDirection:'row',alignItems:'center'},
-  alimType: {alignItems:'center',justifyContent:'center',height:18,paddingHorizontal:6,backgroundColor:'#243B55',borderRadius:10,},
+  alimType: {alignItems:'center',justifyContent:'center',height:18,paddingHorizontal:6,backgroundColor:'#243B55',borderRadius:10,marginRight:5,},
   alimTypeText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#fff'},
   alimDate: {},
-  alimDateText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:14,color:'#888',marginLeft:5,},
+  alimDateText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:15,color:'#888',},
   alimSubject: {marginTop:10,},
   alimSubjectText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
   alimCont: {marginTop:6,},
   alimContText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:18,color:'#888'},
+
+  notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	red: {color:'#EE4245'},
 	gray: {color:'#B8B8B8'},
@@ -276,4 +320,12 @@ const styles = StyleSheet.create({
   mgl15: {marginLeft:15},
 })
 
-export default Alim
+//export default Alim
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+	})
+)(Alim);

@@ -1,21 +1,34 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
+import {ActivityIndicator, Alert, BackHandler, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Video from 'react-native-video';
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import ImgDomain from '../../assets/common/ImgDomain';
+
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
 
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
-const RegisterResult = ({navigation, route}) => {
+const RegisterResult = (props) => {
+	const {navigation, userInfo, member_info, route} = props;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
+	const navigationUse = useNavigation();
+	const [preventBack, setPreventBack] = useState(true);
+	const [backPressCount, setBackPressCount] = useState(0);
+	const [memberId, setMemberId] = useState();
+	const [memberIdx, setMemberIdx] = useState();
+	const [firebaseToken, setFirebaseToken] = useState();
+	const [deviceToken, setDeviceToken] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -28,10 +41,57 @@ const RegisterResult = ({navigation, route}) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('appToken', (err, result) => {
+				//console.log('appToken :::: ', result);
+				setFirebaseToken(result);
+			});
+	
+			AsyncStorage.getItem('deviceId', (err, result) => {		
+				//console.log('deviceId :::: ', result);		
+				setDeviceToken(result);
+			});
+
+			AsyncStorage.getItem('member_id', (err, result) => {		
+				//console.log('member_id :::: ', result);		
+				setMemberId(result);
+			});
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 
 		return () => isSubscribed = false;
 	}, [isFocused]);
+
+	useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+				console.log(backPressCount);
+        if (backPressCount === 0) {
+          setBackPressCount(1);
+          ToastAndroid.show('한 번 더 누르면 종료됩니다.', ToastAndroid.SHORT);
+					
+          setTimeout(() => {
+            setBackPressCount(0);
+          }, 2000); // 2초 내에 두 번 클릭을 기다림
+
+          return true;
+        } else {
+          BackHandler.exitApp();
+          return true;
+        }
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+      return () => {
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+      };
+    }, [backPressCount])
+  );
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
@@ -71,6 +131,7 @@ const RegisterResult = ({navigation, route}) => {
 					<Text style={styles.introBtnText}>지인 차단하기</Text>
 				</TouchableOpacity>
 			</View>
+			
 		</SafeAreaView>
 	)
 }
@@ -83,7 +144,7 @@ const styles = StyleSheet.create({
 
   introDescBox: {width:widnowWidth, height:widnowHeight, position:'absolute', left:0, top:0, zIndex:99, alignItems:'center', justifyContent:'center'},
   introDescBoxWrap: {alignItems:'center', justifyContent:'center',position:'relative',top:-60,},
-  introDescBoxName: {fontFamily:Font.NotoSansBold,fontSize:22,lineHeight:24,color:'#fff'},
+  introDescBoxName: {fontFamily:Font.NotoSansBold,fontSize:22,lineHeight:26,color:'#fff'},
   introDescBoxText: {fontFamily:Font.NotoSansRegular,fontSize:16,lineHeight:28,color:'#fff'},
 	
 	introBox: {position: 'absolute', left: 0, bottom: 0, zIndex: 100, paddingHorizontal: 20, paddingBottom: 60 },
@@ -107,4 +168,13 @@ const styles = StyleSheet.create({
   mgt15: {marginTop:15},
 })
 
-export default RegisterResult
+//export default RegisterResult
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		//member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+	})
+)(RegisterResult);

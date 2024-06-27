@@ -21,7 +21,7 @@ const RegisterStep4 = ({navigation, route}) => {
 
   const prvChk4 = route['params']['prvChk4'];
   const accessRoute = route['params']['accessRoute'];
-  const mb_id = route['params']['mb_id'];
+  const member_id = route['params']['member_id'];
 
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
@@ -74,8 +74,8 @@ const RegisterStep4 = ({navigation, route}) => {
 		navigation.navigate('RegisterStep5', {
       prvChk4:prvChk4,
       accessRoute:accessRoute, 
-      mb_id:mb_id,
-			mb_pw:pw,
+      member_id:member_id,
+			member_pw:pw,
     })
   }
 
@@ -103,7 +103,7 @@ const RegisterStep4 = ({navigation, route}) => {
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 						<View style={styles.cmWrap}>
               <View style={styles.cmTitleBox}>
-                <Text style={styles.cmTitleText}>{mb_id}</Text>
+                <Text style={styles.cmTitleText}>{member_id}</Text>
               </View>
               <View style={[styles.cmTitleBox, styles.mgt8]}>
                 <Text style={styles.cmTitleText}>비밀번호를 설정해 주세요.</Text>

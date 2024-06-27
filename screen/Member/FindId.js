@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
@@ -49,16 +50,29 @@ const FindId = ({navigation, route}) => {
 		// 	ToastMessage('번호 인증을 완료해 주세요.');
 		// 	return false;
     // }
+    setCertnumber('010-1234-3336');
     setCertSt(true);
   }
 
-  const result_id = () => {
+  const result_id = async () => {
     if(!certSt){
 			ToastMessage('번호 인증을 완료해 주세요.');
 			return false;
     }
+    
+    let sData = {
+			basePath: "/api/member/",
+			type: "SetFindId",
+			member_phone: certnumber,
+		};
 
-    navigation.navigate('IdResult');
+		const response = await APIs.send(sData);    
+    if(response.code == 200){
+      navigation.navigate('IdResult', {result_id:response.data});
+    }else{
+      ToastMessage('일치하는 정보가 없습니다.');
+      return false;
+    }
   }
 
 	return (

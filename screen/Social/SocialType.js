@@ -31,14 +31,14 @@ const SocialType = (props) => {
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [wrtCate, setWrtCate] = useState(0);
+  const [wrtCate, setWrtCate] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isSubscribed = true;
 
 		if(!isFocused){
-      setWrtCate(0);
+      setWrtCate();
 		}else{
 			//console.log("isFocused");
 			setRouteLoad(true);
@@ -91,14 +91,26 @@ const SocialType = (props) => {
           </View>
           <View style={[styles.wrtType, styles.mgt50]}>
             <TouchableOpacity
+              style={[styles.wrtTypeBtn, styles.boxShadow, wrtCate == 0 ? styles.wrtTypeBtnOn : null]}
+              activeOpacity={opacityVal}
+              onPress={()=>selectType(0)}
+            >
+              <Text style={[styles.wrtTypeBtnText1, wrtCate == 0 ? styles.wrtTypeBtnText1On : null]}>1:1</Text>
+              <View style={[styles.wrtTypeBtnText2Box]}>
+                <Text style={[styles.wrtTypeBtnText2, wrtCate == 0 ? styles.wrtTypeBtnText2On : null]}>호스트와 1:1로</Text>
+                <Text style={[styles.wrtTypeBtnText2, wrtCate == 0 ? styles.wrtTypeBtnText2On : null]}>깊이 있게 만나요</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
               style={[styles.wrtTypeBtn, styles.boxShadow, wrtCate == 1 ? styles.wrtTypeBtnOn : null]}
               activeOpacity={opacityVal}
               onPress={()=>selectType(1)}
             >
-              <Text style={[styles.wrtTypeBtnText1, wrtCate == 1 ? styles.wrtTypeBtnText1On : null]}>1:1</Text>
+              <Text style={[styles.wrtTypeBtnText1, wrtCate == 1 ? styles.wrtTypeBtnText1On : null]}>미팅</Text>
               <View style={[styles.wrtTypeBtnText2Box]}>
-                <Text style={[styles.wrtTypeBtnText2, wrtCate == 1 ? styles.wrtTypeBtnText2On : null]}>호스트와 1:1로</Text>
-                <Text style={[styles.wrtTypeBtnText2, wrtCate == 1 ? styles.wrtTypeBtnText2On : null]}>깊이 있게 만나요</Text>
+                <Text style={[styles.wrtTypeBtnText2, wrtCate == 1 ? styles.wrtTypeBtnText2On : null]}>다수 : 다수로</Text>
+                <Text style={[styles.wrtTypeBtnText2, wrtCate == 1 ? styles.wrtTypeBtnText2On : null]}>성별비를 맞춰</Text>
+                <Text style={[styles.wrtTypeBtnText2, wrtCate == 1 ? styles.wrtTypeBtnText2On : null]}>함께 만나요</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity
@@ -106,23 +118,11 @@ const SocialType = (props) => {
               activeOpacity={opacityVal}
               onPress={()=>selectType(2)}
             >
-              <Text style={[styles.wrtTypeBtnText1, wrtCate == 2 ? styles.wrtTypeBtnText1On : null]}>미팅</Text>
+              <Text style={[styles.wrtTypeBtnText1, wrtCate == 2 ? styles.wrtTypeBtnText1On : null]}>모임</Text>
               <View style={[styles.wrtTypeBtnText2Box]}>
-                <Text style={[styles.wrtTypeBtnText2, wrtCate == 2 ? styles.wrtTypeBtnText2On : null]}>다수 : 다수로</Text>
-                <Text style={[styles.wrtTypeBtnText2, wrtCate == 2 ? styles.wrtTypeBtnText2On : null]}>성별비를 맞춰</Text>
-                <Text style={[styles.wrtTypeBtnText2, wrtCate == 2 ? styles.wrtTypeBtnText2On : null]}>함께 만나요</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.wrtTypeBtn, styles.boxShadow, wrtCate == 3 ? styles.wrtTypeBtnOn : null]}
-              activeOpacity={opacityVal}
-              onPress={()=>selectType(3)}
-            >
-              <Text style={[styles.wrtTypeBtnText1, wrtCate == 3 ? styles.wrtTypeBtnText1On : null]}>모임</Text>
-              <View style={[styles.wrtTypeBtnText2Box]}>
-                <Text style={[styles.wrtTypeBtnText2, wrtCate == 3 ? styles.wrtTypeBtnText2On : null]}>성별 상관없이</Text>
-                <Text style={[styles.wrtTypeBtnText2, wrtCate == 3 ? styles.wrtTypeBtnText2On : null]}>2인 이상</Text>
-                <Text style={[styles.wrtTypeBtnText2, wrtCate == 3 ? styles.wrtTypeBtnText2On : null]}>가볍게 만나요</Text>
+                <Text style={[styles.wrtTypeBtnText2, wrtCate == 2 ? styles.wrtTypeBtnText2On : null]}>성별 상관없이</Text>
+                <Text style={[styles.wrtTypeBtnText2, wrtCate == 2 ? styles.wrtTypeBtnText2On : null]}>2인 이상</Text>
+                <Text style={[styles.wrtTypeBtnText2, wrtCate == 2 ? styles.wrtTypeBtnText2On : null]}>가볍게 만나요</Text>
               </View>
             </TouchableOpacity>
           </View>

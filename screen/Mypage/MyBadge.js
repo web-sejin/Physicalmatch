@@ -3,18 +3,17 @@ import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, Tou
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-handler'
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -30,10 +29,11 @@ const MyBadge = (props) => {
   const [pageSt, setPageSt] = useState(false);
 	const navigationUse = useNavigation();
 	const [keyboardStatus, setKeyboardStatus] = useState(false);
-	const [keyboardHeight, setKeyboardHeight] = useState(0);
-	const [currFocus, setCurrFocus] = useState('');
+	const [keyboardHeight, setKeyboardHeight] = useState(0);	
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [memberIdx, setMemberIdx] = useState();
+	const [memberSex, setMemberSex] = useState();
 	const [deletePop, setDeletePop] = useState(false);
 	const [file, setFile] = useState({});
 
@@ -55,13 +55,48 @@ const MyBadge = (props) => {
 	const [realFile7Grade, setRealFile7Grade] = useState('');
 	const [realFile8Grade, setRealFile8Grade] = useState('');
 	
+	const [file1Url, setFile1Url] = useState('');
+	const [file2Url, setFile2Url] = useState('');
+	const [file3Url, setFile3Url] = useState('');
+	const [file4Url, setFile4Url] = useState('');
+	const [file5Url, setFile5Url] = useState('');
+	const [file6Url, setFile6Url] = useState('');
+	const [file7Url, setFile7Url] = useState('');
+	const [file8Url, setFile8Url] = useState('');
+
+	const [badgeGnb, setBadgeGnb] = useState([]);
+	const [badge2dp, setBadge2dp] = useState([]);
+	const [badgeSub, setBadgeSub] = useState();
+	const [certInfo, setCertInfo] = useState('');
+	
 	const [badgeType, setBadgeType] = useState(0);
 	const [badgeModal, setBadgeModal] = useState(false);	
 	const [badgeTitle, setBadgeTitle] = useState('');
 	const [badgeCert, setBadgeCert] = useState(false);
-	const [badgeGrade, setBadgeGrade] = useState('');
+	const [badgeGrade, setBadgeGrade] = useState();
 
+	const [jobModal, setJobModal] = useState(false);
+	const [schoolModal, setSchoolModal] = useState(false);
+	const [marryModal, setMarryModal] = useState(false);
 	const [confirm, setConfirm] = useState(false);
+
+	const [jobFile, setJobFile] = useState({});
+	const [realJobFile, setRealJobFile] = useState({});
+	const [jobFileUrl, setJobFileUrl] = useState('');
+
+	const [schoolFile, setSchoolFile] = useState({});
+	const [realSchoolFile, setRealSchoolFile] = useState({});
+	const [schoolName, setSchoolName] = useState('');
+	const [realSchoolName, setRealSchoolName] = useState('');
+	const [schoolMajor, setSchoolMajor] = useState('');
+	const [realSchoolMajor, setRealSchoolMajor] = useState('');
+	const [schoolFileUrl, setSchoolFileUrl] = useState('');
+
+	const [marryFile, setMarryFile] = useState({});
+	const [realMarryFile, setRealMarryFile] = useState({});
+	const [marryState, setMarryState] = useState('');
+	const [realMarryState, setRealMarryState] = useState('');
+	const [marryFileUrl, setMarryFileUrl] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -74,6 +109,11 @@ const MyBadge = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 		Keyboard.dismiss();
 		Toast.hide();
@@ -98,6 +138,78 @@ const MyBadge = (props) => {
 
     return unsubscribe;
   }, [navigationUse, preventBack]);
+
+	useEffect(() => {
+		if(memberIdx){
+			//setLoading(true);
+			getMemInfo();
+			getBadgeInfo();
+		}
+	}, [memberIdx]);
+
+	const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setMemberSex(response.data.member_sex);
+		}
+	}
+
+	const getBadgeInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyBadgeList",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setBadgeGnb(response.data);
+		}
+	}
+
+	const getBadge2dp = async (idx) => {
+		let gender = '';
+		if(memberSex == 0){
+			gender = 'm';
+		}else{
+			gender = 'w'
+		}
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetBadgeDetail",
+			bc_idx: idx,
+			m_sex: gender,
+		}
+		const response = await APIs.send(sData);		
+		setBadge2dp(response.data);
+	}
+
+	const getBadgeSubInfo = async (idx) => {		
+		setBadgeCert(true);
+		setBadgeGrade(idx);
+
+		const result = badge2dp.filter((v) => v.badge_idx == idx);
+		setBadgeSub(result);
+	}
+
+	const getCertInfo = async (idx) => {
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "GetAuthDetail",
+			pa_idx: idx,
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setCertInfo(response.data[0].pa_info);
+		}
+	}
 
 	const chooseImage = () => {
     ImagePicker.openPicker({
@@ -184,6 +296,24 @@ const MyBadge = (props) => {
 		console.log(nextObj);
 	}
 
+	const deleteBadge = async () => {
+		//console.log(badgeTitle+'///'+badgeType);
+
+		let sData = {      
+      basePath: "/api/member/index.php",
+			type: "DeleteMyBadge",
+			member_idx: memberIdx,
+			mb_idx: badgeType,
+		}
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setDeletePop(false);
+			getBadgeInfo();
+			ToastMessage('정상적으로 삭제되었습니다.');
+		}
+	}
+
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
 	const behavior = Platform.OS === "ios" ? "padding" : "height";
@@ -203,92 +333,115 @@ const MyBadge = (props) => {
 					</View>
 
 					{/* 성별이 여자인 경우 안보이게!!! */}
-					<View style={[styles.badgeBox, styles.mgt40]}>
-						<View style={styles.iptTit}>
-              <Text style={styles.iptTitText}>피지컬</Text>
-            </View>
-						<View style={[styles.badgeBtnBox, styles.boxShadow]}>
-							{/* <TouchableOpacity
-								style={[styles.badgeBtn]}
-								activeOpacity={realFile1.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile1.path ? setBadgeTitle('키 배지') : null
-									!realFile1.path ? setBadgeType(1) : null
-									!realFile1.path ? setBadgeModal(true) : null
-									!realFile1.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>
-									<ImgDomain fileWidth={45} fileName={'b_height.png'}/>
-									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
-										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>키 배지</Text>
-										<Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text>
-									</View>
-								</View>
-								{realFile1.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity> */}
-							<View style={[styles.badgeBtn]}>
-								<View style={styles.badgeBtnLeft}>
-									<ImgDomain fileWidth={45} fileName={'b_height.png'}/>
-									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
-										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>키 배지</Text>
-										<Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text>
-									</View>
-								</View>	
-								<TouchableOpacity
-									activeOpacity={opacityVal}
-									onPress={()=>{
-										setBadgeTitle('키 배지');
-										setBadgeType(1);
-										setDeletePop(true);
-									}}
-								>
-									<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
-								</TouchableOpacity>							
-							</View>
-
-							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
-
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile2.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile2.path ? setBadgeTitle('골격근량 배지') : null
-									!realFile2.path ? setBadgeType(2) : null
-									!realFile2.path ? setBadgeModal(true) : null
-									!realFile2.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>
-									<ImgDomain fileWidth={45} fileName={'b_muscle.png'}/>
-									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
-										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>골격근량 배지</Text>
-										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
-									</View>
-								</View>
-								<View style={styles.badgeBtnRight}>
-									{realFile2.path ? (
-										<View style={styles.stateView}>
-											<Text style={styles.stateViewText}>심사중</Text>
+					{badgeGnb.map((item, index) => {
+						if(item.lists.length > 0){
+							if((item.title == '피지컬' && memberSex != 1) || item.title != '피지컬'){
+								return (
+									<View key={index} style={[styles.badgeBox, styles.mgt40]}>
+										<View style={styles.iptTit}>
+											<Text style={styles.iptTitText}>{item.title}</Text>
 										</View>
-									) : (
-										<>										
-										<View style={styles.stateView2}>
-											<Text style={styles.stateViewText2}>반려</Text>
+										<View style={[styles.badgeBtnBox, styles.boxShadow, styles.flowHidden]}>
+											{item.lists.map((item2, index2) => {
+												let opt = 0.8;
+												if((item2.bc_idx == 1 && realFile1.path) || (item2.bc_idx == 2 && realFile2.path) || (item2.bc_idx == 3 && realFile3.path) || (item2.bc_idx == 4 && realFile4.path) || (item2.bc_idx == 5 && realFile5.path) || (item2.bc_idx == 6 && realFile6.path) || (item2.bc_idx == 7 && realFile7.path )|| (item2.bc_idx == 8 && realFile8.path)){ opt = 1 }												 
+												
+												return (
+													item2.auth_yn == 'y' || item2.auth_yn == 'i' ? (
+														<View key={index2}>
+															{index2 != 0 ? (<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>) : null}
+															<View style={[styles.badgeBtn]}>
+																<View style={styles.badgeBtnLeft}>
+																	<ImgDomain2 fileWidth={45} fileName={item2.bc_img}/>
+																	<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
+																		<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>{item2.bc_name}</Text>
+																		<Text style={[styles.badgeBtnLeftText2]}>{item2.badge_info}</Text>
+																	</View>
+																</View>
+																{item2.auth_yn == 'y' ? (
+																	<TouchableOpacity
+																		activeOpacity={opacityVal}
+																		onPress={()=>{
+																			setBadgeTitle(item2.bc_name);
+																			setBadgeType(item2.mb_idx);
+																			setDeletePop(true);
+																		}}
+																	>
+																		<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
+																	</TouchableOpacity>
+																) : (
+																	<View style={styles.badgeBtnRight}>
+																		<View style={styles.stateView}>
+																			<Text style={styles.stateViewText}>심사중</Text>
+																		</View>
+																	</View>
+																)}
+															</View>
+														</View>
+													) : (
+														<View key={index2}>
+															{index2 != 0 ? (<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>) : null}
+															<TouchableOpacity
+																style={styles.badgeBtn}
+																activeOpacity={opt}
+																onPress={()=>{
+																	setBadgeTitle(item2.bc_name);
+																	setBadgeType(item2.bc_idx);
+																	getBadge2dp(item2.bc_idx);
+																	console.log(item2);
+																	if(item2.bc_idx == 1){																	
+																		!realFile1.path ? setBadgeModal(true) : null
+																		!realFile1.path ? setPreventBack(true) : null		
+																	}else if(item2.bc_idx == 2){
+																		!realFile2.path ? setBadgeModal(true) : null
+																		!realFile2.path ? setPreventBack(true) : null																	
+																	}else if(item2.bc_idx == 3){
+																		!realFile3.path ? setBadgeModal(true) : null
+																		!realFile3.path ? setPreventBack(true) : null
+																	}else if(item2.bc_idx == 4){
+																		!realFile4.path ? setBadgeModal(true) : null
+																		!realFile4.path ? setPreventBack(true) : null
+																	}else if(item2.bc_idx == 5){
+																		!realFile5.path ? setBadgeModal(true) : null
+																		!realFile5.path ? setPreventBack(true) : null
+																	}else if(item2.bc_idx == 6){
+																		!realFile6.path ? setBadgeModal(true) : null
+																		!realFile6.path ? setPreventBack(true) : null
+																	}else if(item2.bc_idx == 7){
+																		!realFile7.path ? setBadgeModal(true) : null
+																		!realFile7.path ? setPreventBack(true) : null
+																	}else if(item2.bc_idx == 8){
+																		!realFile8.path ? setBadgeModal(true) : null
+																		!realFile8.path ? setPreventBack(true) : null
+																	}
+																}}
+															>
+																<View style={styles.badgeBtnLeft}>
+																	<ImgDomain2 fileWidth={45} fileName={item2.bc_img}/>
+																	<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
+																		<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>{item2.bc_name}</Text>
+																	</View>
+																</View>
+																<View style={styles.badgeBtnRight}>
+																	{item2.mb_file && item2.auth_yn == 'n' ? (
+																		<View style={styles.stateView2}>
+																			<Text style={styles.stateViewText2}>반려</Text>
+																		</View>																	
+																	) : null}
+																	<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+																</View>
+															</TouchableOpacity>
+														</View>
+													)
+													
+												)
+											})}
 										</View>
-										<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-										</>
-								)}
-								</View>
-							</TouchableOpacity>
-						</View>
-					</View>
+									</View>
+								)
+							}
+						}
+					})}
 
 					<View style={[styles.badgeBox, styles.mgt40]}>
 						<View style={styles.iptTit}>
@@ -484,29 +637,64 @@ const MyBadge = (props) => {
 						<TouchableOpacity
 							style={styles.headerBackBtn2}
 							activeOpacity={opacityVal}
-							onPress={() => {
-								offBadgeModal();								
-							}}						
-						>
+							onPress={() => offBadgeModal()}						
+						>							
 							<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 						</TouchableOpacity>						
-					</View>					
+					</View>
 					<ScrollView>
 						<View style={[styles.cmWrap]}>
 							<View style={styles.cmTitleBox}>
-								<Text style={styles.cmTitleText3}>배지 선택</Text>
+								<Text style={styles.cmTitleText}>배지 선택</Text>
 							</View>
-							<View style={[styles.cmDescBox, styles.pdb20]}>
-								<Text style={styles.cmDescText3}>인증할 배지를 선택해 주세요.</Text>
+							<View style={styles.cmDescBox}>
+								<Text style={styles.cmDescText}>인증할 배지를 선택해 주세요.</Text>
 							</View>
-							<View style={styles.reject}>
-								<View style={styles.rejectBox}>
-									<Text style={styles.rejectText}>반려 사유 메세지</Text>
-								</View>
-							</View>
-							<View style={[styles.badgeBox, styles.mgt20]}>
+							<View style={[styles.badgeBox, styles.mgt40]}>
 								<View style={[styles.badgeBtnBox, styles.mgt0]}>
-									<TouchableOpacity
+									{badge2dp.map((item, index) => {
+										return (
+											<TouchableOpacity
+												key={index}
+												style={[
+													styles.badgeBtn
+													, styles.boxShadow
+													, badgeGrade!= '' && badgeGrade != item.badge_idx ? styles.badgeBtnOff : null
+													, badgeGrade==item.badge_idx ? styles.badgeBtnOn : null
+													, index != 0 ? styles.mgt12 : null
+												]}
+												activeOpacity={opacityVal}
+												onPress={()=>getBadgeSubInfo(item.badge_idx)}
+											>
+												<View style={[styles.badgeBtnLeft]}>
+													{badgeGrade!= '' && badgeGrade != item.badge_idx ? (												
+														<ImgDomain2 fileWidth={45} fileName={item.badge_img}/>
+													) : (
+														<ImgDomain2 fileWidth={45} fileName={item.badge_img}/>
+													)}
+													<View style={styles.badgeBtnLeftWrap}>
+														<Text style={[
+															styles.badgeBtnLeftText
+															, styles.mgl0
+															, badgeGrade!= '' && badgeGrade != item.badge_idx ? styles.badgeBtnLeftTextOff : null
+															, badgeGrade==item.badge_idx ? styles.badgeBtnLeftTextOn : null
+														]}>
+															{item.badge_name}
+														</Text>
+														<Text style={[
+															styles.badgeBtnLeftText2
+															, badgeGrade!= '' && badgeGrade != item.badge_idx ? styles.badgeBtnLeftText2Off : null
+															, badgeGrade==item.badge_idx ? styles.badgeBtnLeftText2On : null
+														]}>
+															{item.badge_info}
+														</Text>
+													</View>
+												</View>
+											</TouchableOpacity>
+										)
+									})}
+									
+									{/* <TouchableOpacity
 										style={[
 											styles.badgeBtn
 											, styles.boxShadow
@@ -522,7 +710,7 @@ const MyBadge = (props) => {
 										<View style={[styles.badgeBtnLeft]}>
 											{badgeGrade!= '' && badgeGrade != 'silver' ? (												
 												<ImgDomain fileWidth={45} fileName={'b_silver_off.png'}/>
-											) : (												
+											) : (
 												<ImgDomain fileWidth={45} fileName={'b_silver.png'}/>
 											)}
 											<View style={styles.badgeBtnLeftWrap}>
@@ -559,7 +747,7 @@ const MyBadge = (props) => {
 										}}
 									>
 										<View style={[styles.badgeBtnLeft]}>
-											{badgeGrade!= '' && badgeGrade != 'gold' ? (												
+											{badgeGrade!= '' && badgeGrade != 'gold' ? (
 												<ImgDomain fileWidth={45} fileName={'b_gold_off.png'}/>
 											) : (
 												<ImgDomain fileWidth={45} fileName={'b_gold.png'}/>
@@ -598,8 +786,8 @@ const MyBadge = (props) => {
 										}}
 									>
 										<View style={[styles.badgeBtnLeft]}>
-											{badgeGrade!= '' && badgeGrade != 'dia' ? (												
-												<ImgDomain fileWidth={45} fileName={'b_diamond_off.png'}/>
+											{badgeGrade!= '' && badgeGrade != 'dia' ? (
+												<ImgDomain fileWidth={45} fileName={'b_diamond_off.png'}/>												
 											) : (
 												<ImgDomain fileWidth={45} fileName={'b_diamond.png'}/>
 											)}
@@ -621,7 +809,7 @@ const MyBadge = (props) => {
 												</Text>
 											</View>
 										</View>
-									</TouchableOpacity>
+									</TouchableOpacity> */}
 								</View>
 							</View>
 							
@@ -632,7 +820,7 @@ const MyBadge = (props) => {
 									<Text style={styles.iptTitText}>기준</Text>									
 								</View>
 								<View style={[styles.popInfoBox, styles.mgt8]}>
-									<Text style={styles.popInfoBoxText}>배지 획득 기준 상세 내용</Text>
+									<Text style={styles.popInfoBoxText}>{badgeSub[0].badge_standard}</Text>
 								</View>
 							</View>
 
@@ -640,19 +828,18 @@ const MyBadge = (props) => {
 								<View style={styles.iptTit}>
 									<Text style={styles.iptTitText}>인증방법</Text>									
 								</View>
-								<View style={[styles.iptSubTit, styles.mgt5]}>
-									<Text style={styles.iptSubTitText}>1. 인증해야 하는 자료 타이틀</Text>									
-								</View>
-								<View style={[styles.popInfoBox, styles.mgt8]}>
-									<Text style={styles.popInfoBoxText}>자료 상세 내용</Text>
-								</View>
-
-								<View style={[styles.iptSubTit, styles.mgt10]}>
-									<Text style={styles.iptSubTitText}>2. 인증해야 하는 자료 타이틀</Text>									
-								</View>
-								<View style={[styles.popInfoBox, styles.mgt8]}>
-									<Text style={styles.popInfoBoxText}>자료 상세 내용</Text>
-								</View>
+								{(badgeSub[0].auth).map((item, index) => {
+									return (
+										<View key={index}>
+											<View style={[styles.iptSubTit, index == 0 ? styles.mgt5 : styles.mgt10]}>
+												<Text style={styles.iptSubTitText}>{index+1}. {item.ba_subject}</Text>									
+											</View>
+											<View style={[styles.popInfoBox, styles.mgt8]}>
+												<Text style={styles.popInfoBoxText}>{item.ba_content}</Text>
+											</View>
+										</View>
+									)
+								})}
 							</View>
 
 							<View style={styles.mgt40}>
@@ -660,13 +847,13 @@ const MyBadge = (props) => {
 									<Text style={styles.iptTitText}>인증 예시</Text>									
 								</View>
 								<View style={[styles.iptSubTit, styles.mgt5]}>
-									<Text style={styles.iptSubTitText}>제출 자료명</Text>									
+									<Text style={styles.iptSubTitText}>{badgeSub[0].badge_auth_info1}</Text>									
 								</View>
 								<View style={[styles.exampleBox, styles.mgt8]}>
-									<ImgDomain fileWidth={innerWidth} fileName={'example.jpg'}/>
+									<ImgDomain2 fileWidth={innerWidth} fileName={badgeSub[0].badge_auth_img}/>
 								</View>
 								<View style={styles.exampleBoxDesc}>
-									<Text style={styles.exampleBoxDescText}>성함, 금액 등의 필수로 노출되어야 합니다</Text>
+									<Text style={styles.exampleBoxDescText}>{badgeSub[0].badge_auth_info2}</Text>
 								</View>
 							</View>
 
@@ -675,15 +862,15 @@ const MyBadge = (props) => {
 									<Text style={styles.iptTitText}>인증 자료 첨부</Text>									
 								</View>
 								<View style={[styles.iptSubTit, styles.mgt5]}>
-									<Text style={styles.iptSubTitText}>주민등록번호 뒷자리는 가린 뒤 업로드 해주세요.</Text>									
+									<Text style={styles.iptSubTitText}>{badgeSub[0].badge_auth_info3}</Text>									
 								</View>
 																
 								{file.path ? (
 									<View style={styles.fileBox}>
-										<View style={styles.fileBoxLeft}>
+										<View style={styles.fileBoxLeft}>										
 											<View style={styles.fileBoxLeftView}>
 												<AutoHeightImage width={38} source={{ uri: file.path }} style={styles.fileBoxLeftImg} />
-											</View>		
+											</View>	
 											<View style={styles.fileBoxLeftInfo}>
 												<Text style={styles.fileBoxLeftInfoText}>{file.name}</Text>
 												<Text style={styles.fileBoxLeftInfoText2}>{file.size} MB</Text>
@@ -695,7 +882,7 @@ const MyBadge = (props) => {
 											onPress={() => {
 												setFile({});
 											}}
-										>											
+										>
 											<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
 										</TouchableOpacity>
 									</View>
@@ -755,22 +942,20 @@ const MyBadge = (props) => {
 							<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
-              <Text style={styles.popTitleText}>인증 항목을 삭제하시겠어요?</Text>
+              <Text style={styles.popTitleText}>{badgeTitle}를 삭제하시겠어요?</Text>
 						</View>
             <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.mgt50]}>
 						  <TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
 								activeOpacity={opacityVal}
-								onPress={() => {
-                  setDeletePop(false);
-                }}
+								onPress={() => setDeletePop(false)}
 							>
 								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
 							</TouchableOpacity>
 							<TouchableOpacity 
 								style={[styles.popBtn]}
 								activeOpacity={opacityVal}
-								onPress={() => setDeletePop(false)}
+								onPress={() => deleteBadge()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>
@@ -834,7 +1019,7 @@ const MyBadge = (props) => {
 
 			{loading ? (
       <View style={[styles.indicator]}>
-        <ActivityIndicator size="large" color="#D1913C" />
+        <ActivityIndicator size="large" color="#fff" />
       </View>
       ) : null}
 		</SafeAreaView>
@@ -844,7 +1029,7 @@ const MyBadge = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
 	gapBox: {height:86,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
 	cmWrap: {paddingVertical:30,paddingHorizontal:20},
 	cmTitleBox: {position:'relative'},
@@ -867,9 +1052,9 @@ const styles = StyleSheet.create({
 	regiStateTexOn: {color:'#243B55'},
 
 	iptTit: {},
-  iptTitText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:16,color:'#1e1e1e'},
+  iptTitText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:18,color:'#1e1e1e'},
 	iptSubTit: {},
-	iptSubTitText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:14,color:'#666'},
+	iptSubTitText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:15,color:'#666'},
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
@@ -919,10 +1104,11 @@ const styles = StyleSheet.create({
     shadowRadius: 2.5,
 		elevation: 4,
 	},
+	flowHidden: {overflow:'hidden'},
 	badgeBtnBox: {backgroundColor:'#fff',marginTop:15,},
-	badgeBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'#fff',padding:20,},
+	badgeBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'#fff',paddingVertical:18,paddingHorizontal:20,borderWidth:1,borderColor:'rgba(209,145,60,0)'},
 	badgeBtnOff: {},
-	badgeBtnOn: {shadowColor:'#D1913C',shadowOpacity:0.45,backgroundColor:'#FFFCF8'},
+	badgeBtnOn: {shadowColor:'#D1913C',shadowOpacity:0.45,backgroundColor:'#FFFCF8',borderColor:'rgba(209,145,60,0.1)'},
 	badgeBtnLeft: {flexDirection:'row',alignItems:'center'},
 	badgeBtnLeftWrap: {marginLeft:20,},
 	badgeBtnLeftText: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:20,color:'#1e1e1e',marginLeft:10,},
@@ -935,9 +1121,9 @@ const styles = StyleSheet.create({
 
 	badgeBtnRight: {flexDirection:'row',alignItems:'center'},
 	stateView: {alignItems:'center',justifyContent:'center',height:18,paddingHorizontal:6,backgroundColor:'#243B55',borderRadius:10,},
-	stateViewText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:14,color:'#fff'},
+	stateViewText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#fff'},
 	stateView2: {alignItems:'center',justifyContent:'center',height:18,paddingHorizontal:6,backgroundColor:'rgba(238,66,69,0.15)',borderRadius:10,marginRight:5,},
-	stateViewText2: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:14,color:'#EE4245'},
+	stateViewText2: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245'},
 
 	popInfoBox: {minHeight:100,backgroundColor:'#F9FAFB',paddingVertical:10,paddingHorizontal:15,borderRadius:5,},
 	popInfoBoxText: {fontFamily:Font.NotoSansRegular,fontSize:13,lineHeight:26,color:'#b8b8b8',},

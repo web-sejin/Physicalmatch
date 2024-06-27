@@ -6,13 +6,16 @@ import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/n
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const padding_top = Platform.OS === 'ios' ? 10 : 15;
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
@@ -42,6 +45,10 @@ const Mypage = (props) => {
 	const [swiperList, setSwiperList] = useState([]);
 	const [guideModal, setGuideModal] = useState(false);
 	const [guideModal2, setGuideModal2] = useState(false);
+	const [memberIdx, setMemberIdx] = useState();
+	const [memberNick, setMemberNick] = useState('');
+	const [memberProfile, setMemberProfile] = useState('');
+	const [memberType, setMemberType] = useState(0);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -54,14 +61,54 @@ const Mypage = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 
+		Keyboard.dismiss();
+		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
 
 	useEffect(() => {
 		setSwiperList(swp);
 	}, [])
+
+	useEffect(() => {		
+		getMemInfo();
+		getMemInfo2();
+	}, [memberIdx]);
+
+	const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyProfile",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){
+			setMemberNick(response.data.info.member_nick);
+			setMemberProfile(response.data.img[0].mti_img);			
+		}
+	}
+
+	const getMemInfo2 = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);    
+		if(response.code == 200){
+			setMemberType(response.data.member_type);		
+		}
+	}
 
 	const notMember = () => {
 		ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
@@ -71,6 +118,7 @@ const Mypage = (props) => {
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'MY PAGE'} />
 
+			{memberType == 0 ? (
 			<View style={{...styles.screening, paddingTop:padding_top}}>
 				<View style={styles.screeningTitle}>					
 					<ImgDomain fileWidth={16} fileName={'icon_screening.png'}/>
@@ -81,7 +129,8 @@ const Mypage = (props) => {
 				<View style={styles.screeningDesc}>
 					<Text style={styles.screeningDescText}>심사 완료까지 1~2일이 소요됩니다.</Text>
 				</View>
-			</View>			
+			</View>
+			) : null}
 
 			<ScrollView>
 				<View style={styles.myProfInfo}>
@@ -92,21 +141,27 @@ const Mypage = (props) => {
 					>
 						<ImgDomain fileWidth={36} fileName={'icon_my_sch.png'}/>
 					</TouchableOpacity>
-					<View style={styles.myProfInfoThumb}>
-						{/* <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' /> */}
-						<ImgDomain fileWidth={104} fileName={'my_basic_prof.jpg'}/>
+					<View style={styles.myProfInfoThumb}>												
+						{memberProfile != '' ? (
+							<ImgDomain2 fileWidth={104} fileName={memberProfile} />
+						) : (
+							<ImgDomain fileWidth={104} fileName={'my_basic_prof.jpg'} />
+						)}
 					</View>				
 					<TouchableOpacity
 						style={styles.myProfInfoBtn}
 						activeOpacity={opacityVal}
 						onPress={()=>{navigation.navigate('ProfieModify')}}						
 					>
-						<ImgDomain fileWidth={36} fileName={'icon_my_pencel.png'}/>
-						{/* <ImgDomain fileWidth={36} fileName={'icon_eraser.png'}/> */}
+						{memberType == 1 ? (
+							<ImgDomain fileWidth={36} fileName={'icon_my_pencel.png'}/>
+						) : (
+							<ImgDomain fileWidth={36} fileName={'icon_eraser.png'}/>
+						)}												
 					</TouchableOpacity>
 
 					<View style={styles.myProfInfoNick}>
-						<Text style={styles.myProfInfoNickText}>닉네임최대여덟자</Text>
+						<Text style={styles.myProfInfoNickText}>{memberNick}</Text>
 					</View>
 				</View>
 

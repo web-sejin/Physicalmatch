@@ -4,14 +4,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
+import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
+
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import { compose } from 'redux';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -22,19 +27,16 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const PushSet = (props) => {
-  const data = [
-    {idx:1, subject:'개인정보 처리방침', content:'내용이 입력됩니다.1', open:false,},
-    {idx:2, subject:'서비스 이용약관', content:'내용이 입력됩니다.5', open:false,},
-  ]
-
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+  const {navigation, userInfo, member_info, member_logout, member_out, route} = props;
+  //console.log('userInfo ::: ', userInfo);
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
+  const [memberIdx, setMemberIdx] = useState();
   
   const [allControl, setAllControl] = useState(false);
   const [onOffAll, setOnOffAll] = useState();
@@ -76,12 +78,23 @@ const PushSet = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
 		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
+
+  useEffect(() => {
+    if(memberIdx){
+      getPushList();
+    }
+  }, [memberIdx])
 
   useEffect(() => {		
     let change = 0; 
@@ -131,6 +144,43 @@ const PushSet = (props) => {
     chkOnOffState();
 	}, [onOff6]);
 
+  const getPushList = async () => {
+    let sData = {
+			basePath: "/api/member/index.php",
+			type: "GetPushList",
+			member_idx: memberIdx,
+			push_type: 0,
+		};
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+      if(response.data.match_push_yn == 'y'){ setOnOff(true); }else{ setOnOff(false); }
+      if(response.data.social_push_yn == 'y'){ setOnOff2(true); }else{ setOnOff2(false); }
+      if(response.data.community_push_yn == 'y'){ setOnOff3(true); }else{ setOnOff3(false); }
+      if(response.data.reply_push_yn == 'y'){ setOnOff4(true); }else{ setOnOff4(false); }
+      if(response.data.system_push_yn == 'y'){ setOnOff5(true); }else{ setOnOff5(false); }
+      if(response.data.event_push_yn == 'y'){ setOnOff6(true); }else{ setOnOff6(false); }
+    }
+  }
+
+  const updatePushList = async (col, state) => {
+    //console.log(col+" ::: "+state);
+    let yn = '';
+    if(state){
+      yn = 'y';
+    }else{
+      yn = 'n';
+    }
+    let sData = {
+			basePath: "/api/member/index.php",
+			type: "SetPushList",
+			member_idx: memberIdx,
+			push_col: col,
+      push_yn: yn 
+		};
+    const response = await APIs.send(sData);
+    //console.log(response);
+  }
+
   const chkOnOffState = () => {
     if(onOff && onOff2 && onOff3 && onOff4 && onOff5 && onOff6){
       setOnOffAll(true);
@@ -141,26 +191,32 @@ const PushSet = (props) => {
 
   const chgOnOff = async () => {
     setOnOff(!onOff);
+    updatePushList('match_push_yn', !onOff);
   }
 
   const chgOnOff2 = async () => {
     setOnOff2(!onOff2);
+    updatePushList('social_push_yn', !onOff);
   }
 
   const chgOnOff3 = async () => {
     setOnOff3(!onOff3);
+    updatePushList('community_push_yn', !onOff);
   }
 
   const chgOnOff4 = async () => {
     setOnOff4(!onOff4);
+    updatePushList('reply_push_yn', !onOff);
   }
 
   const chgOnOff5 = async () => {
     setOnOff5(!onOff5);
+    updatePushList('system_push_yn', !onOff);
   }
 
   const chgOnOff6 = async () => {
     setOnOff6(!onOff6);
+    updatePushList('event_push_yn', !onOff);
   }
 
   const chgOnOffAll = async () => {
@@ -181,6 +237,8 @@ const PushSet = (props) => {
       setOnOff5(true);
       setOnOff6(true);
     }    
+
+    updatePushList('all', !onOffAll);
   }
 
 	const headerHeight = 48;
@@ -443,4 +501,15 @@ const styles = StyleSheet.create({
   mgl15: {marginLeft:15},
 })
 
-export default PushSet
+//export default PushSet
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+		member_logout: (user) => dispatch(UserAction.member_logout(user)), //로그아웃
+		member_out: (user) => dispatch(UserAction.member_out(user)), //회원탈퇴
+	})
+)(PushSet);

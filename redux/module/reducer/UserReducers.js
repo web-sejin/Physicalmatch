@@ -1,16 +1,13 @@
 import {
   MEMBER_LOGOUT,
-  MEBMER_LOGIN,
-  MEMBER_COMMENT,
+  MEBMER_LOGIN,  
   MEMBER_INFO,
   MEMBER_JOIN,
   WISH_LIST,
   MEMBER_OTHER_INFO,
   MEMBER_PUSH_LIST,
   MEMBER_KEYWORD_LIST,
-  WISH_LIST_FLEX,
-  MEMBER_HOSPITAL,
-  MEMBER_CHAT_CNT
+  WISH_LIST_FLEX
 } from '../action/UserAction.js';
 const initialState = {
   userInfo: null, // user
@@ -19,38 +16,19 @@ const initialState = {
   user_wish_list_flex: [], // 회원 관신목록 리스트 FLEX
   user_push_info: null, //푸시정보 리스트
   user_keyword_info: null, //키워드 정보
-  user_hospital : null // 병원 회원권 정보
 };
 
-export default (
-  state = initialState,
-  { type, payload, code = '', count = 1 }
-) => {
+export default (state = initialState, { type, payload, code = '', count = 1 }) => {  
   switch (type) {
-    case MEMBER_HOSPITAL:
-      return {
-        ...state,
-        user_hospital: payload,
-      };
     case MEBMER_LOGIN:
       return {
         ...state,
         userInfo: payload,
       };
-    case MEMBER_COMMENT:
-      return {
-        ...state,
-        commentInfo: payload,
-      };
     case MEMBER_INFO:
       return {
         ...state,
         userInfo: payload,
-      };
-    case MEMBER_CHAT_CNT:
-      return {
-        ...state,
-        chatInfo: payload,
       };
     case MEMBER_JOIN:
       return {

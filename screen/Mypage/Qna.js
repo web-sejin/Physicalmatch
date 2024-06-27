@@ -8,6 +8,7 @@ import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import {connect} from 'react-redux';
 
+import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -57,7 +58,10 @@ const Qna = (props) => {
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [refreshing, setRefreshing] = useState(false);
-	const [qnaList, setQnaList] = useState(data);
+	const [qnaList, setQnaList] = useState([]);
+	const [apiList, setApiList] = useState([]);
+	const [openIdx, setOpenIdx] = useState();
+	const [openIdx2, setOpenIdx2] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -94,10 +98,31 @@ const Qna = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
-	const openContDp1 = (v) => {
-		let qnaListCust = [...qnaList];
-    qnaListCust[v][2] = !(qnaListCust[v][2]);
+	const openContDp1 = (v) => {	
+		let qnaListCust = [...qnaList];		
+		if(qnaListCust[v].open){
+			qnaListCust[v].open = false;
+		}else{
+			qnaListCust[v].open = true;
+		}		
+    qnaListCust[v].open = !(qnaListCust[v].open);
 		setQnaList(qnaListCust);
+	}
+
+	useEffect(() => {
+		getApiEvent();
+	}, []);
+
+	const getApiEvent = async () => {
+		let sData = {      
+      basePath: "/api/etc/index.php",
+			type: "GetQnA",
+		}
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setApiList(response.data);
+		}
 	}
 
   const openCont = (v, z, y) => {    
@@ -106,72 +131,87 @@ const Qna = (props) => {
     setQnaList(qnaListCust);
   }
 
-	const getList = useCallback(({item, index}) => {    
-    return(
-      <View style={styles.pointDateView}>
-        <TouchableOpacity 
-					style={[styles.pointDate, index == 0 ? styles.mgt15 : null]}
-					activeOpacity={opacityVal}
-					onPress={()=>{openContDp1(index)}}
-				>
-          <Text style={styles.pointDateText}>{index+1}. {item[0]}</Text>
+	const getList = ({item, index}) => (
+		<View style={styles.pointDateView}>
+			<TouchableOpacity 
+				style={[styles.pointDate, index == 0 ? styles.mgt15 : null]}
+				activeOpacity={opacityVal}
+				onPress={()=>{
+					//openContDp1(index);
+					if(index == openIdx){
+						setOpenIdx();						
+					}else{
+						setOpenIdx(index);
+					}
+					setOpenIdx2();
+				}}
+			>
+				<Text style={styles.pointDateText}>{index+1}. {item.title}</Text>       
 
-					{item[2] ? (
-						<View style={styles.pointDateArr}>
-							<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
-						</View>
-					) : (
-						<View style={styles.pointDateArr}>
-							<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-						</View>
-					)}
-        </TouchableOpacity>
-				{item[2] ? (
-        <View style={styles.pointDateBox}>
-          {item[1].map((item2, index2) => {
-            return (						
-              <View style={[styles.guidePopContBox]}>
-                <TouchableOpacity
-                  style={[styles.guidePopContBtn, item2.open ? styles.guidePopContBtn2 : null]}
-                  activeOpacity={opacityVal}
-                  onPress={()=>{openCont(index, index2, item2.idx)}}
-                >
-                  <View style={styles.qFlex}>
-                    <View style={styles.qLeft}>
-                      <Text style={styles.qLeftText}>Q.</Text>
-                    </View>
-                    <View style={styles.qRight}>
-                      <View style={styles.guidePopContBtnTitle}>
-                        <Text style={styles.guidePopContBtnText}>{item2.subject}</Text>
-                      </View>
-                      <View style={styles.guidePopContBtnDate}>
-                        <Text style={styles.guidePopContBtnDateText}>{item2.date}</Text>
-                      </View>
-                    </View>
-                  </View>
-                  {item2.open ? (
-										<View style={styles.pointDateArr}>
-											<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
+				{openIdx == index ? (
+					<View style={styles.pointDateArr}>
+						<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
+					</View>
+				) : (
+					<View style={styles.pointDateArr}>
+						<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+					</View>
+				)}
+			</TouchableOpacity>
+			
+			{openIdx == index ? (
+			<View style={styles.pointDateBox}>
+				{item.data.map((item2, index2) => {
+					return (						
+						<View style={[styles.guidePopContBox]}>
+							<TouchableOpacity
+								style={[styles.guidePopContBtn, openIdx2 == index2 ? styles.guidePopContBtn2 : null]}
+								activeOpacity={opacityVal}
+								onPress={()=>{
+									//openCont(index, index2, item2.idx)
+									if(index2 == openIdx2){
+										setOpenIdx2();
+									}else{
+										setOpenIdx2(index2);
+									}
+								}}
+							>
+								<View style={styles.qFlex}>
+									<View style={styles.qLeft}>
+										<Text style={styles.qLeftText}>Q.</Text>
+									</View>
+									<View style={styles.qRight}>
+										<View style={styles.guidePopContBtnTitle}>
+											<Text style={styles.guidePopContBtnText}>{item2.qna_question}</Text>
 										</View>
-                  ) : (
-										<View style={styles.pointDateArr}>
-											<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+										<View style={styles.guidePopContBtnDate}>
+											<Text style={styles.guidePopContBtnDateText}>{item2.created_at}</Text>
 										</View>
-                  )}
-                </TouchableOpacity>
-                {item2.open ? (
-                <View style={styles.guidePopCont2}>
-                  <Text style={styles.guidePopCont2Text}>{item2.content}</Text>
-                </View>
-                ) : null}
-              </View>
-            )
-          })}
-        </View>
-				) : null}
-      </View>
-    )
-  }, []);
+									</View>
+								</View>
+								{openIdx2 == index2 ? (
+									<View style={styles.pointDateArr}>
+										<ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
+									</View>
+								) : (
+									<View style={styles.pointDateArr}>
+										<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+									</View>
+								)}
+							</TouchableOpacity>
+							{openIdx2 == index2 ? (
+							<View style={styles.guidePopCont2}>
+								<Text style={styles.guidePopCont2Text}>{item2.qna_answer}</Text>
+							</View>
+							) : null}
+						</View>
+					)
+				})}
+			</View>
+			) : null}
+
+		</View>
+  );
 
 	const onScroll = (e) => {
 		const {contentSize, layoutMeasurement, contentOffset} = e.nativeEvent;
@@ -204,7 +244,7 @@ const Qna = (props) => {
 			
 			<FlatList 				
 				style={styles.cmWrap}
-				data={qnaList}
+				data={apiList}
 				renderItem={getList}
 				keyExtractor={(item, index) => index.toString()}
 				refreshing={refreshing}
@@ -216,17 +256,11 @@ const Qna = (props) => {
 				ListFooterComponent={
 					<View style={{height:50,backgroundColor:'#fff'}}></View>
 				}
-				// ListEmptyComponent={
-				// 	isLoading ? (
-				// 	<View style={styles.notData}>
-				// 		<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
-				// 	</View>
-				// 	) : (
-				// 		<View style={[styles.indicator]}>
-				// 			<ActivityIndicator size="large" />
-				// 		</View>
-				// 	)
-				// }
+				ListEmptyComponent={
+					<View style={styles.notData}>
+						<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
+					</View>
+				}
 			/>	
 
 			{loading ? (
@@ -252,8 +286,8 @@ const styles = StyleSheet.create({
   cmDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},
 	
 	pointDateView: {},
-	pointDate: {justifyContent:'center',marginTop:35,paddingRight:20,paddingVertical:15,borderBottomWidth:1,borderBottomColor:'#B8B8B8',position:'relative',},
-	pointDateText: {fontFamily:Font.NotoSansSemiBold,fontSize:16,lineHeight:17,color:'#1e1e1e'},
+	pointDate: {justifyContent:'center',marginTop:35,paddingRight:20,paddingVertical:13,borderBottomWidth:1,borderBottomColor:'#B8B8B8',position:'relative',},
+	pointDateText: {fontFamily:Font.NotoSansSemiBold,fontSize:16,lineHeight:19,color:'#1e1e1e'},
 	pointDateArr: {position:'absolute',right:0,},
 	pointDateBox: {},
 	pointDateBoxWrap: {paddingVertical:15,paddingHorizontal:5,borderBottomWidth:1,borderBottomColor:'#ededed'},
@@ -279,6 +313,9 @@ const styles = StyleSheet.create({
   guidePopContBtnDateText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#888'},
 	guidePopCont2: {paddingVertical:10,paddingHorizontal:15,backgroundColor:'#F9FAFB',borderBottomWidth:1,borderBottomColor:'#DBDBDB'},
 	guidePopCont2Text: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e',},
+
+	notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	red: {color:'#F22D2D'},
 	blue: {color:'#116FDA'},
