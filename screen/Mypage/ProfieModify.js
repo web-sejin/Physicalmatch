@@ -64,6 +64,7 @@ const ProfieModify = (props) => {
   const [mbSmoke, setMbSmoke] = useState('');
   const [mbExe, setMbExe] = useState('-');
   const [mbInterview, setMbInterview] = useState([]);
+  const [rejectMemo, setRejectMemo] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -82,9 +83,12 @@ const ProfieModify = (props) => {
 				setMemberIdx(result);
 			});
 
+      getMemInfo();
+      getMemInfo2();
+
       if(params?.reload){
-        getMemInfo();
-        getMemInfo2();
+        // getMemInfo();
+        // getMemInfo2(); 
         delete params?.reload;
       }
 		}
@@ -104,6 +108,7 @@ const ProfieModify = (props) => {
 	}, [memberIdx]);
 
   const getMemInfo = async () => {
+    setLoading(true);
 		let sData = {
 			basePath: "/api/member/",
 			type: "GetMyProfile",
@@ -111,26 +116,27 @@ const ProfieModify = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-    //console.log(response.data.badge);
+    //console.log(response);
 		if(response.code == 200){
 			setMemberInfo(response.data);
       setBadgeReject(response.data.is_badge_reject);
       setAuthReject(response.data.is_auth_reject);
+      setRejectMemo(response.data.info.reject_memo);
       
       //피지컬
       let physicalString = '';
       if(response.data.info.member_height){ physicalString += (response.data.info.member_height+'cm'); }
-      if(response.data.info.member_weight){ 
+      if(response.data.info.member_weight && response.data.info.member_weight != 0){ 
         if(physicalString != ''){ physicalString += ' · '; }
         physicalString += (response.data.info.member_weight+'kg'); 
       }
-      if(response.data.info.member_muscle){ 
+      if(response.data.info.member_muscle && response.data.info.member_muscle != 0){ 
         if(physicalString != ''){ physicalString += ' · '; }
-        physicalString += (response.data.info.member_muscle+'%'); 
+        physicalString += (response.data.info.member_muscle+'kg'); 
       }
-      if(response.data.info.member_fat){ 
+      if(response.data.info.member_fat && response.data.info.member_fat != 0){ 
         if(physicalString != ''){ physicalString += ' · '; }
-        physicalString += (response.data.info.member_fat+'kg');
+        physicalString += (response.data.info.member_fat+'%');
       }
       setMbPhysical(physicalString);
 
@@ -214,6 +220,8 @@ const ProfieModify = (props) => {
 
       //인증
       setMemberAuth(response.data.auth);
+
+      setLoading(false);
 		}
 	}
 
@@ -268,6 +276,7 @@ const ProfieModify = (props) => {
 				</View>
         ) : null}
 
+        {rejectMemo != '' ? (
         <View style={{...styles.screening, paddingTop:padding_top}}>
           <View style={styles.screeningTitle}>					
             <ImgDomain fileWidth={16} fileName={'icon_screening.png'}/>
@@ -279,6 +288,7 @@ const ProfieModify = (props) => {
             <Text style={styles.screeningDescText}>반려사유가 노출됩니다.</Text>
           </View>
         </View>
+        ) : null}
 
         <View style={styles.cmWrap}>
           <TouchableOpacity
@@ -326,28 +336,23 @@ const ProfieModify = (props) => {
                 <Text style={styles.modiBtnTopLeftText}>내 배지</Text>
               </View>
               <View style={styles.modiBtnTopRight}>
-                {memberBadge.length > 0 ? null : (
-                  <>
-                    {badgeReject ? (
-                      <View style={[styles.modiBtnState, styles.modiBtnState1, styles.mgr10]}>
-                        <Text style={[styles.modiBtnStateText, styles.modiBtnStateText1]}>반려</Text>
-                      </View>
-                    ) : (
-                      <View style={[styles.modiBtnState, styles.modiBtnState3, styles.mgr10]}>
-                        <Text style={[styles.modiBtnStateText, styles.modiBtnStateText3]}>심사중</Text>
-                      </View>
-                    )}                    
-                  </>
-                )}              
+                {memberBadge.length > 0 && badgeReject ? (
+                  <View style={[styles.modiBtnState, styles.modiBtnState1, styles.mgr10]}>
+                    <Text style={[styles.modiBtnStateText, styles.modiBtnStateText1]}>반려</Text>
+                  </View>
+                ) : null}
+                {/* <View style={[styles.modiBtnState, styles.modiBtnState3, styles.mgr10]}>
+                  <Text style={[styles.modiBtnStateText, styles.modiBtnStateText3]}>심사중</Text>
+                </View> */}
                 <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
               </View>
             </View>
-
+            
             <View style={[styles.modiImgFlex, styles.mgt5]}>
               {memberBadge.map((item, index) => {
                 return(
-                  <View key={index} style={[styles.modiImg, styles.modiImg2, index != 0 ? styles.mgl15 : null]}>
-                    <ImgDomain fileWidth={45} fileName={'b_silver.png'}/>
+                  <View key={index} style={[styles.modiImg, styles.modiImg2, styles.mgr15]}>
+                    <ImgDomain2 fileWidth={45} fileName={item.badge_img}/>
                   </View>
                 )
               })}
@@ -363,25 +368,22 @@ const ProfieModify = (props) => {
               <View style={styles.modiBtnTopLeft}>
                 <Text style={styles.modiBtnTopLeftText}>내 인증</Text>
                 {memberAuth.length > 0 ? null : (
-                  <>
-                    {authReject ? (
-                      <View style={[styles.modiBtnState, styles.modiBtnState1, styles.mgl10]}>
-                        <Text style={[styles.modiBtnStateText, styles.modiBtnStateText1]}>반려</Text>
-                      </View>
-                    ) : (
-                      <View style={[styles.modiBtnState, styles.modiBtnState3, styles.mgl10]}>
-                        <Text style={[styles.modiBtnStateText, styles.modiBtnStateText3]}>심사중</Text>
-                      </View>
-                    )}                    
-                  </>
+                  authReject ? (
+                    <View style={[styles.modiBtnState, styles.modiBtnState1, styles.mgl10]}>
+                      <Text style={[styles.modiBtnStateText, styles.modiBtnStateText1]}>반려</Text>
+                    </View>
+                  ) : null
+                  // <View style={[styles.modiBtnState, styles.modiBtnState3, styles.mgl10]}>
+                  //   <Text style={[styles.modiBtnStateText, styles.modiBtnStateText3]}>심사중</Text>
+                  // </View>
                 )}
               </View>
               <View style={styles.modiBtnTopRight}>
                 {memberAuth.map((item, index) => {
                   return(
-                    <View key={index} style={[styles.modiBtnState, styles.modiBtnState2]}>
+                    <View key={index} style={[styles.modiBtnState, styles.modiBtnState2, index != 0 ? styles.mgl4 : null]}>
                       <ImgDomain fileWidth={8} fileName={'icon_chk1.png'}/>
-                      <Text style={[styles.modiBtnStateText, styles.modiBtnStateText2, styles.mgl4]}>직장</Text>
+                      <Text style={[styles.modiBtnStateText, styles.modiBtnStateText2, styles.mgl4]}>{item.auth_name}</Text>
                     </View>
                   )
                 })}
@@ -698,7 +700,7 @@ const styles = StyleSheet.create({
   modiBtnStateText1: {color:'#DE282A'},
   modiBtnStateText2: {color:'#fff'},
   modiBtnStateText3: {color:'#1e1e1e'},
-  modiImgFlex: {flexDirection:'row',alignItems:'center',marginTop:15,},
+  modiImgFlex: {flexDirection:'row',alignItems:'center',flexWrap:'wrap',marginTop:15,},
   modiImg: {alignItems:'center',justifyContent:'center',width:36,height:36,borderRadius:2,overflow:'hidden'},
   modiImg2: {width:45,height:45,borderRadius:0,marginTop:10,},
 

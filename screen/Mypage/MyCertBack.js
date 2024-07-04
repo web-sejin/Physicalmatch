@@ -66,8 +66,6 @@ const MyCert = (props) => {
 	const [deleteTitle, setDeleteTitle] = useState('');
 	const [rejectMemo, setRejectMemo] = useState('');
 
-	const [mpaIdx, setMpaIdx] = useState();
-
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isSubscribed = true;
@@ -133,29 +131,10 @@ const MyCert = (props) => {
 
 	useEffect(() => {
 		if(memberIdx){
-			//setLoading(true);
-			getMemInfo();
+			//setLoading(true);			
 			getAuthInfo();
 		}
 	}, [memberIdx]);
-	
-	const getMemInfo = async () => {
-		let sData = {
-			basePath: "/api/member/",
-			type: "GetMyInfo",
-			member_idx: memberIdx,
-		};
-
-		const response = await APIs.send(sData);
-		if(response.code == 200){
-			if(response.data.member_job){
-				setJobName(response.data.member_job);
-			}
-			if(response.data.member_job_detail){
-				setJobNameDetail(response.data.member_job_detail);
-			}
-		}
-	}
 
 	const getAuthList = async () => {
 		let sData = {
@@ -187,12 +166,14 @@ const MyCert = (props) => {
 				if(item.pa_name == '직업 인증'){
 					if(item.mpa_idx){
 						setJobApiRes(item);
-						// if(item.auth_yn == 'n'){
-						// 	setJobName(item.mpa_info1);
-						// 	setJobNameDetail(item.mpa_info2);
-						// }
+						if(item.auth_yn == 'n'){
+							setJobName(item.mpa_info1);
+							setJobNameDetail(item.mpa_info2);
+						}
 					}else{
 						setJobApiRes({});
+						setJobName('');
+						setJobNameDetail('');
 					}
 				}else if(item.pa_name == '학교 인증'){
 					if(item.mpa_idx){
@@ -225,43 +206,16 @@ const MyCert = (props) => {
 		ImagePicker.openPicker({})
 		.then(image => {
 			let megabytes = parseInt(Math.floor(Math.log(image.size) / Math.log(1024)));
-			let selectObj = {path: image.path, mime: image.mime, name:'Job.png', size:megabytes}			
+			let selectObj = {path: image.path, mime: image.mime, name:image.filename, size:megabytes}			
 			setJobFile(selectObj);
 		})
 		.finally(() => {});
 	}
 
-	const saveJobCert = async () => {
+	const saveJobCert = () => {
 		if(!jobFile.path){
 			ToastMessage('인증 자료를 첨부해 주세요.');
 			return false;
-		}
-
-		const fileData = [];		
-		fileData[0] = {uri: jobFile.path, name: jobFile.name, type: jobFile.mime};
-
-		let sData = {
-			basePath: "/api/member/",
-			type: "SetMyProfileAuth",
-			member_idx: memberIdx,
-			pa_idx: 1,
-			mpa_file: fileData,
-			mpa_info1: jobName,
-			mpa_info2: jobNameDetail,
-		};
-
-		if(mpaIdx){
-			sData.mpa_idx = mpaIdx;
-		}
-
-		const formData = APIs.makeFormData(sData)
-		const response = await APIs.multipartRequest(formData);
-		
-		//console.log(response);
-		if(response.code == 200){
-			ToastMessage('심사가 등록되었습니다.');
-		}else{
-			ToastMessage('잠시후 다시 시도해 주세요.');
 		}
 
 		setRealJobFile(jobFile);
@@ -274,49 +228,21 @@ const MyCert = (props) => {
 		ImagePicker.openPicker({})
 		.then(image => {
 			let megabytes = parseInt(Math.floor(Math.log(image.size) / Math.log(1024)));
-			let selectObj = {path: image.path, mime: image.mime, name:'School.png', size:megabytes}						
+			let selectObj = {path: image.path, mime: image.mime, name:image.filename, size:megabytes}						
 			setSchoolFile(selectObj);
 		})
 		.finally(() => {});
 	}
 
-	const saveSchoolCert = async () => {
+	const saveSchoolCert = () => {
 		if(schoolName == ''){
-			ToastMessage('학교명을 입력해 주세요.');			
+			ToastMessage('학교명을 입력해 주세요.');
 			return false;
 		}
 
 		if(!schoolFile.path){
-			Keyboard.dismiss();
 			ToastMessage('인증 자료를 첨부해 주세요.');
 			return false;
-		}
-
-		const fileData = [];		
-		fileData[0] = {uri: schoolFile.path, name: schoolFile.name, type: schoolFile.mime};
-
-		let sData = {
-			basePath: "/api/member/",
-			type: "SetMyProfileAuth",
-			member_idx: memberIdx,
-			pa_idx: 2,
-			mpa_file: fileData,
-			mpa_info1: schoolName,
-			mpa_info2: schoolMajor,
-		};
-
-		if(mpaIdx){
-			sData.mpa_idx = mpaIdx;
-		}
-		
-		const formData = APIs.makeFormData(sData)
-		const response = await APIs.multipartRequest(formData);
-		
-		//console.log(response);
-		if(response.code == 200){
-			ToastMessage('심사가 등록되었습니다.');
-		}else{
-			ToastMessage('잠시후 다시 시도해 주세요.');
 		}
 
 		setRealSchoolName(schoolName);
@@ -333,42 +259,16 @@ const MyCert = (props) => {
 		ImagePicker.openPicker({})
 		.then(image => {
 			let megabytes = parseInt(Math.floor(Math.log(image.size) / Math.log(1024)));
-			let selectObj = {path: image.path, mime: image.mime, name:'Marry.png', size:megabytes}			
+			let selectObj = {path: image.path, mime: image.mime, name:image.filename, size:megabytes}			
 			setMarryFile(selectObj);
 		})
 		.finally(() => {});
 	}
 
-	const saveMarryCert = async () => {
+	const saveMarryCert = () => {
 		if(!marryFile.path){
 			ToastMessage('인증 자료를 첨부해 주세요.');
 			return false;
-		}
-
-		const fileData = [];		
-		fileData[0] = {uri: marryFile.path, name: marryFile.name, type: marryFile.mime};
-
-		let sData = {
-			basePath: "/api/member/",
-			type: "SetMyProfileAuth",
-			member_idx: memberIdx,
-			pa_idx: 3,
-			mpa_file: fileData,
-			mpa_info1: marryState,
-		};
-
-		if(mpaIdx){
-			sData.mpa_idx = mpaIdx;
-		}
-		
-		const formData = APIs.makeFormData(sData)
-		const response = await APIs.multipartRequest(formData);
-		
-		console.log(response);
-		if(response.code == 200){
-			ToastMessage('심사가 등록되었습니다.');
-		}else{
-			ToastMessage('잠시후 다시 시도해 주세요.');
 		}
 
 		setRealMarryState(marryState);		
@@ -431,7 +331,8 @@ const MyCert = (props) => {
 							{authList.map((item, index) => {
 								if(item.pa_name == '직업 인증'){
 									return (
-										jobApiRes.auth_yn == 'y' || jobApiRes.auth_yn == 'i' ? (
+										<>
+										{jobApiRes.auth_yn == 'y' || jobApiRes.auth_yn == 'i' ? (
 											<View key={index} style={[styles.badgeBtn, styles.boxShadow]}>
 												<View style={[styles.badgeBtnLeft2]}>
 													<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>{item.pa_name}</Text>
@@ -441,7 +342,7 @@ const MyCert = (props) => {
 													{jobApiRes.auth_yn == 'y' ? (
 														<TouchableOpacity
 															activeOpacity={opacityVal}
-															onPress={()=>{																																
+															onPress={()=>{																
 																setDeleteTitle(item.pa_name);
 																setDeleteType(jobApiRes.mpa_idx);
 																setDeletePop(true);
@@ -465,7 +366,6 @@ const MyCert = (props) => {
 													!realJobFile.path ? setJobModal(true) : null
 													!realJobFile.path ? setPreventBack(true) : null
 													setRejectMemo(jobApiRes.reject_memo);
-													setMpaIdx(jobApiRes.mpa_idx);
 												}}
 											>
 												<View style={[styles.badgeBtnLeft2]}>
@@ -485,45 +385,39 @@ const MyCert = (props) => {
 													)}		
 												</View>
 											</TouchableOpacity>
-										)
+										)}
+										</>
 									)
 								}else if(item.pa_name == '학교 인증'){
 									return (
-										schoolApiRes.auth_yn == 'y' || schoolApiRes.auth_yn == 'i' ? (
-											<View key={index} style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}>
+										<>
+										{schoolApiRes.auth_yn == 'y' || schoolApiRes.auth_yn == 'i' ? (
+											<View style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}>
 												<View style={[styles.badgeBtnLeft2]}>
 													<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>{item.pa_name}</Text>
 													<Text style={styles.badgeBtnLeftText2}>{item.pa_benefit}</Text>
 												</View>
 												<View style={styles.badgeBtnRight}>
-													{schoolApiRes.auth_yn == 'y' ? (
-														<TouchableOpacity
-															activeOpacity={opacityVal}
-															onPress={()=>{
-																setDeleteTitle(item.pa_name);
-																setDeleteType(schoolApiRes.mpa_idx);
-																setDeletePop(true);
-															}}
-														>										
-															<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
-														</TouchableOpacity>												
-													) : (
-														<View style={styles.stateView}>
-															<Text style={styles.stateViewText}>심사중</Text>
-														</View>
-													)}															
+													<TouchableOpacity
+														activeOpacity={opacityVal}
+														onPress={()=>{
+															setDeleteTitle(item.pa_name);
+															setDeleteType(schoolApiRes.mpa_idx);
+															setDeletePop(true);
+														}}
+													>										
+														<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
+													</TouchableOpacity>		
 												</View>
 											</View>
 										) : (
 											<TouchableOpacity
-												key={index}
 												style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}
 												activeOpacity={realSchoolFile.path ? 1 : opacityVal}
 												onPress={()=>{
 													!realSchoolFile.path ? setSchoolModal(true) : null
 													!realSchoolFile.path ? setPreventBack(true) : null
 													setRejectMemo(schoolApiRes.reject_memo);
-													setMpaIdx(schoolApiRes.mpa_idx);
 												}}
 											>
 												<View style={[styles.badgeBtnLeft2]}>
@@ -543,45 +437,39 @@ const MyCert = (props) => {
 													)}																												
 												</View>
 											</TouchableOpacity>
-										)
+										)}
+										</>
 									)
 								}else if(item.pa_name == '혼인 정보'){
 									return (
-										marryApiRes.auth_yn == 'y' || marryApiRes.auth_yn == 'i' ? (
-											<View key={index} style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}>
+										<>
+										{marryApiRes.auth_yn == 'y' || marryApiRes.auth_yn == 'i' ? (
+											<View style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}>
 												<View style={[styles.badgeBtnLeft2]}>
 													<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>{item.pa_name}</Text>
 													<Text style={styles.badgeBtnLeftText2}>{item.pa_benefit}</Text>
 												</View>
 												<View style={styles.badgeBtnRight}>
-													{schoolApiRes.auth_yn == 'y' ? (
-														<TouchableOpacity
-															activeOpacity={opacityVal}
-															onPress={()=>{
-																setDeleteTitle(item.pa_name);
-																setDeleteType(marryApiRes.mpa_idx);
-																setDeletePop(true);
-															}}
-														>										
-															<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
-														</TouchableOpacity>									
-													) : (
-														<View style={styles.stateView}>
-															<Text style={styles.stateViewText}>심사중</Text>
-														</View>
-													)}															
+													<TouchableOpacity
+														activeOpacity={opacityVal}
+														onPress={()=>{
+															setDeleteTitle(item.pa_name);
+															setDeleteType(marryApiRes.mpa_idx);
+															setDeletePop(true);
+														}}
+													>										
+														<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
+													</TouchableOpacity>		
 												</View>
 											</View>
 										) : (
 											<TouchableOpacity
-												key={index}
 												style={[styles.badgeBtn, styles.boxShadow, styles.mgt12]}
 												activeOpacity={realMarryFile.path ? 1 : opacityVal}
 												onPress={()=>{
 													!realMarryFile.path ? setMarryModal(true) : null
 													!realMarryFile.path ? setPreventBack(true) : null										
 													setRejectMemo(marryApiRes.reject_memo);
-													setMpaIdx(marryApiRes.mpa_idx);
 												}}
 											>
 												<View style={[styles.badgeBtnLeft2]}>
@@ -601,7 +489,8 @@ const MyCert = (props) => {
 													)}		
 												</View>
 											</TouchableOpacity>
-										)
+										)}
+										</>
 									)
 								}
 							})}							
@@ -609,6 +498,19 @@ const MyCert = (props) => {
 					</View>
 				</View>
 			</ScrollView>
+
+			<View style={styles.nextFix}>
+        <TouchableOpacity 
+					style={[styles.nextBtn]}
+					activeOpacity={opacityVal}
+					onPress={() => {
+						setConfirm(true);
+						setPreventBack(true);
+					}}
+				>
+					<Text style={styles.nextBtnText}>심사등록</Text>
+				</TouchableOpacity>
+			</View>
 
 			{/* 직업 인증 */}
 			{jobModal ? (
@@ -640,15 +542,11 @@ const MyCert = (props) => {
 							</View>
 							) : null}
 							<View style={[styles.cmDescBox, styles.cmDescBoxFlex]}>
-								<Text style={styles.cmDescText}>{jobName}</Text>								
-								{jobNameDetail != '' ? (
-									<>
-									<View style={styles.cmDescArr}>
-										<ImgDomain fileWidth={5} fileName={'icon_arr6.png'}/>
-									</View>
-									<Text style={styles.cmDescText2}>{jobNameDetail}</Text>
-									</>
-								) : null}
+								<Text style={styles.cmDescText}>입력한 직업</Text>
+								<View style={styles.cmDescArr}>
+									<ImgDomain fileWidth={5} fileName={'icon_arr6.png'}/>
+								</View>
+								<Text style={styles.cmDescText2}>입력한 직업 상세</Text>
 							</View>
 
 							<View style={styles.mgt30}>

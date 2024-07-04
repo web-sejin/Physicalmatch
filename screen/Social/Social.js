@@ -11,8 +11,8 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
-import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -32,24 +32,6 @@ const Social = (props) => {
 		{idx:6, cate:'미팅', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
 		{idx:7, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
 		{idx:8, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-	];
-
-	const calendarData = [
-		{year:'2024', month:'05', monthString:'5', day:'26', dayString:'26', yoil:'일', chk:false},
-		{year:'2024', month:'05', monthString:'5', day:'27', dayString:'27', yoil:'월', chk:false},
-		{year:'2024', month:'05', monthString:'5', day:'28', dayString:'28', yoil:'화', chk:false},
-		{year:'2024', month:'05', monthString:'5', day:'29', dayString:'29', yoil:'수', chk:false},
-		{year:'2024', month:'05', monthString:'5', day:'30', dayString:'30', yoil:'목', chk:false},
-		{year:'2024', month:'05', monthString:'5', day:'31', dayString:'31', yoil:'금', chk:false},
-
-		{year:'2024', month:'06', monthString:'6', day:'01', dayString:'1', yoil:'토', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'02', dayString:'2', yoil:'일', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'03', dayString:'3', yoil:'월', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'04', dayString:'4', yoil:'화', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'05', dayString:'5', yoil:'수', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'06', dayString:'6', yoil:'목', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'07', dayString:'7', yoil:'금', chk:false},
-		{year:'2024', month:'06', monthString:'6', day:'08', dayString:'8', yoil:'토', chk:false},	
 	];
 
 	const swp = [
@@ -73,14 +55,22 @@ const Social = (props) => {
 	const [calendarList, setCalendarList] = useState([]);
 	const [filterCal, setFilterCal] = useState([]);
 	const [filterCal2, setFilterCal2] = useState([]);
+	const [nowPage, setNowPage] = useState(1);
+	const [totalPage, setTotalPage] = useState(1);
+
+	const [baseGender, setBaseGender] = useState(0);
+	const [baseAge1, setBaseAge1] = useState(0);
+	const [baseAge2, setBaseAge2] = useState(0);
+	const [baseAge1String, setBaseAge1String] = useState('');
+	const [baseAge2String, setBaseAge2String] = useState('');
 
 	const [overPop, setOverPop] = useState(false);
 	const [guideModal, setGuideModal] = useState(false);
 	const [guideModal2, setGuideModal2] = useState(false);
 
-	const [tabState, setTabState] = useState(1); //전체, 1:1, 미팅, 모임
-	const [socialSch, setSocialSch] = useState('');
 	const [refreshing, setRefreshing] = useState(false);
+	const [tabState, setTabState] = useState(); //전체, 1:1, 미팅, 모임
+	const [socialSch, setSocialSch] = useState('');
 	const [filterPop, setFilterPop] = useState(false);
 	const [ageAry, setAgeAry] = useState([]);
 	const [ageAryIdx, setAgeAryIdx] = useState([]);
@@ -91,9 +81,19 @@ const Social = (props) => {
 	const [nonCollidingMultiSliderValue, setNonCollidingMultiSliderValue] = useState([]);
 	const [realAgeMin, setRealAgeMin] = useState('');
 	const [realAgeMax, setRealAgeMax] = useState('');
-	const [filterGender, setFilterGender] = useState(0);
+	const [filterGender, setFilterGender] = useState();
 	const [filterPickDate, setFilterPickDate] = useState([]);
-	const [swiperList, setSwiperList] = useState([]);
+	const [swiperList, setSwiperList] = useState([]);	
+
+	//필터 임시 저장
+	const [tempSocialSch, setTempSocialSch] = useState('');
+	const [tempAgeMin, setTempAgeMin] = useState('');
+	const [tempAgeMax, setTempAgeMax] = useState('');
+	const [tempNonCollidingMultiSliderValue, setTempNonCollidingMultiSliderValue] = useState([]);
+	const [tempRealAgeMin, setTempRealAgeMin] = useState('');
+	const [tempRealAgeMax, setTempRealAgeMax] = useState('');
+	const [tempGender, setTempGender] = useState();
+	const [tempFilterPickDate, setTempFilterPickDate] = useState([]);	
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -111,7 +111,7 @@ const Social = (props) => {
 
 			if(params?.reload){
         getSocialList();
-        //delete params?.reload;
+        delete params?.reload;
       }
 		}
 
@@ -155,6 +155,21 @@ const Social = (props) => {
   }, []);
 
 	useEffect(() => {
+		getDateInfo();
+	}, []);
+
+	useEffect(() => {
+		setSwiperList(swp);
+	}, []);
+
+	useEffect(() => {
+		if(memberIdx){
+			setLoading(true);
+			getSocialList();
+		}
+	}, [memberIdx, tabState]);
+
+	const getDateInfo = async () => {
 		const date = new Date();		
 		const year = (date.getFullYear())-50;
 		const year2 = (date.getFullYear())-20;		
@@ -215,9 +230,11 @@ const Social = (props) => {
 		const yearVal2 = year2-5;
 		
 		let yearString = yearVal.toString();
+		setRealAgeMax(yearString);
 		yearString = yearString.substr(2,2);		
 
 		let yearString2 = yearVal2.toString();
+		setRealAgeMin(yearString2);
 		yearString2 = yearString2.substr(2,2);
 		
 		setAgeMin((yearString2).toString());
@@ -225,66 +242,115 @@ const Social = (props) => {
 		setAgeMinInt(5);
 		setAgeMaxInt(cnt-5);
 		setNonCollidingMultiSliderValue([5, cnt-5]);
-	}, []);
-
-	useEffect(() => {
-		setLoading(true);		
-		setTimeout(() => {
-			setSocialList(socialData);
-			setSwiperList(swp);
-			setLoading(false);
-		}, 1000);
-	}, [])
-
-	const getSocialList = async () => {
-		
 	}
 
-	const getList = ({item, index}) => (
-		<View style={styles.socialLi}>
-			<TouchableOpacity
-				style={[styles.socialLiBtn, index == 0 ? styles.pdt0 : null]}
-				activeOpacity={opacityVal}
-				onPress={()=>{
-					if(index == 0){
-						setOverPop(true);
-					}else if(index == 1){
-						navigation.navigate('SocialView', {idx:item.idx})
-					}
-				}}
-			>
-				<View style={styles.socialLiThumb}>
-					<ImgDomain fileWidth={65} fileName={'social_basic1.jpg'}/>
-				</View>
-				<View style={styles.socialLiInfo}>
-					<View style={styles.socialLiInfo1}>
-						<View style={styles.socialLiInfoCate}>
-							<Text style={styles.socialLiInfoCateText}>{item.cate}</Text>
-						</View>
-						<View style={styles.socialLiInfoDate}>
-							<Text style={styles.socialLiInfoDateText}>{item.date}</Text>
-						</View>
+	useEffect(() => {
+		//console.log(nonCollidingMultiSliderValue);
+	}, [nonCollidingMultiSliderValue]);
+
+	const getSocialList = async (viewPage) => {
+		let socialDate = [];		
+		filterPickDate.map((item, index) => {
+			socialDate.push(item.fullDate);
+		});
+
+		let curr_page = nowPage;
+		if(viewPage){
+			curr_page = viewPage;
+		}
+		
+		let sData = {
+			basePath: "/api/social/",
+			type: "GetSocialList",
+			member_idx: memberIdx,
+			social_type: tabState,
+			host_sex: filterGender,
+			host_min_age: realAgeMax,
+			host_max_age: realAgeMin,
+			social_date: socialDate,
+			social_sch: socialSch,
+			page:curr_page,
+		};		
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){						
+			if(response.data){
+				setTotalPage(Math.ceil(response.data.length/10));
+				setSocialList(response.data);
+			}else if(response.msg == 'EMPTY'){
+				setTotalPage(1);
+				setSocialList([]);
+			}
+			setTimeout(function(){
+				setLoading(false);
+			}, 300);
+		}
+	}
+
+	const getList = ({item, index}) => {
+		let cateString = '';
+		if(item.social_type == 0){
+			cateString = '1:1';
+		}else if(item.social_type == 1){
+			cateString = '미팅';
+		}else if(item.social_type == 2){
+			cateString = '모임';
+		}
+		return (
+			<View style={styles.socialLi}>
+				<TouchableOpacity
+					style={[styles.socialLiBtn, index == 0 ? styles.pdt0 : null]}
+					activeOpacity={opacityVal}
+					onPress={()=>{
+						// if(index == 0){
+						// 	setOverPop(true);
+						// }else if(index == 1){
+						// 	navigation.navigate('SocialView', {social_idx:item.social_idx})
+						// }
+						navigation.navigate('SocialView', {social_idx:item.social_idx, social_host_sex:item.host_social_sex})
+					}}
+				>
+					<View style={styles.socialLiThumb}>
+						<ImgDomain2 fileWidth={65} fileName={item.si_img}/>
 					</View>
-					<View style={styles.socialLiInfo2}>
-						<Text style={styles.socialSubject} numberOfLines={1} ellipsizeMode='tail'>{item.subject}</Text>
-					</View>
-					<View style={styles.socialLiInfo3}>
-						<View style={styles.socialLiInfo3Flex}>
-							<ImgDomain fileWidth={10} fileName={'icon_local.png'}/>
-							<Text style={styles.socialLiInfo3Text}>{item.loc}</Text>
-						</View>
-						<View style={styles.socialLiInfo3Line}></View>
-						<View style={styles.socialLiInfo3Flex}>
-							<View style={styles.socialLiInfoProfile}>
-								<ImgDomain fileWidth={20} fileName={'profile_sample.png'}/>
+					<View style={styles.socialLiInfo}>
+						<View style={styles.socialLiInfo1}>
+							<View style={styles.socialLiInfoCate}>
+								<Text style={styles.socialLiInfoCateText}>{cateString}</Text>
 							</View>
-							<Text style={styles.socialLiInfo3Text}>{item.age}·{item.gender}</Text>
+							<View style={styles.socialLiInfoDate}>
+								<Text style={styles.socialLiInfoDateText}>{item.social_date_text}</Text>
+							</View>
+						</View>
+						<View style={styles.socialLiInfo2}>
+							<Text style={styles.socialSubject} numberOfLines={1} ellipsizeMode='tail'>{item.social_subject}</Text>
+						</View>
+						<View style={styles.socialLiInfo3}>
+							<View style={styles.socialLiInfo3Flex}>
+								<ImgDomain fileWidth={10} fileName={'icon_local.png'}/>
+								<Text style={styles.socialLiInfo3Text}>{item.social_location}</Text>
+							</View>
+							<View style={styles.socialLiInfo3Line}></View>
+							<View style={styles.socialLiInfo3Flex}>
+								<View style={styles.socialLiInfoProfile}>
+									{item.mpi_img ? (
+										<ImgDomain2 fileWidth={20} fileName={item.mpi_img}/>
+									) : (
+										item.host_social_sex == 0 ? (
+											<ImgDomain fileWidth={20} fileName={'profile_sample.png'}/>
+										) : (
+											<ImgDomain fileWidth={20} fileName={'profile_sample2.png'}/>
+										)										
+									)}									
+								</View>
+								<Text style={styles.socialLiInfo3Text}>{item.host_social_age}·{item.host_social_nick}</Text>
+							</View>
 						</View>
 					</View>
-				</View>
-			</TouchableOpacity>
-		</View>
-	)
+				</TouchableOpacity>
+			</View>
+		)
+	}
 
 	const onScroll = (e) => {
 		const {contentSize, layoutMeasurement, contentOffset} = e.nativeEvent;
@@ -294,13 +360,19 @@ const Social = (props) => {
 
 	//리스트 무한 스크롤
 	const moreData = async () => {
-
+		if(totalPage > nowPage){
+			console.log('moreData nowPage ::::', nowPage);
+			getSocialList(nowPage+1);
+			setNowPage(nowPage+1);			
+		}
 	}
 
 	const onRefresh = () => {
 		if(!refreshing) {
 			setRefreshing(true);
-			//getItemList();
+			getSocialList(1);
+			setNowPage(1);
+			//console.log('refresh!!!');
 			setTimeout(() => {
 				setRefreshing(false);
 			}, 2000);
@@ -312,6 +384,9 @@ const Social = (props) => {
 			ToastMessage('검색어는 2글자 이상 입력해 주세요.');
 			return false;
 		}
+		setLoading(true);
+		getSocialList(1);
+		setNowPage(1);
 	}
 
 	useEffect(() => {
@@ -399,6 +474,36 @@ const Social = (props) => {
 		}
 	}
 
+	const resetFilter = () => {
+		setFilterGender(baseGender);
+		setFilterPickDate([]);
+		getDateInfo();
+	}
+
+	const nonCollidingMultiSliderValuesChange = (a,b) => {
+		setNonCollidingMultiSliderValue([a,b]);
+	}
+
+	const offFilterPop = () => {
+		setSocialSch(tempSocialSch);
+		setAgeMin(tempAgeMin);
+		setAgeMax(tempAgeMax);
+		setNonCollidingMultiSliderValue(tempNonCollidingMultiSliderValue);
+		setRealAgeMin(tempRealAgeMin);
+		setRealAgeMax(tempRealAgeMax);
+		setFilterGender(tempGender);
+		setFilterPickDate(tempFilterPickDate);
+		setFilterPop(false);
+	}
+
+	const filterSubmitList = () => {
+		console.log('filterSubmitList!!!');
+		setFilterPop(false);
+		setLoading(true);
+		getSocialList(1);
+		setNowPage(1);
+	}
+
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
 			<View style={styles.header}>
@@ -435,9 +540,27 @@ const Social = (props) => {
 					<TouchableOpacity
 						style={styles.headerTab}
 						activeOpacity={opacityVal}
+						onPress={() => {setTabState()}}
+					>
+						<Text style={[styles.headerTabText, !tabState && tabState != 0 ? styles.headerTabTextOn : null]}>전체</Text>
+						{!tabState && tabState != 0 ? (<View style={styles.activeLine}></View>) : null}
+					</TouchableOpacity>
+
+					<TouchableOpacity
+						style={styles.headerTab}
+						activeOpacity={opacityVal}
+						onPress={() => {setTabState(0)}}
+					>
+						<Text style={[styles.headerTabText, tabState == 0 ? styles.headerTabTextOn : null]}>1:1</Text>
+						{tabState == 0 ? (<View style={styles.activeLine}></View>) : null}
+					</TouchableOpacity>
+
+					<TouchableOpacity
+						style={styles.headerTab}
+						activeOpacity={opacityVal}
 						onPress={() => {setTabState(1)}}
 					>
-						<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>전체</Text>
+						<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>미팅</Text>
 						{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 
@@ -446,26 +569,8 @@ const Social = (props) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setTabState(2)}}
 					>
-						<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>1:1</Text>
+						<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>모임</Text>
 						{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
-					</TouchableOpacity>
-
-					<TouchableOpacity
-						style={styles.headerTab}
-						activeOpacity={opacityVal}
-						onPress={() => {setTabState(3)}}
-					>
-						<Text style={[styles.headerTabText, tabState == 3 ? styles.headerTabTextOn : null]}>미팅</Text>
-						{tabState == 3 ? (<View style={styles.activeLine}></View>) : null}
-					</TouchableOpacity>
-
-					<TouchableOpacity
-						style={styles.headerTab}
-						activeOpacity={opacityVal}
-						onPress={() => {setTabState(4)}}
-					>
-						<Text style={[styles.headerTabText, tabState == 4 ? styles.headerTabTextOn : null]}>모임</Text>
-						{tabState == 4 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 				</View>
 			</View>			
@@ -534,7 +639,17 @@ const Social = (props) => {
 						<TouchableOpacity
 							style={styles.socialSchFilterBtn}
 							activeOpacity={opacityVal}
-							onPress={()=>setFilterPop(true)}
+							onPress={()=>{
+								setTempSocialSch(socialSch);
+								setTempAgeMin(ageMin);
+								setTempAgeMax(ageMax);
+								setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
+								setTempRealAgeMin(realAgeMin);
+								setTempRealAgeMax(realAgeMax);
+								setTempGender(filterGender);
+								setTempFilterPickDate(filterPickDate);
+								setFilterPop(true);
+							}}
 						>
 							<ImgDomain fileWidth={28} fileName={'icon_option2.png'}/>
 						</TouchableOpacity>
@@ -544,17 +659,11 @@ const Social = (props) => {
 					</TouchableWithoutFeedback>
 					</>
 				}
-				// ListEmptyComponent={
-				// 	isLoading ? (
-				// 	<View style={styles.notData}>
-				// 		<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
-				// 	</View>
-				// 	) : (
-				// 		<View style={[styles.indicator]}>
-				// 			<ActivityIndicator size="large" />
-				// 		</View>
-				// 	)
-				// }
+				ListEmptyComponent={
+					<View style={styles.notData}>
+						<Text style={styles.notDataText}>등록된 소셜이 없습니다.</Text>
+					</View>
+				}
 			/>
 			<View style={styles.gapBox}></View>
 
@@ -572,23 +681,21 @@ const Social = (props) => {
 			<Modal
 				visible={filterPop}
 				animationType={"none"}
-				onRequestClose={() => setFilterPop(false)}
+				onRequestClose={() => offFilterPop()}
 			>
 				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
 				<View style={styles.modalHeader}>					
 					<TouchableOpacity
 						style={styles.headerBackBtn2}
 						activeOpacity={opacityVal}
-						onPress={() => {
-							setFilterPop(false);
-						}}						
+						onPress={() => offFilterPop()}						
 					>						
 						<ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 					</TouchableOpacity>		
 					<TouchableOpacity 
 						style={styles.filterResetBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{console.log('초기화 작업 진행!!')}}
+						onPress={()=>resetFilter()}
 					>
 						<ImgDomain fileWidth={13} fileName={'icon_refresh.png'}/>
 						<Text style={styles.filterResetText}>초기화</Text>
@@ -605,31 +712,31 @@ const Social = (props) => {
 							</View>
 							<View style={styles.msTitleBox}>
 								<TouchableOpacity
-									style={[styles.filterGenBtn, filterGender == 1 ? styles.filterGenBtnOn : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{
-										setFilterGender(1);
-									}}
-								>
-									<Text style={[styles.filterGenBtnText, filterGender == 1 ? styles.filterGenBtnTextOn : null]}>남자</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									style={[styles.filterGenBtn, filterGender == 2 ? styles.filterGenBtnOn : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{
-										setFilterGender(2);
-									}}
-								>
-									<Text style={[styles.filterGenBtnText, filterGender == 2 ? styles.filterGenBtnTextOn : null]}>여자</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
 									style={[styles.filterGenBtn, filterGender == 0 ? styles.filterGenBtnOn : null]}
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setFilterGender(0);
 									}}
 								>
-									<Text style={[styles.filterGenBtnText, filterGender == 0 ? styles.filterGenBtnTextOn : null]}>모두</Text>
+									<Text style={[styles.filterGenBtnText, filterGender == 0 ? styles.filterGenBtnTextOn : null]}>남자</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									style={[styles.filterGenBtn, filterGender == 1 ? styles.filterGenBtnOn : null]}
+									activeOpacity={opacityVal}
+									onPress={()=>{
+										setFilterGender(1);
+									}}
+								>
+									<Text style={[styles.filterGenBtnText, filterGender == 1 ? styles.filterGenBtnTextOn : null]}>여자</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									style={[styles.filterGenBtn, !filterGender && filterGender != 0 ? styles.filterGenBtnOn : null]}
+									activeOpacity={opacityVal}
+									onPress={()=>{
+										setFilterGender();
+									}}
+								>
+									<Text style={[styles.filterGenBtnText, !filterGender && filterGender != 0 ? styles.filterGenBtnTextOn : null]}>모두</Text>
 								</TouchableOpacity>
 							</View>
 						</View>
@@ -677,6 +784,8 @@ const Social = (props) => {
 									
 									setAgeMin(yearString);
 									setAgeMax(yearString2);
+
+									nonCollidingMultiSliderValuesChange(yearString, yearString2);
 								}}
 							/>
 						</View>
@@ -767,9 +876,7 @@ const Social = (props) => {
 					<TouchableOpacity 
 						style={[styles.nextBtn]}
 						activeOpacity={opacityVal}
-						onPress={() => {
-							setFilterPop(false);							
-						}}
+						onPress={() => filterSubmitList()}
 					>
 						<Text style={styles.nextBtnText}>적용하기</Text>
 					</TouchableOpacity>
@@ -992,6 +1099,9 @@ const styles = StyleSheet.create({
 	pickDateBox: {flexDirection:'row',flexWrap:'wrap',},
 	pickDateView: {alignItems:'center',justifyContent:'center',width:71,height:33,backgroundColor:'#EDF2FE',borderRadius:50,marginLeft:8,},
 	pickDateViewText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:18,color:'#222'},
+
+	notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},

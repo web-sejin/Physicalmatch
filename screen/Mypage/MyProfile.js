@@ -38,6 +38,7 @@ const MyProfile = (props) => {
 	const [loading, setLoading] = useState(false);	
 	const [memberIdx, setMemberIdx] = useState();
 	const [reject, setReject] = useState(false);
+	const [rejectMemo, setRejectMemo] = useState('');
 
   const [file1, setFile1] = useState({});
 	const [file1Base, setFile1Base] = useState(0); //0:기존 없음, 1:기존 있음
@@ -123,7 +124,8 @@ const MyProfile = (props) => {
 		getGuideCont();
 	}, [memberIdx]);
 
-	const getMemImg = async () => {
+	const getMemImg = async () => {		
+		//setLoading(true);
 		let sData = {
 			basePath: "/api/member/",
 			type: "GetMyProfile",
@@ -131,10 +133,14 @@ const MyProfile = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-    console.log(response);
+    //console.log(response.data);
 		if(response.code == 200){
 			setReject(false);
 			response.data.img.map((item, index) => {
+				if(item.agree_yn == 'n'){
+					setReject(true);
+					setRejectMemo(response.data.info.reject_memo2);
+				}
 				if(index == 0){
 					setFile1(item);
 					setFile1Base(1);
@@ -167,6 +173,17 @@ const MyProfile = (props) => {
 					setFile6Idx(item.mti_idx);
 				}
 			})
+
+			if(response.data.mimg){				
+				setFile7(response.data.mimg);
+				setFile7Base(1);
+				setFile7St(1);
+				setFile7Idx(response.data.mimg.mti_idx);
+			}
+
+			setTimeout(function(){
+				setLoading(false);
+			}, 500)
 		}
 	}
 
@@ -227,7 +244,7 @@ const MyProfile = (props) => {
 		}
 
 		if(file2St == 2){
-			console.log('2');
+			//console.log('2');
 			fileData[fileData.length] = {uri: file2.path, name: 'profile2.png', type: file2.mime};
 			if(file2Idx){ idxData.push(file2Idx); }
 		}
@@ -351,7 +368,7 @@ const MyProfile = (props) => {
 					{reject ? (
 					<View style={styles.reject}>
 						<View style={styles.rejectBox}>
-							<Text style={styles.rejectText}>반려 사유 메세지</Text>
+							<Text style={styles.rejectText}>{rejectMemo}</Text>
 						</View>
 					</View>
 					) : null}
@@ -498,11 +515,9 @@ const MyProfile = (props) => {
                   activeOpacity={opacityVal}
                   onPress={()=>chooseImage(7)}
                 >
-                  {file7.path ? (
-                    <AutoHeightImage width={46} source={{ uri: file7.path }} />                    
-                  ) : (
-										<ImgDomain fileWidth={46} fileName={'img_back2.png'}/>
-                  )}		                  
+									{file7.mti_img ? (<ImgDomain2 fileWidth={46} fileName={file7.mti_img}/>) : null}
+									{file7.path ? (<AutoHeightImage width={46} source={{ uri: file7.path }} />) : null}
+									{!file7.path && !file7.mti_img ? (<ImgDomain fileWidth={46} fileName={'img_back2.png'}/>) : null}                  
                 </TouchableOpacity>
                 <View style={styles.reqUserInfo}>
                   <View style={styles.tradeState}>
@@ -518,12 +533,12 @@ const MyProfile = (props) => {
                     <Text style={styles.reqUserDetailText}>수락까지 잠시 기다려주세요!</Text>
                   </View>
                 </View>
-								{file7.path ? (
+								{file7.path || file7.mti_img ? (
                 <TouchableOpacity
                   style={styles.reqOkBtn}
                   activeOpacity={opacityVal}
                   onPress={() => deleteImg(7)}
-                >
+                >									
 									<ImgDomain fileWidth={25} fileName={'icon_trash.png'}/>
                 </TouchableOpacity>
 								) : null}
@@ -587,7 +602,7 @@ const MyProfile = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
 	gapBox: {height:80,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
   reject: {marginBottom:30,},
   rejectBox: {padding:15,backgroundColor:'rgba(255,120,122,0.1)',borderRadius:5,},

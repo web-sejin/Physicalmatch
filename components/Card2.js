@@ -22,7 +22,7 @@ const radius2 = widnowWidth >= 640 ? 15 : 5;
 
 const Card2 = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, propsNick, propsAge, propsHeight, propsFlip, propsDday, propsSreen} = props;  
+	const {navigation, propsNick, propsAge, propsHeight, propsFlip, propsDday, propsSreen, viewOrder} = props;  
   const spin = useSharedValue(0);
 
 	const frontAnimatedStyle = useAnimatedStyle(() => {
@@ -56,7 +56,7 @@ const Card2 = (props) => {
 	}
 
 	return (
-    <View style={[styles.cardBtn, styles.cardBtn2, propsSreen == 'SocialView' ? styles.cardBtn3 : null]}>
+    <View style={[styles.cardBtn, styles.cardBtn2, propsSreen == 'SocialView' ? styles.cardBtn3 : null, viewOrder%3 == 0 ? styles.mgr0 : null]}>
       <TouchableOpacity 
         style={[styles.fakeView]} 
         activeOpacity={opacityVal}
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
 	cardFrontContTextRoboto: {fontFamily:Font.RobotoRegular,fontSize:12,},
 	cardFrontContLine: {width:1,height:8,backgroundColor:'#EDEDED',position:'relative',top:1,marginHorizontal:6,},
 
-	cardBtn2: {width: ((innerWidth / 3) - 7)},
+	cardBtn2: {width: ((innerWidth / 3) - 7),marginRight:10,},
 	cardCont2: {width: ((innerWidth / 3) - 7)},
 	cardFrontInfo2: {width: ((innerWidth / 3) - 7),/*position:'absolute',left:0,top:0,opacity:1*/},
 	cardFrontInfoCont2: {width: ((innerWidth / 3) - 7),paddingVertical:8, paddingHorizontal:8,},
@@ -168,6 +168,9 @@ const styles = StyleSheet.create({
 	mgb0: {marginBottom:0,},
 	mgb10: {marginBottom:10,},
 	mgb25: {marginBottom:25,},
+  mgr0: {marginRight:0},
+  mgr10: {marginRight:10},
+  mgr20: {marginRight:20},
 
 	w33p: {width:innerWidth*0.33},
 	w66p: {width:innerWidth*0.66},

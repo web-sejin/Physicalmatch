@@ -48,7 +48,7 @@ const Mypage = (props) => {
 	const [memberIdx, setMemberIdx] = useState();
 	const [memberNick, setMemberNick] = useState('');
 	const [memberProfile, setMemberProfile] = useState('');
-	const [memberType, setMemberType] = useState(0);
+	const [memberType, setMemberType] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -153,11 +153,11 @@ const Mypage = (props) => {
 						activeOpacity={opacityVal}
 						onPress={()=>{navigation.navigate('ProfieModify')}}						
 					>
-						{memberType == 1 ? (
+						{!memberType || memberType == 1 ? (
 							<ImgDomain fileWidth={36} fileName={'icon_my_pencel.png'}/>
 						) : (
 							<ImgDomain fileWidth={36} fileName={'icon_eraser.png'}/>
-						)}												
+						)}
 					</TouchableOpacity>
 
 					<View style={styles.myProfInfoNick}>
@@ -281,7 +281,8 @@ const Mypage = (props) => {
 							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 						</View>
 					</TouchableOpacity>
-					<TouchableOpacity
+
+					{/* <TouchableOpacity
 						style={styles.mypageMenuBtn}
 						activeOpacity={opacityVal}
 						onPress={()=>notMember()}
@@ -297,7 +298,8 @@ const Mypage = (props) => {
 						<View style={styles.mypageMenuBtnRight}>
 							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 						</View>
-					</TouchableOpacity>					
+					</TouchableOpacity> */}
+
 				</View>
 
 				<View style={styles.swiperView}>

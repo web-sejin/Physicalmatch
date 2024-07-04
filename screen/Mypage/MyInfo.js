@@ -192,6 +192,7 @@ const MyInfo = (props) => {
 	const [realExeList, setRealExeList] = useState([]);
 	const [nextOpen, setNextOpen] = useState(false);
 	const [outerScrollEnabled, setOuterScrollEnabled] = useState(true);
+	const [mbPhysical, setMbPhysical] = useState('');
 	
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -571,7 +572,7 @@ const MyInfo = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-
+		//console.log(response);		
 		if(response.data.info.member_exercise_yn == 'y'){ 
 			getSportData2(response.data.info.member_exercise);
 		}else{
@@ -592,6 +593,8 @@ const MyInfo = (props) => {
 		if(response.data.info.member_education_status){ setRealClass2(response.data.info.member_education_status); }
 		if(response.data.info.member_job){ setRealJob(response.data.info.member_job); }
 		if(response.data.info.member_job_detail){ setRealJobDetail(response.data.info.member_job_detail); }
+
+		let physicalString = '';
 		if(response.data.info.member_height){ 
 			let ary = [];
 			for(let i=140; i<=216; i++){ ary.push(i); }	
@@ -599,42 +602,62 @@ const MyInfo = (props) => {
 			setHeightIdx(aryIndx);
 			setHeight(response.data.info.member_height);
 			setRealHeight(response.data.info.member_height);
-		}else{
-			setRealNoHeight(false); 
+
+      physicalString += (response.data.info.member_height+'cm'); 
 		}
 
-		if(response.data.info.member_weight){ 
+		if(response.data.info.member_weight && response.data.info.member_weight != 0){ 
 			let ary2 = [];
 			for(let i=30; i<=120; i++){ ary2.push(i); }	
 			const aryIndx = ary2.findIndex((value) => value == response.data.info.member_weight);
 			setWeightIdx(aryIndx);
 			setWeight(response.data.info.member_weight);
 			setRealWeight(response.data.info.member_weight);
+			setNoWeight(false);
+			setRealNoWeight(false);
+
+			if(physicalString != ''){ physicalString += ' · '; }
+      physicalString += (response.data.info.member_weight+'kg'); 
 		}else{
-			setRealNoWeight(false); 
+			setNoWeight(true);
+			setRealNoWeight(true);
 		}
 
-		if(response.data.info.member_muscle){
+		if(response.data.info.member_muscle && response.data.info.member_muscle != 0){
 			let ary3 = [];
 			for(let i=0; i<=100; i++){ ary3.push(i); }
 			const aryIndx = ary3.findIndex((value) => value == response.data.info.member_muscle);
 			setMuscleIdx(aryIndx);
 			setMuscle(response.data.info.member_muscle);
 			setRealMuscle(response.data.info.member_muscle);
-		}else{
+			setNoMuscle(false);
 			setRealNoMuscle(false);
-		}
 
-		if(response.data.info.member_fat){
+			if(physicalString != ''){ physicalString += ' · '; }
+      physicalString += (response.data.info.member_muscle+'%'); 
+		}else{
+			setNoMuscle(true);
+			setRealNoMuscle(true);
+		}		
+
+		if(response.data.info.member_fat && response.data.info.member_fat != 0){
 			let ary4 = [];
 			for(let i=0; i<=100; i++){ ary4.push(i); }
 			const aryIndx = ary4.findIndex((value) => value == response.data.info.member_fat);
 			setFatIdx(aryIndx);
 			setFat(response.data.info.member_fat);
 			setRealFat(response.data.info.member_fat);
+			setNoFat(false);
+			setRealNoFat(false);
+
+			if(physicalString != ''){ physicalString += ' · '; }
+      physicalString += (response.data.info.member_fat+'%');
 		}else{
-			setRealNoFat(false); 
-		}		
+			setNoFat(true);
+			setRealNoFat(true); 
+		}
+
+		setMbPhysical(physicalString);
 
 		if(response.data.info.member_drink_status){
 			setRealDrink(response.data.info.member_drink_status);
@@ -644,11 +667,12 @@ const MyInfo = (props) => {
 			setRealSmoke(response.data.info.member_smoke_status);
 			setRealSmokeText(smokeList[response.data.info.member_smoke_status].txt);
 		}
-		if(response.data.info.member_smoke_type){
-			setRealSmokeSort(response.data.info.member_smoke_type);
+
+		if(response.data.info.member_smoke_type != '' && response.data.info.member_smoke_type != 'NULL'){
+			setRealSmokeSort(response.data.info.member_smoke_type);			
 			setRealSmokeSortText(smokeSortList[response.data.info.member_smoke_type].txt);
 		}
-		if(response.data.info.member_religion){ setRealRel(response.data.info.member_religion); }		
+		if(response.data.info.member_religion){ setRealRel(response.data.info.member_religion); }
 		
 		setTimeout(function(){
 			setLoading(false);
@@ -943,6 +967,24 @@ const MyInfo = (props) => {
 			setRealNoFat(noFat);
 			setPopPhysical2(false);
 			setPreventBack(false);
+			
+			console.log(muscle+'////'+fat);
+
+			let physicalString = height.replace('cm', '')+'cm';
+			if(!noWeight){
+				if(physicalString != ''){ physicalString += ' · '; }
+      	physicalString += (weight.replace('kg', '')+'kg'); 
+			}
+			if(!noMuscle){
+				if(physicalString != ''){ physicalString += ' · '; }
+      	physicalString += (muscle.replace('kg', '')+'kg'); 
+			}
+			if(!noFat){
+				if(physicalString != ''){ physicalString += ' · '; }
+      	physicalString += (fat.replace('%', '')+'%'); 
+			}
+			setMbPhysical(physicalString);
+			
 		}else if(v == 'exe'){
 
 			if(exeList.length < 1 && !exeRest && !exeAddSt){
@@ -1032,9 +1074,12 @@ const MyInfo = (props) => {
 			member_exercise:realExeList,
 			member_drink_status:realDrink,
 			member_smoke_status:realSmoke,
-			member_smoke_type:realSmokeSort,
 			member_mbti:mbti1_2+'|'+mbti2_2+'|'+mbti3_2+'|'+mbti4_2+'|'+mbti5_2+'|'+mbti6_2+'|'+mbti7_2+'|'+mbti8_2,
 			member_religion:realRel,
+		}
+
+		if(realSmokeSort){
+			nextObj.member_smoke_type = realSmokeSort;
 		}
 	
 		const phyTypeTrue = [];
@@ -1044,15 +1089,21 @@ const MyInfo = (props) => {
 			}
 		}
 		nextObj.member_physical = phyTypeTrue;
-		
-		let sData = nextObj
-		const response = await APIs.send(sData);
-		console.log(response);
+				
+		//console.log(nextObj);
+		const response = await APIs.send(nextObj);
+		//console.log(response);
+		if(response.code == 200){
+			ToastMessage('정보가 수정되었습니다.');
+			// const formData = new FormData();
+			// formData.append('type', 'GetMyInfo');
+			// formData.append('member_idx', idx);
+			// const mem_info = await member_info(formData);
 
-		// const formData = new FormData();
-		// formData.append('type', 'GetMyInfo');
-		// formData.append('member_idx', idx);
-		// const mem_info = await member_info(formData);
+			setTimeout(function(){
+				navigation.navigate('ProfieModify', {reload:true});
+			}, 500);
+		}		
 	}
 
 	const headerHeight = 48;
@@ -1206,7 +1257,7 @@ const MyInfo = (props) => {
 						</View>
 						<View style={styles.regiStep5BtnRight}>
 							{realHeight ? (
-							<Text style={styles.regiStep5BtnRightText}>{realHeight}cm</Text>
+							<Text style={styles.regiStep5BtnRightText}>{mbPhysical}</Text>
 							) : null}
 							<ImgDomain fileWidth={20} fileName={'icon_arr1.png'}/>
 						</View>
@@ -1874,12 +1925,15 @@ const MyInfo = (props) => {
 						</View>
 						<View style={[styles.popRadioBox, styles.mgt30]}>
 							<View style={[styles.popRadioTitle, styles.popRadioTitleFlex]}>
-								<Text style={styles.popRadioTitleText}>몸무게</Text>
+								<Text style={styles.popRadioTitleText}>몸무z게</Text>
 								<TouchableOpacity
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
 									onPress={() => {
-										setWeight();
+										if(noWeight){
+											setWeightIdx(30);
+											setWeight('60kg');
+										}
 										setNoWeight(!noWeight);
 									}}
 								>
@@ -1916,7 +1970,10 @@ const MyInfo = (props) => {
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
 									onPress={() => {
-										setMuscle();
+										if(noMuscle){
+											setMuscleIdx(25);
+											setMuscle('25kg');
+										}
 										setNoMuscle(!noMuscle);
 									}}
 								>
@@ -1953,7 +2010,10 @@ const MyInfo = (props) => {
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
 									onPress={() => {
-										setFat();
+										if(noFat){
+											setFatIdx(15);
+											setFat('15%');
+										}
 										setNoFat(!noFat);
 									}}
 								>

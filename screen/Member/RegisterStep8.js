@@ -236,7 +236,7 @@ const RegisterStep8 = ({navigation, route}) => {
 
 	const getBadgeList = async () => {
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetBadgeList",
 		}
 		const response = await APIs.send(sData);
@@ -281,7 +281,7 @@ const RegisterStep8 = ({navigation, route}) => {
 		setLoading(true);
 		fileData[0] = {uri: file.path, name: 'badge.png', type: file.mime};
 		let sData = {      
-			basePath: "/api/member/index.php",
+			basePath: "/api/member/",
 			type: "SetTempImage",
 			dir:'badge',
 			files: fileData,			
@@ -351,7 +351,7 @@ const RegisterStep8 = ({navigation, route}) => {
 
 		jobFileData[0] = {uri: jobFile.path, name: 'auth_job.png', type: jobFile.mime};
 		let sData = {      
-			basePath: "/api/member/index.php",
+			basePath: "/api/member/",
 			type: "SetTempImage",
 			dir:'auth',
 			files: jobFileData,			
@@ -396,7 +396,7 @@ const RegisterStep8 = ({navigation, route}) => {
 
 		schoolFileData[0] = {uri: schoolFile.path, name: 'auth_school.png', type: schoolFile.mime};
 		let sData = {      
-			basePath: "/api/member/index.php",
+			basePath: "/api/member/",
 			type: "SetTempImage",
 			dir:'auth',
 			files: schoolFileData,			
@@ -443,7 +443,7 @@ const RegisterStep8 = ({navigation, route}) => {
 
 		marryFileData[0] = {uri: marryFile.path, name: 'auth_marry.png', type: marryFile.mime};
 		let sData = {      
-			basePath: "/api/member/index.php",
+			basePath: "/api/member/",
 			type: "SetTempImage",
 			dir:'auth',
 			files: marryFileData,			
@@ -627,7 +627,7 @@ const RegisterStep8 = ({navigation, route}) => {
 		}
 
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetBadgeDetail",
 			bc_idx: idx,
 			m_sex: gender,
@@ -646,7 +646,7 @@ const RegisterStep8 = ({navigation, route}) => {
 
 	const getCertInfo = async (idx) => {
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetAuthDetail",
 			pa_idx: idx,
 		}

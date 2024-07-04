@@ -8,10 +8,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
 import { BlurView } from "@react-native-community/blur";
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 import Card2 from '../../components/Card2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
@@ -37,19 +40,11 @@ const SocialView = (props) => {
 		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },
     { 'idx': 4, 'isFlipped':true, 'name':'닉네임최대여덟4', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':false },		
 	];
-  
-  const reportList = [
-    { val: 1, txt: '욕설 / 인신공격',},
-    { val: 2, txt: '허위 내용 (사진 및 프로필 도용)',},
-    { val: 3, txt: '선정성',},
-    { val: 4, txt: '홍보 및 판촉',},
-    { val: 5, txt: '종교 & 정치적 혐오 발언',},
-    { val: 6, txt: '기타',},
-  ]
 
   const {navigation, userInfo, chatInfo, route} = props;
   const {params} = route
-  const viewIdx = params['idx'];
+  const social_idx = params['social_idx'];
+  const host_sex = params['social_host_sex'];
   const scrollRef = useRef();	
   const etcRef = useRef(null);
   const navigationUse = useNavigation();
@@ -62,6 +57,7 @@ const SocialView = (props) => {
   const [loading, setLoading] = useState(false);
   const [dotPop, setDotPop] = useState(false);
   const [leavePop, setLeavePop] = useState(false);
+  const [leavePopText, setLeavePopText] = useState('');
   const [orderPop, setOrderPop] = useState(false);
   const [warnPop, setWarnPop] = useState(false);
   const [readyPop, setReadyPop] = useState(false);
@@ -74,6 +70,7 @@ const SocialView = (props) => {
   const [socialPop2, setSocialPop2] = useState(false);
   const [blockPop, setBlockPop] = useState(false);
   const [focusState, setFocusState] = useState(false);
+  const [reportList, setReportList] = useState([]);
 
   const [layout, setLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
 	const [layout2, setLayout2] = useState({ x: 0, y: 0, width: 0, height: 0 });
@@ -82,8 +79,8 @@ const SocialView = (props) => {
   const [data1List, setData1List] = useState(Data1);
   const [data1List2, setData1List2] = useState(Data2);
 
-  const [userType, setUserType] = useState(2); //1=>호스트, 2=>게스트
-  const [userType2, setUserType2] = useState(0); //1=>정회원, 0=>비회원
+  const [userType, setUserType] = useState(); //1=>호스트, 2=>게스트
+  const [writerIdx, setWriteIdx] = useState();
   const [nick, setNick] = useState('');
   const [age, setAge] = useState('');
   const [datetime, setDatetime] = useState('');
@@ -92,16 +89,43 @@ const SocialView = (props) => {
   const [meetLocal, setMeetLocal] = useState('');
   const [meetCate, setMeetCate] = useState('');
   const [meetCnt, setMeetCnt] = useState('');
+
   const [content, setContent] = useState('');
-  const [upPoint ,setUpPoint] = useState(0);
-  const [reviewType, setReviewType] = useState(1); //1=>댓글, 2=>대댓글
+  const [upPoint ,setUpPoint] = useState(0); //끌어올리기에 필요한 포인트
+  const [reviewType, setReviewType] = useState(0); //0=>댓글, 1=>대댓글
   const [reviewCont, setReviewCont] = useState('');
   const [orderChg, setOrderChg] = useState(0); //0=>끌어올리기 한 적 없음(무료), 1=>끌어올리기 한 적 있음(유료), 2=>포인트 부족
-  const [miniPoint, setMiniPoint] = useState(0);
+  const [miniPoint, setMiniPoint] = useState(0); //미니프로필 오픈을 위한 포인트
   const [miniChg, setMiniChg] = useState(0); //0=>포인트 있음, 1=>포인트 부족
   const [report, setReport] = useState('');
   const [reportEtc, setReportEtc] = useState('');
-  const [reportType, setReportType] = useState(); //1=>소셜글, 2=>댓글, 3=>대댓글  
+  const [reportType, setReportType] = useState('');
+  const [reportMemberIdx, setReportMemberIdx] = useState();
+  const [reportBoardIdx, setReportBoardIdx] = useState();  
+  const [bookSt, setBookSt] = useState(false);
+  const [profileState, setProfileState] = useState('');
+  const [profileImg, setProfileImg] = useState('');
+  const [visualImg, setVisualImg] = useState('');
+  const [hostGuest, setHostGuest] = useState('');
+  const [guestGuest, setGuestGuest] = useState('');
+  const [commentCnt, setCommentCnt] = useState(0);
+  const [commentList, setCommentList] = useState([]);
+  const [subReviewNick, setSubReivewNick] = useState('');
+  const [subReviewIdx, setSubReviewIdx] = useState();
+  const [pbIdx, setPbIdx] = useState();
+  const [manCnt, setManCnt] = useState(0);
+  const [womanCnt, setWomanCnt] = useState(0);
+  const [confirmManCnt, setConfirmManCnt] = useState(0);
+  const [confirmWomanCnt, setConfirmWomanCnt] = useState(0);
+  const [sjIdx, setSjIdx] = useState();
+
+  const [reqList, setReqList] = useState([]);
+  const [acceptList, setAcceptist] = useState([]);
+  const [joinList, setJoinList] = useState([]);
+  
+  const [memberIdx, setMemberIdx] = useState();
+  const [memberInfo, setMemberInfo] = useState({});
+  const [guestPartyState, setGuestPartyState] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -114,20 +138,11 @@ const SocialView = (props) => {
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 
-      //임시
-      setNick('자동 생성 닉네임');
-      setAge('89');
-      setDatetime('8분 전');
-      setSubject('제목이 입력되는 영역입니다.');
-      setMeetDate('2024.12.31');
-      setMeetLocal('강남역');
-      setMeetCate('미팅');
-      setMeetCnt('3:3');
-      setContent('내용이 입력되는 영역입니다. 자유롭게 내용을 입력해 주세요. 자유롭게 내용을 입력해 주세요. 자유롭게 내용을 입력해 주세요. 자유롭게 내용을 입력해 주세요. 자유롭게 내용을 입력해 주세요. 자유롭게 내용을 입력해 주세요.');
-      setUpPoint(100);
-      setOrderChg(0);
-      setMiniPoint(200);
-      setMiniChg(0);
+      AsyncStorage.getItem('member_idx', (err, result) => {		        
+				setMemberIdx(result);
+			});
+
+      console.log('social_idx :::: ',social_idx);
 		}
 
 		Keyboard.dismiss();
@@ -181,9 +196,226 @@ const SocialView = (props) => {
     };
   }, [currFocus]);
 
+  useEffect(() => {
+    if(memberIdx){
+      setLoading(true);
+      getMemInfo();
+      getSocialDetail(); 
+    }
+  }, [memberIdx]);
+
+  useEffect(() => {
+    getReportList();
+  }, [])
+
+  const getMemInfo = async () => {    
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+      setMemberInfo(response.data);
+    }
+  }
+
+  const getSocialDetail = async () => {
+    //console.log('social_idx ::: ', social_idx);
+    let sData = {
+			basePath: "/api/social/",
+			type: "GetSocialDetail",
+			member_idx: memberIdx,
+      social_idx: social_idx,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      if(response.data.social.is_my_social == 'y'){
+        setUserType(1);
+        if(response.data.join.request.length > 0){
+          setReqList(response.data.join.request);
+        }else{
+          setReqList([]);
+        }
+        
+        if(response.data.join.accept.length > 0){
+          let newAccept = [];
+          response.data.join.accept.map((item, index) => {
+            let flippedState = true;            
+            if(item.leave_yn == 'y' || item.available_yn == 'y'){
+              flippedState = false;
+            }
+
+            newAccept.push({
+              'sj_idx': item.sj_idx,
+              'social_idx': item.social_idx,
+              'member_idx': item.member_idx,
+              'guest_social_nick': item.guest_social_nick,
+              'sj_status': item.sj_status,
+              'noti_status': item.noti_status,
+              'created_at': item.created_at,
+              'accepted_at': item.accepted_at,
+              'rejected_at': item.rejected_at,
+              'requested_at': item.requested_at,
+              'confirmed_at': item.confirmed_at,
+              'is_expire': item.is_expire,
+              'mini_pofile_img': item.mini_pofile_img,
+              'main_profile_img': item.main_profile_img,
+              'member_age': item.member_age,
+              'member_sex': item.member_sex,
+              'member_main_local': item.member_main_local,
+              'member_height': item.member_height,
+              'leave_yn': item.leave_yn,
+              'card_yn': item.card_yn,
+              'available_yn': item.available_yn,
+              'isFlipped':flippedState
+            });
+          })
+          setAcceptist(newAccept);
+        }else{
+          setAcceptist([]);
+        }
+
+        if(response.data.join.join.length > 0){
+          let newJoin = [];
+          response.data.join.join.map((item, index) => {
+            let flippedState = true;            
+            if(item.leave_yn == 'y' || item.available_yn == 'y'){
+              flippedState = false;
+            }
+
+            newJoin.push({
+              'sj_idx': item.sj_idx,
+              'social_idx': item.social_idx,
+              'member_idx': item.member_idx,
+              'guest_social_nick': item.guest_social_nick,
+              'sj_status': item.sj_status,
+              'noti_status': item.noti_status,
+              'created_at': item.created_at,
+              'accepted_at': item.accepted_at,
+              'rejected_at': item.rejected_at,
+              'requested_at': item.requested_at,
+              'confirmed_at': item.confirmed_at,
+              'is_expire': item.is_expire,
+              'mini_pofile_img': item.mini_pofile_img,
+              'main_profile_img': item.main_profile_img,
+              'member_age': item.member_age,
+              'member_sex': item.member_sex,
+              'member_main_local': item.member_main_local,
+              'member_height': item.member_height,
+              'leave_yn': item.leave_yn,
+              'card_yn': item.card_yn,
+              'available_yn': item.available_yn,
+              'isFlipped':flippedState
+            });
+          })
+          setJoinList(newJoin);
+        }else{
+          setJoinList([]);
+        }
+      }else{
+        setUserType(2);
+        if(response.data.join.request[0] == null){
+          
+        }else{
+          setGuestPartyState(response.data.join.request[0].sj_status);
+        }
+      }
+
+      if(response.data.img[0] == undefined){
+
+      }else{
+        setVisualImg(response.data.img[0].si_img);
+      }
+
+      if(response.data.social.mini_profile_img){
+        setProfileState(1);
+        setProfileImg(response.data.social.mini_profile_img);        
+      }else{
+        setProfileState(0);
+        if(host_sex == 0){
+          setProfileImg('profile_sample.png');
+        }else if(host_sex == 1){
+          setProfileImg('profile_sample2.png');
+        }
+      }
+
+      if(response.data.social.is_bookmark == 'y'){
+        setBookSt(true);
+      }else{
+        setBookSt(false);
+      }
+
+      setPbIdx(response.data.social.pb_idx);
+      setWriteIdx(response.data.social.member_idx);
+      setNick(response.data.social.host_social_nick);
+      setAge(response.data.social.host_social_age);
+      setDatetime(response.data.social.AgoTime);
+      setSubject(response.data.social.social_subject);
+      setMeetDate(response.data.social.social_date_text);      
+      setMeetLocal(response.data.social.social_location);
+
+      //0=> // 1=>미팅 // 2=>모임
+      if(response.data.social.social_type == 0){
+        setMeetCate('1:1');
+      }else if(response.data.social.social_type == 1){
+        setMeetCate('미팅');
+        setMeetCnt(response.data.social.social_mcnt+':'+response.data.social.social_wcnt);
+      }else if(response.data.social.social_type == 2){
+        setMeetCate('모임');
+        setMeetCnt(response.data.social.social_cnt);
+      }
+
+      setManCnt(response.data.social.social_mcnt);
+      setWomanCnt(response.data.social.social_wcnt);
+      setConfirmManCnt(response.data.social.social_join_mcnt);
+      setConfirmWomanCnt(response.data.social.social_join_wcnt);
+   
+      setContent(response.data.social.social_content);
+      setHostGuest(response.data.social.host_guest_yn);
+      setGuestGuest(response.data.social.guest_guest_yn);
+
+      setCommentCnt(response.data.comment.length);
+      if(response.data.comment.length > 0){
+        setCommentList(response.data.comment);
+      }              
+      
+      setUpPoint(100); //끌어올리기에 필요한 포인트
+      
+      //0=>끌어올리기 한 적 없음(무료), 1=>끌어올리기 한 적 있음(유료)
+      if(response.data.social.is_update == 0){
+        setOrderChg(0);
+      }else if(response.data.social.is_update > 0){
+        setOrderChg(1);
+      }
+      
+      setMiniPoint(200); //미니프로필 오픈을 위한 포인트
+      setMiniChg(0); //0=>포인트 있음, 1=>포인트 부족
+
+      setTimeout(() => {
+        setLoading(false);
+      }, 100); 
+    }
+  }
+
+  const getReportList = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetReportReasonList",
+		};
+
+		const response = await APIs.send(sData);    
+    if(response.code == 200){
+      setReportList(response.data);
+    }
+  }
+
   const onLayout = (event) => { const { x, y, width, height } = event.nativeEvent.layout; setLayout({ x, y, width, height }); };
   const onLayout2 = (event) => { const { x, y, width, height } = event.nativeEvent.layout; setLayout2({ x, y, width, height }); };
-  const onLayout3 = (event) => { const { x, y, width, height } = event.nativeEvent.layout; setLayout3({ x, y, width, height }); };  
+  const onLayout3 = (event) => { const { x, y, width, height } = event.nativeEvent.layout; setLayout3({ x, y, width, height }); };    
 
   const ViewDetail = () => {
 		//포인트 있는지 체크 후 결제 유도 or 상세페이지 이동		
@@ -196,13 +428,33 @@ const SocialView = (props) => {
       return false;
     }
 
-    if(report == '기타' && (reportEtc == '' || reportEtc.length < 3)){
+    if(report == 6 && (reportEtc == '' || reportEtc.length < 3)){
       ToastMessage('상세 사유를 3자 이상 입력해 주세요.');
       return false;
     }
 
-    ToastMessage('신고접수가 완료되었습니다.');
-    reportPopClose();
+    let sData = {
+			basePath: "/api/social/",
+			type: "SetReportPost",
+      rp_type: reportType,
+      member_idx: memberIdx,
+      rp_member_idx: reportMemberIdx,
+      rp_post_idx: reportBoardIdx,
+      rr_idx: report,
+      rp_content: reportEtc,
+		};
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+      reportPopClose();
+      ToastMessage('신고접수가 완료되었습니다.');
+      if(reportType == 'social'){
+        setTimeout(function(){
+          navigation.navigate('Social', {reload: true});
+        } ,300)      
+      }else if(reportType == 'socialComment'){
+        getSocialDetail();
+      }
+    }    
   }
 
   const reportPopClose = () => {
@@ -210,6 +462,268 @@ const SocialView = (props) => {
     setReportPop(false);
     setReport('');
     setReportEtc('');
+    setReportType('');
+    setReportMemberIdx();
+    setReportBoardIdx();
+  }
+
+  const submitComment = async () => {
+    if(memberInfo.member_type == 0){
+      ToastMessage('정회원만 댓글 작성이 가능합니다.');
+      return false;
+    }
+
+    if(reviewCont == ''){
+      ToastMessage('댓글 내용을 입력해 주세요.');
+      return false;
+    }
+
+    let sData2 = {
+			basePath: "/api/etc/",
+			type: "SetFilter",
+      txt: reviewCont,
+		};
+    const response2 = await APIs.send(sData2);    
+    if(response2.code == 400){
+      ToastMessage('사용할 수없는 단어를 사용했습니다.\n내용을 다시 입력해 주세요.');
+      return false;
+    }
+  
+    let sData = {
+			basePath: "/api/social/",
+			type: "SetSocialComment",
+      social_idx: social_idx,
+			member_idx: memberIdx,
+      sc_type: reviewType,
+      sc_content: reviewCont,
+		};
+
+    if(reviewType == 1){
+      sData.sc_org_idx = subReviewIdx;
+    }
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setCommentCnt(response.data.comment.length);
+      setCommentList(response.data.comment);
+      setReviewCont('');
+      setReviewType(0);
+      setSubReivewNick('');
+      setSubReviewIdx();
+      setTimeout(function(){
+        scrollRef.current?.scrollTo({y:layout3.y+10});
+      },300);    
+    }
+  }
+
+  const socialBook = async () => {
+    let sData = {};
+    if(bookSt){
+      sData = {
+        basePath: "/api/social/",
+        type: "DeletePostBookMark",		
+        pb_idx: pbIdx,
+      };
+    }else{      
+      sData = {
+        basePath: "/api/social/",
+        type: "SetPostBookMark",
+        member_idx: memberIdx,
+        pb_type: 'social',			
+        pb_post_idx: social_idx,
+      };
+    }
+
+    const response = await APIs.send(sData);
+    if(response.code == 200){
+      setBookSt(!bookSt);
+    }
+  }
+
+  const socialUpdate = async () => {
+    //추후 끌어올리기 포인트와 회원 포인트 조회 해야함
+    
+    let sData = {
+      basePath: "/api/social/",
+      type: "SetSocialUpdate",		
+      social_idx: social_idx,
+    };
+    const response = await APIs.send(sData);
+    if(response.code == 200){
+      setOrderChg(1);
+      setOrderPop(false);
+    }
+  }
+
+  const deleteComment = async (idx) => {
+    let sData = {
+      basePath: "/api/social/",
+      type: "DeleteSocialComment",		
+      sc_idx: idx,
+      member_idx: memberIdx,
+      social_idx: social_idx,
+    };
+    const response = await APIs.send(sData);        
+    if(response.code == 200){
+      setCommentCnt(response.data.comment.length);
+      setCommentList(response.data.comment);
+    }
+  }
+
+  const deleteSocial = async () => {
+    let sData = {
+      basePath: "/api/social/",
+      type: "DeleteSocial",		
+      social_idx: social_idx,
+    };
+    const response = await APIs.send(sData);
+    if(response.code == 200){
+      setDotPop(false);
+      navigation.navigate('Social', {reload: true});
+    }else{
+      ToastMessage('잠시후 다시 이용해 주세요.');
+    }
+  }
+
+  const socialBlock = async () => {
+    let sData = {
+      basePath: "/api/social/",
+      type: "SetReportMember",		
+      member_idx: memberIdx,
+      rm_member_idx: writerIdx,
+    };
+    const response = await APIs.send(sData);
+    if(response.code == 200){
+      setBlockPop(false);
+      navigation.navigate('Social', {reload: true});
+    }else{
+      ToastMessage('잠시후 다시 이용해 주세요.');
+    }
+  }
+
+  const openReportPop = (rp_type, rp_member_idx, rp_post_idx) => {
+    setReportType(rp_type);
+    setReportMemberIdx(rp_member_idx);
+    setReportBoardIdx(rp_post_idx);
+    setReportPop(true);
+    setDotPop(false);
+    setPreventBack(true);
+  }
+
+  const submitParty = async () => {
+    let sData = {
+      basePath: "/api/social/",
+      type: "SetSocialJoin",		      
+      social_idx: social_idx,
+      member_idx: memberIdx,
+    };
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setGuestPartyState(0);
+      setSocialPop(false);
+      ToastMessage('참여 신청이 완료되었습니다.');
+    }
+  }
+
+  const socialAgree = async () => {
+    let sData = {
+      basePath: "/api/social/",
+      type: "SetSocialState",		      
+      sj_idx: sjIdx,
+      sj_status: 1,
+      member_idx:memberIdx,
+      social_idx:social_idx,
+
+    };
+    const response = await APIs.send(sData);
+    if(response.code == 200){
+      if(response.data.join.request.length > 0){
+        setReqList(response.data.join.request);
+      }else{
+        setReqList([]);
+      }
+      
+      if(response.data.join.accept.length > 0){
+        let newAccept = [];
+        response.data.join.accept.map((item, index) => {
+          let flippedState = true;            
+          if(item.leave_yn == 'y' || item.available_yn == 'y'){
+            flippedState = false;
+          }
+
+          newAccept.push({
+            'sj_idx': item.sj_idx,
+            'social_idx': item.social_idx,
+            'member_idx': item.member_idx,
+            'guest_social_nick': item.guest_social_nick,
+            'sj_status': item.sj_status,
+            'noti_status': item.noti_status,
+            'created_at': item.created_at,
+            'accepted_at': item.accepted_at,
+            'rejected_at': item.rejected_at,
+            'requested_at': item.requested_at,
+            'confirmed_at': item.confirmed_at,
+            'is_expire': item.is_expire,
+            'mini_pofile_img': item.mini_pofile_img,
+            'main_profile_img': item.main_profile_img,
+            'member_age': item.member_age,
+            'member_sex': item.member_sex,
+            'member_main_local': item.member_main_local,
+            'member_height': item.member_height,
+            'leave_yn': item.leave_yn,
+            'card_yn': item.card_yn,
+            'available_yn': item.available_yn,
+            'isFlipped':flippedState
+          });
+        })
+        setAcceptist(newAccept);
+      }else{
+        setAcceptist([]);
+      }
+
+      if(response.data.join.join.length > 0){
+        let newJoin = [];
+        response.data.join.join.map((item, index) => {
+          let flippedState = true;            
+          if(item.leave_yn == 'y' || item.available_yn == 'y'){
+            flippedState = false;
+          }
+
+          newJoin.push({
+            'sj_idx': item.sj_idx,
+            'social_idx': item.social_idx,
+            'member_idx': item.member_idx,
+            'guest_social_nick': item.guest_social_nick,
+            'sj_status': item.sj_status,
+            'noti_status': item.noti_status,
+            'created_at': item.created_at,
+            'accepted_at': item.accepted_at,
+            'rejected_at': item.rejected_at,
+            'requested_at': item.requested_at,
+            'confirmed_at': item.confirmed_at,
+            'is_expire': item.is_expire,
+            'mini_pofile_img': item.mini_pofile_img,
+            'main_profile_img': item.main_profile_img,
+            'member_age': item.member_age,
+            'member_sex': item.member_sex,
+            'member_main_local': item.member_main_local,
+            'member_height': item.member_height,
+            'leave_yn': item.leave_yn,
+            'card_yn': item.card_yn,
+            'available_yn': item.available_yn,
+            'isFlipped':flippedState
+          });
+        })
+        setJoinList(newJoin);
+      }else{
+        setJoinList([]);
+      }
+    }else{
+      ToastMessage('잠시후 다시 이용해 주세요.');
+    }
+    setSocialPop2(false);
   }
 
   const headerHeight = 48;
@@ -241,13 +755,17 @@ const SocialView = (props) => {
             </TouchableOpacity>
 
             <View style={styles.viewVisual}>
-              <ImgDomain fileWidth={widnowWidth} fileName={'social_view_sample.jpg'}/>
+              <ImgDomain2 fileWidth={widnowWidth} fileName={visualImg}/>
             </View>
 
             <View style={[styles.cmView, styles.pdt15, styles.pdb30]}>
               <View style={styles.nickArea}>
                 <View style={styles.nickView}>
-                  <ImgDomain fileWidth={38} fileName={'profile_sample.png'}/>
+                  {profileState == 1 ? (
+                    <ImgDomain2 fileWidth={38} fileName={profileImg}/>
+                  ) : (
+                    <ImgDomain fileWidth={38} fileName={profileImg}/>
+                  )}                  
                   <Text style={styles.nickViewText}>{nick} · {age}</Text>
                 </View>
                 <View style={styles.insertTime}>
@@ -256,7 +774,20 @@ const SocialView = (props) => {
               </View>
 
               <View style={styles.viewSubject}>
-                <Text style={styles.viewSubjectText}>{subject}</Text>
+                <View style={styles.viewSubjectArea}>
+                  <Text style={styles.viewSubjectText}>{subject}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.viewBookBtn}
+                  activeOpacity={opacityVal}
+                  onPress={()=>socialBook()}
+                >
+                  {bookSt ? (
+                    <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
+                  ): (
+                    <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
+                  )}                    
+                </TouchableOpacity>
               </View>
 
               <View style={styles.viewSubInfo1}>
@@ -286,71 +817,88 @@ const SocialView = (props) => {
               </View>
 
               <View style={[styles.viewSubInfo4, styles.zindex10]}>
-                <View style={[styles.viewSubInfo4List, styles.zindex10]}>                  
-                  <ImgDomain fileWidth={20} fileName={'icon_power_o.png'}/>
-                  <Text style={styles.viewSubInfo4ListText}>호스트의 동성 지인도 참여하는 모임이에요</Text>
-                  <TouchableOpacity
-                    style={styles.viewAlert}
-                    activeOpacity={opacityVal}
-                    onPress={()=>setWarnPop(true)}
-                  >
-                    <ImgDomain fileWidth={16} fileName={'icon_alert2.png'}/>
-                  </TouchableOpacity>
+                
+                  <View style={[styles.viewSubInfo4List, styles.zindex10]}>                  
+                    {hostGuest == 'y' ? (
+                      <>
+                        <ImgDomain fileWidth={20} fileName={'icon_power_o.png'}/>
+                        <Text style={styles.viewSubInfo4ListText}>호스트의 동성 지인도 참여하는 모임이에요</Text>
+                      </>
+                    ) : null}
+                    
+                    {hostGuest == 'n' ? (
+                      <>
+                        <ImgDomain fileWidth={20} fileName={'icon_power_x.png'}/>
+                        <Text style={styles.viewSubInfo4ListText}>호스트의 지인이 없는 방이에요</Text>
+                      </>
+                    ) : null}
+                    <TouchableOpacity
+                      style={styles.viewAlert}
+                      activeOpacity={opacityVal}
+                      onPress={()=>setWarnPop(true)}
+                    >
+                      <ImgDomain fileWidth={16} fileName={'icon_alert2.png'}/>
+                    </TouchableOpacity>
 
-                  {warnPop ? (
-                  <TouchableOpacity 
-                    style={{...styles.warnPop, ...styles.boxShadow}}
-                    activeOpacity={1}
-                    onPress={()=>setWarnPop(false)}
-                  >
-                    <View style={styles.wranTri}>
-                      <ImgDomain fileWidth={20} fileName={'warn_pop_top.png'}/>
-                    </View>
-                    <View style={styles.warnView}>
-                      <View style={styles.warn}>
-                        <Text style={styles.warnText}>주의해주세요!</Text>
+                    {warnPop ? (
+                    <TouchableOpacity 
+                      style={{...styles.warnPop, ...styles.boxShadow}}
+                      activeOpacity={1}
+                      onPress={()=>setWarnPop(false)}
+                    >
+                      <View style={styles.wranTri}>
+                        <ImgDomain fileWidth={20} fileName={'warn_pop_top.png'}/>
                       </View>
-                      <View style={styles.warn2}>
-                        <Text style={styles.warn2Text}>호스트 혹은 게시트의 지인이 참여하더라도, 지인의 계정으로</Text>
-                        <Text style={styles.warn2Text}>해당 소셜룸에 참여 신청이 되어 있어야 합니다.</Text>
-                      </View>
-                      <View style={styles.warn3}>
+                      <View style={styles.warnView}>
+                        <View style={styles.warn}>
+                          <Text style={styles.warnText}>주의해주세요!</Text>
+                        </View>
+                        <View style={styles.warn2}>
+                          <Text style={styles.warn2Text}>호스트 혹은 게시트의 지인이 참여하더라도, 지인의 계정으로</Text>
+                          <Text style={styles.warn2Text}>해당 소셜룸에 참여 신청이 되어 있어야 합니다.</Text>
+                        </View>
+                        <View style={styles.warn3}>
+                          <View style={styles.warn3dot}><Text style={styles.warn3dotText}>·</Text></View>
+                          <View style={styles.warn3TextView}>
+                            <Text style={styles.warn3Text}>소셜 룸에 신청되지 않은 참석자 참석 불가</Text>
+                          </View>
+                        </View>
+                        <View style={styles.warn3}>
                         <View style={styles.warn3dot}><Text style={styles.warn3dotText}>·</Text></View>
-                        <View style={styles.warn3TextView}>
-                          <Text style={styles.warn3Text}>소셜 룸에 신청되지 않은 참석자 참석 불가</Text>
+                          <View style={styles.warn3TextView}>
+                            <Text style={styles.warn3Text}>소셜 룸에 설정된 지인 참여 여부와 다르게</Text>
+                          </View>
+                        </View>
+                        <View style={styles.warn3}>
+                        <View style={styles.warn3dot}><Text style={styles.warn3dotText}>·</Text></View>
+                          <View style={styles.warn3TextView}>
+                            <Text style={styles.warn3Text}>호스트 혹은 게스트의 지인이 참석할 경우 고객센터를 통해 신고</Text>
+                          </View>
                         </View>
                       </View>
-                      <View style={styles.warn3}>
-                      <View style={styles.warn3dot}><Text style={styles.warn3dotText}>·</Text></View>
-                        <View style={styles.warn3TextView}>
-                          <Text style={styles.warn3Text}>소셜 룸에 설정된 지인 참여 여부와 다르게</Text>
-                        </View>
-                      </View>
-                      <View style={styles.warn3}>
-                      <View style={styles.warn3dot}><Text style={styles.warn3dotText}>·</Text></View>
-                        <View style={styles.warn3TextView}>
-                          <Text style={styles.warn3Text}>호스트 혹은 게스트의 지인이 참석할 경우 고객센터를 통해 신고</Text>
-                        </View>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
+                    </TouchableOpacity>
+                    ) : null}
+                  </View>
+                
+                
+                <View style={styles.viewSubInfo4List}>
+                  {guestGuest == 'y' ? (
+                    <>
+                      <ImgDomain fileWidth={20} fileName={'icon_power_o.png'}/>
+                      <Text style={styles.viewSubInfo4ListText}>게스트의 동성 지인도 참여 신청이 가능해요</Text>
+                    </>
                   ) : null}
-                </View>
-                <View style={styles.viewSubInfo4List}>                  
-                  <ImgDomain fileWidth={20} fileName={'icon_power_x.png'}/>
-                  <Text style={styles.viewSubInfo4ListText}>호스트의 지인이 없는 방이에요</Text>
-                </View>
-                <View style={styles.viewSubInfo4List}>
-                  <ImgDomain fileWidth={20} fileName={'icon_power_o.png'}/>
-                  <Text style={styles.viewSubInfo4ListText}>게스트의 동성 지인도 참여 신청이 가능해요</Text>
-                </View>
-                <View style={styles.viewSubInfo4List}>
-                  <ImgDomain fileWidth={20} fileName={'icon_power_x.png'}/>
-                  <Text style={styles.viewSubInfo4ListText}>게스트의 지인 참여는 불가해요</Text>
+
+                  {guestGuest == 'n' ? (
+                    <>
+                      <ImgDomain fileWidth={20} fileName={'icon_power_x.png'}/>
+                      <Text style={styles.viewSubInfo4ListText}>게스트의 지인 참여는 불가해요</Text>
+                    </>
+                  ) : null}
                 </View>
               </View>
                   
-              {userType == 2 ? (
+              {userType == 2 && !guestPartyState && guestPartyState != 0 ? (
                 <>
                 <View style={styles.mgt30}>
                   <TouchableOpacity 
@@ -396,12 +944,64 @@ const SocialView = (props) => {
                 </TouchableOpacity>
               </View>
 
-              <View style={[styles.cmView, styles.pdt30, styles.pdb30]}>
-                <View style={styles.cmViewTitle}>
+              <View style={[styles.cmView, styles.pdt30, styles.pdb30]}>                
+                <View style={[styles.cmViewTitle, acceptList.length < 1 ? styles.mgb0 : null]}>
                   <Text style={styles.cmViewTitleText}>신청자</Text>
                 </View>
                 <View style={styles.reqUl}>
-                  <View style={[styles.reqLi, styles.boxShadow2, styles.mgt0]}>
+                  {reqList.length < 1 ? (
+                    <View style={[styles.notData, styles.pdt0]}>
+                      <Text style={styles.notDataText}>신청한 회원이 없습니다.</Text>
+                    </View>
+                  ) : null}
+                  {reqList.map((item, index) => {
+                    return (
+                      <View key={index} style={[styles.reqLi, styles.boxShadow2, index == 0 ? styles.mgt0 : null]}>
+                        <TouchableOpacity
+                          style={styles.reqUser}
+                          activeOpacity={opacityVal}
+                          onPress={()=>{
+                            setMiniChg(0);
+                            //setMiniChg(1);
+                            setMiniProfilePop(true);
+                          }}
+                        >                   
+                          <BlurView style={styles.blurView2} blurType="light" blurAmount={2} />
+                          {item.mini_pofile_img ? (
+                            <ImgDomain2 fileWidth={46} fileName={item.mini_pofile_img}/>
+                          ) : (
+                            item.main_profile_img ? (
+                              <ImgDomain2 fileWidth={46} fileName={item.main_profile_img}/>
+                            ) : (
+                              <ImgDomain fileWidth={46} fileName={'profile_logo.png'}/>
+                            )
+                          )}
+                          
+                        </TouchableOpacity>
+                        <View style={styles.reqUserInfo}>
+                          <View style={styles.reqUserNick}>
+                            <Text style={styles.reqUserNickText}>{item.guest_social_nick}</Text>
+                          </View>
+                          <View style={styles.reqUserDetail}>
+                            <Text style={styles.reqUserDetailText}>{item.member_age}년생</Text>
+                            <View style={styles.reqDtLine}></View>
+                            <Text style={styles.reqUserDetailText}>{item.member_main_local}</Text>
+                          </View>
+                        </View>
+                        <TouchableOpacity
+                          style={styles.reqOkBtn}
+                          activeOpacity={opacityVal}
+                          onPress={() => {
+                            setSjIdx(item.sj_idx);
+                            setSocialPop2(true);
+                          }}
+                        >
+                          <Text style={styles.reqOkBtnText}>수락</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )
+                  })}
+                  {/* <View style={[styles.reqLi, styles.boxShadow2, styles.mgt0]}>
                     <TouchableOpacity
                       style={styles.reqUser}
                       activeOpacity={opacityVal}
@@ -409,12 +1009,13 @@ const SocialView = (props) => {
                         setMiniChg(0);
                         setMiniProfilePop(true);
                       }}
-                    >                      
+                    >                   
+                      <BlurView style={styles.blurView2} blurType="light" blurAmount={3} />   
                       <ImgDomain fileWidth={46} fileName={'sample3.png'}/>
                     </TouchableOpacity>
                     <View style={styles.reqUserInfo}>
                       <View style={styles.reqUserNick}>
-                        <Text style={styles.reqUserNickText}>자동생성닉네임</Text>
+                        <Text style={styles.reqUserNickText}>자동생성닉네임1</Text>
                       </View>
                       <View style={styles.reqUserDetail}>
                         <Text style={styles.reqUserDetailText}>1999년생</Text>
@@ -439,11 +1040,12 @@ const SocialView = (props) => {
                         setMiniProfilePop(true);
                       }}
                     >                      
+                      <BlurView style={styles.blurView2} blurType="light" blurAmount={3} />   
                       <ImgDomain fileWidth={46} fileName={'sample3.png'}/>
                     </TouchableOpacity>
                     <View style={styles.reqUserInfo}>
                       <View style={styles.reqUserNick}>
-                        <Text style={styles.reqUserNickText}>자동생성닉네임</Text>
+                        <Text style={styles.reqUserNickText}>자동생성닉네임2</Text>
                       </View>
                       <View style={styles.reqUserDetail}>
                         <Text style={styles.reqUserDetailText}>1999년생</Text>
@@ -458,20 +1060,63 @@ const SocialView = (props) => {
                     >
                       <Text style={styles.reqOkBtnText}>수락</Text>
                     </TouchableOpacity>
-                  </View>
+                  </View> */}
                 </View>     
 
                 <View style={styles.mgt40}>
-                  <View style={styles.cmViewTitle}>
+                  <View style={[styles.cmViewTitle, acceptList.length < 1 ? styles.mgb0 : null]}>
                     <Text style={styles.cmViewTitleText}>수락자</Text>
                   </View>
                   <View style={styles.cardView}>
-                    {data1List.map((item, index) => {
+                    {acceptList.length < 1 ? (
+                      <View style={[styles.notData, styles.pdt0]}>
+                        <Text style={styles.notDataText}>수락한 회원이 없습니다.</Text>
+                      </View>
+                    ) : null}
+                    {acceptList.map((item, index) => {
+                      if(!item.isFlipped){
+                        return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2, (index+1)%3 == 0 ? styles.mgr0 : null]}
+														activeOpacity={opacityVal2}
+														onPress={() => {
+                              if(item.leave_yn == 'y'){
+                                setLeavePopText('탈퇴한 회원이에요');
+                              }else if(item.available_yn == 'y'){
+                                setLeavePopText('계정비활성화 회원이에요');
+                              }
+															setLeavePop(true);
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>                            
+													</TouchableOpacity>
+												)
+                      }else{
+                        return (
+                          <Card2 
+                            navigation={navigation}
+                            key={index}
+                            propsNick={item.guest_social_nick}													
+                            propsAge={item.member_age}													
+                            propsHeight={item.member_height}													
+                            propsFlip={item.isFlipped}
+                            propsDday={item.dday}
+                            propsSreen={'SocialView'}
+                            viewOrder={index+1}
+                          />
+                        )
+                      }
+                    })}
+
+                    {/* {data1List.map((item, index) => {
                       if(item.leave && !item.isFlipped){
 												return (
 													<TouchableOpacity 
 														key={index}
-														style={[styles.cardBtn, styles.cardBtn2]}
+														style={[styles.cardBtn, styles.cardBtn2, (index+1)%3 == 0 ? styles.mgr0 : null]}
 														activeOpacity={opacityVal2}
 														onPress={() => {													
 															setLeavePop(true);
@@ -479,7 +1124,7 @@ const SocialView = (props) => {
 													>
 														<View style={[styles.cardCont, styles.cardCont2]}>																												
 															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-														</View>
+														</View>                            
 													</TouchableOpacity>
 												)
 											}else{
@@ -493,24 +1138,69 @@ const SocialView = (props) => {
 														propsFlip={item.isFlipped}
 														propsDday={item.dday}
                             propsSreen={'SocialView'}
+                            viewOrder={index+1}
 													/>
 												)
 											}
-                    })}
+                    })} */}
                   </View>              
                 </View>
 
-                <View style={styles.mgt20}>
-                  <View style={styles.cmViewTitle}>
+                <View style={styles.mgt40}>
+                  <View style={[styles.cmViewTitle, acceptList.length < 1 ? styles.mgb0 : null]}>
                     <Text style={styles.cmViewTitleText}>참여자</Text>
                   </View>
                   <View style={styles.cardView}>
-                    {data1List2.map((item, index) => {
+                    {joinList.length < 1 ? (
+                      <View style={[styles.notData, styles.pdt0]}>
+                        <Text style={styles.notDataText}>참여한 회원이 없습니다.</Text>
+                      </View>
+                    ) : null}
+
+                    {joinList.map((item, index) => {
+                      if(!item.isFlipped){
+                        return (
+													<TouchableOpacity 
+														key={index}
+														style={[styles.cardBtn, styles.cardBtn2, (index+1)%3 == 0 ? styles.mgr0 : null]}
+														activeOpacity={opacityVal2}
+														onPress={() => {
+                              if(item.leave_yn == 'y'){
+                                setLeavePopText('탈퇴한 회원이에요');
+                              }else if(item.available_yn == 'y'){
+                                setLeavePopText('계정비활성화 회원이에요');
+                              }
+															setLeavePop(true);
+														}}
+													>
+														<View style={[styles.cardCont, styles.cardCont2]}>																												
+															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+														</View>                            
+													</TouchableOpacity>
+												)
+                      }else{
+                        return (
+                          <Card2 
+                            navigation={navigation}
+                            key={index}
+                            propsNick={item.guest_social_nick}													
+                            propsAge={item.member_age}													
+                            propsHeight={item.member_height}													
+                            propsFlip={item.isFlipped}
+                            propsDday={item.dday}
+                            propsSreen={'SocialView'}
+                            viewOrder={index+1}
+                          />
+                        )
+                      }
+                    })}
+
+                    {/* {data1List2.map((item, index) => {
                       if(item.leave && !item.isFlipped){
 												return (
 													<TouchableOpacity 
 														key={index}
-														style={[styles.cardBtn, styles.cardBtn2]}
+														style={[styles.cardBtn, styles.cardBtn2, (index+1)%3 == 0 ? styles.mgr0 : null]}
 														activeOpacity={opacityVal2}
 														onPress={() => {													
 															setLeavePop(true);
@@ -532,10 +1222,11 @@ const SocialView = (props) => {
 														propsFlip={item.isFlipped}
 														propsDday={item.dday}
                             propsSreen={'SocialView'}
+                            viewOrder={index+1}
 													/>
 												)
 											}
-                    })}
+                    })} */}
                   </View> 
                 </View>
               </View>
@@ -560,13 +1251,16 @@ const SocialView = (props) => {
                 </TouchableOpacity>
               </View>
             </>
-            ) : (
+            ) : null}
+
+            {userType == 2 && (guestPartyState || guestPartyState == 0) ? (
             <>
               <View style={[styles.cmView, styles.pdb30, styles.pdt30]}>
                 <View style={styles.cmViewTitle}>
                   <Text style={styles.cmViewTitleText}>신청 현황</Text>
                 </View>
 
+                {guestPartyState == 0 ? (
                 <TouchableOpacity 
                   style={styles.reqStateBox}
                   activeOpacity={opacityVal}
@@ -592,7 +1286,9 @@ const SocialView = (props) => {
                     </View>         
                   </ImageBackground>
                 </TouchableOpacity>
+                ) : null}
 
+                {guestPartyState == 1 ? (
                 <TouchableOpacity 
                   style={styles.reqStateBox}
                   activeOpacity={opacityVal}
@@ -638,7 +1334,9 @@ const SocialView = (props) => {
                     </View>         
                   </ImageBackground>
                 </TouchableOpacity>
+                ) : null}
 
+                {guestPartyState == 3 ? (
                 <TouchableOpacity 
                   style={styles.reqStateBox}
                   activeOpacity={opacityVal}
@@ -684,7 +1382,9 @@ const SocialView = (props) => {
                     </View>         
                   </ImageBackground>
                 </TouchableOpacity>
+                ) : null}
 
+                {guestPartyState == 4 ? (
                 <TouchableOpacity 
                   style={styles.reqStateBox}
                   activeOpacity={opacityVal}
@@ -730,164 +1430,111 @@ const SocialView = (props) => {
                     </View>         
                   </ImageBackground>
                 </TouchableOpacity>
+                ) : null}
               </View>
 
               <View style={styles.lineView}></View>
             </>
-            )}
+            ) : null}
 
             <View style={[styles.pdb30, styles.pdt30]}>
               {userType == 2 ? (
-                <View style={[styles.cmViewTitle, styles.cmView, styles.mgb0]}>
+                <View style={[styles.cmViewTitle, styles.cmView]}>
                   <Text style={styles.cmViewTitleText}>댓글</Text>
                 </View>
               ) : null}
 
-              <View style={styles.reviewWrap}>
-                {userType2 == 0 ? (
+              <View style={[styles.reviewWrap, styles.pdt0, memberInfo.member_type == 0 ? styles.reviewWrap2 : null]}>
+                {memberInfo.member_type == 0 ? (
                 <>
-                <BlurView
-                  style={styles.blurView}
-                  blurType="light"
-                  blurAmount={3}
-                />
+                <View style={{height:5,}}></View>
+                <BlurView style={styles.blurView} blurType="light" blurAmount={2} />
                 <View style={styles.blurAlert}>
                   <Text style={styles.blurAlertText}>댓글은 정회원만</Text>
                   <Text style={styles.blurAlertText}>작성 및 열람이 가능합니다.</Text>
                 </View>
                 </>
                 ) : null}
-                <View style={styles.cmView}>
-                  <View style={[styles.reviewDepth, styles.mgt0]}>                    
-                    <ImgDomain fileWidth={28} fileName={'profile_sample2.png'}/>
-                    <View style={styles.reviewInfo}>
-                      <View style={styles.reviewNickDate}>
-                        <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
-                        <Text style={styles.reviewDateText}>12.31 22:22</Text>
-                      </View>
-                      <View style={styles.reviewCont}>
-                        <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
-                      </View>
-                      <View style={styles.reviewBtnBox}>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>{
-                            setReviewCont('');
-                            setReviewType(2);
-                            scrollRef.current?.scrollTo({y:layout3.y});
-                          }}
-                        >
-                          <Text style={styles.reviewBtnText}>대댓글달기</Text>
-                        </TouchableOpacity>
-                        <View style={styles.reviewBtnLine}></View>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>{
-                            setReportType(2);
-                            setReportPop(true);
-                            setDotPop(false);
-                            setPreventBack(true);
-                          }}
-                        >
-                          <Text style={styles.reviewBtnText}>신고하기</Text>
-                        </TouchableOpacity>
-                      </View>
 
-                      <View style={[styles.reviewDepth, styles.reviewDepth2]}>
-                        <ImgDomain fileWidth={28} fileName={'profile_sample2.png'}/>
-                        <View style={[styles.reviewInfo, styles.reviewInfo2]}>
+                <View style={styles.cmView}>
+                  {commentCnt < 1 ? (
+                    <View style={styles.notData}>
+                      <Text style={styles.notDataText}>등록된 댓글이 없습니다.</Text>
+                    </View>
+                  ) : null}
+
+                  {commentList.map((item, index) => {
+                    return (
+                      <View key={index} style={[styles.reviewDepth, item.sc_type == 1 && index != 0 ? styles.mgt20 : null, index == 0 ? styles.mgt0 : null,]}>
+                        {item.sc_type == 1 ? ( <View style={styles.subReviewBox}></View> ) : null}        
+                        {item.member_sex == 0 ? (
+                          <ImgDomain fileWidth={28} fileName={'profile_sample.png'}/>
+                        ) : null}                                  
+                        {item.member_sex == 1 ? (
+                          <ImgDomain fileWidth={28} fileName={'profile_sample2.png'}/>
+                        ) : null}                                  
+                        <View style={[styles.reviewInfo, item.sc_type == 1 ? styles.reviewInfo2 : null]}>
                           <View style={styles.reviewNickDate}>
-                            <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
-                            <Text style={styles.reviewDateText}>12.31 22:22</Text>
+                            <Text style={styles.reviewNickText}>{item.sc_social_nick}</Text>
+                            <Text style={styles.reviewDateText}>{item.created_at.replaceAll('-', '.')}</Text>
                           </View>
                           <View style={styles.reviewCont}>
-                            <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
+                            {item.delete_yn == 'y' ? (
+                              <Text style={[styles.reviewContText, styles.reviewContText2]}>삭제된 댓글입니다.</Text>
+                            ) : (
+                              <Text style={styles.reviewContText}>{item.sc_content}</Text>
+                            )}                            
                           </View>
                           <View style={styles.reviewBtnBox}>
-                            <TouchableOpacity
-                              style={styles.reviewBtn}
-                              activeOpacity={opacityVal}
-                              onPress={()=>{
-                                setReportType(3);
-                                setReportPop(true);
-                                setDotPop(false);
-                                setPreventBack(true);
-                              }}
-                            >
-                              <Text style={styles.reviewBtnText}>신고하기</Text>
-                            </TouchableOpacity>
+                            {item.sc_type == 0 ? (
+                              <>
+                              <TouchableOpacity
+                                style={styles.reviewBtn}
+                                activeOpacity={opacityVal}
+                                onPress={()=>{
+                                  setReviewCont('');
+                                  setReviewType(1);
+                                  setSubReivewNick(item.sc_social_nick);
+                                  setSubReviewIdx(item.sc_idx);
+                                  scrollRef.current?.scrollTo({y:layout3.y+10});
+                                }}
+                              >
+                                <Text style={styles.reviewBtnText}>대댓글달기</Text>
+                              </TouchableOpacity>
+                              <View style={styles.reviewBtnLine}></View>
+                              </>
+                            ) : null}                                                          
+
+                            {item.is_my_comment == 'y' ? (                              
+                              <TouchableOpacity
+                                style={styles.reviewBtn}
+                                activeOpacity={opacityVal}
+                                onPress={()=>deleteComment(item.sc_idx)}
+                              >
+                                <Text style={styles.reviewBtnText}>삭제하기</Text>
+                              </TouchableOpacity>                                                            
+                            ) : (
+                              <TouchableOpacity
+                                style={styles.reviewBtn}
+                                activeOpacity={opacityVal}
+                                onPress={()=>openReportPop('socialComment', item.member_idx, item.sc_idx)}
+                              >
+                                <Text style={styles.reviewBtnText}>신고하기</Text>
+                              </TouchableOpacity>
+                            )}
                           </View>
                         </View>
                       </View>
-                    </View>            
-                  </View>
-                  <View style={[styles.reviewDepth]}>
-                    <ImgDomain fileWidth={28} fileName={'profile_sample2.png'}/>
-                    <View style={styles.reviewInfo}>
-                      <View style={styles.reviewNickDate}>
-                        <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
-                        <Text style={styles.reviewDateText}>12.31 22:22</Text>
-                      </View>
-                      <View style={styles.reviewCont}>
-                        <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
-                      </View>
-                      <View style={styles.reviewBtnBox}>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>{
-                            setReviewCont('');
-                            setReviewType(2);
-                            scrollRef.current?.scrollTo({y:layout3.y});
-                          }}
-                        >
-                          <Text style={styles.reviewBtnText}>대댓글달기</Text>
-                        </TouchableOpacity>
-                        <View style={styles.reviewBtnLine}></View>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>{
-                            setReportType(2);
-                            setReportPop(true);
-                            setDotPop(false);
-                            setPreventBack(true);
-                          }}
-                        >
-                          <Text style={styles.reviewBtnText}>신고하기</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </View>          
-                  <View style={[styles.reviewDepth]}>                    
-                    <ImgDomain fileWidth={28} fileName={'profile_sample.png'}/>
-                    <View style={styles.reviewInfo}>
-                      <View style={styles.reviewNickDate}>
-                        <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
-                        <Text style={styles.reviewDateText}>12.31 22:22</Text>
-                      </View>
-                      <View style={styles.reviewCont}>
-                        <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
-                      </View>
-                      <View style={styles.reviewBtnBox}>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>{}}
-                        >
-                          <Text style={styles.reviewBtnText}>삭제하기</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </View>
+                    )
+                  })}
                 </View>
+
+                {memberInfo.member_type == 0 ? ( <View style={{height:5,}}></View> ) : null}
               </View>
             </View>
 
             <View style={styles.reviewSubmitArea} onLayout={onLayout3}>
-              {reviewType == 1 ? (
+              {reviewType == 0 ? (
                 <TextInput
                   value={reviewCont}
                   onChangeText={(v) => setReviewCont(v)}
@@ -897,18 +1544,20 @@ const SocialView = (props) => {
                   placeholderTextColor="#B8B8B8"
                   style={styles.reviewIpt}
                   returnKyeType='done'
-                  readOnly={userType2 == 0 ? true : false}
+                  readOnly={memberInfo.member_type == 0 ? true : false}
                 />                
               ) : (
                 <>
                   <View style={styles.reviewInReview}>
-                    <Text style={styles.reviewInReviewText}>000에게 대댓글 달기</Text>
+                    <Text style={styles.reviewInReviewText}>{subReviewNick}에게 대댓글 달기</Text>
                     <TouchableOpacity
                       style={styles.reviewInCancel}
                       activeOpacity={opacityVal}
                       onPress={()=>{
                         setReviewCont('');
-                        setReviewType(1);
+                        setReviewType(0);
+                        setSubReivewNick('');
+                        setSubReviewIdx();
                       }}
                     >
                       <Text style={styles.reviewInCancelText}>취소</Text>
@@ -929,13 +1578,7 @@ const SocialView = (props) => {
               <TouchableOpacity
                 style={styles.reviewSubmitBtn}
                 activeOpacity={opacityVal}
-                onPress={()=>{
-                  if(userType2 == 0){
-                    ToastMessage('정회원만 댓글 작성이 가능합니다.');
-                  }else{
-
-                  }
-                }}
+                onPress={()=>submitComment()}                
               >
                 <Text style={styles.reviewSubmitBtnText}>등록</Text>
               </TouchableOpacity>
@@ -975,10 +1618,7 @@ const SocialView = (props) => {
             <TouchableOpacity
               style={styles.dotPopBtn}
               activeOpacity={opacityVal}
-              onPress={()=>{
-                setDotPop(false);
-                navigation.navigate('Home', {isSubmit: true});
-              }}
+              onPress={()=>deleteSocial()}
             >
               <Text style={styles.dotPopBtnText}>삭제하기</Text>
             </TouchableOpacity>
@@ -988,12 +1628,7 @@ const SocialView = (props) => {
             <TouchableOpacity
               style={styles.dotPopBtn}
               activeOpacity={opacityVal}
-              onPress={()=>{
-                setReportType(1);
-                setReportPop(true);
-                setDotPop(false);
-                setPreventBack(true);
-              }}
+              onPress={()=>openReportPop('social', writerIdx, social_idx)}
             >
               <Text style={styles.dotPopBtnText}>신고하기</Text>
             </TouchableOpacity>
@@ -1055,10 +1690,10 @@ const SocialView = (props) => {
                       key={index}
                       style={[styles.reportRadioBtn, index == 0 ? styles.mgt0 : null]}
                       activeOpacity={opacityVal}
-                      onPress={() => setReport(item.txt)}
+                      onPress={() => setReport(item.rr_idx)}
                     >
-                      <Text style={styles.reportRadioBtnText}>{item.txt}</Text>
-                      {report == item.txt ? (                        
+                      <Text style={styles.reportRadioBtnText}>{item.rr_content}</Text>
+                      {report == item.rr_idx ? (                        
                         <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'}/>
                       ) : (
                         <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'}/>
@@ -1067,7 +1702,7 @@ const SocialView = (props) => {
                   )
                 })}                  
               </View>
-              {report == '기타' ? (
+              {report == 6 ? (
               <View style={[styles.popIptBox]}>		
                 <TextInput
                   value={reportEtc}
@@ -1111,13 +1746,13 @@ const SocialView = (props) => {
 					<TouchableOpacity 
 						style={styles.popBack} 
 						activeOpacity={1} 
-						onPress={()=>{setOrderPop(false)}}
+						onPress={()=>setOrderPop(false)}
 					>
 					</TouchableOpacity>
 					<View style={styles.prvPop}>
 						<TouchableOpacity
 							style={styles.pop_x}					
-							onPress={() => {setOrderPop(false)}}
+							onPress={() => setOrderPop(false)}
 						>							
               <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
@@ -1143,9 +1778,7 @@ const SocialView = (props) => {
                 <TouchableOpacity 
                   style={[styles.popBtn]}
                   activeOpacity={opacityVal}
-                  onPress={() => {
-                    console.log('작업해야 함');
-                  }}
+                  onPress={() => {navigation.navigate('Shop')}}
                 >
                   <Text style={styles.popBtnText}>상점으로 이동</Text>
                 </TouchableOpacity>
@@ -1153,9 +1786,7 @@ const SocialView = (props) => {
                 <TouchableOpacity 
                 style={[styles.popBtn]}
                   activeOpacity={opacityVal}
-                  onPress={() => {
-                    console.log('작업해야 함');
-                  }}
+                  onPress={() => socialUpdate()}
                 >
                   <Text style={styles.popBtnText}>끌어올리기</Text>
                 </TouchableOpacity>
@@ -1334,7 +1965,7 @@ const SocialView = (props) => {
               <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 						</TouchableOpacity>		
 						<View>
-							<Text style={styles.popTitleText}>개팅님을 차단하시겠어요?</Text>							
+							<Text style={styles.popTitleText}>{nick}님을 차단하시겠어요?</Text>							
               <Text style={[styles.popTitleDesc]}>차단한 회원과는 서로</Text>
               <Text style={[styles.popTitleDesc, styles.mgt5]}>프로필 교환 및 소셜 신청이 불가하고</Text>
               <Text style={[styles.popTitleDesc, styles.mgt5]}>추천 카드에 추천되지 않습니다.</Text>
@@ -1343,16 +1974,14 @@ const SocialView = (props) => {
 						  <TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
 								activeOpacity={opacityVal}
-								onPress={() => {
-                  setBlockPop(false);
-                }}
+								onPress={() => setBlockPop(false)}
 							>
 								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
 							</TouchableOpacity>
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
-								onPress={() => setBlockPop(false)}
+								onPress={() => socialBlock()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>
@@ -1384,7 +2013,7 @@ const SocialView = (props) => {
 						</TouchableOpacity>		
 						<View style={[styles.popTitle, styles.popTitleFlex]}>							
 							<View style={styles.popTitleFlexWrap}>
-                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>탈퇴한 회원이에요</Text>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>{leavePopText}</Text>
               </View>
               <ImgDomain fileWidth={18} fileName={'emiticon1.png'}/>
 						</View>
@@ -1504,16 +2133,14 @@ const SocialView = (props) => {
 						  <TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
 								activeOpacity={opacityVal}
-								onPress={() => {
-                  setSocialPop(false);
-                }}
+								onPress={() => setSocialPop(false)}
 							>
 								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
 							</TouchableOpacity>
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
-								onPress={() => setSocialPop(false)}
+								onPress={() => submitParty()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>
@@ -1559,7 +2186,7 @@ const SocialView = (props) => {
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
-								onPress={() => setSocialPop2(false)}
+								onPress={() => socialAgree()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>
@@ -1595,12 +2222,12 @@ const SocialView = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
 	gapBox: {height:86,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,1)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
 
   DetailBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   DetailDotBtn: {width:54,height:48,position:'absolute',right:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
 
-  cmView: {paddingHorizontal:20,},
+  cmView: {paddingHorizontal:20,zIndex:1000},
   cmViewTitle: {marginBottom:20,},
   cmViewTitleText: {fontFamily:Font.NotoSansSemiBold,fontSize:16,lineHeight:19,color:'#1e1e1e'},
 
@@ -1609,8 +2236,11 @@ const styles = StyleSheet.create({
   nickViewText: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:20,color:'#1e1e1e',marginLeft:10,},
   insertTime: {},
   insertTimeText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:15,color:'#888'},
-  viewSubject: {flexDirection:'row',},
+
+  viewSubject: {flexDirection:'row',/*justifyContent:'space-between',*/alignItems:'flex-start'},
+  viewSubjectArea: {width:innerWidth-36,},
   viewSubjectText: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:24,color:'#1e1e1e',},
+  viewBookBtn: {width:26,alignItems:'flex-end',},
   viewSubInfo1: {flexDirection:'row',alignItems:'center',marginTop:10,marginBottom:2,},
   viewSubInfo1View: {flexDirection:'row',alignItems:'center',marginRight:6,},
   viewSubInfo1Text: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:15,color:'#666',marginLeft:4,},
@@ -1627,7 +2257,7 @@ const styles = StyleSheet.create({
   viewTab: {flexDirection:'row',borderBottomWidth:1,borderBottomColor:'#F2F4F6'},
   viewTabBtn: {alignItems:'center',justifyContent:'center',width:widnowWidth/2,height:60,paddingTop:10,borderBottomWidth:2,borderBottomColor:'#fff'},
   viewTabBtnOn: {borderBottomColor:'#141E30'},
-  viewTabBtnText: {fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:18,color:'#141E30',},
+  viewTabBtnText: {fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:19,color:'#141E30',},
   viewTabBtnTextOn: {fontFamily:Font.NotoSansSemiBold},
 
   reqUl: {},
@@ -1642,7 +2272,7 @@ const styles = StyleSheet.create({
   reqOkBtn: {alignItems:'center',justifyContent:'center',width:46,height:30,backgroundColor:'#F2F4F6',borderRadius:5,position:'absolute',right:15,},
   reqOkBtnText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:17,color:'#243B55'},
 
-  cardView: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', },
+  cardView: { flexDirection: 'row', flexWrap: 'wrap', },
 	dday: {width:innerWidth,height:17,backgroundColor:'#fff',marginTop:30,flexDirection:'row',justifyContent:'center',position:'relative'},
 	ddayLine: {width:innerWidth,height:1,backgroundColor:'#D1913C',position:'absolute',left:0,top:8,},
 	ddayText: {width:40,height:17,textAlign:'center',backgroundColor:'#fff',position:'relative',zIndex:10,fontFamily:Font.RobotoRegular,fontSize:15,lineHeight:17,color:'#D1913C'},
@@ -1661,7 +2291,7 @@ const styles = StyleSheet.create({
 	cardFrontContTextRoboto: {fontFamily:Font.RobotoRegular,fontSize:12,},
 	cardFrontContLine: {width:1,height:8,backgroundColor:'#EDEDED',position:'relative',top:1,marginHorizontal:6,},
 
-	cardBtn2: {width: ((innerWidth / 3) - 7)},
+	cardBtn2: {width: ((innerWidth / 3) - 7),marginRight:10.5},
 	cardCont2: {width: ((innerWidth / 3) - 7)},
   cardFrontInfo2: {width: ((innerWidth / 3) - 7),position:'absolute',left:0,top:0,opacity:1},
 	cardFrontInfoCont2: {width: ((innerWidth / 3) - 7),padding:8,},
@@ -1677,12 +2307,14 @@ const styles = StyleSheet.create({
   cardFrontInfo3: {width:110},
   cardFrontInfoCont3: {width:110,padding:8,},
 
-  reviewWrap: {alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',paddingTop:20,},
-  blurView: {width:widnowWidth,height:widnowHeight,position:'absolute',left:0,top:0,zIndex:100,},
-  blurAlert: {position:'absolute',zIndex:101},
+  reviewWrap: {alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',paddingTop:20,},  
+  blurView: {width:widnowWidth,height:'100%',position:'absolute',left:0,top:0,zIndex:10000,},
+  blurView2: {width:46,height:46,position:'absolute',left:0,top:0,zIndex:100,},
+  blurAlert: {position:'absolute',zIndex:10001,},
   blurAlertText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:28,color:'#243B55'},
   reviewDepth: {flexDirection:'row',flexWrap:'wrap',marginTop:30,},
   reviewDepth2: {width:innerWidth-34,marginTop:20,},
+  subReviewBox: {width:34,},
   reviewInfo: {width:innerWidth-28,paddingLeft:6,},
   reviewInfo2: {width:innerWidth-62,},
   reviewNickDate: {flexDirection:'row',alignItems:'center'},
@@ -1690,6 +2322,7 @@ const styles = StyleSheet.create({
   reviewDateText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:28,color:'#B8B8B8',marginLeft:6,},
   reviewCont: {marginTop:6,},
   reviewContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#1e1e1e'},
+  reviewContText2: {color:'#666'},
   reviewBtnBox: {flexDirection:'row',alignItems:'center',marginTop:9,},
   reviewBtn: {},
   reviewBtnText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:17,color:'#666'},
@@ -1786,6 +2419,9 @@ const styles = StyleSheet.create({
 	productText3On: {color:'#1e1e1e'},
 	productText4: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
 
+  notData: {width:innerWidth,paddingTop:20},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
+
   boxShadow: {
     borderRadius:5,
 		shadowColor: "#000",
@@ -1842,6 +2478,8 @@ const styles = StyleSheet.create({
 	mgb10: {marginBottom:10},
 	mgb20: {marginBottom:20},
 	mgr0: {marginRight:0},
+  mgr10: {marginRight:10},
+  mgr20: {marginRight:20},
 	mgl0: {marginLeft:0},
   zindex10: {zIndex:10,},
 })

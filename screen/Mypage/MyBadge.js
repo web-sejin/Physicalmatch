@@ -69,34 +69,16 @@ const MyBadge = (props) => {
 	const [badgeSub, setBadgeSub] = useState();
 	const [certInfo, setCertInfo] = useState('');
 	
+	const [badgeMbIdx, setBadgeMbIdx] = useState();
 	const [badgeType, setBadgeType] = useState(0);
 	const [badgeModal, setBadgeModal] = useState(false);	
 	const [badgeTitle, setBadgeTitle] = useState('');
 	const [badgeCert, setBadgeCert] = useState(false);
 	const [badgeGrade, setBadgeGrade] = useState();
-
-	const [jobModal, setJobModal] = useState(false);
-	const [schoolModal, setSchoolModal] = useState(false);
-	const [marryModal, setMarryModal] = useState(false);
 	const [confirm, setConfirm] = useState(false);
 
-	const [jobFile, setJobFile] = useState({});
-	const [realJobFile, setRealJobFile] = useState({});
-	const [jobFileUrl, setJobFileUrl] = useState('');
-
-	const [schoolFile, setSchoolFile] = useState({});
-	const [realSchoolFile, setRealSchoolFile] = useState({});
-	const [schoolName, setSchoolName] = useState('');
-	const [realSchoolName, setRealSchoolName] = useState('');
-	const [schoolMajor, setSchoolMajor] = useState('');
-	const [realSchoolMajor, setRealSchoolMajor] = useState('');
-	const [schoolFileUrl, setSchoolFileUrl] = useState('');
-
-	const [marryFile, setMarryFile] = useState({});
-	const [realMarryFile, setRealMarryFile] = useState({});
-	const [marryState, setMarryState] = useState('');
-	const [realMarryState, setRealMarryState] = useState('');
-	const [marryFileUrl, setMarryFileUrl] = useState('');
+	const [rejectIdx, setRejectIdx] = useState();
+	const [rejectMemo, setRejectMemo] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -155,6 +137,7 @@ const MyBadge = (props) => {
 		};
 
 		const response = await APIs.send(sData);
+		//console.log(response);
 		if(response.code == 200){
 			setMemberSex(response.data.member_sex);
 		}
@@ -167,11 +150,17 @@ const MyBadge = (props) => {
 			member_idx: memberIdx,
 		};
 
-		const response = await APIs.send(sData);
+		const response = await APIs.send(sData);		
 		if(response.code == 200){
 			setBadgeGnb(response.data);
 		}
 	}
+
+	useEffect(() => {
+		if(rejectIdx){
+			getBadgeSubInfo(rejectIdx);
+		}
+	}, [badge2dp])
 
 	const getBadge2dp = async (idx) => {
 		let gender = '';
@@ -182,33 +171,26 @@ const MyBadge = (props) => {
 		}
 
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetBadgeDetail",
 			bc_idx: idx,
 			m_sex: gender,
 		}
-		const response = await APIs.send(sData);		
+		const response = await APIs.send(sData);
+		//console.log(response);
 		setBadge2dp(response.data);
 	}
 
 	const getBadgeSubInfo = async (idx) => {		
 		setBadgeCert(true);
 		setBadgeGrade(idx);
+		if(rejectIdx){
+			setRejectIdx(idx);
+		}
 
 		const result = badge2dp.filter((v) => v.badge_idx == idx);
+		//console.log('getBadgeSubInfo ::: ', result);
 		setBadgeSub(result);
-	}
-
-	const getCertInfo = async (idx) => {
-		let sData = {      
-      basePath: "/api/member/index.php",
-			type: "GetAuthDetail",
-			pa_idx: idx,
-		}
-		const response = await APIs.send(sData);
-		if(response.code == 200){
-			setCertInfo(response.data[0].pa_info);
-		}
 	}
 
 	const chooseImage = () => {
@@ -236,10 +218,14 @@ const MyBadge = (props) => {
 		setBadgeCert(false);
 		setBadgeGrade('');
 		setBadgeType(0);
+		setBadgeMbIdx();
 		setFile({});
+		setRejectIdx();
+		setRejectMemo();
+		setBadge2dp([]);
 	}
 
-	const saveBadgeFileInfo = () => {
+	const saveBadgeFileInfo = async () => {
 		if(!file.path){
 			ToastMessage('인증 자료를 첨부해 주세요.');
 			return false;
@@ -271,36 +257,57 @@ const MyBadge = (props) => {
 			setRealFile8Grade(badgeGrade);
 		}
 
+		const fileData = [];		
+		fileData[0] = {uri: file.path, name: 'badgeAuthFile.png', type: file.mime};
+
+		let sData = {
+			basePath: "/api/member/",
+			type: "SetMyBadge",
+			member_idx: memberIdx,
+			mb_file: fileData
+		};
+
+		if(rejectIdx){ 
+			sData.badge_idx = rejectIdx; 
+		}else{
+			sData.badge_idx = badgeGrade;
+		}
+		if(badgeMbIdx){ sData.mb_idx = badgeMbIdx; }		
+		const formData = APIs.makeFormData(sData)
+		const response = await APIs.multipartRequest(formData);			
+		if(response.code == 200){
+			ToastMessage('심사가 등록되었습니다.');
+		}else{
+			ToastMessage('잠시후 다시 시도해 주세요.');
+		}
 		offBadgeModal();
 	}
 
 	const nextStep = () => {	
-		const nextObj = {};
-		if(realFile1.path){ nextObj.step8File1 = realFile1; }
-		if(realFile1.path){ nextObj.step8File2 = realFile2; }
-		if(realFile1.path){ nextObj.step8File3 = realFile3; }
-		if(realFile1.path){ nextObj.step8File4 = realFile4; }
-		if(realFile1.path){ nextObj.step8File5 = realFile5; }
-		if(realFile1.path){ nextObj.step8File6 = realFile6; }
-		if(realFile1.path){ nextObj.step8File7 = realFile7; }
-		if(realFile1.path){ nextObj.step8File8 = realFile8; }
-		if(realFile1.path){ nextObj.step8Grade1 = realFile1Grade; }
-		if(realFile1.path){ nextObj.step8Grade2 = realFile1Grade; }
-		if(realFile1.path){ nextObj.step8Grade3 = realFile2Grade; }
-		if(realFile1.path){ nextObj.step8Grade4 = realFile3Grade; }
-		if(realFile1.path){ nextObj.step8Grade5 = realFile5Grade; }
-		if(realFile1.path){ nextObj.step8Grade6 = realFile6Grade; }
-		if(realFile1.path){ nextObj.step8Grade7 = realFile7Grade; }
-		if(realFile1.path){ nextObj.step8Grade8 = realFile8Grade;	}	
+		let nextObj = {      
+      basePath: "/api/member/",
+			type: "SetMyBadge",
+			member_idx: memberIdx,
+			mb_idx: badgeType,
+		}
+		
+		console.log('realFile1 ::: ', realFile1);
+		console.log('realFile2 ::: ', realFile2);
+		console.log('realFile3 ::: ', realFile3);
+		console.log('realFile4 ::: ', realFile4);
+		console.log('realFile5 ::: ', realFile5);
+		console.log('realFile6 ::: ', realFile6);
+		console.log('realFile7 ::: ', realFile7);
+		console.log('realFile8 ::: ', realFile8);
 
-		console.log(nextObj);
+		//console.log(nextObj);
 	}
 
 	const deleteBadge = async () => {
 		//console.log(badgeTitle+'///'+badgeType);
 
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "DeleteMyBadge",
 			member_idx: memberIdx,
 			mb_idx: badgeType,
@@ -333,7 +340,7 @@ const MyBadge = (props) => {
 					</View>
 
 					{/* 성별이 여자인 경우 안보이게!!! */}
-					{badgeGnb.map((item, index) => {
+					{badgeGnb.map((item, index) => {						
 						if(item.lists.length > 0){
 							if((item.title == '피지컬' && memberSex != 1) || item.title != '피지컬'){
 								return (
@@ -344,8 +351,7 @@ const MyBadge = (props) => {
 										<View style={[styles.badgeBtnBox, styles.boxShadow, styles.flowHidden]}>
 											{item.lists.map((item2, index2) => {
 												let opt = 0.8;
-												if((item2.bc_idx == 1 && realFile1.path) || (item2.bc_idx == 2 && realFile2.path) || (item2.bc_idx == 3 && realFile3.path) || (item2.bc_idx == 4 && realFile4.path) || (item2.bc_idx == 5 && realFile5.path) || (item2.bc_idx == 6 && realFile6.path) || (item2.bc_idx == 7 && realFile7.path )|| (item2.bc_idx == 8 && realFile8.path)){ opt = 1 }												 
-												
+												if((item2.bc_idx == 1 && realFile1.path) || (item2.bc_idx == 2 && realFile2.path) || (item2.bc_idx == 3 && realFile3.path) || (item2.bc_idx == 4 && realFile4.path) || (item2.bc_idx == 5 && realFile5.path) || (item2.bc_idx == 6 && realFile6.path) || (item2.bc_idx == 7 && realFile7.path )|| (item2.bc_idx == 8 && realFile8.path)){ opt = 1 }																				
 												return (
 													item2.auth_yn == 'y' || item2.auth_yn == 'i' ? (
 														<View key={index2}>
@@ -363,7 +369,7 @@ const MyBadge = (props) => {
 																		activeOpacity={opacityVal}
 																		onPress={()=>{
 																			setBadgeTitle(item2.bc_name);
-																			setBadgeType(item2.mb_idx);
+																			setBadgeType(item2.mb_idx);																																						
 																			setDeletePop(true);
 																		}}
 																	>
@@ -384,11 +390,16 @@ const MyBadge = (props) => {
 															<TouchableOpacity
 																style={styles.badgeBtn}
 																activeOpacity={opt}
-																onPress={()=>{
+																onPress={()=>{																	
 																	setBadgeTitle(item2.bc_name);
-																	setBadgeType(item2.bc_idx);
-																	getBadge2dp(item2.bc_idx);
-																	console.log(item2);
+																	setBadgeType(item2.bc_idx);																																		
+																	getBadge2dp(item2.bc_idx);																			
+																	if(item2.auth_yn == 'n'){
+																		setRejectIdx(item2.badge_idx);
+																		setRejectMemo(item2.reject_memo);
+																		setBadgeMbIdx(item2.mb_idx);
+																	}
+
 																	if(item2.bc_idx == 1){																	
 																		!realFile1.path ? setBadgeModal(true) : null
 																		!realFile1.path ? setPreventBack(true) : null		
@@ -421,15 +432,22 @@ const MyBadge = (props) => {
 																	<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
 																		<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>{item2.bc_name}</Text>
 																	</View>
-																</View>
-																<View style={styles.badgeBtnRight}>
-																	{item2.mb_file && item2.auth_yn == 'n' ? (
-																		<View style={styles.stateView2}>
-																			<Text style={styles.stateViewText2}>반려</Text>
-																		</View>																	
-																	) : null}
-																	<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-																</View>
+																</View>																
+
+																{(item2.bc_idx == 1 && realFile1.path) || (item2.bc_idx == 2 && realFile2.path) || (item2.bc_idx == 3 && realFile3.path)  || (item2.bc_idx == 4 && realFile4.path)  || (item2.bc_idx == 5 && realFile5.path)  || (item2.bc_idx == 6 && realFile6.path)  || (item2.bc_idx == 7 && realFile7.path)  || (item2.bc_idx == 8 && realFile8.path) ? (
+																	<View style={styles.stateView}><Text style={styles.stateViewText}>심사중</Text></View>
+																) : (
+																	<>
+																	<View style={styles.badgeBtnRight}>
+																		{item2.mb_file && item2.auth_yn == 'n' ? (
+																			<View style={styles.stateView2}>
+																				<Text style={styles.stateViewText2}>반려</Text>
+																			</View>																	
+																		) : null}
+																		<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
+																	</View>
+																	</>
+																)}
 															</TouchableOpacity>
 														</View>
 													)
@@ -441,181 +459,11 @@ const MyBadge = (props) => {
 								)
 							}
 						}
-					})}
-
-					<View style={[styles.badgeBox, styles.mgt40]}>
-						<View style={styles.iptTit}>
-              <Text style={styles.iptTitText}>경제력</Text>
-            </View>
-						<View style={[styles.badgeBtnBox, styles.boxShadow]}>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile3.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile3.path ? setBadgeTitle('개인 소득 배지') : null
-									!realFile3.path ? setBadgeType(3) : null
-									!realFile3.path ? setBadgeModal(true) : null
-									!realFile3.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>
-									<ImgDomain fileWidth={45} fileName={'b_money.png'}/>
-									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
-										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>개인 소득 배지</Text>
-										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
-									</View>
-								</View>
-								{realFile3.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile4.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile4.path ? setBadgeTitle('개인 자산 배지') : null
-									!realFile4.path ? setBadgeType(4) : null
-									!realFile4.path ? setBadgeModal(true) : null
-									!realFile4.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>
-									<ImgDomain fileWidth={45} fileName={'b_money2.png'}/>
-									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
-										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>개인 자산 배지</Text>
-										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
-									</View>
-								</View>
-								{realFile4.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>	
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile5.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile5.path ? setBadgeTitle('집안 자산 배지') : null
-									!realFile5.path ? setBadgeType(5) : null
-									!realFile5.path ? setBadgeModal(true) : null
-									!realFile5.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>
-									<ImgDomain fileWidth={45} fileName={'b_money3.png'}/>
-									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
-										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>집안 자산 배지</Text>
-										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
-									</View>
-								</View>
-								{realFile5.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (									
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile6.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile6.path ? setBadgeTitle('차량 배지') : null
-									!realFile6.path ? setBadgeType(6) : null
-									!realFile6.path ? setBadgeModal(true) : null
-									!realFile6.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>
-									<ImgDomain fileWidth={45} fileName={'b_car.png'}/>
-									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
-										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>차량 배지</Text>
-										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
-									</View>
-								</View>
-								{realFile6.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-						</View>
-					</View>	
-
-					<View style={[styles.badgeBox, styles.mgt40]}>
-						<View style={styles.iptTit}>
-              <Text style={styles.iptTitText}>직업 · 학력</Text>
-            </View>
-						<View style={[styles.badgeBtnBox, styles.boxShadow]}>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile7.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile7.path ? setBadgeTitle('직업 배지') : null
-									!realFile7.path ? setBadgeType(7) : null
-									!realFile7.path ? setBadgeModal(true) : null
-									!realFile7.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>
-									<ImgDomain fileWidth={45} fileName={'b_job.png'}/>
-									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
-										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>직업 배지</Text>
-										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
-									</View>
-								</View>
-								{realFile7.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-							<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>
-							<TouchableOpacity
-								style={styles.badgeBtn}
-								activeOpacity={realFile8.path ? 1 : opacityVal}
-								onPress={()=>{
-									!realFile8.path ? setBadgeTitle('학력 배지') : null
-									!realFile8.path ? setBadgeType(8) : null
-									!realFile8.path ? setBadgeModal(true) : null
-									!realFile8.path ? setPreventBack(true) : null
-								}}
-							>
-								<View style={styles.badgeBtnLeft}>
-									<ImgDomain fileWidth={45} fileName={'b_school.png'}/>
-									<View style={[styles.badgeBtnLeftWrap, styles.mgl10]}>
-										<Text style={[styles.badgeBtnLeftText,styles.mgl0]}>학력 배지</Text>
-										{/* <Text style={[styles.badgeBtnLeftText2]}>키 175cm이상 인증</Text> */}
-									</View>
-								</View>
-								{realFile8.path ? (
-									<View style={styles.stateView}>
-										<Text style={styles.stateViewText}>심사중</Text>
-									</View>
-								) : (
-									<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
-								)}
-							</TouchableOpacity>
-						</View>
-					</View>
+					})}					
 				</View>
 			</ScrollView>
 
-			<View style={styles.nextFix}>
+			{/* <View style={styles.nextFix}>
         <TouchableOpacity 
 					style={[styles.nextBtn]}
 					activeOpacity={opacityVal}
@@ -624,9 +472,9 @@ const MyBadge = (props) => {
 						setPreventBack(true);
 					}}
 				>
-					<Text style={styles.nextBtnText}>심사등록</Text>
+					<Text style={styles.nextBtnText}>심사 등록</Text>
 				</TouchableOpacity>
-			</View>
+			</View> */}
 
 			{/* 배지선택 */}
 			{badgeModal ? (
@@ -650,7 +498,16 @@ const MyBadge = (props) => {
 							<View style={styles.cmDescBox}>
 								<Text style={styles.cmDescText}>인증할 배지를 선택해 주세요.</Text>
 							</View>
-							<View style={[styles.badgeBox, styles.mgt40]}>
+
+							{rejectIdx ? (
+							<View style={[styles.reject, styles.mgt20]}>
+								<View style={styles.rejectBox}>
+									<Text style={styles.rejectText}>{rejectMemo}</Text>
+								</View>
+							</View>
+							) : null}
+							
+							<View style={[styles.badgeBox, rejectIdx ? styles.mgt20 : styles.mgt40]}>
 								<View style={[styles.badgeBtnBox, styles.mgt0]}>
 									{badge2dp.map((item, index) => {
 										return (
@@ -659,12 +516,14 @@ const MyBadge = (props) => {
 												style={[
 													styles.badgeBtn
 													, styles.boxShadow
-													, badgeGrade!= '' && badgeGrade != item.badge_idx ? styles.badgeBtnOff : null
+													, badgeGrade != undefined && badgeGrade != '' && badgeGrade != item.badge_idx ? styles.badgeBtnOff : null
 													, badgeGrade==item.badge_idx ? styles.badgeBtnOn : null
 													, index != 0 ? styles.mgt12 : null
 												]}
 												activeOpacity={opacityVal}
-												onPress={()=>getBadgeSubInfo(item.badge_idx)}
+												onPress={()=>{
+													getBadgeSubInfo(item.badge_idx);
+												}}
 											>
 												<View style={[styles.badgeBtnLeft]}>
 													{badgeGrade!= '' && badgeGrade != item.badge_idx ? (												
@@ -676,14 +535,14 @@ const MyBadge = (props) => {
 														<Text style={[
 															styles.badgeBtnLeftText
 															, styles.mgl0
-															, badgeGrade!= '' && badgeGrade != item.badge_idx ? styles.badgeBtnLeftTextOff : null
+															, badgeGrade != undefined && badgeGrade != '' && badgeGrade != item.badge_idx ? styles.badgeBtnLeftTextOff : null
 															, badgeGrade==item.badge_idx ? styles.badgeBtnLeftTextOn : null
 														]}>
 															{item.badge_name}
 														</Text>
 														<Text style={[
 															styles.badgeBtnLeftText2
-															, badgeGrade!= '' && badgeGrade != item.badge_idx ? styles.badgeBtnLeftText2Off : null
+															, badgeGrade != undefined && badgeGrade != '' && badgeGrade != item.badge_idx ? styles.badgeBtnLeftText2Off : null
 															, badgeGrade==item.badge_idx ? styles.badgeBtnLeftText2On : null
 														]}>
 															{item.badge_info}

@@ -160,7 +160,7 @@ const MyIntro = (props) => {
 
 	const getQnaTabData = async () => {
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetInterviewList",
 		}
 		const response = await APIs.send(sData);
@@ -172,7 +172,7 @@ const MyIntro = (props) => {
 
 	const getGuideIntro = async () => {
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetIntroduceList",
 		}
 		const response = await APIs.send(sData);
@@ -186,7 +186,7 @@ const MyIntro = (props) => {
 		setActiveTab(idx);
 
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetInterviewList",
 			interview_category: idx
 		}
@@ -211,15 +211,14 @@ const MyIntro = (props) => {
 		let selectCon = [];
 		qnaList.map((item, index) => {
 			if(item.key != v){
-				let qnaList = {key : item.key, subject : item.subject, content : item.content, listIdx: item.listIdx};
+				let qnaList = {key : item.key, subject : item.subject, content : item.content, listIdx: item.listIdx, mi_subject : item.subject, mi_content : item.content};
 				selectCon = [...selectCon, qnaList];
 			}
 		});
 
 		let selectCon2 = selectCon.map((item, index) => {
 			return {...item, key: index+1};
-		});
-
+		});		
 		setQnaList(selectCon2);
 
 		let selectCon3 = apiQnaListData.map((item) => {
@@ -228,7 +227,7 @@ const MyIntro = (props) => {
 			}else{
 				return {...item, chk: item.chk};
 			}
-		})		
+		})
 		setapiQnaListData(selectCon3);
 	}
 
@@ -252,7 +251,7 @@ const MyIntro = (props) => {
 		setIngContent('');
 	}
 
-	const qnaSuccess = () => {
+		const qnaSuccess = () => {
 		if(ingContent.length < 5){
 			ToastMessage('질문에 대한 답변을 5자 이상 입력해 주세요.');
 			return false;
@@ -267,20 +266,21 @@ const MyIntro = (props) => {
 					offIdx = item.listIdx;
 					
 					//console.log('offIdx :::: ',offIdx);
-					let selectCon = [];
+					let selectCon2 = [];
 					qnaListChk.map((item2, index2) => {
 						if(item.subject != item2){
 							let ary2 = item2;
-							selectCon = [...selectCon, ary2];
+							selectCon2 = [...selectCon2, ary2];
 						}
 					});					
-					console.log('qnaSuccess :::: ', selectCon);
-					setQnaListChk(selectCon);
+					selectCon2 = [...new Set(selectCon2)];
+					//console.log('qnaSuccess :::: ', selectCon2);
+					setQnaListChk(selectCon2);
 				}
 
-				return {...item, subject: ingSubject, content: ingContent, listIdx: ingIdx};
+				return {...item, subject: ingSubject, content: ingContent, listIdx: ingIdx, mi_subject: ingSubject, mi_content: ingContent,};
 			}else{
-				return {...item, subject: item.subject, content: item.content, listIdx: item.listIdx};
+				return {...item, subject: item.subject, content: item.content, listIdx: item.listIdx, mi_subject: item.subject, mi_content: item.content,};
 			}
 		});		
 		setQnaList(selectCon);
@@ -290,8 +290,12 @@ const MyIntro = (props) => {
 		WritePopOff();
 	}
 
-	const nextStep = () => {		
-		const nextObj = {};
+	const nextStep = async () => {		
+		const nextObj = {
+			basePath: "/api/member/",
+			type: "SetIntroduce",
+			member_idx: memberIdx,
+		};
 
 		if(intro.length < 50){
 			ToastMessage('자기소개를 50자 이상 작성해 주세요.');
@@ -302,10 +306,30 @@ const MyIntro = (props) => {
 			ToastMessage('1~3번째 질문 작성을 완성해 주세요.');
 			return false;
 		}
-		
-		nextObj.qnaList = qnaList;
-		nextObj.intro = intro;
-		console.log(nextObj);
+				
+		nextObj.member_intro = intro;
+
+		let qnaListAry = [];
+		qnaList.map((item2, index2) => {
+			qnaListAry = [...qnaListAry, {mi_content: item2.mi_content, mi_subject: item2.mi_subject}];
+		})		
+
+		nextObj.member_interview = qnaListAry;
+		//console.log(nextObj);
+		//return false;
+		const response = await APIs.send(nextObj);		
+		if(response.code == 200){
+			ToastMessage('내 소개가 수정되었습니다.');
+
+			const formData = new FormData();
+			formData.append('type', 'GetMyInfo');
+			formData.append('member_idx', memberIdx);
+			//const mem_info = await member_info(formData);
+
+			setTimeout(function(){
+				navigation.navigate('ProfieModify', {reload:true});
+			}, 500);
+		}
 	}
 
 	const listAryChk = (idx) => {		
@@ -317,7 +341,7 @@ const MyIntro = (props) => {
 		}else{
 			ary.push(idx);			
 		}
-		console.log('listAryChk :::: ', ary);
+		//console.log('listAryChk :::: ', ary);
 		setQnaListChk(ary);
 	}
 

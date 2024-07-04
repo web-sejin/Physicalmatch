@@ -1,18 +1,17 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const line = Platform.OS === 'ios' ? 15 : 14;
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
@@ -24,31 +23,23 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const MySocial = (props) => {
-  const socialData = [
-		{idx:1, cate:'1:1', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:'', before:'no', delete:'no'},
-		{idx:2, cate:'미팅', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:'', before:'no', delete:'no'},
-		{idx:3, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:'', before:'no', delete:'no'},
-		{idx:4, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:'', before:'no', delete:'yes'},
-		{idx:5, cate:'1:1', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:'', before:'start', delete:'no'},
-		{idx:6, cate:'미팅', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:'', before:'yes', delete:'yes'},
-		{idx:7, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:'', before:'yes', delete:'yes'},
-		{idx:8, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:'', before:'yes', delete:'no'},
-	];
-
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
+	const [memberIdx, setMemberIdx] = useState();
+	const [nowPage, setNowPage] = useState(1);
+	const [totalPage, setTotalPage] = useState(1);
 
   const [overPop, setOverPop] = useState(false);
 
-  const [socialList, setSocaiList] = useState(socialData);
+  const [socialList, setSocialList] = useState([]);
   const [tabSt, setTabSt] = useState(1);
-  const [tabSt2, setTabSt2] = useState(1);
+  const [tabSt2, setTabSt2] = useState(0);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -60,6 +51,10 @@ const MySocial = (props) => {
 			//console.log("isFocused");
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		        
+				setMemberIdx(result);
+			});
 		}
 
 		Keyboard.dismiss();
@@ -86,76 +81,145 @@ const MySocial = (props) => {
   }, [navigationUse, preventBack]);
 
 	useEffect(() => {
-		getSocialList();
-	}, [tabSt, tabSt2])
+		if(memberIdx){
+			setLoading(true);
+			getSocialList(1);
+		}
+	}, [memberIdx, tabSt, tabSt2]);
 
-  const getSocialList = async (v) => {
+  const getSocialList = async (viewPage) => {
+		const today = new Date(); //현재 날짜와 시간
+		const year = today.getFullYear();  //현재 년도
+		const month = today.getMonth() + 1; // 현재 월
+		const date = today.getDate(); // 현제 날짜
+		const hours = today.getHours(); //현재 시간
+		const minutes = today.getMinutes(); //현재 분
+
     //console.log(tabSt+'///'+tabSt2);
+		let curr_page = nowPage;
+		console.log('viewPage ::: ', viewPage);
+		if(viewPage){
+			curr_page = viewPage;
+		}
+
+		let tabState = tabSt;
+		if(tabSt == 1){
+			//참여한 소셜
+			tabState = tabSt2;
+		}
+		
+		let sData = {
+			basePath: "/api/social/",
+			type: "GetMySocialList",
+			member_idx: memberIdx,
+			tab: tabState,
+			page:curr_page,
+		};
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			if(response.data){
+				setTotalPage(Math.ceil(response.data.length/10));
+				setSocialList(response.data);
+			}else if(response.msg == 'EMPTY'){
+				setTotalPage(1);
+				setSocialList([]);
+			}
+			setTimeout(function(){
+				setLoading(false);
+			}, 300);
+			
+		}
   }
 
-  const getList = ({item, index}) => (    
-		<View style={styles.socialLi}>
-      {item.before == 'start' ? (
-      <View style={styles.beforeSocial}>
-        <View style={styles.beforeSocialLine}></View>
-        <View style={styles.beforeSocialTitle}>
-          <Text style={styles.beforeSocialTitleText}>지난 소셜</Text>
-        </View>
-      </View>
-      ) : null}
+	let in_ing_state = 'y';
+	let before_first = '';
+  const getList = ({item, index}) => {
+		let cateString = '';
+		if(item.social_type == 0){
+			cateString = '1:1';
+		}else if(item.social_type == 1){
+			cateString = '미팅';
+		}else if(item.social_type == 2){
+			cateString = '모임';
+		}
+		if(in_ing_state != item.is_ing && before_first == '' && tabSt == 1){						
+			before_first = item.social_idx;
+		}
+		return (
+			<View style={styles.socialLi}>
+				{item.social_idx == before_first ? (
+				<View style={styles.beforeSocial}>
+					<View style={styles.beforeSocialLine}></View>
+					<View style={styles.beforeSocialTitle}>
+						<Text style={styles.beforeSocialTitleText}>지난 소셜</Text>
+					</View>
+				</View>
+				) : null}
 
-			<TouchableOpacity
-				style={[styles.socialLiBtn]}
-				activeOpacity={opacityVal}
-				onPress={()=>{
-          if(item.delete == 'yes'){
-            ToastMessage('삭제된 소셜입니다.');
-          }else{
-            if(index == 0){
-              setOverPop(true);
-            }else if(index == 1){
-              navigation.navigate('SocialView', {idx:item.idx})
-            }
-          }
-				}}
-			>
-				<View style={[styles.socialLiThumb, item.delete == 'yes' ? styles.socialOPacity : null]}>					
-					<ImgDomain fileWidth={65} fileName={'social_basic1.jpg'}/>
-				</View>
-				<View style={[styles.socialLiInfo, item.delete == 'yes' ? styles.socialOPacity : null, item.before == 'no' ? styles.socialCnt : null]}>
-					<View style={styles.socialLiInfo1}>
-						<View style={styles.socialLiInfoCate}>
-							<Text style={styles.socialLiInfoCateText}>{item.cate}</Text>
-						</View>
-						<View style={styles.socialLiInfoDate}>
-							<Text style={styles.socialLiInfoDateText}>{item.date}</Text>
-						</View>
+				<TouchableOpacity
+					style={[styles.socialLiBtn]}
+					activeOpacity={opacityVal}
+					onPress={()=>{
+						// if(item.delete_yn == 'y'){
+						// 	ToastMessage('삭제된 소셜입니다.');
+						// }else{
+						// 	// if(index == 0){
+						// 	// 	setOverPop(true);
+						// 	// }else if(index == 1){
+						// 	// 	navigation.navigate('SocialView', {idx:item.idx})
+						// 	// }
+						// 	navigation.navigate('SocialView', {social_idx:item.social_idx, social_host_sex:item.host_social_sex})
+						// }
+						navigation.navigate('SocialView', {social_idx:item.social_idx, social_host_sex:item.host_social_sex})
+					}}
+				>
+					<View style={[styles.socialLiThumb, item.delete_yn == 'y' ? styles.socialOPacity : null]}>					
+						<ImgDomain2 fileWidth={65} fileName={item.si_img}/>
 					</View>
-					<View style={styles.socialLiInfo2}>
-						<Text style={styles.socialSubject} numberOfLines={1} ellipsizeMode='tail'>{item.subject}</Text>
-					</View>
-					<View style={styles.socialLiInfo3}>
-						<View style={styles.socialLiInfo3Flex}>							
-							<ImgDomain fileWidth={10} fileName={'icon_local.png'}/>
-							<Text style={styles.socialLiInfo3Text}>{item.loc}</Text>
-						</View>
-						<View style={styles.socialLiInfo3Line}></View>
-						<View style={styles.socialLiInfo3Flex}>
-							<View style={styles.socialLiInfoProfile}>
-								<ImgDomain fileWidth={20} fileName={'profile_sample.png'}/>
+					<View style={[styles.socialLiInfo, item.delete_yn == 'y' ? styles.socialOPacity : null, item.is_new == 'y' ? styles.socialCnt : null]}>
+						<View style={styles.socialLiInfo1}>
+							<View style={styles.socialLiInfoCate}>
+								<Text style={styles.socialLiInfoCateText}>{cateString}</Text>
 							</View>
-							<Text style={styles.socialLiInfo3Text}>{item.age}·{item.gender}</Text>
+							<View style={styles.socialLiInfoDate}>
+								<Text style={styles.socialLiInfoDateText}>{item.social_date_text}</Text>
+							</View>
+						</View>
+						<View style={styles.socialLiInfo2}>
+							<Text style={styles.socialSubject} numberOfLines={1} ellipsizeMode='tail'>{item.social_subject}</Text>
+						</View>
+						<View style={styles.socialLiInfo3}>
+							<View style={styles.socialLiInfo3Flex}>							
+								<ImgDomain fileWidth={10} fileName={'icon_local.png'}/>
+								<Text style={styles.socialLiInfo3Text}>{item.social_location}</Text>
+							</View>
+							<View style={styles.socialLiInfo3Line}></View>
+							<View style={styles.socialLiInfo3Flex}>
+								<View style={styles.socialLiInfoProfile}>
+									{item.mpi_img ? (
+										<ImgDomain2 fileWidth={20} fileName={item.mpi_img}/>
+									) : (
+										item.host_social_sex == 0 ? (
+											<ImgDomain fileWidth={20} fileName={'profile_sample.png'}/>
+										) : (
+											<ImgDomain fileWidth={20} fileName={'profile_sample2.png'}/>
+										)										
+									)}
+								</View>
+								<Text style={styles.socialLiInfo3Text}>{item.host_social_age}·{item.host_social_nick}</Text>
+							</View>
 						</View>
 					</View>
-				</View>
-        {item.before == 'no' ? (
-        <View style={styles.socialEventCnt}>
-          <Text style={styles.socialEventCntText}>N</Text>
-        </View>
-        ) : null}
-			</TouchableOpacity>
-		</View>
-	)
+					{item.is_new == 'y' ? (
+					<View style={styles.socialEventCnt}>
+						<Text style={styles.socialEventCntText}>N</Text>
+					</View>
+					) : null}
+				</TouchableOpacity>
+			</View>
+		)
+	}
 
 	const onScroll = (e) => {
 		const {contentSize, layoutMeasurement, contentOffset} = e.nativeEvent;
@@ -165,13 +229,19 @@ const MySocial = (props) => {
 
 	//리스트 무한 스크롤
 	const moreData = async () => {
-
+		if(totalPage > nowPage){
+			console.log('moreData nowPage ::::', nowPage);
+			getSocialList(nowPage+1);
+			setNowPage(nowPage+1);			
+		}
 	}
 
 	const onRefresh = () => {
 		if(!refreshing) {
 			setRefreshing(true);
-			//getItemList();
+			getSocialList(1);
+			setNowPage(1);
+			//console.log('refresh!!!');
 			setTimeout(() => {
 				setRefreshing(false);
 			}, 2000);
@@ -212,21 +282,19 @@ const MySocial = (props) => {
             style={[styles.viewTab2Btn, styles.mgl0]}
             activeOpacity={opacityVal}  
             onPress={()=>{
-              setTabSt2(1);
-              getSocialList();
+              setTabSt2(0);
             }}          
           >
-            <Text style={[styles.viewTab2BtnText, tabSt2 == 1 ? styles.viewTab2BtnTextOn : null]}>신청한 소셜</Text>
+            <Text style={[styles.viewTab2BtnText, tabSt2 == 0 ? styles.viewTab2BtnTextOn : null]}>신청한 소셜</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.viewTab2Btn]}
             activeOpacity={opacityVal}  
             onPress={()=>{
-              setTabSt2(2);
-              getSocialList();
+              setTabSt2(1);
             }}          
           >
-            <Text style={[styles.viewTab2BtnText, tabSt2 == 2 ? styles.viewTab2BtnTextOn : null]}>참여한 소셜</Text>
+            <Text style={[styles.viewTab2BtnText, tabSt2 == 1 ? styles.viewTab2BtnTextOn : null]}>참여한 소셜</Text>
           </TouchableOpacity>
         </View>
       ) : null}
@@ -247,17 +315,11 @@ const MySocial = (props) => {
         ListFooterComponent={
           <View style={styles.flatListPad}></View>
         }
-				// ListEmptyComponent={
-				// 	isLoading ? (
-				// 	<View style={styles.notData}>
-				// 		<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
-				// 	</View>
-				// 	) : (
-				// 		<View style={[styles.indicator]}>
-				// 			<ActivityIndicator size="large" />
-				// 		</View>
-				// 	)
-				// }
+				ListEmptyComponent={
+					<View style={styles.notData}>
+						<Text style={styles.notDataText}>등록된 소셜이 없습니다.</Text>
+					</View>
+				}
 			/>
 
       {/* 이미 매칭된 경우 */}
@@ -337,7 +399,7 @@ const styles = StyleSheet.create({
 
   flatListPad: {height:20,},
   socialLi: {paddingHorizontal:20,},
-	socialLiBtn: {flexDirection:'row',paddingVertical:18,borderBottomWidth:1,borderColor:'#EDEDED',position:'relative'},
+	socialLiBtn: {flexDirection:'row',paddingVertical:18,borderBottomWidth:1,borderColor:'#EDEDED',position:'relative',},
   socialLiThumb: {alignItems:'center',justifyContent:'center',width:60,height:60,borderRadius:50,overflow:'hidden'},
 	socialLiInfo: {width:innerWidth-60,paddingLeft:20,},
   socialCnt: {width:innerWidth-90,},
@@ -360,6 +422,9 @@ const styles = StyleSheet.create({
   socialOPacity: {opacity:0.5},
   socialEventCnt: {alignItems:'center',justifyContent:'center',minWidth:20,height:16,backgroundColor:'#fff',borderWidth:1,borderColor:'#FF1A1A',borderRadius:20,position:'absolute',right:0,top:45,},
   socialEventCntText: {fontFamily:Font.RobotoMedium,fontSize:10,lineHeight:line,color:'#FF1A1A'},
+
+	notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
   modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},
