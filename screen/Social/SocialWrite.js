@@ -329,7 +329,7 @@ const SocialWrite = (props) => {
       setPreventBack(false);
       setTimeout(function(){
         setLoading(false);
-        navigation.navigate('TabNavigation', {screen:'Social', reload:true});
+        navigation.navigate('TabNavigation', {screen:'Social', params : {reload:true}});
       }, 500)
     }
   }
@@ -797,7 +797,7 @@ const styles = StyleSheet.create({
   input4: {width:innerWidth-25,},
   inputLine0 : {borderBottomWidth:0,},
   inputText: {fontFamily:Font.NotoSansRegular,fontSize: 16, lineHeight:21, color: '#1e1e1e',},
-  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,marginTop:30,paddingTop:paddTop,},
+  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,marginTop:30,paddingTop:15,},
 
   help_box: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:5,},
 	alertText2: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#B8B8B8',},

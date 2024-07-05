@@ -3,16 +3,16 @@ import {ActivityIndicator, Alert, Animated, Button, Image, Dimensions, ImageBack
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
-import Swiper from 'react-native-web-swiper';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const line = Platform.OS === 'ios' ? 15 : 14;
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
@@ -39,16 +39,19 @@ const MyCommunity = (props) => {
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
-	const swiperRef = useRef(null);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
-	const [loading, setLoading] = useState(false);
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
+	const [loading, setLoading] = useState(false);	
+	const [memberIdx, setMemberIdx] = useState();
+	const [nowPage, setNowPage] = useState(1);
+	const [totalPage, setTotalPage] = useState(1);
 	const [socialList, setSocaiList] = useState(socialData);
-
-  const [tabSt, setTabSt] = useState(1);
-	const [sch, setSCh] = useState('');	
+	
+	const [commList, setCommList] = useState([]);  
+	const [tabState, setTabState] = useState(0); //자유, 운동, 프교, 셀소
+	const [commSch, setCommSch] = useState('');	
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -59,6 +62,10 @@ const MyCommunity = (props) => {
 			//console.log("isFocused");
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
 		}
 
 		Keyboard.dismiss();
@@ -100,58 +107,110 @@ const MyCommunity = (props) => {
     };
   }, []);
 
-	const getList = ({item, index}) => (
-		<View style={[styles.commLi, index == 0 ? styles.mgt0 : null]}>
+	useEffect(() => {
+		if(memberIdx){
+			setLoading(true);
+			getCommList();
+		}
+	}, [memberIdx, tabState]);
+
+  const getCommList = async (viewPage) => {
+		let curr_page = nowPage;
+		if(viewPage){
+			curr_page = viewPage;
+		}
+
+    let sData = {
+			basePath: "/api/community/",
+			type: "GetMyCommList",
+			member_idx: memberIdx,
+			tab: tabState,
+			sch: commSch,
+			page:curr_page,
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){						
+			if(response.data){
+				setTotalPage(Math.ceil(response.data.length/10));
+				setCommList(response.data);
+			}else if(response.msg == 'EMPTY'){
+				setTotalPage(1);
+				setCommList([]);
+			}			
+		}
+		setTimeout(function(){
+			setLoading(false);
+		}, 300);
+  }
+
+	const getList = ({item, index}) => {
+		let cateString = '';
+		if(item.comm_type == 0){
+			cateString = '자유';
+		}else if(item.comm_type == 1){
+			cateString = '운동';
+		}else if(item.comm_type == 2){
+			cateString = '프교';
+		}else if(item.comm_type == 3){
+			cateString = '셀소';
+		}
+
+		return (
+		<View style={[styles.commLi, index == 0 ? styles.mgt0 : null, item.delete_yn == 'y' ? styles.commOPacity : null]}>
 			<TouchableOpacity
 				style={[styles.commLiBtn, index == 0 ? styles.pdt0 : null]}
 				activeOpacity={opacityVal}
 				onPress={()=>{
-					navigation.navigate('CommunityView', {idx:item.idx, cateName:item.cate})
+					navigation.navigate('CommunityView', {comm_idx:item.comm_idx, cateName:cateString});
 				}}
 			>
 				<View style={styles.commLiProfile}>
-					<AutoHeightImage width={40} source={{uri:'https://cnj02.cafe24.com/appImg/profile_sample.png'}} resizeMethod='resize' />
+					{item.host_comm_sex == 0 ? (
+						<ImgDomain fileWidth={40} fileName={'profile_sample.png'}/>
+					) : (
+						<ImgDomain fileWidth={40} fileName={'profile_sample2.png'}/>
+					)}
 				</View>
-				<View style={[styles.commLiInfo, item.idx == 4 ? styles.commLiInfo2 : null]}>
+				<View style={[styles.commLiInfo, item.ci_img ? null : styles.commLiInfo2]}>
 					<View style={styles.commLiInfoSubject}>
-						<Text style={styles.commLiInfoSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.subject}</Text>						
-						{item.blur ? (
+						<Text style={styles.commLiInfoSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.comm_subject}</Text>
+						{item.comm_care == 1 ? (
 							<View style={styles.commLiInfoAlert}>
 								<ImgDomain fileWidth={13} fileName={'icon_alert2.png'}/>
-							</View>
+							</View>							
 						) : null}						
 					</View>
 					<View style={styles.commLiSubInfo}>
 						<View style={styles.commLiSubView}>
 							<ImgDomain fileWidth={16} fileName={'icon_view.png'}/>
-							<Text style={styles.commLiSubViewText}>{item.viewCnt}</Text>
+							<Text style={styles.commLiSubViewText}>{item.comm_view}</Text>
 						</View>
 						<View style={[styles.commLiSubView, styles.commLiSubView2]}>
 							<ImgDomain fileWidth={16} fileName={'icon_review.png'}/>
-							<Text style={styles.commLiSubViewText}>{item.reviewCnt}</Text>
+							<Text style={styles.commLiSubViewText}>{item.cCount}</Text>
 						</View>
 						<View style={styles.commLiSubLine}></View>
 						<View style={styles.commLiSubView}>
-							<Text style={styles.commLiSubViewText}>{item.date}</Text>
-						</View>            
+							<Text style={styles.commLiSubViewText}>{item.comm_date_text}</Text>
+						</View>
 					</View>
-          <View style={[styles.socialEventCnt, item.idx == 4 ? styles.socialEventCnt2 : null]}>
-            <Text style={styles.socialEventCntText}>N</Text>
-          </View>
 				</View>
-				{item.idx != 4 ? (
+				{item.ci_img ? (
 				<ImageBackground
-					style={styles.commLiThumb}					
-					source={{uri:'https://cnj02.cafe24.com/appImg/social_basic1.jpg'}}
+					style={styles.commLiThumb}						
+					source={{uri:`https://cnj02.cafe24.com/${item.ci_img}`}}
 					resizeMode='cover'
-					blurRadius={item.blur ? 15 : 0}
+					blurRadius={item.comm_care == 1 ? 6 : 0}
 				>					
-					{item.blur ? (<ImgDomain fileWidth={20} fileName={'icon_blurview.png'} />) : null}					
+					{item.comm_care == 1 ? (<ImgDomain fileWidth={20} fileName={'icon_blurview.png'} />) : null}	
 				</ImageBackground>
 				) : null}
 			</TouchableOpacity>
 		</View>
-	)
+		)
+	}
 
 	const onScroll = (e) => {
 		const {contentSize, layoutMeasurement, contentOffset} = e.nativeEvent;
@@ -175,51 +234,47 @@ const MyCommunity = (props) => {
 	}
 
 	const Search = async () => {
-		if(sch.length < 2){
+		if(commSch.length < 2){
 			ToastMessage('검색어는 2글자 이상 입력해 주세요.');
 			return false;
 		}
-	}
 
-  useEffect(() => {
-		getMyList();
-	}, [tabSt])
-
-  const getMyList = async (v) => {
-    //console.log(tabSt+'///'+tabSt2);
-  }
+		setLoading(true);
+		getCommList(1);
+		setNowPage(1);
+	}	
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
       <Header navigation={navigation} headertitle={'나의 커뮤니티'} />
       <View style={styles.viewTab}>
         <TouchableOpacity
-          style={[styles.viewTabBtn, tabSt == 1 ? styles.viewTabBtnOn : null]}
+          style={[styles.viewTabBtn, tabState == 0 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>setTabSt(1)}
+          onPress={()=>setTabState(0)}
         >
-          <Text style={[styles.viewTabBtnText, tabSt == 1 ? styles.viewTabBtnTextOn : null]}>프로필 교환</Text>
+          <Text style={[styles.viewTabBtnText, tabState == 0 ? styles.viewTabBtnTextOn : null]}>프로필 교환</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.viewTabBtn, tabSt == 2 ? styles.viewTabBtnOn : null]}
+          style={[styles.viewTabBtn, tabState == 1 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>setTabSt(2)}
+          onPress={()=>setTabState(1)}
         >
-          <Text style={[styles.viewTabBtnText, tabSt == 2 ? styles.viewTabBtnTextOn : null]}>작성한 글</Text>
+          <Text style={[styles.viewTabBtnText, tabState == 1 ? styles.viewTabBtnTextOn : null]}>작성한 글</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.viewTabBtn, tabSt == 3 ? styles.viewTabBtnOn : null]}
+          style={[styles.viewTabBtn, tabState == 2 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>setTabSt(3)}
+          onPress={()=>setTabState(2)}
         >
-          <Text style={[styles.viewTabBtnText, tabSt == 3 ? styles.viewTabBtnTextOn : null]}>참여한 글</Text>
+          <Text style={[styles.viewTabBtnText, tabState == 2 ? styles.viewTabBtnTextOn : null]}>참여한 글</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.viewTabBtn, tabSt == 4 ? styles.viewTabBtnOn : null]}
+          style={[styles.viewTabBtn, tabState == 3 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>setTabSt(4)}
+          onPress={()=>setTabState(3)}
         >
-          <Text style={[styles.viewTabBtnText, tabSt == 4 ? styles.viewTabBtnTextOn : null]}>북마크</Text>
+          <Text style={[styles.viewTabBtnText, tabState == 3 ? styles.viewTabBtnTextOn : null]}>북마크</Text>
         </TouchableOpacity>
       </View>
 			
@@ -236,15 +291,15 @@ const MyCommunity = (props) => {
 						<ImgDomain fileWidth={28} fileName={'icon_sch.png'}/>
 					</TouchableOpacity>
 					<TextInput
-						value={sch}
-						onChangeText={(v) => setSch(v)}
+						value={commSch}
+						onChangeText={(v) => setCommSch(v)}
 						style={[styles.socialSchBoxWrapInput]}
 						returnKyeType='done'                      
 					/>
 				</View>
 			</View>
 			<FlatList 				
-				data={socialList}
+				data={commList}
 				renderItem={(getList)}
 				keyExtractor={(item, index) => index.toString()}
 				refreshing={refreshing}
@@ -258,17 +313,11 @@ const MyCommunity = (props) => {
 						<View style={styles.flatListPad}></View>
 					</TouchableWithoutFeedback>
 				}
-				// ListEmptyComponent={
-				// 	isLoading ? (
-				// 	<View style={styles.notData}>
-				// 		<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
-				// 	</View>
-				// 	) : (
-				// 		<View style={[styles.indicator]}>
-				// 			<ActivityIndicator size="large" />
-				// 		</View>
-				// 	)
-				// }
+				ListEmptyComponent={
+					<View style={styles.notData}>
+						<Text style={styles.notDataText}>등록된 커뮤니티가 없습니다.</Text>
+					</View>
+				}
 			/>
 
 			{loading ? (
@@ -298,21 +347,22 @@ const styles = StyleSheet.create({
 	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
 	socialSchBoxWrap: {flexDirection:'row',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
 	socialSchBoxWrapBtn: {alignItems:'center',justifyContent:'center',width:38,height:40,backgroundColor:'#F9FAFB',},
-	socialSchBoxWrapInput: {width:innerWidth-38,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},	
+	socialSchBoxWrapInput: {width:innerWidth-38,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},	
 	flatListPad: {height:20,},	
 
 	cmWrap: {paddingBottom:40,paddingHorizontal:20,},
 	cmWrap2: {paddingTop:30,},	
 
 	commLi: {marginTop:5,},
+	commOPacity: {opacity:0.5},
 	commLiBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:20,paddingVertical:20,},
 	commLiProfile: {alignItems:'center',justifyContent:'center',width:38,height:38,borderRadius:50,overflow:'hidden'},
 	commLiInfo: {width:innerWidth-80,paddingHorizontal:10,position:'relative'},
 	commLiInfo2: {width:innerWidth-38,paddingRight:0,},
 	commLiInfoSubject: {flexDirection:'row',alignItems:'center',paddingRight:25,},
-	commLiInfoSubjectText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1e1e1e'},
+	commLiInfoSubjectText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:19,color:'#1e1e1e'},
 	commLiInfoAlert: {marginLeft:4,},
-	commLiSubInfo: {flexDirection:'row',alignItems:'center',marginTop:3,paddingRight:25,},
+	commLiSubInfo: {flexDirection:'row',alignItems:'center',marginTop:5},
 	commLiSubView: {flexDirection:'row',alignItems:'center',},
 	commLiSubView2: {marginLeft:4,},
 	commLiSubViewText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:14,color:'#B8B8B8'},
@@ -365,6 +415,9 @@ const styles = StyleSheet.create({
 	pickDateBox: {flexDirection:'row',flexWrap:'wrap',},
 	pickDateView: {alignItems:'center',justifyContent:'center',width:71,height:33,backgroundColor:'#EDF2FE',borderRadius:50,marginLeft:8,},
 	pickDateViewText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:18,color:'#222'},
+
+	notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},

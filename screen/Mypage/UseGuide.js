@@ -46,6 +46,11 @@ const UseGuide = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      if(params?.guideInfo){
+        setTabSt(params?.guideInfo);
+        delete params?.guideInfo;
+      }
 		}
 
     Keyboard.dismiss();

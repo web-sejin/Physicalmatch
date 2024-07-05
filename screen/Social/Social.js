@@ -280,11 +280,11 @@ const Social = (props) => {
 			}else if(response.msg == 'EMPTY'){
 				setTotalPage(1);
 				setSocialList([]);
-			}
-			setTimeout(function(){
-				setLoading(false);
-			}, 300);
+			}			
 		}
+		setTimeout(function(){
+			setLoading(false);
+		}, 300);
 	}
 
 	const getList = ({item, index}) => {
@@ -296,6 +296,7 @@ const Social = (props) => {
 		}else if(item.social_type == 2){
 			cateString = '모임';
 		}
+
 		return (
 			<View style={styles.socialLi}>
 				<TouchableOpacity
@@ -333,15 +334,11 @@ const Social = (props) => {
 							<View style={styles.socialLiInfo3Line}></View>
 							<View style={styles.socialLiInfo3Flex}>
 								<View style={styles.socialLiInfoProfile}>
-									{item.mpi_img ? (
-										<ImgDomain2 fileWidth={20} fileName={item.mpi_img}/>
+									{item.host_social_sex == 0 ? (
+										<ImgDomain fileWidth={20} fileName={'profile_sample.png'}/>
 									) : (
-										item.host_social_sex == 0 ? (
-											<ImgDomain fileWidth={20} fileName={'profile_sample.png'}/>
-										) : (
-											<ImgDomain fileWidth={20} fileName={'profile_sample2.png'}/>
-										)										
-									)}									
+										<ImgDomain fileWidth={20} fileName={'profile_sample2.png'}/>
+									)}				
 								</View>
 								<Text style={styles.socialLiInfo3Text}>{item.host_social_age}·{item.host_social_nick}</Text>
 							</View>

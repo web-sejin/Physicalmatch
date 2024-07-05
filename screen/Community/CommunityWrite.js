@@ -3,15 +3,13 @@ import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, Text
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import Postcode from '@actbase/react-daum-postcode';
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -42,11 +40,11 @@ const CommunityWrite = (props) => {
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [locPop, setLocPop] = useState(false);
+  const [memberIdx, setMemberIdx] = useState();
+
   const [backConfirm, setBackConfirm] = useState(false);
-  const [ImagePop, setImagePop] = useState(false);
   const [state, setState] = useState(false);
-  const [cate, setCate] = useState(1); //1=>자유 // 2=>운동 // 3=>프교 // 4=>셀소
+  const [cate, setCate] = useState(0); //0=>자유 // 1=>운동 // 2=>프교 // 3=>셀소
   const [subject, setSubject] = useState('');
   const [phoneImage, setPhoneImage] = useState({});
   const [content, setContent] = useState('');
@@ -61,6 +59,11 @@ const CommunityWrite = (props) => {
 			//console.log("isFocused");      
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      AsyncStorage.getItem('member_idx', (err, result) => {
+				//console.log('member_idx :::: ', result);
+				setMemberIdx(result);
+			});
 		}
 
 		Keyboard.dismiss();
@@ -89,7 +92,7 @@ const CommunityWrite = (props) => {
   useEffect(() => {
     let totalReq = 2;
     let currReq = 0;
-    if(cate == 4){
+    if(cate == 3){
       totalReq = 3;
     }
 
@@ -103,7 +106,7 @@ const CommunityWrite = (props) => {
     if(subject != '' && subject.length >= 2 && subject.length <= 20){ currReq++; }    
     if(content != '' && content.length >= contLimitCnt  && content.length <= 1000){ currReq++; }
 
-    if(cate == 4){
+    if(cate == 3){
       if(phoneImage.path != '' && phoneImage.path != undefined){
         currReq++;
       }
@@ -140,9 +143,9 @@ const CommunityWrite = (props) => {
     }
 
     let contLimitCnt = 0;
-    if(cate == 1 || cate == 2){ 
+    if(cate == 0 || cate == 1){ 
       contLimitCnt = 5;
-    }else if(cate == 3 || cate == 4){
+    }else if(cate == 2 || cate == 3){
       contLimitCnt = 30;
     }
 
@@ -151,16 +154,44 @@ const CommunityWrite = (props) => {
       return false;
     }
 
-    if(cate == 4 && (phoneImage.path == '' || phoneImage.path == undefined)){
+    if(cate == 3 && (phoneImage.path == '' || phoneImage.path == undefined)){
       ToastMessage('사진을 등록해 주세요.');
       return false;
     }
 
-    Keyboard.dismiss;
-    setLoading(true);
-    setTimeout(function(){
-      setLoading(false);
-    }, 1000);
+    Keyboard.dismiss();
+    //setLoading(true);
+
+    let sData = {
+			basePath: "/api/community/",
+			type: "SetCommunity",
+      member_idx: memberIdx,
+      comm_type: cate,
+      comm_subject: subject,
+      comm_content: content,
+		};
+
+    if(chk){
+      sData.comm_care = 1;
+    }else{
+      sData.comm_care = 0;
+    }
+    
+    let fileData = [];
+      fileData[0] = {uri: phoneImage.path, name: 'community_image.png', type: phoneImage.mime};
+      sData.comm_files = fileData;
+
+      const formData = APIs.makeFormData(sData)
+      const response = await APIs.multipartRequest(formData);
+      console.log(response);
+      if(response.code == 200){      
+        ToastMessage('커뮤니티가 작성되었습니다.');
+        setPreventBack(false);
+        setTimeout(function(){
+          setLoading(false);
+          navigation.navigate('TabNavigation', {screen:'Community', params : {reload:true}});
+        }, 500)
+      }
   }
 
   const headerHeight = 48;
@@ -185,32 +216,32 @@ const CommunityWrite = (props) => {
                   </View>
                   <View style={styles.commCate}>
                     <TouchableOpacity
+                      style={[styles.commCateBtn, cate == 0 ? styles.commCateBtnOn : null]}
+                      activeOpacity={opacityVal}
+                      onPress={()=>setCate(0)}
+                    >
+                      <Text style={[styles.commCateBtnText, cate == 0 ? styles.commCateBtnTextOn : null]}>자유</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
                       style={[styles.commCateBtn, cate == 1 ? styles.commCateBtnOn : null]}
                       activeOpacity={opacityVal}
                       onPress={()=>setCate(1)}
                     >
-                      <Text style={[styles.commCateBtnText, cate == 1 ? styles.commCateBtnTextOn : null]}>자유</Text>
+                      <Text style={[styles.commCateBtnText, cate == 1 ? styles.commCateBtnTextOn : null]}>운동</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.commCateBtn, cate == 2 ? styles.commCateBtnOn : null]}
                       activeOpacity={opacityVal}
                       onPress={()=>setCate(2)}
                     >
-                      <Text style={[styles.commCateBtnText, cate == 2 ? styles.commCateBtnTextOn : null]}>운동</Text>
+                      <Text style={[styles.commCateBtnText, cate == 2 ? styles.commCateBtnTextOn : null]}>프교</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.commCateBtn, cate == 3 ? styles.commCateBtnOn : null]}
+                      style={[styles.commCateBtn, cate == 3 ? styles.commCateBtnOn : null, styles.mgr0]}
                       activeOpacity={opacityVal}
                       onPress={()=>setCate(3)}
                     >
-                      <Text style={[styles.commCateBtnText, cate == 3 ? styles.commCateBtnTextOn : null]}>프교</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.commCateBtn, cate == 4 ? styles.commCateBtnOn : null, styles.mgr0]}
-                      activeOpacity={opacityVal}
-                      onPress={()=>setCate(4)}
-                    >
-                      <Text style={[styles.commCateBtnText, cate == 4 ? styles.commCateBtnTextOn : null]}>셀소</Text>
+                      <Text style={[styles.commCateBtnText, cate == 3 ? styles.commCateBtnTextOn : null]}>셀소</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -257,10 +288,10 @@ const CommunityWrite = (props) => {
                     maxLength={1000}
                   />
                   <View style={styles.help_box}>
-                    {cate == 1 || cate == 2 ? (
+                    {cate == 0 || cate == 1 ? (
                       <Text style={styles.alertText2}>최소 5자 이상 입력해 주세요.</Text>
                     ) : null}
-                    {cate == 3 || cate == 4 ? (
+                    {cate == 2 || cate == 3 ? (
                       <Text style={styles.alertText2}>최소 30자 이상 입력해 주세요.</Text>
                     ) : null}              
                     <Text style={styles.txtCntText}>{content.length}/1000</Text>
@@ -271,16 +302,16 @@ const CommunityWrite = (props) => {
                   <TouchableOpacity
                     style={styles.guideBtn}
                     activeOpacity={opacityVal}
-                    onPress={()=>{navigation.navigate('UseGuide')}}
+                    onPress={()=>{navigation.navigate('UseGuide', {guideInfo:2})}}
                   >
-                    <Text style={styles.guideBtnText}>자기소개 가이드</Text>
+                    <Text style={styles.guideBtnText}>커뮤니티 이용 가이드</Text>
                     <ImgDomain fileWidth={5} fileName={'icon_arr2.png'}/>
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.mgt40}>
                   <View style={[styles.iptTit]}>                    
-                    {cate == 4 ? (
+                    {cate == 3 ? (
                       <Text style={styles.iptTitText}>사진 등록 <Text style={styles.red}>*</Text></Text>
                     ) : (
                       <Text style={styles.iptTitText}>사진 등록</Text>
@@ -324,7 +355,9 @@ const CommunityWrite = (props) => {
           <TouchableOpacity 
             style={[styles.nextBtn, state ? null : styles.nextBtnOff]}
             activeOpacity={opacityVal}
-            onPress={() => {socialWriteUpdate()}}
+            onPress={() => {
+              socialWriteUpdate();
+            }}
           >
             <Text style={styles.nextBtnText}>등록하기</Text>
           </TouchableOpacity>
@@ -426,7 +459,7 @@ const styles = StyleSheet.create({
   input4: {width:innerWidth-25,},
   inputLine0 : {borderBottomWidth:0,},
   inputText: {fontFamily:Font.NotoSansRegular,fontSize: 16, lineHeight:21, color: '#1e1e1e',},
-  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:10,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,},
+  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,paddingTop:15,},
 
   help_box: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:5,},
 	alertText2: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#B8B8B8',},

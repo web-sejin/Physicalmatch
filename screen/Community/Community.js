@@ -3,15 +3,16 @@ import {ActivityIndicator, Alert, Animated, Button, Image, Dimensions, ImageBack
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -22,17 +23,6 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const Community = (props) => {
-	const commData = [
-		{idx:1, cate:'자유', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
-		{idx:2, cate:'운동', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
-		{idx:3, cate:'프교', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
-		{idx:4, cate:'셀소', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
-		{idx:5, cate:'자유', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
-		{idx:6, cate:'운동', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
-		{idx:7, cate:'프교', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
-		{idx:8, cate:'셀소', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
-	];
-
 	const swp = [
     {idx:1, imgUrl:'', type:'community_guide'},
     {idx:2, imgUrl:'', type:'social_guide'},
@@ -40,7 +30,7 @@ const Community = (props) => {
   ]
 
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
 	const swiperRef = useRef(null);
@@ -48,14 +38,18 @@ const Community = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [memberIdx, setMemberIdx] = useState();
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
+	const [nowPage, setNowPage] = useState(1);
+	const [totalPage, setTotalPage] = useState(1);
+	
 	const [commList, setCommList] = useState([]);
 	const [swiperList, setSwiperList] = useState([]);
 	const [guideModal, setGuideModal] = useState(false);
 	const [guideModal2, setGuideModal2] = useState(false);
 
-	const [tabState, setTabState] = useState(1); //자유, 운동, 프교, 셀소
-	const [sch, setSCh] = useState('');	
+	const [tabState, setTabState] = useState(0); //자유, 운동, 프교, 셀소
+	const [commSch, setCommSch] = useState('');	
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -66,6 +60,15 @@ const Community = (props) => {
 			//console.log("isFocused");
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
+
+			if(params?.reload){	
+        getCommList();
+        delete params?.reload;
+      }
 		}
 
 		Keyboard.dismiss();
@@ -107,64 +110,114 @@ const Community = (props) => {
     };
   }, []);
 
-	useEffect(() => {		
-		setLoading(true);		
-		setTimeout(() => {
-			setCommList(commData);
-			setSwiperList(swp);
-			setLoading(false);
-		}, 1000);
-	}, [])
+	useEffect(() => {
+		setSwiperList(swp);
+	}, []);
 
-	const getList = ({item, index}) => (
-		<View style={[styles.commLi, index == 0 ? styles.mgt0 : null]}>
-			<TouchableOpacity
-				style={[styles.commLiBtn, index == 0 ? styles.pdt0 : null]}
-				activeOpacity={opacityVal}
-				onPress={()=>{
-					navigation.navigate('CommunityView', {idx:item.idx, cateName:item.cate});
-				}}
-			>
-				<View style={styles.commLiProfile}>										
-					<AutoHeightImage width={40} source={{uri:'https://cnj02.cafe24.com/appImg/profile_sample.png'}} resizeMethod='resize' />
-				</View>
-				<View style={[styles.commLiInfo, item.idx == 4 ? styles.commLiInfo2 : null]}>
-					<View style={styles.commLiInfoSubject}>
-						<Text style={styles.commLiInfoSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.subject}</Text>
-						{item.blur ? (
-							<View style={styles.commLiInfoAlert}>
-								<ImgDomain fileWidth={13} fileName={'icon_alert2.png'}/>
-							</View>							
-						) : null}						
+	useEffect(() => {
+		if(memberIdx){
+			setLoading(true);
+			getCommList();
+		}
+	}, [memberIdx, tabState]);
+
+	const getCommList = async (viewPage) => {
+		let curr_page = nowPage;
+		if(viewPage){
+			curr_page = viewPage;
+		}
+		
+		let sData = {
+			basePath: "/api/community/",
+			type: "GetCommunityList",
+			member_idx: memberIdx,
+			comm_type: tabState,
+			comm_sch: commSch,
+			page:curr_page,
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){						
+			if(response.data){
+				setTotalPage(Math.ceil(response.data.length/10));
+				setCommList(response.data);
+			}else if(response.msg == 'EMPTY'){
+				setTotalPage(1);
+				setCommList([]);
+			}			
+		}
+		setTimeout(function(){
+			setLoading(false);
+		}, 300);
+	}
+
+	const getList = ({item, index}) => {
+		let cateString = '';
+		if(item.comm_type == 0){
+			cateString = '자유';
+		}else if(item.comm_type == 1){
+			cateString = '운동';
+		}else if(item.comm_type == 2){
+			cateString = '프교';
+		}else if(item.comm_type == 3){
+			cateString = '셀소';
+		}
+
+		return (
+			<View style={[styles.commLi, index == 0 ? styles.mgt0 : null]}>
+				<TouchableOpacity
+					style={[styles.commLiBtn, index == 0 ? styles.pdt0 : null]}
+					activeOpacity={opacityVal}
+					onPress={()=>{
+						navigation.navigate('CommunityView', {comm_idx:item.comm_idx, cateName:cateString});
+					}}
+				>
+					<View style={styles.commLiProfile}>										
+						{item.host_comm_sex == 0 ? (
+							<ImgDomain fileWidth={40} fileName={'profile_sample.png'}/>
+						) : (
+							<ImgDomain fileWidth={40} fileName={'profile_sample2.png'}/>
+						)}
 					</View>
-					<View style={styles.commLiSubInfo}>
-						<View style={styles.commLiSubView}>
-							<ImgDomain fileWidth={16} fileName={'icon_view.png'}/>
-							<Text style={styles.commLiSubViewText}>{item.viewCnt}</Text>
+					<View style={[styles.commLiInfo, item.ci_img ? null : styles.commLiInfo2]}>
+						<View style={styles.commLiInfoSubject}>
+							<Text style={styles.commLiInfoSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.comm_subject}</Text>
+							{item.comm_care == 1 ? (
+								<View style={styles.commLiInfoAlert}>
+									<ImgDomain fileWidth={13} fileName={'icon_alert2.png'}/>
+								</View>							
+							) : null}						
 						</View>
-						<View style={[styles.commLiSubView, styles.commLiSubView2]}>
-							<ImgDomain fileWidth={16} fileName={'icon_review.png'}/>
-							<Text style={styles.commLiSubViewText}>{item.reviewCnt}</Text>
-						</View>
-						<View style={styles.commLiSubLine}></View>
-						<View style={styles.commLiSubView}>
-							<Text style={styles.commLiSubViewText}>{item.date}</Text>
+						<View style={styles.commLiSubInfo}>
+							<View style={styles.commLiSubView}>
+								<ImgDomain fileWidth={16} fileName={'icon_view.png'}/>
+								<Text style={styles.commLiSubViewText}>{item.comm_view}</Text>
+							</View>
+							<View style={[styles.commLiSubView, styles.commLiSubView2]}>
+								<ImgDomain fileWidth={16} fileName={'icon_review.png'}/>
+								<Text style={styles.commLiSubViewText}>{item.comment_cnt}</Text>
+							</View>
+							<View style={styles.commLiSubLine}></View>
+							<View style={styles.commLiSubView}>
+								<Text style={styles.commLiSubViewText}>{item.comm_date_text}</Text>
+							</View>
 						</View>
 					</View>
-				</View>
-				{item.idx != 4 ? (
-				<ImageBackground
-					style={styles.commLiThumb}
-					source={{uri:'https://cnj02.cafe24.com/appImg/social_basic1.jpg'}}
-					resizeMode='cover'
-					blurRadius={item.blur ? 6 : 0}
-				>					
-					{item.blur ? (<ImgDomain fileWidth={20} fileName={'icon_blurview.png'} />) : null}					
-				</ImageBackground>
-				) : null}
-			</TouchableOpacity>
-		</View>
-	)
+					{item.ci_img ? (
+					<ImageBackground
+						style={styles.commLiThumb}						
+						source={{uri:`https://cnj02.cafe24.com/${item.ci_img}`}}
+						resizeMode='cover'
+						blurRadius={item.comm_care == 1 ? 6 : 0}
+					>					
+						{item.comm_care == 1 ? (<ImgDomain fileWidth={20} fileName={'icon_blurview.png'} />) : null}	
+					</ImageBackground>
+					) : null}
+				</TouchableOpacity>
+			</View>
+		)
+	}
 
 	const onScroll = (e) => {
 		const {contentSize, layoutMeasurement, contentOffset} = e.nativeEvent;
@@ -174,13 +227,19 @@ const Community = (props) => {
 
 	//리스트 무한 스크롤
 	const moreData = async () => {
-
+		if(totalPage > nowPage){
+			console.log('moreData nowPage ::::', nowPage);
+			getCommList(nowPage+1);
+			setNowPage(nowPage+1);			
+		}
 	}
 
 	const onRefresh = () => {
 		if(!refreshing) {
 			setRefreshing(true);
-			//getItemList();
+			getCommList(1);
+			setNowPage(1);
+			//console.log('refresh!!!');
 			setTimeout(() => {
 				setRefreshing(false);
 			}, 2000);
@@ -188,10 +247,14 @@ const Community = (props) => {
 	}
 
 	const Search = async () => {
-		if(sch.length < 2){
+		if(commSch.length < 2){
 			ToastMessage('검색어는 2글자 이상 입력해 주세요.');
 			return false;
 		}
+
+		setLoading(true);
+		getCommList(1);
+		setNowPage(1);
 	}
 
 	return (
@@ -226,63 +289,63 @@ const Community = (props) => {
 						</TouchableOpacity>
 					</View>
 				</View>
-				<ScrollView horizontal={true} showsHorizontalScrollIndicator = {false} >
-					<View style={styles.headerBot}>
-						<TouchableOpacity
-							style={styles.headerTab}
-							activeOpacity={opacityVal}
-							onPress={() => {setTabState(1)}}
-						>
-							<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>자유</Text>
-							{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
-						</TouchableOpacity>
+				{/* <ScrollView horizontal={true} showsHorizontalScrollIndicator = {false} ></ScrollView> */}
+				<View style={styles.headerBot}>
+					<TouchableOpacity
+						style={styles.headerTab}
+						activeOpacity={opacityVal}
+						onPress={() => {setTabState(0)}}
+					>
+						<Text style={[styles.headerTabText, tabState == 0 ? styles.headerTabTextOn : null]}>자유</Text>
+						{tabState == 0 ? (<View style={styles.activeLine}></View>) : null}
+					</TouchableOpacity>
 
-						<TouchableOpacity
-							style={styles.headerTab}
-							activeOpacity={opacityVal}
-							onPress={() => {setTabState(2)}}
-						>
-							<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>운동</Text>
-							{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
-						</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.headerTab}
+						activeOpacity={opacityVal}
+						onPress={() => {setTabState(1)}}
+					>
+						<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>운동</Text>
+						{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
+					</TouchableOpacity>
 
-						<TouchableOpacity
-							style={styles.headerTab}
-							activeOpacity={opacityVal}
-							onPress={() => {setTabState(3)}}
-						>
-							<Text style={[styles.headerTabText, tabState == 3 ? styles.headerTabTextOn : null]}>프교</Text>
-							{tabState == 3 ? (<View style={styles.activeLine}></View>) : null}
-						</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.headerTab}
+						activeOpacity={opacityVal}
+						onPress={() => {setTabState(2)}}
+					>
+						<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>프교</Text>
+						{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
+					</TouchableOpacity>
 
-						<TouchableOpacity
-							style={styles.headerTab}
-							activeOpacity={opacityVal}
-							onPress={() => {setTabState(4)}}
-						>
-							<Text style={[styles.headerTabText, tabState == 4 ? styles.headerTabTextOn : null]}>셀소</Text>
-							{tabState == 4 ? (<View style={styles.activeLine}></View>) : null}
-						</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.headerTab}
+						activeOpacity={opacityVal}
+						onPress={() => {setTabState(3)}}
+					>
+						<Text style={[styles.headerTabText, tabState == 3 ? styles.headerTabTextOn : null]}>셀소</Text>
+						{tabState == 3 ? (<View style={styles.activeLine}></View>) : null}
+					</TouchableOpacity>
 
-						<TouchableOpacity
-							style={styles.headerTab}
-							activeOpacity={opacityVal}
-							onPress={() => {setTabState(5)}}
-						>
-							<Text style={[styles.headerTabText, tabState == 5 ? styles.headerTabTextOn : null]}>추가1</Text>
-							{tabState == 5 ? (<View style={styles.activeLine}></View>) : null}
-						</TouchableOpacity>
+					{/* <TouchableOpacity
+						style={styles.headerTab}
+						activeOpacity={opacityVal}
+						onPress={() => {setTabState(5)}}
+					>
+						<Text style={[styles.headerTabText, tabState == 5 ? styles.headerTabTextOn : null]}>추가1</Text>
+						{tabState == 5 ? (<View style={styles.activeLine}></View>) : null}
+					</TouchableOpacity>
 
-						<TouchableOpacity
-							style={styles.headerTab}
-							activeOpacity={opacityVal}
-							onPress={() => {setTabState(6)}}
-						>
-							<Text style={[styles.headerTabText, tabState == 6 ? styles.headerTabTextOn : null]}>추가2</Text>
-							{tabState == 6 ? (<View style={styles.activeLine}></View>) : null}
-						</TouchableOpacity>
-					</View>
-				</ScrollView>
+					<TouchableOpacity
+						style={styles.headerTab}
+						activeOpacity={opacityVal}
+						onPress={() => {setTabState(6)}}
+					>
+						<Text style={[styles.headerTabText, tabState == 6 ? styles.headerTabTextOn : null]}>추가2</Text>
+						{tabState == 6 ? (<View style={styles.activeLine}></View>) : null}
+					</TouchableOpacity> */}
+				</View>
+				
 			</View>
 			
 			<FlatList 				
@@ -341,8 +404,8 @@ const Community = (props) => {
 								<ImgDomain fileWidth={28} fileName={'icon_sch.png'}/>
 							</TouchableOpacity>
 							<TextInput
-								value={sch}
-								onChangeText={(v) => setSch(v)}
+								value={commSch}
+								onChangeText={(v) => setCommSch(v)}
 								style={[styles.socialSchBoxWrapInput]}
 								returnKyeType='done'                      
 							/>
@@ -353,17 +416,11 @@ const Community = (props) => {
 					</TouchableWithoutFeedback>
 					</>					
 				}
-				// ListEmptyComponent={
-				// 	isLoading ? (
-				// 	<View style={styles.notData}>
-				// 		<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
-				// 	</View>
-				// 	) : (
-				// 		<View style={[styles.indicator]}>
-				// 			<ActivityIndicator size="large" />
-				// 		</View>
-				// 	)
-				// }
+				ListEmptyComponent={
+					<View style={styles.notData}>
+						<Text style={styles.notDataText}>등록된 커뮤니티가 없습니다.</Text>
+					</View>
+				}
 			/>
 			<View style={styles.gapBox}></View>
 
@@ -467,7 +524,7 @@ const styles = StyleSheet.create({
 	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
 	socialSchBoxWrap: {flexDirection:'row',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
 	socialSchBoxWrapBtn: {alignItems:'center',justifyContent:'center',width:38,height:40,backgroundColor:'#F9FAFB',},
-	socialSchBoxWrapInput: {width:innerWidth-38,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},	
+	socialSchBoxWrapInput: {width:innerWidth-38,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},	
 	flatListPad: {height:20,},
 
 	swiperView: {height: widnowWidth/4.9,backgroundColor:'#fff'},
@@ -494,15 +551,15 @@ const styles = StyleSheet.create({
 	commLiInfo: {width:innerWidth-80,paddingHorizontal:10,},
 	commLiInfo2: {width:innerWidth-38,paddingRight:0,},
 	commLiInfoSubject: {flexDirection:'row',alignItems:'center',},
-	commLiInfoSubjectText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1e1e1e'},
+	commLiInfoSubjectText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:19,color:'#1e1e1e'},
 	commLiInfoAlert: {marginLeft:4,},
-	commLiSubInfo: {flexDirection:'row',alignItems:'center',marginTop:3},
+	commLiSubInfo: {flexDirection:'row',alignItems:'center',marginTop:5},
 	commLiSubView: {flexDirection:'row',alignItems:'center',},
 	commLiSubView2: {marginLeft:4,},
 	commLiSubViewText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:14,color:'#B8B8B8'},
 	commLiSubLine: {width:1,height:6,backgroundColor:'#EDEDED',marginHorizontal:7,position:'relative',top:1,},
-	commLiThumb : {alignItems:'center',justifyContent:'center',width:42,height:42,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,overflow:'hidden'},
-	
+	commLiThumb: {alignItems:'center',justifyContent:'center',width:42,height:42,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,overflow:'hidden'},
+
 
 	filterTitle: {},
 	filterTitleText: {fontFamily:Font.NotoSansSemiBold,fontSize:16,lineHeight:18,color:'#1e1e1e'},
@@ -547,6 +604,9 @@ const styles = StyleSheet.create({
 	pickDateBox: {flexDirection:'row',flexWrap:'wrap',},
 	pickDateView: {alignItems:'center',justifyContent:'center',width:71,height:33,backgroundColor:'#EDF2FE',borderRadius:50,marginLeft:8,},
 	pickDateViewText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:18,color:'#222'},
+
+	notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},

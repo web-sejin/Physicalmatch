@@ -7,7 +7,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -29,9 +31,12 @@ const ModifyLogin = (props) => {
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
+	const [memberIdx, setMemberIdx] = useState();
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [state, setState] = useState(false);
-	const [id, setId] = useState('user_id');
+	const [id, setId] = useState();
+	const [phone, setPhone] = useState();
+	const [newPhone, setNewPhone] = useState();
 	const [pw, setPw] = useState('');
 	const [pw2, setPw2] = useState('');
 	const [pw3, setPw3] = useState('');
@@ -48,6 +53,11 @@ const ModifyLogin = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
@@ -80,12 +90,33 @@ const ModifyLogin = (props) => {
 		}
 	}, [pw, pw2, pw3, cert]);
 
-	const fnCert = () => {
+	useEffect(() => {
+		if(memberIdx){
+			getMemInfo();
+		}
+	}, [memberIdx])
+
+	const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);	
+		//console.log(response);
+		if(response.code == 200){
+			setId(response.data.member_id);
+			setPhone(response.data.member_phone);
+		}
+	}
+
+	const fnCert = async () => {
+		setNewPhone('010-9999-7570');
 		setCert(!cert);
 	}
 
-	const update = () => {
-
+	const update = async () => {
 		if(!pw || pw == ""){
 			ToastMessage('기존 비밀번호를 입력해 주세요.');
 			return false;
@@ -105,7 +136,6 @@ const ModifyLogin = (props) => {
 			return false;
 		}
 
-    
 		if(pw == pw2){
 			ToastMessage('기존 비밀번호와 변경할 비밀번호가 같습니다.\n다시 입력해 주세요.');
 			return false;
@@ -125,6 +155,19 @@ const ModifyLogin = (props) => {
 			ToastMessage('휴대폰 번호를 인증해 주세요.');
 			return false;
 		}
+
+		let sData = {
+			basePath: "/api/member/",
+			type: "SetMemberInfo",
+      member_idx: memberIdx,
+      member_pw: pw,
+      member_new_pw: pw2,
+      member_new_repw: pw3,
+			member_phone: phone,
+			member_new_phone: newPhone,
+		};
+		const response = await APIs.send(sData);
+		console.log(response);
 	}
 
 	const headerHeight = 48;

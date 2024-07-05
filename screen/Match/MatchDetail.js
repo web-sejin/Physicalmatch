@@ -302,6 +302,36 @@ const MatchDetail = (props) => {
     const text = await Clipboard.getString();
     console.log(text);
   };
+
+  const product = [
+    {idx:1, subject:'상품명1', desc:'100', price:'50,000', best:false},
+    {idx:2, subject:'상품명2', desc:'200', price:'50,000', best:true},
+    {idx:3, subject:'상품명3', desc:'300', price:'50,000', best:false},
+    {idx:4, subject:'상품명4', desc:'400', price:'50,000', best:false},
+    {idx:5, subject:'상품명5', desc:'500', price:'50,000', best:false},
+    {idx:6, subject:'상품명6', desc:'600', price:'50,000', best:false},
+  ]
+
+  const getProductList = ({item, index}) => {
+    return (
+      <TouchableOpacity
+        style={[styles.productBtn, prdIdx==item.idx ? styles.productBtnOn : null, styles.mgr10, product.length == index+1 ? styles.mgr40 : null]}
+        activeOpacity={opacityVal}
+        onPress={()=>{setPrdIdx(item.idx)}}
+      >
+        <Text style={styles.productText1}>{item.subject}</Text>
+        {item.best ? (
+          <View style={[styles.productBest, styles.productBest2]}>
+            <Text style={styles.productText2}>BEST</Text>
+          </View>
+        ) : (
+          <View style={styles.productBest}></View>
+        )}        
+        <Text style={[styles.productText3, prdIdx==item.idx ? styles.productText3On : null]}>개당 ￦{item.desc}</Text>
+        <Text style={styles.productText4}>￦{item.price}</Text>
+      </TouchableOpacity>
+    )
+  }
  
   const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -466,7 +496,7 @@ const MatchDetail = (props) => {
           <View style={styles.detailInfo2TextBox}>
             <Text style={styles.detailInfo2Text}>최종 참여를 신청 하시겠습니까?</Text>
           </View>
-          <View style={[styles.pointBox, styles.mgt20]}>            
+          <View style={[styles.pointBox, styles.mgt20]}> 
             <ImgDomain fileWidth={24} fileName={'coin.png'}/>
             <Text style={styles.pointBoxText}>500</Text>
           </View>
@@ -1384,13 +1414,13 @@ const MatchDetail = (props) => {
 					onPress={()=>cashPopClose()}
 				>
 				</TouchableOpacity>
-				<View style={styles.prvPopBot}>
+				<View style={[styles.prvPopBot, styles.prvPopBot3]}>
           <View style={styles.popInImageView}>
             <View style={styles.popInImageViewBox}>              
               <ImgDomain fileWidth={100} fileName={'sample2.jpg'} />
             </View>
           </View>
-					<View style={[styles.popTitle]}>
+          <View style={[styles.popTitle, styles.pdl20, styles.pdr20]}>
             {cashType == 1 ? (
             <>
 						<Text style={[styles.popBotTitleText, styles.popBotTitleTextLine]}>개팅님을 놓치지 마세요!</Text>							
@@ -1420,7 +1450,19 @@ const MatchDetail = (props) => {
             ) : null}
 					</View>					
 					<View style={styles.productList}>
-						<TouchableOpacity
+            <FlatList
+              data={product}
+              renderItem={getProductList}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal={true} // row instead of column
+              // Add the 4 properties below for snapping
+              snapToAlignment={"start"} 
+              snapToInterval={(innerWidth/3)+3} // Adjust to your content width
+              decelerationRate={"fast"}      
+              style={{paddingLeft:20,}} 
+              showsHorizontalScrollIndicator={false}
+            />
+						{/* <TouchableOpacity
 							style={[styles.productBtn, prdIdx==1 ? styles.productBtnOn : null]}
 							activeOpacity={opacityVal}
 							onPress={()=>{setPrdIdx(1)}}
@@ -1451,9 +1493,9 @@ const MatchDetail = (props) => {
 							<View style={styles.productBest}></View>
 							<Text style={[styles.productText3, prdIdx==3 ? styles.productText3On : null]}>개당 ￦000</Text>
 							<Text style={styles.productText4}>￦50,000</Text>
-						</TouchableOpacity>
+						</TouchableOpacity> */}
 					</View>
-					<View style={[styles.popBtnBox]}>
+					<View style={[styles.popBtnBox, styles.pdl20, styles.pdr20]}>
 						<TouchableOpacity 
 							style={[styles.popBtn]}
 							activeOpacity={opacityVal}
@@ -2149,6 +2191,7 @@ const styles = StyleSheet.create({
 
   prvPopBot: {width:widnowWidth,maxHeight:innerHeight,paddingTop:40,paddingBottom:10,paddingHorizontal:20,backgroundColor:'#fff',borderTopLeftRadius:20,borderTopRightRadius:20,position:'absolute',bottom:0,},
 	prvPopBot2: {width:widnowWidth,position:'absolute',bottom:0,},
+  prvPopBot3: {paddingHorizontal:0,},
 	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,lineHeight:24,color:'#1e1e1e',},
   popBotTitleTextLine: {lineHeight:22,},
 	popBotTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#666',marginTop:10,},
@@ -2243,6 +2286,8 @@ const styles = StyleSheet.create({
 	},
   boxShadow4: {borderWidth:1,borderColor:'rgba(209,145,60,0.3)',shadowColor: "#D1913C",shadowOpacity: 0.25,shadowRadius: 4.65,elevation: 6,},
 
+  pdl20: {paddingLeft:20},
+  pdr20: {paddingRight:20},
   mgt0: {marginTop:0},
   mgt5: {marginTop:5},
   mgt10: {marginTop:10},
@@ -2252,8 +2297,14 @@ const styles = StyleSheet.create({
   mgt50: {marginTop:50},
   mgb0: {marginBottom:0,},
   mgb10: {marginBottom:10,},
-  mgl0: {marginLeft:0,},
-  mgr0: {marginRight:0,},
+  mgr10: {marginRight:10},
+  mgr15: {marginRight:15},
+  mgr20: {marginRight:20},
+  mgr30: {marginRight:30},
+  mgr40: {marginRight:40},
+	mgl0: {marginLeft:0},
+  mgl10: {marginLeft:10},
+  mgl15: {marginLeft:15},
 })
 
 export default MatchDetail

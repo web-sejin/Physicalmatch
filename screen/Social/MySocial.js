@@ -124,12 +124,11 @@ const MySocial = (props) => {
 			}else if(response.msg == 'EMPTY'){
 				setTotalPage(1);
 				setSocialList([]);
-			}
-			setTimeout(function(){
-				setLoading(false);
-			}, 300);
-			
+			}						
 		}
+		setTimeout(function(){
+			setLoading(false);
+		}, 300);
   }
 
 	let in_ing_state = 'y';

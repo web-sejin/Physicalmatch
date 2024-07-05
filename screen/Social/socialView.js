@@ -27,20 +27,6 @@ const opacityVal2 = 0.95;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const SocialView = (props) => {
-  const Data1 = [
-		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },
-    { 'idx': 4, 'isFlipped':true, 'name':'닉네임최대여덟4', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':false },		
-	];
-
-  const Data2 = [
-		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },
-    { 'idx': 4, 'isFlipped':true, 'name':'닉네임최대여덟4', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':false },		
-	];
-
   const {navigation, userInfo, chatInfo, route} = props;
   const {params} = route
   const social_idx = params['social_idx'];
@@ -76,9 +62,7 @@ const SocialView = (props) => {
 	const [layout2, setLayout2] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [layout3, setLayout3] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
-  const [data1List, setData1List] = useState(Data1);
-  const [data1List2, setData1List2] = useState(Data2);
-
+  const [deleteState, setDeleteState] = useState(false); //글 삭제 여부
   const [userType, setUserType] = useState(); //1=>호스트, 2=>게스트
   const [writerIdx, setWriteIdx] = useState();
   const [nick, setNick] = useState('');
@@ -125,7 +109,7 @@ const SocialView = (props) => {
   
   const [memberIdx, setMemberIdx] = useState();
   const [memberInfo, setMemberInfo] = useState({});
-  const [guestPartyState, setGuestPartyState] = useState();
+  const [guestPartyState, setGuestPartyState] = useState();  
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -319,14 +303,14 @@ const SocialView = (props) => {
       }else{
         setUserType(2);
         if(response.data.join.request[0] == null){
-          
+          setGuestPartyState();
         }else{
           setGuestPartyState(response.data.join.request[0].sj_status);
         }
       }
 
       if(response.data.img[0] == undefined){
-
+        setVisualImg('');
       }else{
         setVisualImg(response.data.img[0].si_img);
       }
@@ -382,6 +366,13 @@ const SocialView = (props) => {
       if(response.data.comment.length > 0){
         setCommentList(response.data.comment);
       }              
+
+      if(response.data.social.delete_yn == 'y'){
+        setDeleteState(true);
+      }
+
+
+      ////여기부터 작업해야 함
       
       setUpPoint(100); //끌어올리기에 필요한 포인트
       
@@ -394,6 +385,7 @@ const SocialView = (props) => {
       
       setMiniPoint(200); //미니프로필 오픈을 위한 포인트
       setMiniChg(0); //0=>포인트 있음, 1=>포인트 부족
+      
 
       setTimeout(() => {
         setLoading(false);
@@ -724,6 +716,36 @@ const SocialView = (props) => {
       ToastMessage('잠시후 다시 이용해 주세요.');
     }
     setSocialPop2(false);
+  }
+
+  const product = [
+    {idx:1, subject:'상품명1', desc:'100', price:'50,000', best:false},
+    {idx:2, subject:'상품명2', desc:'200', price:'50,000', best:true},
+    {idx:3, subject:'상품명3', desc:'300', price:'50,000', best:false},
+    {idx:4, subject:'상품명4', desc:'400', price:'50,000', best:false},
+    {idx:5, subject:'상품명5', desc:'500', price:'50,000', best:false},
+    {idx:6, subject:'상품명6', desc:'600', price:'50,000', best:false},
+  ]
+
+  const getProductList = ({item, index}) => {
+    return (
+      <TouchableOpacity
+        style={[styles.productBtn, prdIdx==item.idx ? styles.productBtnOn : null, styles.mgr10, product.length == index+1 ? styles.mgr40 : null]}
+        activeOpacity={opacityVal}
+        onPress={()=>{setPrdIdx(item.idx)}}
+      >
+        <Text style={styles.productText1}>{item.subject}</Text>
+        {item.best ? (
+          <View style={[styles.productBest, styles.productBest2]}>
+            <Text style={styles.productText2}>BEST</Text>
+          </View>
+        ) : (
+          <View style={styles.productBest}></View>
+        )}        
+        <Text style={[styles.productText3, prdIdx==item.idx ? styles.productText3On : null]}>개당 ￦{item.desc}</Text>
+        <Text style={styles.productText4}>￦{item.price}</Text>
+      </TouchableOpacity>
+    )
   }
 
   const headerHeight = 48;
@@ -1147,7 +1169,7 @@ const SocialView = (props) => {
                 </View>
 
                 <View style={styles.mgt40}>
-                  <View style={[styles.cmViewTitle, acceptList.length < 1 ? styles.mgb0 : null]}>
+                  <View style={[styles.cmViewTitle, joinList.length < 1 ? styles.mgb0 : null]}>
                     <Text style={styles.cmViewTitleText}>참여자</Text>
                   </View>
                   <View style={styles.cardView}>
@@ -1263,7 +1285,7 @@ const SocialView = (props) => {
                 {guestPartyState == 0 ? (
                 <TouchableOpacity 
                   style={styles.reqStateBox}
-                  activeOpacity={opacityVal}
+                  activeOpacity={1}
                   onPress={()=>{setReadyPop(true)}}
                 >                  
                   <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>                    
@@ -1291,7 +1313,7 @@ const SocialView = (props) => {
                 {guestPartyState == 1 ? (
                 <TouchableOpacity 
                   style={styles.reqStateBox}
-                  activeOpacity={opacityVal}
+                  activeOpacity={1}
                   onPress={()=>{navigation.navigate('MatchDetail')}}
                 >                                        
                   <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
@@ -1339,7 +1361,7 @@ const SocialView = (props) => {
                 {guestPartyState == 3 ? (
                 <TouchableOpacity 
                   style={styles.reqStateBox}
-                  activeOpacity={opacityVal}
+                  activeOpacity={1}
                   onPress={()=>{navigation.navigate('MatchDetail')}}
                 >                            
                   <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
@@ -1387,7 +1409,7 @@ const SocialView = (props) => {
                 {guestPartyState == 4 ? (
                 <TouchableOpacity 
                   style={styles.reqStateBox}
-                  activeOpacity={opacityVal}
+                  activeOpacity={1}
                   onPress={()=>{navigation.navigate('MatchDetail')}}
                 >                            
                   <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
@@ -1444,7 +1466,7 @@ const SocialView = (props) => {
                 </View>
               ) : null}
 
-              <View style={[styles.reviewWrap, styles.pdt0, memberInfo.member_type == 0 ? styles.reviewWrap2 : null]}>
+              <View style={[styles.reviewWrap, styles.pdt0]}>
                 {memberInfo.member_type == 0 ? (
                 <>
                 <View style={{height:5,}}></View>
@@ -1496,7 +1518,9 @@ const SocialView = (props) => {
                                   setReviewType(1);
                                   setSubReivewNick(item.sc_social_nick);
                                   setSubReviewIdx(item.sc_idx);
-                                  scrollRef.current?.scrollTo({y:layout3.y+10});
+                                  setTimeout(function(){
+                                    scrollRef.current?.scrollTo({y:layout3.y+10});
+                                  }, 100)
                                 }}
                               >
                                 <Text style={styles.reviewBtnText}>대댓글달기</Text>
@@ -1603,6 +1627,7 @@ const SocialView = (props) => {
         </TouchableOpacity>
 				<View style={styles.dotPop}>
           {userType == 1 ? (
+            !deleteState ? (
             <>
             <TouchableOpacity
               style={styles.dotPopBtn}
@@ -1623,6 +1648,7 @@ const SocialView = (props) => {
               <Text style={styles.dotPopBtnText}>삭제하기</Text>
             </TouchableOpacity>
             </>
+            ) : null
           ): (
             <>
             <TouchableOpacity
@@ -1857,9 +1883,7 @@ const SocialView = (props) => {
                 <TouchableOpacity 
                 style={[styles.popBtn]}
                   activeOpacity={opacityVal}
-                  onPress={() => {
-                    console.log('작업해야 함');
-                  }}
+                  onPress={() => {navigation.navigate('Shop')}}
                 >
                   <Text style={styles.popBtnText}>상점으로 이동</Text>
                 </TouchableOpacity>
@@ -2043,46 +2067,26 @@ const SocialView = (props) => {
 					onPress={()=>{setCashPop(false)}}
 				>
 				</TouchableOpacity>
-				<View style={styles.prvPopBot}>
-					<View style={[styles.popTitle]}>
+				<View style={[styles.prvPopBot, styles.prvPopBot3]}>
+					<View style={[styles.popTitle, styles.pdl20, styles.pdr20]}>
 						<Text style={styles.popBotTitleText}>지금 이 소셜, 놓치지 마세요!</Text>							
 						<Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 바로 신청할 수 있어요</Text>
 					</View>					
 					<View style={styles.productList}>
-						<TouchableOpacity
-							style={[styles.productBtn, prdIdx==1 ? styles.productBtnOn : null]}
-							activeOpacity={opacityVal}
-							onPress={()=>{setPrdIdx(1)}}
-						>
-							<Text style={styles.productText1}>000</Text>
-							<View style={styles.productBest}></View>							
-							<Text style={[styles.productText3, prdIdx==1 ? styles.productText3On : null]}>개당 ￦000</Text>
-							<Text style={styles.productText4}>￦50,000</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={[styles.productBtn, prdIdx==2 ? styles.productBtnOn : null]}
-							activeOpacity={opacityVal}
-							onPress={()=>{setPrdIdx(2)}}
-						>
-							<Text style={styles.productText1}>000</Text>
-							<View style={[styles.productBest, styles.productBest2]}>
-								<Text style={styles.productText2}>BEST</Text>
-							</View>
-							<Text style={[styles.productText3, prdIdx==2 ? styles.productText3On : null]}>개당 ￦000</Text>
-							<Text style={styles.productText4}>￦50,000</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={[styles.productBtn, prdIdx==3 ? styles.productBtnOn : null]}
-							activeOpacity={opacityVal}
-							onPress={()=>{setPrdIdx(3)}}
-						>
-							<Text style={styles.productText1}>000</Text>
-							<View style={styles.productBest}></View>
-							<Text style={[styles.productText3, prdIdx==3 ? styles.productText3On : null]}>개당 ￦000</Text>
-							<Text style={styles.productText4}>￦50,000</Text>
-						</TouchableOpacity>
+            <FlatList
+              data={product}
+              renderItem={getProductList}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal={true} // row instead of column
+              // Add the 4 properties below for snapping
+              snapToAlignment={"start"} 
+              snapToInterval={(innerWidth/3)+3} // Adjust to your content width
+              decelerationRate={"fast"}      
+              style={{paddingLeft:20,}} 
+              showsHorizontalScrollIndicator={false}
+            />
 					</View>
-					<View style={[styles.popBtnBox]}>
+					<View style={[styles.popBtnBox, styles.pdl20, styles.pdr20]}>
 						<TouchableOpacity 
 							style={[styles.popBtn]}
 							activeOpacity={opacityVal}
@@ -2093,9 +2097,12 @@ const SocialView = (props) => {
 						<TouchableOpacity 
 							style={[styles.popBtn, styles.popBtnOff2]}
 							activeOpacity={opacityVal}
-							onPress={() => {setCashPop(false)}}
+              onPress={() => {
+                setCashPop(false);
+                navigation.navigate('Shop');
+            }}
 						>
-							<Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
+							<Text style={[styles.popBtnText, styles.popBtnOffText]}>상점 이동하기</Text>
 						</TouchableOpacity>						
 					</View>
 				</View>
@@ -2309,7 +2316,7 @@ const styles = StyleSheet.create({
 
   reviewWrap: {alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',paddingTop:20,},  
   blurView: {width:widnowWidth,height:'100%',position:'absolute',left:0,top:0,zIndex:10000,},
-  blurView2: {width:46,height:46,position:'absolute',left:0,top:0,zIndex:100,},
+  blurView2: {width:46,height:46,position:'absolute',left:0,top:20,zIndex:100,},
   blurAlert: {position:'absolute',zIndex:10001,},
   blurAlertText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:28,color:'#243B55'},
   reviewDepth: {flexDirection:'row',flexWrap:'wrap',marginTop:30,},
@@ -2380,6 +2387,7 @@ const styles = StyleSheet.create({
 
 	prvPopBot: {width:widnowWidth,paddingTop:40,paddingBottom:10,paddingHorizontal:20,backgroundColor:'#fff',borderTopLeftRadius:20,borderTopRightRadius:20,position:'absolute',bottom:0,},
 	prvPopBot2: {width:widnowWidth,position:'absolute',bottom:0,},
+  prvPopBot3: {paddingHorizontal:0,},
 	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,color:'#1e1e1e',},
 	popBotTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#666',marginTop:10,},
 
@@ -2463,24 +2471,33 @@ const styles = StyleSheet.create({
   pdt15: {paddingTop:15},
   pdt20: {paddingTop:20},
   pdt30: {paddingTop:30},
+  pdt40: {paddingTop:40},
+  pdb0: {paddingBottom:0},
   pdb10: {paddingBottom:10},
   pdb20: {paddingBottom:20},
   pdb30: {paddingBottom:30},
+  pdb40: {paddingBottom:40},
+  pdl20: {paddingLeft:20},
+  pdr20: {paddingRight:20},
 	mgt0: {marginTop:0},
-  mgt4: {marginTop:4},
 	mgt5: {marginTop:5},
 	mgt10: {marginTop:10},
 	mgt20: {marginTop:20},
 	mgt30: {marginTop:30},
 	mgt40: {marginTop:40},
 	mgt50: {marginTop:50},
-  mgb0: {marginBottom:0},
-	mgb10: {marginBottom:10},
+	mgb0: {marginBottom:0},
+  mgb10: {marginBottom:10},
 	mgb20: {marginBottom:20},
 	mgr0: {marginRight:0},
   mgr10: {marginRight:10},
+  mgr15: {marginRight:15},
   mgr20: {marginRight:20},
+  mgr30: {marginRight:30},
+  mgr40: {marginRight:40},
 	mgl0: {marginLeft:0},
+  mgl10: {marginLeft:10},
+  mgl15: {marginLeft:15},
   zindex10: {zIndex:10,},
 })
 
