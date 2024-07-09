@@ -2666,7 +2666,7 @@ const styles = StyleSheet.create({
 	popRadioBoxBtn4TextDesc: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:15,color:'#666'},
 
 	popRadioBoxBtn5: {width:52,height:33,paddingHorizontal:0,},
-	popRadioBoxBtn5Text: {textAlign:'center',fontSize:13,lineHeight:33,color:'#1e1e1e'},
+	popRadioBoxBtn5Text: {textAlign:'center',fontSize:13,lineHeight:25,color:'#1e1e1e'},
 
 	popRadioBoxBtnOn: {backgroundColor:'rgba(209,145,60, 0.15)',borderColor:'#D1913C'},
 	popRadioBoxBtnTextOn: {color:'#D1913C'},

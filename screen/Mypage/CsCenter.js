@@ -91,7 +91,7 @@ const CsCenter = (props) => {
 
   const getInquery = async () => {
     let sData = {      
-      basePath: "/api/etc/index.php",
+      basePath: "/api/etc/",
 			type: "GetInquiryList",
       member_idx: memberIdx,
 		}

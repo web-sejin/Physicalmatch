@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">피지컬매치</string>
+    <string name="app_name">피지컬 매치</string>
     <string name="kakao_app_key">16eb0d369336f60af043d6bf5bd08bba</string>
     <string name="kakao_scheme">kakao16eb0d369336f60af043d6bf5bd08bba</string>
     <string name="kakaolink_host">kakaolink</string>

@@ -82,7 +82,7 @@ const Login = (props) => {
 			firebase_token: firebaseToken,
 		}
 		const response = await APIs.send(sData);
-		console.log(response);
+		//console.log(response);
 		if(response.code == 200){
 			setLoading(false);
 			AsyncStorage.setItem('member_id', id);
@@ -118,6 +118,10 @@ const Login = (props) => {
 			if(type == 0){
 				navigation.navigate('RegisterResult');
 			}else if(type == 1){
+				//관리자 & 신규회원평가 모두 인증 방식
+				navigation.navigate('TabNavigation', {screen:'Home'});
+			}else if(type == 2){
+				//관리자만 인증 방식
 				navigation.navigate('TabNavigation', {screen:'Home'});
 			}
 	}

@@ -81,7 +81,7 @@ const TabBarMenu = (props) => {
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
         onPress={() => {
-          if(memberType == 1){
+          if(memberType == 1 || memberType == 2){
             navigation.navigate('Home');
           }else{
             ToastMessage('앗! 정회원만 이용할 수 있어요🥲');

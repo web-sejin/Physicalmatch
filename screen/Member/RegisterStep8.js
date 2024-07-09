@@ -253,7 +253,7 @@ const RegisterStep8 = ({navigation, route}) => {
     })
 		.then(image => {
 			let megabytes = parseInt(Math.floor(Math.log(image.size) / Math.log(1024)));
-			let selectObj = {path: image.path, mime: image.mime, name:image.filename, size:megabytes}
+			let selectObj = {path: image.path, mime: image.mime, name:'auth_badge.png', size:megabytes}
 			//console.log(selectObj);
 			setFile(selectObj);
 		})
@@ -333,7 +333,7 @@ const RegisterStep8 = ({navigation, route}) => {
 		ImagePicker.openPicker({})
 		.then(image => {
 			let megabytes = parseInt(Math.floor(Math.log(image.size) / Math.log(1024)));
-			let selectObj = {path: image.path, mime: image.mime, name:image.filename, size:megabytes}			
+			let selectObj = {path: image.path, mime: image.mime, name:'auth_job.png', size:megabytes}			
 			setJobFile(selectObj);
 		})
 		.finally(() => {});
@@ -371,7 +371,7 @@ const RegisterStep8 = ({navigation, route}) => {
 		ImagePicker.openPicker({})
 		.then(image => {
 			let megabytes = parseInt(Math.floor(Math.log(image.size) / Math.log(1024)));
-			let selectObj = {path: image.path, mime: image.mime, name:image.filename, size:megabytes}			
+			let selectObj = {path: image.path, mime: image.mime, name:'auth_school.png', size:megabytes}			
 			setSchoolFile(selectObj);
 		})
 		.finally(() => {});
@@ -462,10 +462,15 @@ const RegisterStep8 = ({navigation, route}) => {
 
 	const nextStep = async () => {
 		//setLoading(true);
+		let prv_chk = 0;
+		if(route['params']['prvChk4']){
+			prv_chk = 1;
+		}
+
 		const nextObj2 = {
 			basePath: "/api/member/index.php",
 			type: "SetReigst",
-			prvChk4:route['params']['prvChk4'],
+			prvChk4:prv_chk,
 			accessRoute:route['params']['accessRoute'],
 			member_id:route['params']['member_id'],			
 			member_pw:route['params']['member_pw'],

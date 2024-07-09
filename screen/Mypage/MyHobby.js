@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
 	myKeywordViewThText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:27,color:'#1e1e1e'},
 	myKeywordViewTd: {flexDirection:'row',flexWrap:'wrap'},
 	myKeywordBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',height:27,paddingHorizontal:12,backgroundColor:'#EDF2FE',borderRadius:50,marginRight:8,},
-	myKeywordBtnText: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:25,marginRight:5},
+	myKeywordBtnText: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:25,color:'#1e1e1e',marginRight:5},
 
 	lineView: {height:6,backgroundColor:'#F2F4F6'},
 	pdt0: {paddingTop:0},

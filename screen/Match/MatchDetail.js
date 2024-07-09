@@ -9,7 +9,18 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import Toast from 'react-native-toast-message';
 import Clipboard from '@react-native-clipboard/clipboard';
+import AsyncStorage from '@react-native-community/async-storage';
+import RNIap, {
+  initConnection, endConnection,
+  getProducts, getSubscriptions, Product,
+  requestPurchase, requestSubscription, 
+  flushFailedPurchasesCachedAsPendingAndroid,
+  clearProductsIOS, clearTransactionIOS, validateReceiptIos,getReceiptIOS,
+  purchaseErrorListener, purchaseUpdatedListener, getAvailablePurchases,
+  finishTransaction
+} from 'react-native-iap';
 
+import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
@@ -23,15 +34,6 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const MatchDetail = (props) => {
-  const reportList = [
-    { val: 1, txt: '당일 약속 취소 / 과도한 지각',},
-    { val: 2, txt: '무리한 스킨십 시도',},
-    { val: 3, txt: '허위 프로필 (사진 도용 등)',},
-    { val: 4, txt: '비방 / 혐오 / 욕설',},
-    { val: 5, txt: '비매너 행위',},
-    { val: 6, txt: '기타',},
-  ]
-
   const inviteList = [
     {idx:1, txt:'초중고 동창'},
     {idx:2, txt:'친척'},
@@ -53,7 +55,7 @@ const MatchDetail = (props) => {
     {idx:4, imgUrl:''},
   ]
 
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -63,6 +65,7 @@ const MatchDetail = (props) => {
 	const [currFocus, setCurrFocus] = useState('');	
 	const [preventBack, setPreventBack] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
 
   const swiperRef = useRef(null);
   const etcRef = useRef(null);
@@ -87,6 +90,7 @@ const MatchDetail = (props) => {
   const [cashType, setCashType] = useState(0); //1:소통 보내기, 2:번호 오픈, 3:연애관 팝업
   const [cashPop, setCashPop] = useState(false);
   const [prdIdx, setPrdIdx] = useState(1);
+  const [skuCode, setSkuCode] = useState();
   const [matchPop, setMatchPop] = useState(false);
   const [numbOpenPop, setNumbOpenPop] = useState(false);
   const [valuesConfirm, setValuesConfirm] = useState(false);
@@ -102,6 +106,11 @@ const MatchDetail = (props) => {
   const [swiperList, setSwiperList] = useState([]);
   const [warterList, setWarterList] = useState([]);
   const [phoneNumber, setPhoneNumber] = useState('');
+
+  const [reportList, setReportList] = useState([]);
+  const [productApiList, setProductApiList] = useState([]);
+  const [productInappList, setProductInappList] = useState([]);
+  const [platformData, setPlatformData] = useState(null);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -186,7 +195,7 @@ const MatchDetail = (props) => {
 
   useEffect(() => {
     if(report != ''){
-      if(report == '기타'){
+      if(report == 6){
         setTimeout(function(){
           etcRef.current?.focus();
         }, 100)
@@ -195,6 +204,171 @@ const MatchDetail = (props) => {
       }
     }
   }, [report]);
+
+  useEffect(() => {
+    getReportList();
+    getProductListApi();
+  }, []);
+
+  useEffect(()=>{    
+    if(platformData){
+      initConnection().then(async(result) => {
+        //console.log('result :::: ', result);
+        if(Platform.OS == 'android'){
+
+          // Platform ANDROID
+          flushFailedPurchasesCachedAsPendingAndroid()        
+          .catch((err) => {
+            console.log(err);
+          })
+          .then(() => {
+            purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
+              console.log('purchaseUpdatedListener Android', purchase);
+              const receipt = purchase.transactionReceipt;
+
+              if(receipt){
+                await finishTransaction({purchase, isConsumable: true})
+                .catch((error) => {
+                  console.log(error)
+                })
+              }
+              setLoading(false);
+            })
+          })        
+
+          purchaseErrorSubscription = purchaseErrorListener(async(error) => {
+            console.log('purchaseErrorListener', error);
+            let msg = '';
+            if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
+            if(error?.responseCode == -1){msg = '서비스 연결 해제'}
+            if(error?.responseCode == 1){msg = '사용자 취소'}
+            if(error?.responseCode == 2){msg = '서비스 이용 불가'}
+            if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
+            if(error?.responseCode == 4){msg = '사용 불가 상품'}
+            if(error?.responseCode == 5){msg = '개발자 오류'}
+            if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
+            if(error?.responseCode == 7){msg = '이미 구입한 상품'}
+            if(error?.responseCode == 8){msg = '구입 실패'}
+            if(error?.responseCode == 12){msg = '네트워크 오류'}
+            
+            setLoading(false);
+          })
+          // Platform ANDROID END
+
+        }else{
+
+          // Platform IOS
+          purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
+            //console.log('purchaseUpdatedListener IOS', purchase);
+            const receipt = purchase.transactionReceipt;
+
+            if(receipt){
+              await finishTransaction({purchase, isConsumable: true})
+              .catch((error) => {
+                console.log(error)
+              });
+
+              await clearProductsIOS();
+              await clearTransactionIOS();
+              setLoading(false);
+            }else{
+
+            }
+          });
+
+          purchaseErrorSubscription = purchaseErrorListener(async(error) => {
+            console.log('purchaseErrorListener', error);
+            let msg = '';
+            if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
+            if(error?.responseCode == -1){msg = '서비스 연결 해제'}
+            if(error?.responseCode == 1){msg = '사용자 취소'}
+            if(error?.responseCode == 2){msg = '서비스 이용 불가'}
+            if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
+            if(error?.responseCode == 4){msg = '사용 불가 상품'}
+            if(error?.responseCode == 5){msg = '개발자 오류'}
+            if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
+            if(error?.responseCode == 7){msg = '이미 구입한 상품'}
+            if(error?.responseCode == 8){msg = '구입 실패'}
+            if(error?.responseCode == 12){msg = '네트워크 오류'}
+
+            await clearProductsIOS();
+            await clearTransactionIOS();
+            setLoading(false);
+          });
+          // Platform IOS END        
+
+        }
+        
+        if(result){
+          await _getProducts();
+        }
+      }).catch(error => {
+        console.log('initConnection error', error)
+      });
+
+      return () => {
+        //console.log('return unmount')
+        if(purchaseUpdateSubscription){
+            //console.log('return purchaseUpdateSubscription');
+            purchaseUpdateSubscription.remove()
+            purchaseUpdateSubscription = null
+        }
+        if(purchaseErrorSubscription){
+            //console.log('return purchaseErrorSubscription');
+            purchaseErrorSubscription.remove()
+            purchaseErrorSubscription = null
+        }
+        endConnection()
+      }
+    }
+  }, [platformData]);
+
+  const getReportList = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetReportReasonList",
+		};
+
+		const response = await APIs.send(sData);    
+    if(response.code == 200){
+      setReportList(response.data);
+    }
+  }
+
+  const getProductListApi = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetProductList",
+      sort: 0,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200 && response.data){
+      setProductApiList(response.data);     
+      setPrdIdx(response.data[0].pd_idx);
+      
+      if(Platform.OS === 'ios'){
+        setSkuCode(response.data[0].pd_code_ios);
+      }else{
+        setSkuCode(response.data[0].pd_code_aos);
+      }
+      
+      // 플랫폼에 따른 데이터 설정
+      const values = {
+        ios: response.ios, // iOS일 때 데이터
+        android: response.aos, // Android일 때 데이터        
+      };      
+
+      // Platform.select 사용      
+      const selectedValue = Platform.select(values);
+      //console.log("selectedValue ::: ", selectedValue);
+      setPlatformData(selectedValue);
+
+    }else{
+      setProductApiList([]);
+    }
+  }
 
   const fnReview = (v) => {
     setReviewScore(v);
@@ -220,7 +394,7 @@ const MatchDetail = (props) => {
       return false;
     }
 
-    if(report == '기타' && (reportEtc == '' || reportEtc.length < 3)){
+    if(report == 6 && (reportEtc == '' || reportEtc.length < 3)){
       ToastMessage('상세 사유를 3자 이상 입력해 주세요.');
       return false;
     }
@@ -277,6 +451,7 @@ const MatchDetail = (props) => {
       
     }
     cashPopClose();
+    _requestPurchase(skuCode);
   }
 
   const shareApp = () => {
@@ -303,34 +478,100 @@ const MatchDetail = (props) => {
     console.log(text);
   };
 
-  const product = [
-    {idx:1, subject:'상품명1', desc:'100', price:'50,000', best:false},
-    {idx:2, subject:'상품명2', desc:'200', price:'50,000', best:true},
-    {idx:3, subject:'상품명3', desc:'300', price:'50,000', best:false},
-    {idx:4, subject:'상품명4', desc:'400', price:'50,000', best:false},
-    {idx:5, subject:'상품명5', desc:'500', price:'50,000', best:false},
-    {idx:6, subject:'상품명6', desc:'600', price:'50,000', best:false},
-  ]
-
   const getProductList = ({item, index}) => {
+    //const price = item.pd_price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
     return (
       <TouchableOpacity
-        style={[styles.productBtn, prdIdx==item.idx ? styles.productBtnOn : null, styles.mgr10, product.length == index+1 ? styles.mgr40 : null]}
+        style={[styles.productBtn, prdIdx==item.pd_idx ? styles.productBtnOn : null, styles.mgr10, productApiList.length == index+1 ? styles.mgr40 : null]}
         activeOpacity={opacityVal}
-        onPress={()=>{setPrdIdx(item.idx)}}
+        onPress={()=>{
+          setPrdIdx(item.pd_idx);
+          if(Platform.OS === 'ios'){
+            setSkuCode(item.pd_code_ios);
+          }else{
+            setSkuCode(item.pd_code_aos);
+          }
+        }}
       >
-        <Text style={styles.productText1}>{item.subject}</Text>
-        {item.best ? (
+        <Text style={styles.productText1}>{item.pd_name}</Text>
+        {item.pd_best == 'y' ? (
           <View style={[styles.productBest, styles.productBest2]}>
             <Text style={styles.productText2}>BEST</Text>
           </View>
         ) : (
           <View style={styles.productBest}></View>
         )}        
-        <Text style={[styles.productText3, prdIdx==item.idx ? styles.productText3On : null]}>개당 ￦{item.desc}</Text>
-        <Text style={styles.productText4}>￦{item.price}</Text>
+        <Text style={[styles.productText3, prdIdx==item.pd_idx ? styles.productText3On : null]}>개당 ￦{item.pd_content}</Text>
+        <Text style={styles.productText4}>￦{item.pd_price}</Text>
       </TouchableOpacity>
     )
+  }
+
+  const itemSkus = platformData;
+
+  const endConnection = () => {}
+
+  const _getProducts = async () => {    
+    try {
+        const products = await getProducts({skus:itemSkus});
+        //console.log('Products', products);
+
+        if (products.length !== 0){
+          setProductInappList(products);
+        }
+        console.log('_getProducts success');
+    } catch (err){
+        console.warn("IAP error code ", err.code);
+        console.warn("IAP error message ", err.message);
+        console.warn("IAP error ", err);
+    }
+  }
+
+  const _requestPurchase = async (sku) => {
+    //console.log("IAP req", sku);
+    //setLoading2(true);
+    let iapObj = {skus: [sku], sku: sku};
+    let getItems = await getProducts(iapObj);
+    console.log('getItems :::: ', getItems);
+    try {
+      await requestPurchase(iapObj)
+      .then(async (result) => {
+          //console.log('IAP req sub', result);
+          if (Platform.OS === 'android'){
+            console.log('dataAndroid', result[0].dataAndroid);
+            // console.log("purchaseToken : ", result.purchaseToken);
+            // console.log("packageNameAndroid : ", result.packageNameAndroid);
+            // console.log("productId : ", result.productId);
+            console.log("성공");
+            // let inappPayResult =JSON.stringify({
+            //     type: "inappResult",
+            //     code: result.productId,
+            //     tno: result.transactionId,
+            //     token: result.purchaseToken,
+            // });
+            // console.log("inappPayResult : ", inappPayResult);            
+            // can do your API call here to save the purchase details of particular user
+          } else if (Platform.OS === 'ios'){
+            console.log(result);
+            //console.log(result.transactionReceipt);
+            // can do your API call here to save the purchase details of particular user
+          }
+
+          setLoading(false);
+      })
+      .catch((err) => {
+        //setLoading2(false);
+        console.log('err1', err);
+      });
+    } catch (err) {
+      //setLoading2(false);
+      console.log('err2', err.message);
+    }
+  }
+
+  const buyProduct = async () => {  
+    setCashPop(false);
+    _requestPurchase(skuCode);
   }
  
   const headerHeight = 48;
@@ -1123,19 +1364,19 @@ const MatchDetail = (props) => {
                       key={index}
                       style={[styles.reportRadioBtn, index == 0 ? styles.mgt0 : null]}
                       activeOpacity={opacityVal}
-                      onPress={() => setReport(item.txt)}
+                      onPress={() => setReport(item.rr_idx)}
                     >
-                      <Text style={styles.reportRadioBtnText}>{item.txt}</Text>
-                      {report == item.txt ? (
-                        <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+                      <Text style={styles.reportRadioBtnText}>{item.rr_content}</Text>
+                      {report == item.rr_idx ? (                        
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'}/>
                       ) : (
-                        <ImgDomain fileWidth={18} fileName={'icon_radio_off.png'} />
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'}/>
                       )}
                     </TouchableOpacity>
                   )
                 })}                  
               </View>
-              {report == '기타' ? (
+              {report == 6 ? (
               <View style={[styles.popIptBox]}>		
                 <TextInput
                   value={reportEtc}
@@ -1451,7 +1692,7 @@ const MatchDetail = (props) => {
 					</View>					
 					<View style={styles.productList}>
             <FlatList
-              data={product}
+              data={productApiList}
               renderItem={getProductList}
               keyExtractor={(item, index) => index.toString()}
               horizontal={true} // row instead of column
@@ -2219,7 +2460,7 @@ const styles = StyleSheet.create({
   productList: {flexDirection:'row',justifyContent:'space-between'},
 	productBtn: {width:(innerWidth/3)-7,backgroundColor:'#fff',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,paddingVertical:25,paddingHorizontal:10,},
 	productBtnOn: {backgroundColor:'rgba(209,145,60,0.15)',borderColor:'#D1913C'},
-	productText1: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:20,color:'#1e1e1e'},
+	productText1: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
 	productBest: {height:20,paddingHorizontal:8,borderRadius:20,marginTop:5,},
 	productBest2: {backgroundColor:'#FFBF1A',},
 	productText2: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:18,color:'#fff'},

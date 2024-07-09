@@ -3,10 +3,10 @@ import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, Tou
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import AsyncStorage from '@react-native-community/async-storage';
 import RNIap, {
   initConnection, endConnection,
   getProducts, getSubscriptions, Product,
@@ -17,10 +17,12 @@ import RNIap, {
   finishTransaction
 } from 'react-native-iap';
 
+import APIs from '../assets/APIs';
 import Font from "../assets/common/Font";
 import ToastMessage from "../components/ToastMessage";
 import Header from '../components/Header';
 import ImgDomain from '../assets/common/ImgDomain';
+import ImgDomain2 from '../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -30,12 +32,7 @@ const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
-const Shop = (props) => {
-  const data = [
-    {idx:1,},
-    {idx:2,},    
-  ]
-
+const Shop = (props) => {  
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route
@@ -46,9 +43,15 @@ const Shop = (props) => {
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [tabSt, setTabSt] = useState(1);
-  const [protainList, setProtainList] = useState(data);
-  const [freeList, setFreeList] = useState(data);
-  const [productList, setProductList] = useState([]);
+  const [protainList, setProtainList] = useState([]);
+  const [freeList, setFreeList] = useState([]);
+  const [memberIdx, setMemberIdx] = useState();
+  const [memberInfo, setMemberInfo] = useState();
+
+	const [skuCode, setSkuCode] = useState();
+	const [productApiList, setProductApiList] = useState([]);
+  const [productInappList, setProductInappList] = useState([]);
+  const [platformData, setPlatformData] = useState(null);
 
   let purchaseUpdateSubscription = null;
   let purchaseErrorSubscription = null;
@@ -64,6 +67,10 @@ const Shop = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      AsyncStorage.getItem('member_idx', (err, result) => {		        
+				setMemberIdx(result);
+			});
 
       if(params){
         if(params.tab == 2){
@@ -95,18 +102,206 @@ const Shop = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+  useEffect(() => {
+    getProductListApi();
+    getEventList();
+  }, []);
+
+	useEffect(()=>{    
+    if(platformData){
+      initConnection().then(async(result) => {
+        //console.log('result :::: ', result);
+        if(Platform.OS == 'android'){
+
+          // Platform ANDROID
+          flushFailedPurchasesCachedAsPendingAndroid()        
+          .catch((err) => {
+            console.log(err);
+          })
+          .then(() => {
+            purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
+              console.log('purchaseUpdatedListener Android', purchase);
+              const receipt = purchase.transactionReceipt;
+
+              if(receipt){
+                await finishTransaction({purchase, isConsumable: true})
+                .catch((error) => {
+                  console.log(error)
+                })
+              }
+              setLoading(false);
+            })
+          })        
+
+          purchaseErrorSubscription = purchaseErrorListener(async(error) => {
+            console.log('purchaseErrorListener', error);
+            let msg = '';
+            if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
+            if(error?.responseCode == -1){msg = '서비스 연결 해제'}
+            if(error?.responseCode == 1){msg = '사용자 취소'}
+            if(error?.responseCode == 2){msg = '서비스 이용 불가'}
+            if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
+            if(error?.responseCode == 4){msg = '사용 불가 상품'}
+            if(error?.responseCode == 5){msg = '개발자 오류'}
+            if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
+            if(error?.responseCode == 7){msg = '이미 구입한 상품'}
+            if(error?.responseCode == 8){msg = '구입 실패'}
+            if(error?.responseCode == 12){msg = '네트워크 오류'}
+            
+            setLoading(false);
+          })
+          // Platform ANDROID END
+
+        }else{
+
+          // Platform IOS
+          purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
+            //console.log('purchaseUpdatedListener IOS', purchase);
+            const receipt = purchase.transactionReceipt;
+
+            if(receipt){
+              await finishTransaction({purchase, isConsumable: true})
+              .catch((error) => {
+                console.log(error)
+              });
+
+              await clearProductsIOS();
+              await clearTransactionIOS();
+              setLoading(false);
+            }else{
+
+            }
+          });
+
+          purchaseErrorSubscription = purchaseErrorListener(async(error) => {
+            console.log('purchaseErrorListener', error);
+            let msg = '';
+            if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
+            if(error?.responseCode == -1){msg = '서비스 연결 해제'}
+            if(error?.responseCode == 1){msg = '사용자 취소'}
+            if(error?.responseCode == 2){msg = '서비스 이용 불가'}
+            if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
+            if(error?.responseCode == 4){msg = '사용 불가 상품'}
+            if(error?.responseCode == 5){msg = '개발자 오류'}
+            if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
+            if(error?.responseCode == 7){msg = '이미 구입한 상품'}
+            if(error?.responseCode == 8){msg = '구입 실패'}
+            if(error?.responseCode == 12){msg = '네트워크 오류'}
+
+            await clearProductsIOS();
+            await clearTransactionIOS();
+            setLoading(false);
+          });
+          // Platform IOS END        
+
+        }
+        
+        if(result){
+          await _getProducts();
+        }
+      }).catch(error => {
+        console.log('initConnection error', error)
+      });
+
+      return () => {
+        //console.log('return unmount')
+        if(purchaseUpdateSubscription){
+            //console.log('return purchaseUpdateSubscription');
+            purchaseUpdateSubscription.remove()
+            purchaseUpdateSubscription = null
+        }
+        if(purchaseErrorSubscription){
+            //console.log('return purchaseErrorSubscription');
+            purchaseErrorSubscription.remove()
+            purchaseErrorSubscription = null
+        }
+        endConnection()
+      }
+    }
+  }, [platformData]);
+
+  useEffect(() => {
+    if(memberIdx){
+      getMemInfo();
+    }
+  }, [memberIdx]);
+
+  const getMemInfo = async () => {    
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+      setMemberInfo(response.data);
+    }
+  }
+
+  const getProductListApi = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetProductList",
+      sort: 1,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200 && response.data){
+      setProtainList(response.data);           
+      
+      if(Platform.OS === 'ios'){
+        setSkuCode(response.data[0].pd_code_ios);
+      }else{
+        setSkuCode(response.data[0].pd_code_aos);
+      }
+      
+      // 플랫폼에 따른 데이터 설정
+      const values = {
+        ios: response.ios, // iOS일 때 데이터
+        android: response.aos, // Android일 때 데이터        
+      };      
+
+      // Platform.select 사용      
+      const selectedValue = Platform.select(values);
+      //console.log("selectedValue ::: ", selectedValue);
+      setPlatformData(selectedValue);
+
+    }else{
+      setProductApiList([]);
+    }
+  }
+
   const getList = ({item, index}) => {
 		return (
       <View style={[styles.listView, index == 0 ? styles.mgt40 : null]}>
         <View style={styles.listTitle}>
-          <Text style={styles.listTitleText}>상품 분류 제목</Text>
+          <Text style={styles.listTitleText}>{item.subject}</Text>
         </View>
         <View style={styles.listSubTitle}>
-          <Text style={styles.listSubTitleText}>상품 분류 부제</Text>
+          <Text style={styles.listSubTitleText}>{item.descrition}</Text>
         </View>
 
         <View style={styles.prdList}>
-          <TouchableOpacity
+          {item.product.map((item2, index2) => {
+            return (
+              <TouchableOpacity
+                style={[styles.prdLi, index2 == 0 ? styles.mgt0 : null]}
+                activeOpacity={opacityVal}
+                onPress={()=>{
+                  if(Platform.OS === 'ios'){
+                    _requestPurchase(item2.pd_code_ios);
+                  }else{
+                    _requestPurchase(item2.pd_code_aos);
+                  }                  
+                }}
+              >
+                <ImgDomain2 fileWidth={innerWidth} fileName={item2.pi_img}/>
+              </TouchableOpacity>
+            )
+          })}
+          {/* <TouchableOpacity
             style={[styles.prdLi, styles.mgt0]}
             activeOpacity={opacityVal}
             onPress={()=>{
@@ -123,7 +318,7 @@ const Shop = (props) => {
             }}
           >
             <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/product2.png'}} resizeMethod='resize' />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     )
@@ -133,17 +328,19 @@ const Shop = (props) => {
 		return (
       <View style={[styles.listView, index == 0 ? styles.mgt40 : null]}>
         <View style={styles.listTitle}>
-          <Text style={styles.listTitleText}>이벤트 제목</Text>
+          <Text style={styles.listTitleText}>{item.ev_subject}</Text>
         </View>
 
         <View style={[styles.prdList]}>
           <View style={[styles.freeLi]}>
-            <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/freeSample.jpg'}} resizeMethod='resize' style={styles.freeThumb} />
+            <ImgDomain2 fileWidth={innerWidth} fileName={item.ev_img}/>
             <View style={[styles.freeView, styles.boxShadow2]}>
               <TouchableOpacity
                 style={[styles.freeBtn]}
                 activeOpacity={opacityVal}
-                onPress={()=>{}}
+                onPress={()=>{
+                  navigation.navigate(item.ev_screen_name);
+                }}
               >
                 <ImgDomain fileWidth={16} fileName={'icon_money.png'}/>
                 <View style={styles.freeBtnTextView}>
@@ -151,17 +348,32 @@ const Shop = (props) => {
                 </View>
               </TouchableOpacity>
               <View style={styles.freeCont}>
-                <Text style={styles.freeContText}>자유 텍스트 영역 자유 텍스트 영역 자유 텍스트 영역 자유 텍스트 영역 자유 텍스트 영역 자유 텍스트 영역</Text>
+                <Text style={styles.freeContText}>{item.ev_content}</Text>
               </View>
+              {item.ev_sub_content != '' ? (
               <View style={styles.freeSubCont}>
-                <Text style={styles.freeSubContText}>서브 텍스트 영역 서브 텍스트 영역 서브 텍스트 영역 서브 텍스트 영역 서브 텍스트 영역</Text>
+                <Text style={styles.freeSubContText}>{item.ev_sub_content}</Text>
               </View>
+              ) : null}
             </View>
           </View>
         </View>
       </View>
     )
 	}
+
+  const getEventList = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetEventList",
+      sort: 1,
+		};
+
+		const response = await APIs.send(sData);    
+    if(response.code == 200){
+      setFreeList(response.data);
+    }
+  }
 
 	const onScroll = (e) => {
 		const {contentSize, layoutMeasurement, contentOffset} = e.nativeEvent;
@@ -177,7 +389,7 @@ const Shop = (props) => {
 	const onRefresh = () => {
 		if(!refreshing) {
 			setRefreshing(true);
-			//getItemList();
+			getProductListApi();
 			setTimeout(() => {
 				setRefreshing(false);
 			}, 2000);
@@ -198,7 +410,7 @@ const Shop = (props) => {
 	const onRefresh2 = () => {
 		if(!refreshing) {
 			setRefreshing(true);
-			//getItemList();
+			getEventList();
 			setTimeout(() => {
 				setRefreshing(false);
 			}, 2000);
@@ -210,126 +422,9 @@ const Shop = (props) => {
     setLoading(false);
   }
 
-  const itemSkus = Platform.select({
-    ios: ['test_item1','test_item2'],
-    android: ['test_item1','test_item2']
-  });
+  const itemSkus = platformData;
 
-  useEffect(()=>{    
-    initConnection().then(async(result) => {
-      //console.log('result :::: ', result);
-      if(Platform.OS == 'android'){
-
-        // Platform ANDROID
-        flushFailedPurchasesCachedAsPendingAndroid()        
-        .catch((err) => {
-          console.log(err);
-        })
-        .then(() => {
-          purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
-            console.log('purchaseUpdatedListener Android', purchase);
-            const receipt = purchase.transactionReceipt;
-
-            if(receipt){
-              await finishTransaction({purchase, isConsumable: true})
-              .catch((error) => {
-                console.log(error)
-              })
-            }
-            setLoading(false);
-          })
-        })        
-
-        purchaseErrorSubscription = purchaseErrorListener(async(error) => {
-          console.log('purchaseErrorListener', error);
-          let msg = '';
-          if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
-          if(error?.responseCode == -1){msg = '서비스 연결 해제'}
-          if(error?.responseCode == 1){msg = '사용자 취소'}
-          if(error?.responseCode == 2){msg = '서비스 이용 불가'}
-          if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
-          if(error?.responseCode == 4){msg = '사용 불가 상품'}
-          if(error?.responseCode == 5){msg = '개발자 오류'}
-          if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
-          if(error?.responseCode == 7){msg = '이미 구입한 상품'}
-          if(error?.responseCode == 8){msg = '구입 실패'}
-          if(error?.responseCode == 12){msg = '네트워크 오류'}
-          
-          setLoading(false);
-        })
-        // Platform ANDROID END
-
-      }else{
-
-        // Platform IOS
-        purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
-          //console.log('purchaseUpdatedListener IOS', purchase);
-          const receipt = purchase.transactionReceipt;
-
-          if(receipt){
-            await finishTransaction({purchase, isConsumable: true})
-            .catch((error) => {
-              console.log(error)
-            });
-
-            await clearProductsIOS();
-            await clearTransactionIOS();
-            setLoading(false);
-          }else{
-
-          }
-        });
-
-        purchaseErrorSubscription = purchaseErrorListener(async(error) => {
-          console.log('purchaseErrorListener', error);
-          let msg = '';
-          if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
-          if(error?.responseCode == -1){msg = '서비스 연결 해제'}
-          if(error?.responseCode == 1){msg = '사용자 취소'}
-          if(error?.responseCode == 2){msg = '서비스 이용 불가'}
-          if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
-          if(error?.responseCode == 4){msg = '사용 불가 상품'}
-          if(error?.responseCode == 5){msg = '개발자 오류'}
-          if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
-          if(error?.responseCode == 7){msg = '이미 구입한 상품'}
-          if(error?.responseCode == 8){msg = '구입 실패'}
-          if(error?.responseCode == 12){msg = '네트워크 오류'}
-
-          await clearProductsIOS();
-          await clearTransactionIOS();
-          setLoading(false);
-        });
-        // Platform IOS END        
-
-      }
-      
-      if(result){
-        await _getProducts();
-      }
-    }).catch(error => {
-      console.log('initConnection error', error)
-    });
-
-    return () => {
-      //console.log('return unmount')
-      if(purchaseUpdateSubscription){
-          //console.log('return purchaseUpdateSubscription');
-          purchaseUpdateSubscription.remove()
-          purchaseUpdateSubscription = null
-      }
-      if(purchaseErrorSubscription){
-          //console.log('return purchaseErrorSubscription');
-          purchaseErrorSubscription.remove()
-          purchaseErrorSubscription = null
-      }
-      endConnection()
-    }
-    
-  }, []);
-
-  const endConnection = () => {
-    
-  }
+  const endConnection = () => {}
 
   const _getProducts = async () => {    
     try {
@@ -337,8 +432,9 @@ const Shop = (props) => {
         //console.log('Products', products);
 
         if (products.length !== 0){
-          setProductList(products);
+          setProductInappList(products);
         }
+        console.log('_getProducts success');
     } catch (err){
         console.warn("IAP error code ", err.code);
         console.warn("IAP error message ", err.message);
@@ -348,7 +444,7 @@ const Shop = (props) => {
 
   const _requestPurchase = async (sku) => {
     //console.log("IAP req", sku);
-    setLoading(true);
+    //setLoading2(true);
     let iapObj = {skus: [sku], sku: sku};
     let getItems = await getProducts(iapObj);
     console.log('getItems :::: ', getItems);
@@ -379,11 +475,11 @@ const Shop = (props) => {
           setLoading(false);
       })
       .catch((err) => {
-        setLoading(false);
+        //setLoading2(false);
         console.log('err1', err);
       });
     } catch (err) {
-      setLoading(false);
+      //setLoading2(false);
       console.log('err2', err.message);
     }
   }
@@ -428,7 +524,7 @@ const Shop = (props) => {
             <>
               <View style={styles.currPoint}>
                 <Text style={styles.currPointText1}>내 프로틴</Text>
-                <Text style={styles.currPointText2}>00</Text>
+                <Text style={styles.currPointText2}>{memberInfo?.member_point}</Text>
               </View>
 
               <View style={styles.currPointPage}>
@@ -461,17 +557,11 @@ const Shop = (props) => {
               </TouchableOpacity>
             </View>
           }
-          // ListEmptyComponent={
-          // 	isLoading ? (
-          // 	<View style={styles.notData}>
-          // 		<Text style={styles.notDataText}>등록된 게시물이 없습니다.</Text>
-          // 	</View>
-          // 	) : (
-          // 		<View style={[styles.indicator]}>
-          // 			<ActivityIndicator size="large" />
-          // 		</View>
-          // 	)
-          // }
+          ListEmptyComponent={
+            <View style={styles.notData}>
+              <Text style={styles.notDataText}>등록된 상품이 없습니다.</Text>
+            </View>
+          }
         />
       ) : null}
 
@@ -489,10 +579,15 @@ const Shop = (props) => {
           ListHeaderComponent={
             <View style={styles.currPoint}>
               <Text style={styles.currPointText1}>내 프로틴</Text>
-              <Text style={styles.currPointText2}>00</Text>
+              <Text style={styles.currPointText2}>{memberInfo?.member_point}</Text>
             </View>
           }
           ListFooterComponent={<View style={{height:50,backgroundColor:'#fff'}}></View>}
+          ListEmptyComponent={
+            <View style={styles.notData}>
+              <Text style={styles.notDataText}>등록된 이벤트가 없습니다.</Text>
+            </View>
+          }
         />
       ) : null}
 
@@ -527,12 +622,12 @@ const styles = StyleSheet.create({
   viewTab2BtnText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:15,color:'#888',},
   viewTab2BtnTextOn: {color:'#141E30'},
 
-  listView: {marginTop:50,},
+  listView: {marginTop:40,},
   listTitle: {paddingHorizontal:20,},
   listTitleText: {fontFamily:Font.NotoSansSemiBold,fontSize:16,lineHeight:19,color:'#1e1e1e'},
   listSubTitle: {paddingHorizontal:20,marginTop:8,},
   listSubTitleText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:17,color:'#666'},
-  prdList: {paddingHorizontal:20,marginTop:20,},
+  prdList: {paddingHorizontal:20,paddingBottom:10,marginTop:20,},
   prdLi: {marginTop:10,},
 
   currPoint: {flexDirection:'row',alignItems:'center',paddingTop:30,paddingHorizontal:20,},
@@ -564,6 +659,9 @@ const styles = StyleSheet.create({
   freeContText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:24,color:'#1e1e1e'},
   freeSubCont: {paddingTop:20,marginTop:30,borderTopWidth:1,borderTopColor:'#B8B8B8'},
   freeSubContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#888',},
+
+  notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	red: {color:'#EE4245'},
 	gray: {color:'#B8B8B8'},

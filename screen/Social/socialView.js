@@ -9,6 +9,15 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
 import { BlurView } from "@react-native-community/blur";
 import AsyncStorage from '@react-native-community/async-storage';
+import RNIap, {
+  initConnection, endConnection,
+  getProducts, getSubscriptions, Product,
+  requestPurchase, requestSubscription, 
+  flushFailedPurchasesCachedAsPendingAndroid,
+  clearProductsIOS, clearTransactionIOS, validateReceiptIos,getReceiptIOS,
+  purchaseErrorListener, purchaseUpdatedListener, getAvailablePurchases,
+  finishTransaction
+} from 'react-native-iap';
 
 import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
@@ -41,6 +50,7 @@ const SocialView = (props) => {
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const [dotPop, setDotPop] = useState(false);
   const [leavePop, setLeavePop] = useState(false);
   const [leavePopText, setLeavePopText] = useState('');
@@ -52,11 +62,15 @@ const SocialView = (props) => {
   const [reportPop, setReportPop] = useState(false);
   const [cashPop, setCashPop] = useState(false);
   const [prdIdx, setPrdIdx] = useState(1);
+  const [skuCode, setSkuCode] = useState();
   const [socialPop, setSocialPop] = useState(false);
   const [socialPop2, setSocialPop2] = useState(false);
   const [blockPop, setBlockPop] = useState(false);
   const [focusState, setFocusState] = useState(false);
   const [reportList, setReportList] = useState([]);
+  const [productApiList, setProductApiList] = useState([]);
+  const [productInappList, setProductInappList] = useState([]);
+  const [platformData, setPlatformData] = useState(null);
 
   const [layout, setLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
 	const [layout2, setLayout2] = useState({ x: 0, y: 0, width: 0, height: 0 });
@@ -190,7 +204,121 @@ const SocialView = (props) => {
 
   useEffect(() => {
     getReportList();
-  }, [])
+    getProductListApi();
+  }, []);
+
+  useEffect(()=>{    
+    if(platformData){
+      initConnection().then(async(result) => {
+        //console.log('result :::: ', result);
+        if(Platform.OS == 'android'){
+
+          // Platform ANDROID
+          flushFailedPurchasesCachedAsPendingAndroid()        
+          .catch((err) => {
+            console.log(err);
+          })
+          .then(() => {
+            purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
+              console.log('purchaseUpdatedListener Android', purchase);
+              const receipt = purchase.transactionReceipt;
+
+              if(receipt){
+                await finishTransaction({purchase, isConsumable: true})
+                .catch((error) => {
+                  console.log(error)
+                })
+              }
+              setLoading(false);
+            })
+          })        
+
+          purchaseErrorSubscription = purchaseErrorListener(async(error) => {
+            console.log('purchaseErrorListener', error);
+            let msg = '';
+            if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
+            if(error?.responseCode == -1){msg = '서비스 연결 해제'}
+            if(error?.responseCode == 1){msg = '사용자 취소'}
+            if(error?.responseCode == 2){msg = '서비스 이용 불가'}
+            if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
+            if(error?.responseCode == 4){msg = '사용 불가 상품'}
+            if(error?.responseCode == 5){msg = '개발자 오류'}
+            if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
+            if(error?.responseCode == 7){msg = '이미 구입한 상품'}
+            if(error?.responseCode == 8){msg = '구입 실패'}
+            if(error?.responseCode == 12){msg = '네트워크 오류'}
+            
+            setLoading(false);
+          })
+          // Platform ANDROID END
+
+        }else{
+
+          // Platform IOS
+          purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
+            //console.log('purchaseUpdatedListener IOS', purchase);
+            const receipt = purchase.transactionReceipt;
+
+            if(receipt){
+              await finishTransaction({purchase, isConsumable: true})
+              .catch((error) => {
+                console.log(error)
+              });
+
+              await clearProductsIOS();
+              await clearTransactionIOS();
+              setLoading(false);
+            }else{
+
+            }
+          });
+
+          purchaseErrorSubscription = purchaseErrorListener(async(error) => {
+            console.log('purchaseErrorListener', error);
+            let msg = '';
+            if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
+            if(error?.responseCode == -1){msg = '서비스 연결 해제'}
+            if(error?.responseCode == 1){msg = '사용자 취소'}
+            if(error?.responseCode == 2){msg = '서비스 이용 불가'}
+            if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
+            if(error?.responseCode == 4){msg = '사용 불가 상품'}
+            if(error?.responseCode == 5){msg = '개발자 오류'}
+            if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
+            if(error?.responseCode == 7){msg = '이미 구입한 상품'}
+            if(error?.responseCode == 8){msg = '구입 실패'}
+            if(error?.responseCode == 12){msg = '네트워크 오류'}
+
+            await clearProductsIOS();
+            await clearTransactionIOS();
+            setLoading(false);
+          });
+          // Platform IOS END        
+
+        }
+        
+        if(result){
+          await _getProducts();
+        }
+      }).catch(error => {
+        console.log('initConnection error', error)
+      });
+
+      return () => {
+        //console.log('return unmount')
+        if(purchaseUpdateSubscription){
+            //console.log('return purchaseUpdateSubscription');
+            purchaseUpdateSubscription.remove()
+            purchaseUpdateSubscription = null
+        }
+        if(purchaseErrorSubscription){
+            //console.log('return purchaseErrorSubscription');
+            purchaseErrorSubscription.remove()
+            purchaseErrorSubscription = null
+        }
+        endConnection()
+      }
+    }
+  }, [platformData]);
 
   const getMemInfo = async () => {    
     let sData = {
@@ -402,6 +530,41 @@ const SocialView = (props) => {
 		const response = await APIs.send(sData);    
     if(response.code == 200){
       setReportList(response.data);
+    }
+  }
+
+  const getProductListApi = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetProductList",
+      sort: 0,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200 && response.data){
+      setProductApiList(response.data);     
+      setPrdIdx(response.data[0].pd_idx);
+      
+      if(Platform.OS === 'ios'){
+        setSkuCode(response.data[0].pd_code_ios);
+      }else{
+        setSkuCode(response.data[0].pd_code_aos);
+      }
+      
+      // 플랫폼에 따른 데이터 설정
+      const values = {
+        ios: response.ios, // iOS일 때 데이터
+        android: response.aos, // Android일 때 데이터        
+      };      
+
+      // Platform.select 사용      
+      const selectedValue = Platform.select(values);
+      //console.log("selectedValue ::: ", selectedValue);
+      setPlatformData(selectedValue);
+
+    }else{
+      setProductApiList([]);
     }
   }
 
@@ -718,34 +881,100 @@ const SocialView = (props) => {
     setSocialPop2(false);
   }
 
-  const product = [
-    {idx:1, subject:'상품명1', desc:'100', price:'50,000', best:false},
-    {idx:2, subject:'상품명2', desc:'200', price:'50,000', best:true},
-    {idx:3, subject:'상품명3', desc:'300', price:'50,000', best:false},
-    {idx:4, subject:'상품명4', desc:'400', price:'50,000', best:false},
-    {idx:5, subject:'상품명5', desc:'500', price:'50,000', best:false},
-    {idx:6, subject:'상품명6', desc:'600', price:'50,000', best:false},
-  ]
-
   const getProductList = ({item, index}) => {
+    //const price = item.pd_price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
     return (
       <TouchableOpacity
-        style={[styles.productBtn, prdIdx==item.idx ? styles.productBtnOn : null, styles.mgr10, product.length == index+1 ? styles.mgr40 : null]}
+        style={[styles.productBtn, prdIdx==item.pd_idx ? styles.productBtnOn : null, styles.mgr10, productApiList.length == index+1 ? styles.mgr40 : null]}
         activeOpacity={opacityVal}
-        onPress={()=>{setPrdIdx(item.idx)}}
+        onPress={()=>{
+          setPrdIdx(item.pd_idx);
+          if(Platform.OS === 'ios'){
+            setSkuCode(item.pd_code_ios);
+          }else{
+            setSkuCode(item.pd_code_aos);
+          }
+        }}
       >
-        <Text style={styles.productText1}>{item.subject}</Text>
-        {item.best ? (
+        <Text style={styles.productText1}>{item.pd_name}</Text>
+        {item.pd_best == 'y' ? (
           <View style={[styles.productBest, styles.productBest2]}>
             <Text style={styles.productText2}>BEST</Text>
           </View>
         ) : (
           <View style={styles.productBest}></View>
         )}        
-        <Text style={[styles.productText3, prdIdx==item.idx ? styles.productText3On : null]}>개당 ￦{item.desc}</Text>
-        <Text style={styles.productText4}>￦{item.price}</Text>
+        <Text style={[styles.productText3, prdIdx==item.pd_idx ? styles.productText3On : null]}>개당 ￦{item.pd_content}</Text>
+        <Text style={styles.productText4}>￦{item.pd_price}</Text>
       </TouchableOpacity>
     )
+  }
+
+  const itemSkus = platformData;
+
+  const endConnection = () => {}
+
+  const _getProducts = async () => {    
+    try {
+        const products = await getProducts({skus:itemSkus});
+        //console.log('Products', products);
+
+        if (products.length !== 0){
+          setProductInappList(products);
+        }
+        console.log('_getProducts success');
+    } catch (err){
+        console.warn("IAP error code ", err.code);
+        console.warn("IAP error message ", err.message);
+        console.warn("IAP error ", err);
+    }
+  }
+
+  const _requestPurchase = async (sku) => {
+    //console.log("IAP req", sku);
+    //setLoading2(true);
+    let iapObj = {skus: [sku], sku: sku};
+    let getItems = await getProducts(iapObj);
+    console.log('getItems :::: ', getItems);
+    try {
+      await requestPurchase(iapObj)
+      .then(async (result) => {
+          //console.log('IAP req sub', result);
+          if (Platform.OS === 'android'){
+            console.log('dataAndroid', result[0].dataAndroid);
+            // console.log("purchaseToken : ", result.purchaseToken);
+            // console.log("packageNameAndroid : ", result.packageNameAndroid);
+            // console.log("productId : ", result.productId);
+            console.log("성공");
+            // let inappPayResult =JSON.stringify({
+            //     type: "inappResult",
+            //     code: result.productId,
+            //     tno: result.transactionId,
+            //     token: result.purchaseToken,
+            // });
+            // console.log("inappPayResult : ", inappPayResult);            
+            // can do your API call here to save the purchase details of particular user
+          } else if (Platform.OS === 'ios'){
+            console.log(result);
+            //console.log(result.transactionReceipt);
+            // can do your API call here to save the purchase details of particular user
+          }
+
+          setLoading(false);
+      })
+      .catch((err) => {
+        //setLoading2(false);
+        console.log('err1', err);
+      });
+    } catch (err) {
+      //setLoading2(false);
+      console.log('err2', err.message);
+    }
+  }
+
+  const buyProduct = async () => {  
+    setCashPop(false);
+    _requestPurchase(skuCode);
   }
 
   const headerHeight = 48;
@@ -802,7 +1031,10 @@ const SocialView = (props) => {
                 <TouchableOpacity
                   style={styles.viewBookBtn}
                   activeOpacity={opacityVal}
-                  onPress={()=>socialBook()}
+                  onPress={()=>{
+                    socialBook()
+                    //setCashPop(true);
+                  }}
                 >
                   {bookSt ? (
                     <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
@@ -2074,7 +2306,7 @@ const SocialView = (props) => {
 					</View>					
 					<View style={styles.productList}>
             <FlatList
-              data={product}
+              data={productApiList}
               renderItem={getProductList}
               keyExtractor={(item, index) => index.toString()}
               horizontal={true} // row instead of column
@@ -2090,7 +2322,7 @@ const SocialView = (props) => {
 						<TouchableOpacity 
 							style={[styles.popBtn]}
 							activeOpacity={opacityVal}
-							onPress={() => {setCashPop(false)}}
+							onPress={() => buyProduct()}
 						>
 							<Text style={styles.popBtnText}>지금 구매하기</Text>
 						</TouchableOpacity>
@@ -2217,11 +2449,8 @@ const SocialView = (props) => {
         </TouchableOpacity>
 			</Modal>
 
-      {loading ? (
-      <View style={[styles.indicator]}>
-        <ActivityIndicator size="large" color="#D1913C" />
-      </View>
-      ) : null}
+      {loading ? ( <View style={[styles.indicator]}><ActivityIndicator size="large" color="#D1913C" /></View> ) : null}
+      {loading2 ? ( <View style={[styles.indicator, styles.indicator2]}><ActivityIndicator size="large" color="#fff" /></View> ) : null}
 		</SafeAreaView>
 	)
 }
@@ -2230,6 +2459,7 @@ const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
 	gapBox: {height:86,},
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,1)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+  indicator2: { backgroundColor:'rgba(0,0,0,0.5)'},
 
   DetailBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   DetailDotBtn: {width:54,height:48,position:'absolute',right:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
@@ -2419,7 +2649,7 @@ const styles = StyleSheet.create({
   productList: {flexDirection:'row',justifyContent:'space-between'},
 	productBtn: {width:(innerWidth/3)-7,backgroundColor:'#fff',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,paddingVertical:25,paddingHorizontal:10,},
 	productBtnOn: {backgroundColor:'rgba(209,145,60,0.15)',borderColor:'#D1913C'},
-	productText1: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:20,color:'#1e1e1e'},
+	productText1: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
 	productBest: {height:20,paddingHorizontal:8,borderRadius:20,marginTop:5,},
 	productBest2: {backgroundColor:'#FFBF1A',},
 	productText2: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:18,color:'#fff'},

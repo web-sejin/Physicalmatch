@@ -1,14 +1,13 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, ImageBackground, Pressable, StyleSheet, ScrollView, Share, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import KakaoShareLink from 'react-native-kakao-share-link';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -31,6 +30,7 @@ const MyInvite = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(true);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
+	const [shareImg, setShareImg] = useState('');
 
 	const tagData = ['초중고 동창', '친척', '동호회 지인', '대학동기', '결혼하고 싶어 하는', '회사 동료', '지인', '형제·자매', '외로워하는', '친구', '소개팅 해 달라고 보채는', '보는 눈이 높은', '만년 솔로인', '이별의 슬픔을 겪고 있는'];
 
@@ -73,74 +73,17 @@ const MyInvite = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
-	const onShare = async () => {
-		try {
-			const result = await Share.share(
-				{
-					title: 'App link',
-					message: 'Please install this app and stay safe , AppLink :https://play.google.com/store/apps/details?id=nic.goi.aarogyasetu&hl=en', 
-					url: 'https://play.google.com/store/apps/details?id=nic.goi.aarogyasetu&hl=en'
-				}
-			);
-			if (result.action === Share.sharedAction) {
-				if (result.activityType) {
-					// shared with activity type of result.activityType
-				} else {
-					// shared
-				}
-			} else if (result.action === Share.dismissedAction) {
-				// dismissed
-			}
-		} catch (error) {
-			console.log(error.message);
-		}
-	};
-
-	const sendList = async () => {
-    try {
-      const response = await KakaoShareLink.sendList({
-        headerTitle: '피지컬매치',
-        headerLink: {
-          webUrl: '',
-          mobileWebUrl: '',
-        },
-        contents: [
-          {
-            title: '안드로이드용',
-            imageUrl:
-              'http://t1.daumcdn.net/friends/prod/editor/dc8b3d02-a15a-4afa-a88b-989cf2a50476.jpg',
-            link: {
-              webUrl: 'https://play.google.com/store/apps/details?id=com.supercell.brawlstars',
-              mobileWebUrl: 'https://play.google.com/store/apps/details?id=com.supercell.brawlstars',
-            },
-            description: '',
-          },
-          {
-            title: 'IOS용',
-            imageUrl:
-							'https://cnj02.cafe24.com/appImg/icon_like.png',
-            link: {
-              webUrl: 'https://apps.apple.com/kr/app/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88/id1229016807',
-              mobileWebUrl: 'https://apps.apple.com/kr/app/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88/id1229016807',
-            },
-            description: '',
-          },
-        ],
-      });
-      console.log(response);
-    } catch (e) {
-      console.error(e);
-      console.error(e.message);
-    }
-  };
-
 	const onPressShare = useCallback(async () => {
 		try {
-				const response = await KakaoShareLink.sendText({
-						text: "피지컬매치",
-						link: {
-								webUrl: "",
-								mobileWebUrl: "",
+				const response = await KakaoShareLink.sendFeed({
+						content: {
+							title: '피지컬 매치',
+							imageUrl: shareImg,
+							link: {
+								webUrl: '',
+								mobileWebUrl: '',
+							},
+							//description: 'description',
 						},
 						buttons: [
 								{
@@ -162,6 +105,22 @@ const MyInvite = (props) => {
 				console.error(e.message);
 		}
 	}, []);
+
+	useEffect(() => {
+		getShareImg();
+	}, []);
+
+	const getShareImg = async () => {
+		let sData = {
+			basePath: "/api/etc/",
+			type: "GetKakaoShareThumbnail",
+		};		
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setShareImg(response.data);
+		}
+	}
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;

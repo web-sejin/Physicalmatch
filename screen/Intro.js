@@ -99,7 +99,7 @@ const Intro = (props) => {
 			firebase_token: v2,
 		}
 		const response = await APIs.send(sData);		
-		//console.log('자동로그인 체크 ::::: ',response);		
+		console.log('자동로그인 체크 ::::: ',response);		
 		
 		setTimeout(() => {
 			if(response.code == 200){				

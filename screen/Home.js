@@ -6,6 +6,16 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-community/async-storage';
+import RNIap, {
+  initConnection, endConnection,
+  getProducts, getSubscriptions, Product,
+  requestPurchase, requestSubscription, 
+  flushFailedPurchasesCachedAsPendingAndroid,
+  clearProductsIOS, clearTransactionIOS, validateReceiptIos,getReceiptIOS,
+  purchaseErrorListener, purchaseUpdatedListener, getAvailablePurchases,
+  finishTransaction
+} from 'react-native-iap';
 
 import {connect} from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
@@ -105,6 +115,7 @@ const Home = (props) => {
 	const [pageSt, setPageSt] = useState(false);
 	const [backPressCount, setBackPressCount] = useState(0);
 	const [loading, setLoading] = useState(false);
+	const [loading2, setLoading2] = useState(false);
 
 	const [tabState, setTabState] = useState(1); //추천, 관심	
 	const [tabState2, setTabState2] = useState(1); //관심[ 찜&교환, 호감, 매칭된 ]
@@ -147,6 +158,27 @@ const Home = (props) => {
 	const [distance2, setDistance2] = useState(50);
 	const [recentAccess, setRecentAccess] = useState(7);
 	const [prdIdx, setPrdIdx] = useState(1);
+	const [skuCode, setSkuCode] = useState();
+
+	const [productApiList, setProductApiList] = useState([]);
+  const [productInappList, setProductInappList] = useState([]);
+  const [platformData, setPlatformData] = useState(null);
+
+	//필터 임시 저장
+	const [tempAgeMin, setTempAgeMin] = useState('');
+	const [tempAgeMax, setTempAgeMax] = useState('');
+	const [tempAgeMin2, setTempAgeMin2] = useState('');
+	const [tempAgeMax2, setTempAgeMax2] = useState('');
+	const [tempNonCollidingMultiSliderValue, setTempNonCollidingMultiSliderValue] = useState([]);
+	const [tempNonCollidingMultiSliderValue2, setTempNonCollidingMultiSliderValue2] = useState([]);
+	const [tempRealAgeMin, setTempRealAgeMin] = useState('');
+	const [tempRealAgeMax, setTempRealAgeMax] = useState('');
+	const [tempRealAgeMin2, setTempRealAgeMin2] = useState('');
+	const [tempRealAgeMax2, setTempRealAgeMax2] = useState('');
+	const [tempDistanceStandard, setTempDistanceStandard] = useState();
+	const [tempDistance, setTempDistance] = useState();
+	const [tempDistance2, setTempDistance2] = useState();
+	const [tempRecentAccess, setTempRecentAccess] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -169,7 +201,7 @@ const Home = (props) => {
 	useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
-				console.log(backPressCount);
+				//console.log(backPressCount);
         if (backPressCount === 0) {
           setBackPressCount(1);
           ToastAndroid.show('한 번 더 누르면 종료됩니다.', ToastAndroid.SHORT);
@@ -194,6 +226,153 @@ const Home = (props) => {
   );
 
 	useEffect(() => {
+		setLoading(true);		
+		setTimeout(() => {
+			setCardList(cardData);
+			setLoading(false);
+		}, 300);
+	}, []);
+
+	useEffect(() => {
+		getDateInfo();
+	}, []);
+
+	useEffect(() => {
+    getProductListApi();
+  }, []);
+
+	useEffect(()=>{    
+    if(platformData){
+      initConnection().then(async(result) => {
+        //console.log('result :::: ', result);
+        if(Platform.OS == 'android'){
+
+          // Platform ANDROID
+          flushFailedPurchasesCachedAsPendingAndroid()        
+          .catch((err) => {
+            console.log(err);
+          })
+          .then(() => {
+            purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
+              console.log('purchaseUpdatedListener Android', purchase);
+              const receipt = purchase.transactionReceipt;
+
+              if(receipt){
+                await finishTransaction({purchase, isConsumable: true})
+                .catch((error) => {
+                  console.log(error)
+                })
+              }
+              setLoading(false);
+            })
+          })        
+
+          purchaseErrorSubscription = purchaseErrorListener(async(error) => {
+            console.log('purchaseErrorListener', error);
+            let msg = '';
+            if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
+            if(error?.responseCode == -1){msg = '서비스 연결 해제'}
+            if(error?.responseCode == 1){msg = '사용자 취소'}
+            if(error?.responseCode == 2){msg = '서비스 이용 불가'}
+            if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
+            if(error?.responseCode == 4){msg = '사용 불가 상품'}
+            if(error?.responseCode == 5){msg = '개발자 오류'}
+            if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
+            if(error?.responseCode == 7){msg = '이미 구입한 상품'}
+            if(error?.responseCode == 8){msg = '구입 실패'}
+            if(error?.responseCode == 12){msg = '네트워크 오류'}
+            
+            setLoading(false);
+          })
+          // Platform ANDROID END
+
+        }else{
+
+          // Platform IOS
+          purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
+            //console.log('purchaseUpdatedListener IOS', purchase);
+            const receipt = purchase.transactionReceipt;
+
+            if(receipt){
+              await finishTransaction({purchase, isConsumable: true})
+              .catch((error) => {
+                console.log(error)
+              });
+
+              await clearProductsIOS();
+              await clearTransactionIOS();
+              setLoading(false);
+            }else{
+
+            }
+          });
+
+          purchaseErrorSubscription = purchaseErrorListener(async(error) => {
+            console.log('purchaseErrorListener', error);
+            let msg = '';
+            if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
+            if(error?.responseCode == -1){msg = '서비스 연결 해제'}
+            if(error?.responseCode == 1){msg = '사용자 취소'}
+            if(error?.responseCode == 2){msg = '서비스 이용 불가'}
+            if(error?.responseCode == 3){msg = '사용자 결제 오류 : 기기 문제 혹은 플레이스토어 오류'}
+            if(error?.responseCode == 4){msg = '사용 불가 상품'}
+            if(error?.responseCode == 5){msg = '개발자 오류'}
+            if(error?.responseCode == 6){msg = '구글플레이 내부 오류'}
+            if(error?.responseCode == 7){msg = '이미 구입한 상품'}
+            if(error?.responseCode == 8){msg = '구입 실패'}
+            if(error?.responseCode == 12){msg = '네트워크 오류'}
+
+            await clearProductsIOS();
+            await clearTransactionIOS();
+            setLoading(false);
+          });
+          // Platform IOS END        
+
+        }
+        
+        if(result){
+          await _getProducts();
+        }
+      }).catch(error => {
+        console.log('initConnection error', error)
+      });
+
+      return () => {
+        //console.log('return unmount')
+        if(purchaseUpdateSubscription){
+            //console.log('return purchaseUpdateSubscription');
+            purchaseUpdateSubscription.remove()
+            purchaseUpdateSubscription = null
+        }
+        if(purchaseErrorSubscription){
+            //console.log('return purchaseErrorSubscription');
+            purchaseErrorSubscription.remove()
+            purchaseErrorSubscription = null
+        }
+        endConnection()
+      }
+    }
+  }, [platformData]);
+
+	//리덕스 샘플
+	// const testApi = async (idx) => {
+	// 	const formData = new FormData();
+	// 	formData.append('type', 'GetMyProfile');
+	// 	formData.append('member_idx', 1);
+
+	// 	const mem_info = await member_info(formData);
+
+	// 	console.log('mem_info', mem_info);
+	// 	console.log('userInfo', userInfo);
+	// }
+
+	// useEffect(() => {
+	// 	//로그인 api가 성공했을 때 실행 시켜 리덕스에 담는다!!
+	// 	//정보수정도 같은 원리!!
+	// 	testApi(1);
+	// }, [])
+
+	const getDateInfo = async () => {
 		const date = new Date();
 		const year = (date.getFullYear())-50;
 		const year2 = (date.getFullYear())-20;
@@ -229,48 +408,43 @@ const Home = (props) => {
 		setAgeMinInt(5);
 		setAgeMaxInt(cnt-5);
 		setNonCollidingMultiSliderValue([5, cnt-5]);
-		setNonCollidingMultiSliderValue2([5, cnt-5]);		
-	}, []);
-
-	useEffect(() => {
-		setLoading(true);		
-		setTimeout(() => {
-			setCardList(cardData);
-			setLoading(false);
-		}, 300);
-	}, [])
-
-	useEffect(() => {
-		getTest();
-	}, [])
-
-	const getTest = async () => {
-		let sData = {
-			basePath: "/api/index.php",
-			type: "testOne",
-		}
-	
-		//const response = await APIs.send(sData);
-		//console.log('response ::: ', response.data[0].notice_content);
+		setNonCollidingMultiSliderValue2([5, cnt-5]);
 	}
 
-	//리덕스 샘플
-	// const testApi = async (idx) => {
-	// 	const formData = new FormData();
-	// 	formData.append('type', 'GetMyProfile');
-	// 	formData.append('member_idx', 1);
+	const getProductListApi = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetProductList",
+      sort: 0,
+		};
 
-	// 	const mem_info = await member_info(formData);
+		const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200 && response.data){
+      setProductApiList(response.data);     
+      setPrdIdx(response.data[0].pd_idx);
+      
+      if(Platform.OS === 'ios'){
+        setSkuCode(response.data[0].pd_code_ios);
+      }else{
+        setSkuCode(response.data[0].pd_code_aos);
+      }
+      
+      // 플랫폼에 따른 데이터 설정
+      const values = {
+        ios: response.ios, // iOS일 때 데이터
+        android: response.aos, // Android일 때 데이터        
+      };      
 
-	// 	console.log('mem_info', mem_info);
-	// 	console.log('userInfo', userInfo);
-	// }
+      // Platform.select 사용      
+      const selectedValue = Platform.select(values);
+      //console.log("selectedValue ::: ", selectedValue);
+      setPlatformData(selectedValue);
 
-	// useEffect(() => {
-	// 	//로그인 api가 성공했을 때 실행 시켜 리덕스에 담는다!!
-	// 	//정보수정도 같은 원리!!
-	// 	testApi(1);
-	// }, [])
+    }else{
+      setProductApiList([]);
+    }
+  }
 
 	const getMatchCard = async(v) => {
 		setTabState(v);
@@ -333,6 +507,137 @@ const Home = (props) => {
 		setFilterPop(false);
 		setFilterSave(true);
 	}
+
+	const getProductList = ({item, index}) => {
+    const priceComma = item.pd_price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    return (
+      <TouchableOpacity
+        style={[styles.productBtn, prdIdx==item.pd_idx ? styles.productBtnOn : null, styles.mgr10, productApiList.length == index+1 ? styles.mgr40 : null]}
+        activeOpacity={opacityVal}
+        onPress={()=>{
+          setPrdIdx(item.pd_idx);
+          if(Platform.OS === 'ios'){
+            setSkuCode(item.pd_code_ios);
+          }else{
+            setSkuCode(item.pd_code_aos);
+          }
+        }}
+      >
+        <Text style={styles.productText1}>{item.pd_name}</Text>
+        {item.pd_best == 'y' ? (
+          <View style={[styles.productBest, styles.productBest2]}>
+            <Text style={styles.productText2}>BEST</Text>
+          </View>
+        ) : (
+          <View style={styles.productBest}></View>
+        )}        
+        <Text style={[styles.productText3, prdIdx==item.pd_idx ? styles.productText3On : null]}>개당 ￦{item.pd_content}</Text>
+        <Text style={styles.productText4}>￦{priceComma}</Text>
+      </TouchableOpacity>
+    )
+  }
+
+  const itemSkus = platformData;
+
+  const endConnection = () => {}
+
+  const _getProducts = async () => {    
+    try {
+        const products = await getProducts({skus:itemSkus});
+        //console.log('Products', products);
+
+        if (products.length !== 0){
+          setProductInappList(products);
+        }
+        console.log('_getProducts success');
+    } catch (err){
+        console.warn("IAP error code ", err.code);
+        console.warn("IAP error message ", err.message);
+        console.warn("IAP error ", err);
+    }
+  }
+
+  const _requestPurchase = async (sku) => {
+    //console.log("IAP req", sku);
+    //setLoading2(true);
+    let iapObj = {skus: [sku], sku: sku};
+    let getItems = await getProducts(iapObj);
+    console.log('getItems :::: ', getItems);
+    try {
+      await requestPurchase(iapObj)
+      .then(async (result) => {
+          //console.log('IAP req sub', result);
+          if (Platform.OS === 'android'){
+            console.log('dataAndroid', result[0].dataAndroid);
+            // console.log("purchaseToken : ", result.purchaseToken);
+            // console.log("packageNameAndroid : ", result.packageNameAndroid);
+            // console.log("productId : ", result.productId);
+            console.log("성공");
+            // let inappPayResult =JSON.stringify({
+            //     type: "inappResult",
+            //     code: result.productId,
+            //     tno: result.transactionId,
+            //     token: result.purchaseToken,
+            // });
+            // console.log("inappPayResult : ", inappPayResult);            
+            // can do your API call here to save the purchase details of particular user
+          } else if (Platform.OS === 'ios'){
+            console.log(result);
+            //console.log(result.transactionReceipt);
+            // can do your API call here to save the purchase details of particular user
+          }
+
+          setLoading(false);
+      })
+      .catch((err) => {
+        //setLoading2(false);
+        console.log('err1', err);
+      });
+    } catch (err) {
+      //setLoading2(false);
+      console.log('err2', err.message);
+    }
+  }
+
+  const buyProduct = async () => {  
+    setCashPop(false);
+    _requestPurchase(skuCode);
+  }
+
+	const nonCollidingMultiSliderValuesChange = (a,b) => {
+		setNonCollidingMultiSliderValue([a,b]);
+	}
+
+	const nonCollidingMultiSliderValuesChange2 = (a,b) => {
+		setNonCollidingMultiSliderValue2([a,b]);
+	}
+
+	const resetFilter = () => {
+		getDateInfo();
+		setDistanceStandard(1);
+		setDistance(50);
+		setDistance2(50);
+		setRecentAccess(7);
+	}
+
+	const offFilterPop = () => {
+		setAgeMin(tempAgeMin);
+		setAgeMax(tempAgeMax);
+		setAgeMin2(tempAgeMin2);
+		setAgeMax2(tempAgeMax2);
+		setNonCollidingMultiSliderValue(tempNonCollidingMultiSliderValue);
+		setNonCollidingMultiSliderValue2(tempNonCollidingMultiSliderValue2);
+		setRealAgeMin(tempRealAgeMin);
+		setRealAgeMax(tempRealAgeMax);
+		setRealAgeMin2(tempRealAgeMin2);
+		setRealAgeMax2(tempRealAgeMax2);
+		setDistanceStandard(tempDistanceStandard);
+		setDistance(tempDistance);
+		setDistance2(tempDistance2);
+		setRecentAccess(tempRecentAccess);
+
+		setFilterPop(false);
+	}
 	
 	const toastConfig2 = {
 		custom_type: (internalState) => (
@@ -360,6 +665,10 @@ const Home = (props) => {
 			</View>
 		),
   };
+
+	const headerHeight = 48;
+	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
+	const behavior = Platform.OS === "ios" ? "padding" : "height";
 	
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
@@ -373,7 +682,23 @@ const Home = (props) => {
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {setFilterPop(true)}}
+							onPress={() => {
+								setTempAgeMin(ageMin);
+								setTempAgeMax(ageMax);
+								setTempAgeMin2(ageMin2);
+								setTempAgeMax2(ageMax2);
+								setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
+								setTempNonCollidingMultiSliderValue2(nonCollidingMultiSliderValue2);
+								setTempRealAgeMin(realAgeMin);
+								setTempRealAgeMax(realAgeMax);
+								setTempRealAgeMin2(realAgeMin2);
+								setTempRealAgeMax2(realAgeMax2);
+								setTempDistanceStandard(distanceStandard);
+								setTempDistance(distance);
+								setTempDistance2(distance2);
+								setTempRecentAccess(recentAccess);	
+								setFilterPop(true);
+							}}
 						>
 							<ImgDomain fileWidth={24} fileName={'icon_option.png'} />
 						</TouchableOpacity>
@@ -933,21 +1258,21 @@ const Home = (props) => {
 			<Modal
 				visible={filterPop}
 				animationType={"none"}
-				onRequestClose={() => setFilterPop(false)}
+				onRequestClose={() => offFilterPop()}
 			>
 				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
 				<View style={styles.modalHeader}>					
 					<TouchableOpacity
 						style={styles.headerBackBtn2}
 						activeOpacity={opacityVal}
-						onPress={() => setFilterPop(false)}						
+						onPress={() => offFilterPop()}						
 					>							
 						<ImgDomain fileWidth={8} fileName={'icon_header_back.png'} />
 					</TouchableOpacity>		
 					<TouchableOpacity 
 						style={styles.filterResetBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{console.log('초기화 작업 진행!!')}}
+						onPress={()=>resetFilter()}
 					>
 						<ImgDomain fileWidth={13} fileName={'icon_refresh.png'} />
 						<Text style={styles.filterResetText}>초기화</Text>
@@ -1006,7 +1331,9 @@ const Home = (props) => {
 									
 									setAgeMin(yearString);
 									setAgeMax(yearString2);
-									setNonCollidingMultiSliderValue(e);
+									//setNonCollidingMultiSliderValue(e);
+
+									nonCollidingMultiSliderValuesChange(yearString, yearString2);
 								}}
 							/>
 						</View>
@@ -1198,7 +1525,9 @@ const Home = (props) => {
 										
 										setAgeMin2(yearString);
 										setAgeMax2(yearString2);
-										setNonCollidingMultiSliderValue2(e);
+										//setNonCollidingMultiSliderValue2(e);
+
+										nonCollidingMultiSliderValuesChange2(yearString, yearString2);
 									}}
 								/>
 							</View>
@@ -1322,57 +1651,37 @@ const Home = (props) => {
 					onPress={()=>{setCashPop(false)}}
 				>
 				</TouchableOpacity>
-				<View style={styles.prvPopBot}>
-					<View style={[styles.popTitle]}>
+				<View style={[styles.prvPopBot, styles.prvPopBot3]}>
+					<View style={[styles.popTitle, styles.pdl20, styles.pdr20]}>
 						<Text style={styles.popBotTitleText}>더 많은 인연을 만나보세요</Text>							
 						<Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 즉시 다음 인연을!</Text>
 					</View>					
 					<View style={styles.productList}>
-						<TouchableOpacity
-							style={[styles.productBtn, prdIdx==1 ? styles.productBtnOn : null]}
-							activeOpacity={opacityVal}
-							onPress={()=>{setPrdIdx(1)}}
-						>
-							<Text style={styles.productText1}>000</Text>
-							<View style={styles.productBest}></View>							
-							<Text style={[styles.productText3, prdIdx==1 ? styles.productText3On : null]}>개당 ￦000</Text>
-							<Text style={styles.productText4}>￦50,000</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={[styles.productBtn, prdIdx==2 ? styles.productBtnOn : null]}
-							activeOpacity={opacityVal}
-							onPress={()=>{setPrdIdx(2)}}
-						>
-							<Text style={styles.productText1}>000</Text>
-							<View style={[styles.productBest, styles.productBest2]}>
-								<Text style={styles.productText2}>BEST</Text>
-							</View>
-							<Text style={[styles.productText3, prdIdx==2 ? styles.productText3On : null]}>개당 ￦000</Text>
-							<Text style={styles.productText4}>￦50,000</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={[styles.productBtn, prdIdx==3 ? styles.productBtnOn : null]}
-							activeOpacity={opacityVal}
-							onPress={()=>{setPrdIdx(3)}}
-						>
-							<Text style={styles.productText1}>000</Text>
-							<View style={styles.productBest}></View>
-							<Text style={[styles.productText3, prdIdx==3 ? styles.productText3On : null]}>개당 ￦000</Text>
-							<Text style={styles.productText4}>￦50,000</Text>
-						</TouchableOpacity>
+						<FlatList
+              data={productApiList}
+              renderItem={getProductList}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal={true} // row instead of column
+              // Add the 4 properties below for snapping
+              snapToAlignment={"start"} 
+              snapToInterval={(innerWidth/3)+3} // Adjust to your content width
+              decelerationRate={"fast"}      
+              style={{paddingLeft:20,}} 
+              showsHorizontalScrollIndicator={false}
+            />
 					</View>
-					<View style={[styles.popBtnBox]}>
+					<View style={[styles.popBtnBox, styles.pdl20, styles.pdr20]}>
 						<TouchableOpacity 
 							style={[styles.popBtn]}
 							activeOpacity={opacityVal}
-							onPress={() => {setCashPop(false)}}
+							onPress={() => buyProduct()}
 						>
 							<Text style={styles.popBtnText}>지금 구매하기</Text>
 						</TouchableOpacity>
 						<TouchableOpacity 
 							style={[styles.popBtn, styles.popBtnOff2]}
 							activeOpacity={opacityVal}
-							onPress={() => {setCashPop(false)}}
+							onPress={() => setCashPop(false)}
 						>
 							<Text style={[styles.popBtnText, styles.popBtnOffText]}>다음에 할게요</Text>
 						</TouchableOpacity>						
@@ -1471,6 +1780,20 @@ const Home = (props) => {
 								style={[styles.popBtn]}
 								activeOpacity={opacityVal}
 								onPress={() => {
+									setTempAgeMin(ageMin);
+									setTempAgeMax(ageMax);
+									setTempAgeMin2(ageMin2);
+									setTempAgeMax2(ageMax2);
+									setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
+									setTempNonCollidingMultiSliderValue2(nonCollidingMultiSliderValue2);
+									setTempRealAgeMin(realAgeMin);
+									setTempRealAgeMax(realAgeMax);
+									setTempRealAgeMin2(realAgeMin2);
+									setTempRealAgeMax2(realAgeMax2);
+									setTempDistanceStandard(distanceStandard);
+									setTempDistance(distance);
+									setTempDistance2(distance2);
+									setTempRecentAccess(recentAccess);									
 									setUnAddIntroPop2(false);
 									setFilterPop(true);
 								}}
@@ -1528,11 +1851,8 @@ const Home = (props) => {
 				</View>
 			</Modal>
 
-			{loading ? (
-			<View style={[styles.indicator]}>
-				<ActivityIndicator size="large" color="#D1913C" />
-			</View>
-			) : null}
+			{loading ? ( <View style={[styles.indicator]}><ActivityIndicator size="large" color="#D1913C" /></View> ) : null}
+      {loading2 ? ( <View style={[styles.indicator, styles.indicator2]}><ActivityIndicator size="large" color="#fff" /></View> ) : null}
 			
 		</SafeAreaView>
 	)
@@ -1541,7 +1861,8 @@ const Home = (props) => {
 const styles = StyleSheet.create({	
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },
 	gapBox: {height:86,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,1)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+  indicator2: { backgroundColor:'rgba(0,0,0,0.5)'},
 
 	header: {backgroundColor:'#141E30'},
 	headerTop: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingTop:20,paddingBottom:10,},
@@ -1674,6 +1995,7 @@ const styles = StyleSheet.create({
 
 	prvPopBot: {width:widnowWidth,paddingTop:40,paddingBottom:10,paddingHorizontal:20,backgroundColor:'#fff',borderTopLeftRadius:20,borderTopRightRadius:20,position:'absolute',bottom:0,},
 	prvPopBot2: {width:widnowWidth,position:'absolute',bottom:0,},
+	prvPopBot3: {paddingHorizontal:0,},
 	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,color:'#1e1e1e',},
 	popBotTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#666',marginTop:10,},
 
@@ -1705,7 +2027,7 @@ const styles = StyleSheet.create({
 	productList: {flexDirection:'row',justifyContent:'space-between'},
 	productBtn: {width:(innerWidth/3)-7,backgroundColor:'#fff',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,paddingVertical:25,paddingHorizontal:10,},
 	productBtnOn: {backgroundColor:'rgba(209,145,60,0.15)',borderColor:'#D1913C'},
-	productText1: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:20,color:'#1e1e1e'},
+	productText1: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
 	productBest: {height:20,paddingHorizontal:8,borderRadius:20,marginTop:5,},
 	productBest2: {backgroundColor:'#FFBF1A',},
 	productText2: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:18,color:'#fff'},
@@ -1735,6 +2057,8 @@ const styles = StyleSheet.create({
 	},
 	
 	displayNone: {display:'none'},
+	pdl20: {paddingLeft:20},
+  pdr20: {paddingRight:20},
 	mgt0: {marginTop:0,},
 	mgt2: {marginTop:2,},
 	mgt4: {marginTop:4,},
@@ -1746,6 +2070,15 @@ const styles = StyleSheet.create({
 	mgb0: {marginBottom:0,},
 	mgb10: {marginBottom:10,},
 	mgb25: {marginBottom:25,},
+	mgr0: {marginRight:0},
+  mgr10: {marginRight:10},
+  mgr15: {marginRight:15},
+  mgr20: {marginRight:20},
+  mgr30: {marginRight:30},
+  mgr40: {marginRight:40},
+	mgl0: {marginLeft:0},
+  mgl10: {marginLeft:10},
+  mgl15: {marginLeft:15},
 
 	w33p: {width:innerWidth*0.33},
 	w66p: {width:innerWidth*0.66},

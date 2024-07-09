@@ -145,6 +145,14 @@ const MySocial = (props) => {
 		if(in_ing_state != item.is_ing && before_first == '' && tabSt == 1){						
 			before_first = item.social_idx;
 		}
+
+		let sexString = '';
+		if(item.host_social_sex == 0){
+			sexString = '남';
+		}else{
+			sexString = '여';
+		}
+
 		return (
 			<View style={styles.socialLi}>
 				{item.social_idx == before_first ? (
@@ -206,7 +214,7 @@ const MySocial = (props) => {
 										)										
 									)}
 								</View>
-								<Text style={styles.socialLiInfo3Text}>{item.host_social_age}·{item.host_social_nick}</Text>
+								<Text style={styles.socialLiInfo3Text}>{item.host_social_age}·{sexString}</Text>
 							</View>
 						</View>
 					</View>

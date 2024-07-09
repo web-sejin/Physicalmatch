@@ -898,7 +898,7 @@ const styles = StyleSheet.create({
 	qnaAfterSubject: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
 	qnaAfterContent: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#1e1e1e',marginTop:12,},
 	addBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',height:52,backgroundColor:'#fff',borderWidth:1,borderColor:'#243B55',borderRadius:5,marginTop:20,},
-	addBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#243B55',marginLeft:5,},
+	addBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#243B55',marginLeft:5,},
 
 	qnaTabArea: {padding:20,paddingRight:0,},
 	qnaTabBtn: {alignItems:'center',justifyContent:'center',height:35,paddingHorizontal:16,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:50,marginLeft:6,},

@@ -297,6 +297,13 @@ const Social = (props) => {
 			cateString = '모임';
 		}
 
+		let sexString = '';
+		if(item.host_social_sex == 0){
+			sexString = '남';
+		}else{
+			sexString = '여';
+		}
+
 		return (
 			<View style={styles.socialLi}>
 				<TouchableOpacity
@@ -340,7 +347,7 @@ const Social = (props) => {
 										<ImgDomain fileWidth={20} fileName={'profile_sample2.png'}/>
 									)}				
 								</View>
-								<Text style={styles.socialLiInfo3Text}>{item.host_social_age}·{item.host_social_nick}</Text>
+								<Text style={styles.socialLiInfo3Text}>{item.host_social_age}·{sexString}</Text>
 							</View>
 						</View>
 					</View>
