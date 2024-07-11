@@ -29,7 +29,7 @@ const MyPoint = (props) => {
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
-	const [loading, setLoading] = useState(false);	
+	const [loading, setLoading] = useState(false);
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [refreshing, setRefreshing] = useState(false);
 	const [pointList, setPointList] = useState([]);
@@ -78,23 +78,34 @@ const MyPoint = (props) => {
 	useEffect(() => {
 		if(memberIdx){
 			getMyPoint();
+			getMyPointList();
 		}
 	}, [memberIdx]);
 
 	const getMyPoint = async () => {
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
+			type: "GetMyPoint",
+			member_idx: memberIdx,
+		}
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+			setCurrPoint(response.data);
+		}
+	}
+
+	const getMyPointList = async () => {
+		let sData = {      
+      basePath: "/api/member/",
 			type: "GetPointList",
-			member_idx: 1,
+			member_idx: memberIdx,
 		}
 		const response = await APIs.send(sData);		
 		if(response.code == 200){
 			if(response.msg == 'EMPTY'){
-				setPointList([]);
-				setCurrPoint(0);
+				setPointList([]);				
 			}else if(response.data.length > 0){
-				setPointList(response.data);
-				setCurrPoint(response.data[0].list[0].pl_left_point);
+				setPointList(response.data);								
 			}
 		}
 	}
@@ -144,7 +155,7 @@ const MyPoint = (props) => {
 	const onRefresh = () => {
 		if(!refreshing) {
 			setRefreshing(true);
-			//getItemList();
+			getMyPointList();
 			setTimeout(() => {
 				setRefreshing(false);
 			}, 2000);

@@ -37,21 +37,6 @@ const opacityVal2 = 0.95;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const Home = (props) => {
-	const cardData = [
-		{ 'idx': 1, 'isFlipped':false, 'name':'닉네임최대여덟1', 'job':'CEO', 'age':'99', 'area':'서울 강남구', 'height':180, 'weight':70, 'badgeCnt':4, 'img':'man.png', 'dday':7, 'open':true },
-		{ 'idx': 2, 'isFlipped':false, 'name':'닉네임최대여덟1', 'job':'디자이너', 'age':'00', 'area':'경기 부천시', 'height':181, 'weight':71, 'badgeCnt':3, 'img':'woman.png', 'dday':7, 'open':true },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟1', 'job':'요리사', 'age':'01', 'area':'전남 곡성군', 'height':182, 'weight':72, 'badgeCnt':2, 'img':'man.png', 'dday':7, 'open':false },
-		{ 'idx': 4, 'isFlipped':false, 'name':'닉네임최대여덟1', 'job':'변호사', 'age':'02', 'area':'서울 용산구', 'height':183, 'weight':73, 'badgeCnt':1, 'img':'woman.png', 'dday':7, 'open':false },
-		{ 'idx': 5, 'isFlipped':false, 'name':'닉네임최대여덟2', 'job':'CEO', 'age':'99', 'area':'서울 강남구', 'height':180, 'weight':70, 'badgeCnt':4, 'img':'man.png', 'dday':6, 'open':false },
-		{ 'idx': 6, 'isFlipped':false, 'name':'닉네임최대여덟2', 'job':'디자이너', 'age':'00', 'area':'경기 부천시', 'height':181, 'weight':71, 'badgeCnt':3, 'img':'woman.png', 'dday':6, 'open':false },
-		{ 'idx': 7, 'isFlipped':false, 'name':'닉네임최대여덟2', 'job':'요리사', 'age':'01', 'area':'전남 곡성군', 'height':182, 'weight':72, 'badgeCnt':2, 'img':'man.png', 'dday':6, 'open':false },
-		{ 'idx': 8, 'isFlipped':false, 'name':'닉네임최대여덟2', 'job':'변호사', 'age':'02', 'area':'서울 용산구', 'height':183, 'weight':73, 'badgeCnt':1, 'img':'woman.png', 'dday':6, 'open':false },
-		{ 'idx': 9, 'isFlipped':false, 'name':'닉네임최대여덟3', 'job':'CEO', 'age':'99', 'area':'서울 강남구', 'height':180, 'weight':70, 'badgeCnt':4, 'img':'man.png', 'dday':5, 'open':false },
-		{ 'idx': 10, 'isFlipped':false, 'name':'닉네임최대여덟3', 'job':'디자이너', 'age':'00', 'area':'경기 부천시', 'height':181, 'weight':71, 'badgeCnt':3, 'img':'woman.png', 'dday':5, 'open':false },
-		{ 'idx': 11, 'isFlipped':false, 'name':'닉네임최대여덟3', 'job':'요리사', 'age':'01', 'area':'전남 곡성군', 'height':182, 'weight':72, 'badgeCnt':2, 'img':'man.png', 'dday':5, 'open':false },
-		{ 'idx': 12, 'isFlipped':false, 'name':'닉네임최대여덟3', 'job':'변호사', 'age':'02', 'area':'서울 용산구', 'height':183, 'weight':73, 'badgeCnt':1, 'img':'woman.png', 'dday':5, 'open':false },
-	];
-
 	const Data1 = [
 		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
 		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
@@ -116,6 +101,8 @@ const Home = (props) => {
 	const [backPressCount, setBackPressCount] = useState(0);
 	const [loading, setLoading] = useState(false);
 	const [loading2, setLoading2] = useState(false);
+	const [memberIdx, setMemberIdx] = useState();
+	const [memberInfo, setMemberInfo] = useState();
 
 	const [tabState, setTabState] = useState(1); //추천, 관심	
 	const [tabState2, setTabState2] = useState(1); //관심[ 찜&교환, 호감, 매칭된 ]
@@ -135,6 +122,7 @@ const Home = (props) => {
 	const [welcomePop, setWelcomePop] = useState(false);
 	const [filterPop, setFilterPop] = useState(false);
 	const [leavePop, setLeavePop] = useState(false);
+	const [leaveMsg, setLeaveMsg] = useState('');
 	const [addIntroPop, setAddIntroPop] = useState(false);
 	const [unAddIntroPop1, setUnAddIntroPop1] = useState(false);
 	const [unAddIntroPop2, setUnAddIntroPop2] = useState(false);
@@ -153,10 +141,10 @@ const Home = (props) => {
 	const [realAgeMax, setRealAgeMax] = useState('');
 	const [realAgeMin2, setRealAgeMin2] = useState('');
 	const [realAgeMax2, setRealAgeMax2] = useState('');
-	const [distanceStandard, setDistanceStandard] = useState(1);
-	const [distance, setDistance] = useState(50);
-	const [distance2, setDistance2] = useState(50);
-	const [recentAccess, setRecentAccess] = useState(7);
+	const [distanceStandard, setDistanceStandard] = useState();
+	const [distance, setDistance] = useState();
+	const [distance2, setDistance2] = useState();
+	const [recentAccess, setRecentAccess] = useState();
 	const [prdIdx, setPrdIdx] = useState(1);
 	const [skuCode, setSkuCode] = useState();
 
@@ -189,6 +177,10 @@ const Home = (props) => {
 		}else{			
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				setMemberIdx(result);
+			});
 
 			//console.log('userInfo ::: ', userInfo);
 		}
@@ -226,19 +218,25 @@ const Home = (props) => {
   );
 
 	useEffect(() => {
-		setLoading(true);		
-		setTimeout(() => {
-			setCardList(cardData);
-			setLoading(false);
-		}, 300);
-	}, []);
+		if(memberIdx){
+			setLoading(true);
+			getMemberInfo();
+			getCardList();
+		}
+	}, [memberIdx]);
+
+	useEffect(() => {
+		if(memberInfo){
+			getCardFilter();
+		}
+	}, [memberInfo]);
 
 	useEffect(() => {
 		getDateInfo();
 	}, []);
 
 	useEffect(() => {
-    getProductListApi();
+    getProductListApi();		
   }, []);
 
 	useEffect(()=>{    
@@ -372,6 +370,112 @@ const Home = (props) => {
 	// 	testApi(1);
 	// }, [])
 
+	const getMemberInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+      setMemberInfo(response.data);
+    }
+	}
+
+	const getCardFilter = async () => {
+		let sData = {
+			basePath: "/api/match/",
+			type: "GetMyCardCof",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+			const memberBirth = memberInfo?.member_age;
+
+			//선호 카드 설정 시작
+			let startAge = parseInt(memberBirth)-parseInt(response.data.ms_min_age);
+			let endAge = parseInt(memberBirth)+parseInt(response.data.ms_max_age);
+
+			let findeIndex = ageAry.indexOf(startAge);
+			let findeIndex2 = ageAry.indexOf(endAge);
+
+			if(findeIndex < 0){ 
+				startAge = ageAry[(ageAry.length)-1];
+				findeIndex = (ageAry.length)-1;
+			}
+
+			if(findeIndex2 < 0){ 
+				endAge = ageAry[0];
+				findeIndex2 = 0;
+			}
+
+			setRealAgeMax(startAge.toString());
+			setRealAgeMin(endAge.toString());
+
+			let yearString = startAge.toString().substr(2,2);
+			let yearString2 = endAge.toString().substr(2,2);
+
+			setAgeMin(yearString2.toString());
+			setAgeMax(yearString.toString());			
+
+			setNonCollidingMultiSliderValue([findeIndex2, findeIndex]);
+			//선호 카드 설정 끝
+
+			//내 카드 설정 시작
+			let startAge2 = parseInt(memberBirth)-parseInt(response.data.ms_min_open_age);
+			let endAge2 = parseInt(memberBirth)+parseInt(response.data.ms_max_open_age);
+
+			let findeIndex3 = ageAry.indexOf(startAge2);
+			let findeIndex4 = ageAry.indexOf(endAge2);
+
+			if(findeIndex3 < 0){ 
+				startAge2 = ageAry[(ageAry.length)-1];
+				findeIndex3 = (ageAry.length)-1;
+			}
+
+			if(findeIndex4 < 0){ 
+				endAge2 = ageAry[0];
+				findeIndex4 = 0;
+			}
+
+			setRealAgeMax2(startAge2.toString());
+			setRealAgeMin2(endAge2.toString());
+
+			let yearString3 = startAge2.toString().substr(2,2);
+			let yearString4 = endAge2.toString().substr(2,2);
+
+			setAgeMin2(yearString4.toString());
+			setAgeMax2(yearString3.toString());			
+
+			setNonCollidingMultiSliderValue2([findeIndex4, findeIndex3]);
+			//내 카드 설정 끝
+
+			setDistanceStandard(response.data.ms_distance_type);
+			setDistance(parseInt(response.data.ms_distance));
+			setDistance2(parseInt(response.data.ms_sub_distance));
+			setRecentAccess(parseInt(response.data.ms_logined_at));
+		}
+	}
+
+	const getCardList = async () => {
+		let sData = {      
+      basePath: "/api/match/",
+			type: "GetDailyCard",
+			member_idx: memberIdx,
+		}
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			const newsTest = response.data.filter(el => el.length > 0);			
+			setCardList(newsTest);
+			setTimeout(function(){
+				setLoading(false);
+			}, 100)
+		}
+	}
+
 	const getDateInfo = async () => {
 		const date = new Date();
 		const year = (date.getFullYear())-50;
@@ -388,27 +492,27 @@ const Home = (props) => {
 		setAgeAry(yaerAry);
 		setAgeAryIdx(yaerAryIdx);
 
-		const yearVal = year+4;
-		const yearVal2 = year2-5;
+		// const yearVal = year+4;
+		// const yearVal2 = year2-5;
 		
-		let yearString = yearVal.toString();
-		setRealAgeMax(yearString);
-		setRealAgeMax2(yearString);
-		yearString = yearString.substr(2,2);		
+		// let yearString = yearVal.toString();
+		// setRealAgeMax(yearString);
+		// setRealAgeMax2(yearString);
+		// yearString = yearString.substr(2,2);		
 
-		let yearString2 = yearVal2.toString();
-		setRealAgeMin(yearString2);
-		setRealAgeMin2(yearString2);
-		yearString2 = yearString2.substr(2,2);
+		// let yearString2 = yearVal2.toString();
+		// setRealAgeMin(yearString2);
+		// setRealAgeMin2(yearString2);
+		// yearString2 = yearString2.substr(2,2);
 		
-		setAgeMin((yearString2).toString());
-		setAgeMax((yearString).toString());
-		setAgeMin2((yearString2).toString());
-		setAgeMax2((yearString).toString());
+		// setAgeMin((yearString2).toString());
+		// setAgeMax((yearString).toString());
+		// setAgeMin2((yearString2).toString());
+		// setAgeMax2((yearString).toString());
 		setAgeMinInt(5);
 		setAgeMaxInt(cnt-5);
-		setNonCollidingMultiSliderValue([5, cnt-5]);
-		setNonCollidingMultiSliderValue2([5, cnt-5]);
+		// setNonCollidingMultiSliderValue([5, cnt-5]);
+		// setNonCollidingMultiSliderValue2([5, cnt-5]);
 	}
 
 	const getProductListApi = async () => {
@@ -450,10 +554,7 @@ const Home = (props) => {
 		setTabState(v);
 		setLoading(true);
 		if(v == 1){			
-			setTimeout(() => {
-				setCardList(cardData);
-				setLoading(false);
-			}, 300);
+			getCardList();
 
 		}else if(v == 2){			
 			setTimeout(() => {							
@@ -499,13 +600,46 @@ const Home = (props) => {
 	const saveFilterSubmit = async () => {
 		// console.log('a ::: ',realAgeMin-realAgeMax);
 		// console.log('b ::: ',realAgeMin2-realAgeMax2);
+		// console.log('realAgeMin ::: ',realAgeMin2);
+		// console.log('realAgeMax ::: ',realAgeMax2);
 		if(realAgeMin-realAgeMax < 5 || realAgeMin2-realAgeMax2 < 5){
 			ToastMessage('나이는 5살 이상으로만 설정이 가능합니다.');
 			return false;
 		}
-		
-		setFilterPop(false);
-		setFilterSave(true);
+
+		const msMinAge = realAgeMin-(memberInfo?.member_age);
+		const msMaxAge = (memberInfo?.member_age)-realAgeMax;
+		const msMinOpenAge = realAgeMin2-(memberInfo?.member_age);
+		const msMaxOpenAge = (memberInfo?.member_age)-realAgeMax2;
+
+		let sData = {
+			basePath: "/api/match/",
+			type: "SetMyCardCof",
+			member_idx: memberIdx,
+			ms_min_age: msMaxAge,
+			ms_max_age: msMinAge,
+			ms_distance_type: tempDistanceStandard,
+			ms_distance: distance,
+			ms_sub_distance: distance2,
+			ms_logined_at: tempRecentAccess,
+			ms_min_open_age: msMaxOpenAge,
+			ms_max_open_age: msMinOpenAge,
+		};
+
+		let msg = '';
+		const response = await APIs.send(sData);
+		console.log(response);
+		if(response.code == 200){
+			msg = '필터가 수정되었습니다.';
+			setFilterSave(true);
+		}else{
+			msg = '잠시후 다시 이용해 주세요.';
+		}
+				
+		setFilterPop(false);	
+		setTimeout(function(){
+			ToastMessage(msg);
+		}, 50);
 	}
 
 	const getProductList = ({item, index}) => {
@@ -612,12 +746,80 @@ const Home = (props) => {
 		setNonCollidingMultiSliderValue2([a,b]);
 	}
 
-	const resetFilter = () => {
-		getDateInfo();
-		setDistanceStandard(1);
-		setDistance(50);
-		setDistance2(50);
-		setRecentAccess(7);
+	const resetFilter = async () => {
+		let sData = {
+			basePath: "/api/match/",
+			type: "ClearMyCardCof",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+			const memberBirth = memberInfo?.member_age;
+
+			//선호 카드 설정 시작
+			let startAge = parseInt(memberBirth)-parseInt(response.data.ms_min_age);
+			let endAge = parseInt(memberBirth)+parseInt(response.data.ms_max_age);
+
+			let findeIndex = ageAry.indexOf(startAge);
+			let findeIndex2 = ageAry.indexOf(endAge);
+
+			if(findeIndex < 0){ 
+				startAge = ageAry[(ageAry.length)-1];
+				findeIndex = (ageAry.length)-1;
+			}
+
+			if(findeIndex2 < 0){ 
+				endAge = ageAry[0];
+				findeIndex2 = 0;
+			}
+
+			setRealAgeMax(startAge.toString());
+			setRealAgeMin(endAge.toString());
+
+			let yearString = startAge.toString().substr(2,2);
+			let yearString2 = endAge.toString().substr(2,2);
+
+			setAgeMin(yearString2.toString());
+			setAgeMax(yearString.toString());			
+
+			setNonCollidingMultiSliderValue([findeIndex2, findeIndex]);
+			//선호 카드 설정 끝
+
+			//내 카드 설정 시작
+			let startAge2 = parseInt(memberBirth)-parseInt(response.data.ms_min_open_age);
+			let endAge2 = parseInt(memberBirth)+parseInt(response.data.ms_max_open_age);
+
+			let findeIndex3 = ageAry.indexOf(startAge2);
+			let findeIndex4 = ageAry.indexOf(endAge2);
+
+			if(findeIndex3 < 0){ 
+				startAge2 = ageAry[(ageAry.length)-1];
+				findeIndex3 = (ageAry.length)-1;
+			}
+
+			if(findeIndex4 < 0){ 
+				endAge2 = ageAry[0];
+				findeIndex4 = 0;
+			}
+
+			setRealAgeMax2(startAge2.toString());
+			setRealAgeMin2(endAge2.toString());
+
+			let yearString3 = startAge2.toString().substr(2,2);
+			let yearString4 = endAge2.toString().substr(2,2);
+
+			setAgeMin2(yearString4.toString());
+			setAgeMax2(yearString3.toString());			
+
+			setNonCollidingMultiSliderValue2([findeIndex4, findeIndex3]);
+			//내 카드 설정 끝
+
+			setDistanceStandard(response.data.ms_distance_type);
+			setDistance(parseInt(response.data.ms_distance));
+			setDistance2(parseInt(response.data.ms_sub_distance));
+			setRecentAccess(parseInt(response.data.ms_logined_at));
+		}
 	}
 
 	const offFilterPop = () => {
@@ -637,6 +839,23 @@ const Home = (props) => {
 		setRecentAccess(tempRecentAccess);
 
 		setFilterPop(false);
+	}
+
+	const modalPopOn = (v) => {
+		if(v == '1'){
+			setLeaveMsg('계정을 비활성화 한 회원이에요');
+		}else if(v == '2'){
+			setLeaveMsg('카드를 비활성화 한 회원이에요');
+		}else if(v == '3'){
+			setLeaveMsg('탈퇴한 회원이에요');
+		}else if(v == '4'){
+			setLeaveMsg('차단된 회원이에요');
+		}
+		setLeavePop(true);
+	}
+
+	const modalPopOff = (v) => {
+		setLeavePop(true);
 	}
 	
 	const toastConfig2 = {
@@ -817,88 +1036,90 @@ const Home = (props) => {
 									)}
 								</LinearGradient>
 							</View>
-						</View>								
+						</View>
+
+						<View style={[styles.newCardSection]}>
+							{cardList.map((item, index) => {
+								return (
+									<View key={index} style={styles.cardView}>		
+										{item.map((item2, index2) => {
+											const dday = 7-parseInt(item2.diff_date);
+											return (
+												index2 == 0 ? (
+												<View key={index2} style={styles.dday}>
+													<View style={styles.ddayLine}></View>
+													<Text style={styles.ddayText}>D-{dday}</Text>
+												</View>
+												) : null
+											)
+										})}
+
+
+										{item.map((item2, index2) => {												
+											const job = item2.member_job+" "+item2.member_job_detail;
+											let openState = false;
+											if((index == 0 && (index2 == 0 || index2 == 1)) || item2.open_yn == 'y'){
+												openState = true;
+											}
+											
+											if(item2.available_yn == 'n' || item2.card_yn == 'n' || item2.delete_yn == 'y' || item2.block_yn == 'y'){
+												openState = false;
+											}
+											return (													
+												<View key={index2}>																								
+													<Card 
+														navigation={navigation}
+														key={index}											
+														propsMemberIdx={item2.member_idx}
+														propsJob={job}
+														propsAge={item2.member_age}
+														propsArea={item2.member_main_local}
+														propsHeight={item2.member_height}
+														propsWeight={item2.member_weight}
+														propsOpen={openState}
+														propsNick={item2.member_nick}
+														propsBadgeCnt={item2.badge_cnt}														
+														propsMrIdx={item2.mr_idx}
+														propsAvailableState={item2.available_yn}
+														propsCardState={item2.card_yn}
+														propsDeleteState={item2.delete_yn}
+														propsBlockState={item2.block_yn}
+														myMemberIdx={memberIdx}
+														ModalEvent={modalPopOn}
+													/>
+												</View>
+											)
+										})}
+									</View>									
+								)														
+							})}
+						</View>			
 
 						{/* D-7 */}
-						<View style={styles.cardView}>
+						{/* <View style={styles.cardView}>
 							<View style={styles.dday}>
 								<View style={styles.ddayLine}></View>
 								<Text style={styles.ddayText}>D-7</Text>
 							</View>
-							{cardList.map((item, index) => {
+							{cardList[0].map((item, index) => {
 								return (	
-									item.dday == 7 ? (
-										<Card 
-											navigation={navigation}
-											key={index}
-											propsNick={item.name}
-											propsJob={item.job}
-											propsAge={item.age}
-											propsArea={item.area}
-											propsHeight={item.height}
-											propsWeight={item.weight}
-											propsBadgeCnt={item.badgeCnt}
-											propsFlip={item.isFlipped}
-											propsOpen={item.open}
-										/>
-									) : null				
+									<Card 
+										navigation={navigation}
+										key={index}											
+										propsMemberIdx={item.memberIdx}
+										propsJob={job}
+										propsAge={item.member_age}
+										propsArea={item.member_main_local}
+										propsHeight={item.member_height}
+										propsWeight={item.member_weight}											
+										propsFlip={flipState}
+										propsOpen={item.open_yn}
+										propsNick={'나중에 제거'}
+										propsBadgeCnt={0}
+									/>			
 								)
 							})}
-						</View>
-
-						{/* D-6 */}
-						<View style={styles.cardView}>
-							<View style={styles.dday}>
-								<View style={styles.ddayLine}></View>
-								<Text style={styles.ddayText}>D-6</Text>
-							</View>
-							{cardList.map((item, index) => {
-								return (	
-									item.dday == 6 ? (
-										<Card 
-											navigation={navigation}
-											key={index}
-											propsNick={item.name}
-											propsJob={item.job}
-											propsAge={item.age}
-											propsArea={item.area}
-											propsHeight={item.height}
-											propsWeight={item.weight}
-											propsBadgeCnt={item.badgeCnt}
-											propsFlip={item.isFlipped}
-											propsOpen={item.open}
-										/>
-									) : null				
-								)
-							})}
-						</View>
-
-						{/* D-5 */}
-						<View style={styles.cardView}>
-							<View style={styles.dday}>
-								<View style={styles.ddayLine}></View>
-								<Text style={styles.ddayText}>D-5</Text>
-							</View>
-							{cardList.map((item, index) => {
-								return (	
-									item.dday == 5 ? (
-										<Card 
-											navigation={navigation}
-											key={index}
-											propsNick={item.name}
-											propsJob={item.job}
-											propsAge={item.age}
-											propsArea={item.area}
-											propsHeight={item.height}
-											propsWeight={item.weight}
-											propsBadgeCnt={item.badgeCnt}
-											propsFlip={item.isFlipped}
-											propsOpen={item.open}
-										/>
-									) : null				
-								)
-							})}
-						</View>
+						</View> */}
 
 					</View>
 					) : null}
@@ -1313,6 +1534,7 @@ const Home = (props) => {
 								enableLabel={false}
 								enabledOne={true}
 								enabledTwo={true}
+								smoothSnapped={true}
 								customMarker={() => (
 									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
 								)}
@@ -1322,18 +1544,22 @@ const Home = (props) => {
 									const last = ageAry[e[1]];
 									
 									let yearString = first.toString();
-									setRealAgeMin(yearString);
-									yearString = yearString.substr(2,2);
-
 									let yearString2 = last.toString();
+
+									setRealAgeMin(yearString);																		
 									setRealAgeMax(yearString2);
+
+									yearString = yearString.substr(2,2);
 									yearString2 = yearString2.substr(2,2);
 									
 									setAgeMin(yearString);
 									setAgeMax(yearString2);
-									//setNonCollidingMultiSliderValue(e);
+									//setNonCollidingMultiSliderValue(e);									
+									
+									let findeIndex = ageAry.indexOf(first);
+									let findeIndex2 = ageAry.indexOf(last);
 
-									nonCollidingMultiSliderValuesChange(yearString, yearString2);
+									nonCollidingMultiSliderValuesChange(findeIndex, findeIndex2);
 								}}
 							/>
 						</View>
@@ -1345,9 +1571,9 @@ const Home = (props) => {
 								<TouchableOpacity 
 									style={styles.msCheckBox}
 									activeOpacity={opacityVal}
-									onPress={()=>{setDistanceStandard(1)}}
+									onPress={()=>{setDistanceStandard(0)}}
 								>
-									{distanceStandard == 1 ? (
+									{distanceStandard == 0 ? (
 										<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
 											<View style={styles.msCheckBoxCircleIn}></View>
 										</View>
@@ -1380,6 +1606,7 @@ const Home = (props) => {
 								enabledOne={true}
 								enabledTwo={false}
 								allowOverlap={true}
+								smoothSnapped={true}
 								customMarker={() => (
 									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
 								)}
@@ -1394,9 +1621,9 @@ const Home = (props) => {
 								<TouchableOpacity 
 									style={styles.msCheckBox}
 									activeOpacity={opacityVal}
-									onPress={()=>{setDistanceStandard(2)}}
+									onPress={()=>{setDistanceStandard(1)}}
 								>
-									{distanceStandard == 2 ? (
+									{distanceStandard == 1 ? (
 										<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
 											<View style={styles.msCheckBoxCircleIn}></View>
 										</View>
@@ -1429,6 +1656,7 @@ const Home = (props) => {
 								enabledOne={true}
 								enabledTwo={false}
 								allowOverlap={true}
+								smoothSnapped={true}
 								customMarker={() => (
 									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
 								)}
@@ -1508,6 +1736,7 @@ const Home = (props) => {
 									enableLabel={false}
 									enabledOne={true}
 									enabledTwo={true}
+									smoothSnapped={true}
 									customMarker={() => (
 										<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
 									)}
@@ -1527,7 +1756,10 @@ const Home = (props) => {
 										setAgeMax2(yearString2);
 										//setNonCollidingMultiSliderValue2(e);
 
-										nonCollidingMultiSliderValuesChange2(yearString, yearString2);
+										let findeIndex = ageAry.indexOf(first);
+										let findeIndex2 = ageAry.indexOf(last);
+
+										nonCollidingMultiSliderValuesChange2(findeIndex, findeIndex2);
 									}}
 								/>
 							</View>
@@ -1570,7 +1802,7 @@ const Home = (props) => {
 						</TouchableOpacity>		
 						<View style={[styles.popTitle, styles.popTitleFlex]}>							
 							<View style={styles.popTitleFlexWrap}>
-								<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>탈퇴한 회원이에요</Text>
+								<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>{leaveMsg}</Text>
 							</View>
 							<ImgDomain fileWidth={18} fileName={'emiticon1.png'} />
 						</View>
@@ -1861,7 +2093,7 @@ const Home = (props) => {
 const styles = StyleSheet.create({	
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },
 	gapBox: {height:86,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,1)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
   indicator2: { backgroundColor:'rgba(0,0,0,0.5)'},
 
 	header: {backgroundColor:'#141E30'},

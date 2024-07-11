@@ -66,6 +66,8 @@ const MatchDetail = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
+  const [memberIdx, setMemberIdx] = useState();
+  const [memberInfo, setMemberInfo] = useState({});
 
   const swiperRef = useRef(null);
   const etcRef = useRef(null);
@@ -82,6 +84,7 @@ const MatchDetail = (props) => {
   const [reportPop, setReportPop] = useState(false);
   const [reviewPop, setReviewPop] = useState(false);
   const [sotongPop, setSotongPop] = useState(false);
+  const [sotongType, setSotongType] = useState(''); //feel:호감, like:좋아요
   const [sotongTypeText, setSotongTypeText] = useState('');
   const [sotongTypePoint, setSotongTypePoint] = useState(0);
   const [sendPop, setSendPop] = useState(false);
@@ -112,6 +115,9 @@ const MatchDetail = (props) => {
   const [productInappList, setProductInappList] = useState([]);
   const [platformData, setPlatformData] = useState(null);
 
+  const accessType = params?.accessType;
+  const mb_member_idx = params?.mb_member_idx;  
+
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isSubscribed = true;
@@ -120,7 +126,11 @@ const MatchDetail = (props) => {
 
 		}else{      
 			setRouteLoad(true);
-			setPageSt(!pageSt);      
+			setPageSt(!pageSt);
+
+      AsyncStorage.getItem('member_idx', (err, result) => {		        
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
@@ -176,6 +186,12 @@ const MatchDetail = (props) => {
       hideSubscription.remove();
     };
   }, [currFocus]);
+
+  useEffect(() => {
+    if(memberIdx){
+      getMemInfo();
+    }
+  }, [memberIdx])
 
   useEffect(() => {
     setLoading(true);
@@ -321,7 +337,20 @@ const MatchDetail = (props) => {
         endConnection()
       }
     }
-  }, [platformData]);
+  }, [platformData]);  
+
+  const getMemInfo = async () => {
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+      setMemberInfo(response.data);
+    }
+  }
 
   const getReportList = async () => {
     let sData = {
@@ -406,21 +435,51 @@ const MatchDetail = (props) => {
   const sotongClose = () => {
     setSotongPop(false);
     setPreventBack(false);
+    setSotongType('');
     setSotongTypeText('');
     setSotongTypePoint(0);
   }
 
-  const sotongSend = (v, z) => {
+  const sotongSend = (v, z, type) => {
     setSotongPop(false);
     setPreventBack(false);
+    setSotongType(type);
     setSotongTypeText(v);
     setSotongTypePoint(z);
   }
 
   const sotongSendClose = () => {
     setSendPop(false);
+    setSotongType('');
     setSotongTypeText('');
     setSotongTypePoint(0);
+  }
+
+  const submitSotong = async () => {
+    let sData = {};
+    if(sotongType == 'feel'){
+      sData = {
+        basePath: "/api/match/",
+        type: "SetMemberFeel",		
+        member_idx: memberIdx,        	
+        receive_member_idx: mb_member_idx,
+      };
+    }else if(sotongType == 'like'){
+      sData = {
+        basePath: "/api/match/",
+        type: "SetMemberLike",		
+        member_idx: memberIdx,        	
+        receive_member_idx: mb_member_idx,
+        ml_type: 0,
+      };
+    }
+
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){      
+      ToastMessage(sotongTypeText+' 보냈습니다.');
+      sotongSendClose();
+    }        
   }
 
   const preLikePopClose = () => {
@@ -430,8 +489,26 @@ const MatchDetail = (props) => {
   }
 
   const submitPreLike = async () => {
-    preLikePopClose();
-    ToastMessage('프리미엄 좋아요를 보냈습니다.');
+    if(preLikeCont.length < 2){
+      ToastMessage('메세지를 2글자 이상 작성해 주세요.');
+      return false;
+    }
+    
+    let sData = {
+      basePath: "/api/match/",
+      type: "SetMemberLike",		
+      member_idx: memberIdx,        	
+      receive_member_idx: mb_member_idx,
+      ml_type: 1,
+      ml_memo: preLikeCont,
+    };
+    const response = await APIs.send(sData);
+    console.log(response);
+    if(response.code == 200){      
+      ToastMessage('프리미엄 좋아요를 보냈습니다.');
+      preLikePopClose();
+    }
+    
   }
 
   const cashPopClose = () => {
@@ -573,6 +650,32 @@ const MatchDetail = (props) => {
     setCashPop(false);
     _requestPurchase(skuCode);
   }
+
+  const matchZzim = async () => {    
+    let sData = {};
+    if(zzim){
+      sData = {
+        basePath: "/api/match/",
+        type: "DeleteMemberBookMark",		
+        member_idx: memberIdx,        	
+        mb_member_idx: mb_member_idx,
+      };
+    }else{      
+      sData = {
+        basePath: "/api/match/",
+        type: "SetMemberBookMark",
+        member_idx: memberIdx,        	
+        mb_member_idx: mb_member_idx,
+      };
+    }
+   
+    const response = await APIs.send(sData);    
+    //console.log(response);
+    if(response.code == 200){
+      setZzim(!zzim);
+    }
+      
+  }
  
   const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -662,7 +765,7 @@ const MatchDetail = (props) => {
             <TouchableOpacity
               style={styles.zzimBtn}
               activeOpacity={opacityVal}
-              onPress={() => {setZzim(!zzim)}}
+              onPress={() => matchZzim()}
             >
               {zzim ? (
                 <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
@@ -1468,7 +1571,7 @@ const MatchDetail = (props) => {
                 style={[styles.sotongBtn]}
                 activeOpacity={opacityVal}
                 onPress={()=>{
-                  sotongSend('호감을', 100);
+                  sotongSend('호감을', 100, 'feel');
                   setSendPop(true);
                 }}
               >
@@ -1480,7 +1583,7 @@ const MatchDetail = (props) => {
                 style={styles.sotongBtn}
                 activeOpacity={opacityVal}
                 onPress={()=>{
-                  sotongSend('좋아요를', 200);
+                  sotongSend('좋아요를', 200, 'like');
                   setSendPop(true);
                 }}
               >
@@ -1564,10 +1667,7 @@ const MatchDetail = (props) => {
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
-								onPress={() => {
-									sotongSendClose();
-                  ToastMessage(sotongTypeText+' 보냈습니다.');
-								}}
+								onPress={() => submitSotong()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>
@@ -2399,7 +2499,7 @@ const styles = StyleSheet.create({
 
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
 	input2: {width: innerWidth},
-  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,},
+  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,},
 
   modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},

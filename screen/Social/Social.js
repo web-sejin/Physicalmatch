@@ -272,7 +272,7 @@ const Social = (props) => {
 			page:curr_page,
 		};		
 		const response = await APIs.send(sData);
-		//console.log(response);
+		console.log(response);
 		if(response.code == 200){						
 			if(response.data){
 				setTotalPage(Math.ceil(response.data.length/10));
@@ -771,6 +771,7 @@ const Social = (props) => {
 								enableLabel={false}
 								enabledOne={true}
 								enabledTwo={true}
+								smoothSnapped={true}
 								customMarker={() => (
 									<View style={[styles.multiSliderDot, styles.boxShadow]}></View>
 								)}

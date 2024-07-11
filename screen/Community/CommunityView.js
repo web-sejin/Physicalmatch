@@ -86,6 +86,7 @@ const CommunityView = (props) => {
 
   const [cashPopNick, setCashPopNick] = useState('');
   const [hostMemberIdx, setHostMemberIdx] = useState();
+  const [hostSex, setHostSex] = useState();
   const [pbIdx, setPbIdx] = useState();
   const [sjIdx, setSjIdx] = useState();
   const [nick, setNick] = useState('');
@@ -106,7 +107,7 @@ const CommunityView = (props) => {
   const [memberIdx, setMemberIdx] = useState();
   const [memberInfo, setMemberInfo] = useState({});
 
-  const [permitCpcIdx, setPermitCpcIdx] = useState();  
+  const [permitCpcIdx, setPermitCpcIdx] = useState(); 
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -315,6 +316,7 @@ const CommunityView = (props) => {
     //console.log(response);
     if(response.code == 200){
       setHostMemberIdx(response.data.comm.member_idx);
+      setHostSex(response.data.comm.host_comm_sex);
       if(response.data.comm.member_idx == memberIdx){
         setUserType(1);
       }else{
@@ -921,6 +923,10 @@ const CommunityView = (props) => {
                       activeOpacity={opacityVal}
                       //onPress={()=>profileChange('host', hostMemberIdx)}
                       onPress={()=>{
+                        if(memberInfo?.member_sex == hostSex){
+                          ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
+                          return false;
+                        }
                         setTradeType(1);
                         setTradePop(true);
                         setTradeSort('host');
@@ -1021,7 +1027,7 @@ const CommunityView = (props) => {
                   <View style={styles.reqUl}>     
                     {receiveList.map((item, index) => {
                       const profileImg = hostUrl+item.send_profile;
-                      if(item.cr_type == 0){
+                      if(item.cpc_type == 0){
                         return (                        
                           <View key={index} style={[styles.reqLi, styles.boxShadow2, index == 0 ? styles.mgt0 : null]}>
                             <TouchableOpacity
@@ -1063,13 +1069,23 @@ const CommunityView = (props) => {
                             </TouchableOpacity>
                           </View>                                                
                         )
-                      }else if(item.cr_type == 1){
+                      }else if(item.cpc_type == 1){
                         return (
                           <TouchableOpacity 
                             key={index}
                             style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
-                            activeOpacity={opacityVal}                            
-                            onPress={()=>{navigation.navigate('MatchDetail', {accessType:'community', matchMbIdx:item.send_member_idx, idx:item.cpc_idx, changeState:1})}}
+                            activeOpacity={opacityVal}           
+                            onPress={()=>{
+                              navigation.navigate(
+                                'MatchDetail', 
+                                {
+                                  accessType:'community', 
+                                  mb_member_idx:item.send_member_idx,
+                                  idx:item.cpc_idx, 
+                                  currState:1
+                                }
+                              )
+                            }}
                           >                  
                             <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                               <View style={[styles.cardBtn, styles.cardBtn3]}>
@@ -1174,7 +1190,7 @@ const CommunityView = (props) => {
                   <View style={styles.reqUl}>                  
                     {sendList.map((item, index) => {
                       const profileImg = hostUrl+item.receive_profile;
-                      if(item.cr_type == 0){
+                      if(item.cpc_type == 0){
                         return (
                           <View key={index} style={[styles.reqLi, styles.boxShadow2, index == 0 ? styles.mgt0 : null]}>
                             <ImageBackground
@@ -1195,12 +1211,24 @@ const CommunityView = (props) => {
                             </View>
                           </View>
                         )
-                      }else if(item.cr_type == 1){
+                      }else if(item.cpc_type == 1){
                         return (
                           <TouchableOpacity 
                             style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
                             activeOpacity={opacityVal}
-                            onPress={()=>{navigation.navigate('MatchDetail', {accessType:'community', matchMbIdx:item.receive_member_idx, idx:item.cpc_idx, changeState:1})}}
+                            onPress={()=>{
+                              console.log(item.send_member_idx);
+                              console.log(item.receive_member_idx);
+                              // navigation.navigate(
+                              //   'MatchDetail', 
+                              //   {
+                              //     accessType:'community', 
+                              //     matchMbIdx:item.receive_member_idx,
+                              //     idx:item.cpc_idx, 
+                              //     changeState:1
+                              //   }
+                              // )
+                            }}
                           >                  
                             <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                               <View style={[styles.cardBtn, styles.cardBtn3]}>
@@ -1337,6 +1365,10 @@ const CommunityView = (props) => {
                                     style={styles.reviewTradeBtn}
                                     activeOpacity={opacityVal}
                                     onPress={()=>{
+                                      if(memberInfo?.member_sex == hostSex){
+                                        ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
+                                        return false;
+                                      }
                                       setTradeType(1);
                                       setTradePop(true);
                                       setTradeSort('comment');

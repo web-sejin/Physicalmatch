@@ -5,7 +5,9 @@ import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from "../assets/APIs";
 import Font from '../assets/common/Font';
 import ImgDomain from '../assets/common/ImgDomain';
 
@@ -22,7 +24,7 @@ const radius2 = widnowWidth >= 640 ? 15 : 5;
 
 const Card = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, propsNick, propsJob, propsAge, propsArea, propsHeight, propsWeight, propsBadgeCnt, propsFlip, propsOpen} = props;  
+	const {navigation, propsNick, propsJob, propsAge, propsArea, propsHeight, propsWeight, propsBadgeCnt, propsOpen, propsMrIdx, myMemberIdx, propsMemberIdx, propsAvailableState, propsCardState, propsDeleteState, propsBlockState, ModalEvent} = props;  
   const spin = useSharedValue(1);
   useEffect(() => {
     if(propsOpen && spin.value != 0){
@@ -54,13 +56,32 @@ const Card = (props) => {
     };
   }, []);
 
-	const onFlip = () => {
-    spin.value = spin.value ? 0 : 1;
+	const onFlip = async () => {
+    //propsMrIdx
+    let sData = {      
+      basePath: "/api/match/",
+			type: "OpenDailyCard",
+      member_idx: myMemberIdx,
+			mr_idx: propsMrIdx,
+		}
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){
+			spin.value = spin.value ? 0 : 1;
+		}
+
+    
   };
 
   const ViewDetail = () => {
 		//포인트 있는지 체크 후 결제 유도 or 상세페이지 이동		
-		navigation.navigate('MatchDetail')
+		navigation.navigate(
+      'MatchDetail', 
+      {
+        accessType:'match', 
+        mb_member_idx:propsMemberIdx,
+      }
+    )
 	}
 
 	return (
@@ -68,11 +89,19 @@ const Card = (props) => {
       <TouchableOpacity 
         style={[styles.fakeView]} 
         activeOpacity={opacityVal}
-        onPress={()=>{          
-          if(spin.value == 0){
-            ViewDetail();
-          }else if(spin.value == 1){
-            onFlip();
+        onPress={()=>{     
+          if(propsAvailableState == 'n'){
+            ModalEvent(1)
+          }else if(propsDeleteState == 'y'){
+            ModalEvent(3)
+          }else if(propsBlockState == 'y'){
+            ModalEvent(4)
+          }else{
+            if(spin.value == 0){
+              ViewDetail();
+            }else if(spin.value == 1){
+              onFlip();
+            }
           }
         }}
       >

@@ -357,7 +357,7 @@ const SocialView = (props) => {
           let newAccept = [];
           response.data.join.accept.map((item, index) => {
             let flippedState = true;            
-            if(item.leave_yn == 'y' || item.available_yn == 'y'){
+            if(item.leave_yn == 'y' || item.available_yn == 'n'){
               flippedState = false;
             }
 
@@ -1199,7 +1199,7 @@ const SocialView = (props) => {
               </View>
 
               <View style={[styles.cmView, styles.pdt30, styles.pdb30]}>                
-                <View style={[styles.cmViewTitle, acceptList.length < 1 ? styles.mgb0 : null]}>
+                <View style={[styles.cmViewTitle, reqList.length < 1 ? styles.mgb10 : null]}>
                   <Text style={styles.cmViewTitleText}>신청자</Text>
                 </View>
                 <View style={styles.reqUl}>
@@ -1220,7 +1220,7 @@ const SocialView = (props) => {
                             setMiniProfilePop(true);
                           }}
                         >                   
-                          <BlurView style={styles.blurView2} blurType="light" blurAmount={2} />
+                          <BlurView style={styles.blurView2} blurType="light" blurAmount={3} />
                           {item.mini_pofile_img ? (
                             <ImgDomain2 fileWidth={46} fileName={item.mini_pofile_img}/>
                           ) : (
@@ -1318,7 +1318,7 @@ const SocialView = (props) => {
                 </View>     
 
                 <View style={styles.mgt40}>
-                  <View style={[styles.cmViewTitle, acceptList.length < 1 ? styles.mgb0 : null]}>
+                  <View style={[styles.cmViewTitle, acceptList.length < 1 ? styles.mgb10 : null]}>
                     <Text style={styles.cmViewTitleText}>수락자</Text>
                   </View>
                   <View style={styles.cardView}>
@@ -1337,7 +1337,7 @@ const SocialView = (props) => {
 														onPress={() => {
                               if(item.leave_yn == 'y'){
                                 setLeavePopText('탈퇴한 회원이에요');
-                              }else if(item.available_yn == 'y'){
+                              }else if(item.available_yn == 'n'){
                                 setLeavePopText('계정비활성화 회원이에요');
                               }
 															setLeavePop(true);
@@ -1401,7 +1401,7 @@ const SocialView = (props) => {
                 </View>
 
                 <View style={styles.mgt40}>
-                  <View style={[styles.cmViewTitle, joinList.length < 1 ? styles.mgb0 : null]}>
+                  <View style={[styles.cmViewTitle, joinList.length < 1 ? styles.mgb10 : null]}>
                     <Text style={styles.cmViewTitleText}>참여자</Text>
                   </View>
                   <View style={styles.cardView}>
@@ -1421,7 +1421,7 @@ const SocialView = (props) => {
 														onPress={() => {
                               if(item.leave_yn == 'y'){
                                 setLeavePopText('탈퇴한 회원이에요');
-                              }else if(item.available_yn == 'y'){
+                              }else if(item.available_yn == 'n'){
                                 setLeavePopText('계정비활성화 회원이에요');
                               }
 															setLeavePop(true);
@@ -2546,7 +2546,7 @@ const styles = StyleSheet.create({
 
   reviewWrap: {alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',paddingTop:20,},  
   blurView: {width:widnowWidth,height:'100%',position:'absolute',left:0,top:0,zIndex:10000,},
-  blurView2: {width:46,height:46,position:'absolute',left:0,top:20,zIndex:100,},
+  blurView2: {width:66,height:66,position:'absolute',left:-10,top:-10,zIndex:100,},
   blurAlert: {position:'absolute',zIndex:10001,},
   blurAlertText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:28,color:'#243B55'},
   reviewDepth: {flexDirection:'row',flexWrap:'wrap',marginTop:30,},

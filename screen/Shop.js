@@ -234,6 +234,7 @@ const Shop = (props) => {
 		};
 
 		const response = await APIs.send(sData);
+    console.log(response.data.member_point);
 		if(response.code == 200){
       setMemberInfo(response.data);
     }
@@ -287,6 +288,7 @@ const Shop = (props) => {
           {item.product.map((item2, index2) => {
             return (
               <TouchableOpacity
+                key={index2}
                 style={[styles.prdLi, index2 == 0 ? styles.mgt0 : null]}
                 activeOpacity={opacityVal}
                 onPress={()=>{
