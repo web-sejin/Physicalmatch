@@ -19,8 +19,13 @@ const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
 const RegisterStep3 = ({navigation, route}) => {	
+  // console.log('phonenumber3 ::: ', route['params']['phonenumber']);
+	// console.log('age3 ::: ', route['params']['age']);
+
   const prvChk4 = route['params']['prvChk4'];
   const accessRoute = route['params']['accessRoute'];
+  const phonenumber = route['params']['phonenumber'];
+  const age = route['params']['age'];
 
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
@@ -83,7 +88,9 @@ const RegisterStep3 = ({navigation, route}) => {
 
     navigation.navigate('RegisterStep4', {
       prvChk4:prvChk4,
-      accessRoute:accessRoute, 
+      accessRoute:accessRoute,
+      phonenumber:phonenumber,
+      age:age,
       member_id:id,
     })
   }

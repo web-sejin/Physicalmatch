@@ -48,6 +48,7 @@ const Alim = (props) => {
   const [tabSt, setTabSt] = useState(0);
   const [alimList, setAlimList] = useState([]);
   const [memberIdx, setMemberIdx] = useState(userInfo?.data.member_idx);
+  const [memberInfo, setMemberInfo] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -94,10 +95,24 @@ const Alim = (props) => {
 
   useEffect(() => {
     if(memberIdx){     
-      setLoading(true); 
+      setLoading(true);
+      getMemInfo();
       getAlimList(tabSt);
     }
   }, [memberIdx]);
+
+  const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);    
+		if(response.code == 200){
+			setMemberInfo(response.data);		
+		}
+	}
 
   const getAlimList = async (type) => {    
     let sData = {      
@@ -201,7 +216,13 @@ const Alim = (props) => {
         <TouchableOpacity
           style={[styles.viewTabBtn, tabSt == 1 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>change(1)}
+          onPress={()=>{
+            if(memberInfo?.member_type != 1){
+              ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+            }else{
+              change(1);
+            }            
+          }}
         >
           <Text style={[styles.viewTabBtnText, tabSt == 1 ? styles.viewTabBtnTextOn : null]}>댓글 알림</Text>
         </TouchableOpacity>

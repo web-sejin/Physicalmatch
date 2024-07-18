@@ -8,6 +8,7 @@ import store from '../redux/configureStore';
 import {Provider} from 'react-redux';
 import { Provider as PaperProvider } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
+import { allowScreenCapture, preventScreenCapture, addScreenshotListener } from "react-native-screenshot-prevention";
 
 import Font from '../assets/common/Font';
 
@@ -64,7 +65,6 @@ import AccountSet from './Mypage/AccountSet';
 import ModifyLogin from './Mypage/ModifyLogin';
 import Alim from './Mypage/Alim';
 import Shop from './Shop';
-import Shop2 from './Shop2';
 import CompanyInfo from './Mypage/CompanyInfo';
 import Disable from './Disable';
 
@@ -153,7 +153,6 @@ const WholeStack = () => {
       <Stack.Screen name="ModifyLogin" component={ModifyLogin} />
       <Stack.Screen name="Alim" component={Alim} />
       <Stack.Screen name="Shop" component={Shop} />
-      <Stack.Screen name="Shop2" component={Shop2} />
       <Stack.Screen name="CompanyInfo" component={CompanyInfo} />
       <Stack.Screen name="Disable" component={Disable} />
     </Stack.Navigator>
@@ -162,32 +161,34 @@ const WholeStack = () => {
 
 const Main = () => {    
   usePermissions(CALL_PERMISSIONS_NOTI);
-  const [toastState, setToastState] = useState(false);
+  const [toastState, setToastState] = useState(true);
 
+  const navigationRef = useRef(null);
   const toastConfig = {
 		custom_type: (internalState) => (
-			<View
-				style={{
-					backgroundColor: '#000',
-					borderRadius: 10,
-					paddingVertical: 10,
-					paddingHorizontal: 20,
-					opacity: 0.8,
-				}}
-			>
-				<Text
-					style={{
-						textAlign: 'center',
-						color: '#FFFFFF',
-						fontSize: 15,
-						lineHeight: 22,
-						fontFamily: Font.NotoSansRegular,
-						letterSpacing: -0.38,
-					}}
-				>
-					{internalState.text1}
-				</Text>
-			</View>
+			<TouchableOpacity 
+        style={[styles.pushView, internalState.text2 ? styles.pushView2 : null]}
+        activeOpacity={internalState.text2 ? opacityVal : 1}
+        onPress={()=>{
+          // if (internalState.text2 && internalState.props && internalState.props.targetScreen) {
+          //   navigationRef.current?.navigate(internalState.props.targetScreen);
+          //   Toast.hide();
+          // }          
+          if (navigationRef.current) {
+            navigationRef.current.navigate('Alim');
+            Toast.hide();
+          } else {
+            console.log('Navigation is not available');
+          }
+        }}
+      >
+				<Text style={styles.pushSubject}>{internalState.text1}</Text>
+        {internalState.text2 ? (
+          <View style={styles.pushContent}>
+            <Text style={styles.pushContentText}>{internalState.text2}</Text>
+          </View>
+        ) : null}        
+			</TouchableOpacity>
 		),
   };
   
@@ -195,13 +196,38 @@ const Main = () => {
     setTimeout(function () {
       setToastState(true);
     }, 500);
-  })
+  });
+
+  /*캡쳐 방지 시작*/
+  // Enable screenshot (android only)
+  //allowScreenCapture()
+
+  //Disable screenshot (android only)
+  preventScreenCapture()
+
+  useEffect(() => {
+    // Function to execute when user did a screenshot(ios only)
+    const onScreenshot = () => {
+      //ios 경고문구 띄우기
+      if(Platform.OS != 'android'){
+        Alert.alert("보안정책에 따라 캡쳐가 금지되어 있으며 무단 사용시 법적제재를 받을 수 있습니다.");
+      }
+    }
+      
+    // Its important have an "unsubscribe" to remove listener from screen is dismounted
+    const unsubscribe = addScreenshotListener(onScreenshot);
+    
+    return () => { 
+        unsubscribe()
+    }
+  }, []);
+  /*캡쳐 방지 끝*/
   
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Provider store={store}>
         <PaperProvider>
-          <NavigationContainer >
+          <NavigationContainer ref={navigationRef}>
             <WholeStack />
           </NavigationContainer> 
         </PaperProvider>
@@ -211,13 +237,12 @@ const Main = () => {
   );
 }
 
-
 const styles = StyleSheet.create({
-	safeAreaView: {flex:1,backgroundColor:'#fff'},
-	borderTop: {borderTopWidth:6,borderTopColor:'#F1F4F9'},
-	borderBot: {borderBottomWidth:1,borderBottomColor:'#E3E3E4'},
-	indicator: {height:widnowHeight-185, display:'flex', alignItems:'center', justifyContent:'center'},
-  indicator2: {marginTop:62},
+	pushView: {backgroundColor:'rgba(0,0,0,0.8)',borderRadius:10,paddingVertical:10,paddingHorizontal:20,},
+  pushView2: {width:innerWidth},
+  pushSubject: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:22,color:'#FFFFFF',},
+  pushContent: {marginTop:10,},
+  pushContentText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,lineHeight:20,color:'#FFFFFF',},
 })
 
 export default Main;

@@ -33,9 +33,14 @@ const RegisterStep7 = ({navigation, route}) => {
 		{key:3, subject:'', content:'', listIdx:''},
 	]
 
+	// console.log('phonenumber7 ::: ', route['params']['phonenumber']);
+	// console.log('age7 ::: ', route['params']['age']);
+
 	const nextObj = {
 		prvChk4:route['params']['prvChk4'],
 		accessRoute:route['params']['accessRoute'],
+		phonenumber:route['params']['phonenumber'],
+		age:route['params']['age'],
 		member_id:route['params']['member_id'],
 		member_pw:route['params']['member_pw'],
 		member_nick:route['params']['member_nick'],
@@ -122,7 +127,7 @@ const RegisterStep7 = ({navigation, route}) => {
 			setPageSt(!pageSt);
 
 			if(route['params']['qnaList']){ setQnaList(route['params']['qnaList']); }
-			if(route['params']['member_intro']){ setIntro(route['params']['member_intro']); }
+			if(route['params']['member_intro']){ setIntro(route['params']['member_intro']); console.log('!!!!!!');}
 			//if(route['params']['qnaListData']){ setapiQnaListData(route['params']['qnaListData']); }			
 			if(route['params']['qnaListChk']){ setQnaListChk(route['params']['qnaListChk']); }
 		}

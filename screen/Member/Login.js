@@ -1,9 +1,7 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 
@@ -101,29 +99,29 @@ const Login = (props) => {
   }
 
 	const saveRedux = async (idx, type) => {
-			const formData = new FormData();
-			formData.append('type', 'GetMyInfo');
-			formData.append('member_idx', idx);
-			const mem_info = await member_info(formData);
+		const formData = new FormData();
+		formData.append('type', 'GetMyInfo');
+		formData.append('member_idx', idx);
+		const mem_info = await member_info(formData);
 
-			const formData2 = new FormData();
-			formData2.append('type', 'SetLogin');
-			formData2.append('member_id', id);
-			formData2.append('member_pw', pw);
-			formData2.append('device_id', deviceToken);
-			formData2.append('firebase_token', firebaseToken);
-			//const mem_login = await member_login(formData2);
-			
-			//console.log('mem_info', mem_info);
-			if(type == 0){
-				navigation.navigate('RegisterResult');
-			}else if(type == 1){
-				//관리자 & 신규회원평가 모두 인증 방식
-				navigation.navigate('TabNavigation', {screen:'Home'});
-			}else if(type == 2){
-				//관리자만 인증 방식
-				navigation.navigate('TabNavigation', {screen:'Home'});
-			}
+		const formData2 = new FormData();
+		formData2.append('type', 'SetLogin');
+		formData2.append('member_id', id);
+		formData2.append('member_pw', pw);
+		formData2.append('device_id', deviceToken);
+		formData2.append('firebase_token', firebaseToken);
+		//const mem_login = await member_login(formData2);
+		
+		//console.log('mem_info', mem_info);
+		if(type == 0){
+			navigation.navigate('RegisterResult');
+		}else if(type == 1){
+			//최종 승인
+			navigation.navigate('TabNavigation', {screen:'Home'});
+		}else if(type == 2){
+			//관리자 + 신규회원평가 인증
+			navigation.navigate('TabNavigation', {screen:'Mypage'});
+		}
 	}
 
 	const headerHeight = 48;

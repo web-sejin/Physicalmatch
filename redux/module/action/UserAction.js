@@ -16,7 +16,7 @@ export const actionCreators = {
   member_login: (user) => async (dispatch) => {
     try {
       const response = await UserApi.member_login(user);
-      //console.log('member_login ::: ', response);
+      console.log('member_login ::: ', response);
 
       if (response.code == 200) {
         console.log('member_login success : ',response);
@@ -53,13 +53,14 @@ export const actionCreators = {
   member_info: (user) => async (dispatch) => {    
     try {      
       const response = await UserApi.member_info(user);
-      //==console.log('member_info api ::: ', response);
+      //console.log('member_info api ::: ', response);
 
       if (response.code == 200) {
         await dispatch({
           type: MEMBER_INFO,
           payload: response,
         });
+
         return {
 					'state': true,
 					'member_idx': response.data.member_idx,

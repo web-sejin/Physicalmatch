@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import APIs from "../assets/APIs";
 import Font from '../assets/common/Font';
 import ImgDomain from '../assets/common/ImgDomain';
+import ImgDomain2 from './ImgDomain2';
 
 const imgDomain = 'https://cnj02.cafe24.com/appImg/';
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
@@ -24,7 +25,7 @@ const radius2 = widnowWidth >= 640 ? 15 : 5;
 
 const Card = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, propsNick, propsJob, propsAge, propsArea, propsHeight, propsWeight, propsBadgeCnt, propsOpen, propsMrIdx, myMemberIdx, propsMemberIdx, propsAvailableState, propsCardState, propsDeleteState, propsBlockState, ModalEvent} = props;  
+	const {navigation, propsNick, propsJob, propsAge, propsArea, propsHeight, propsWeight, propsBadgeCnt, propsOpen, propsMrIdx, myMemberIdx, propsMemberIdx, propsAvailableState, propsCardState, propsDeleteState, propsBlockState, ModalEvent, propsImg} = props;  
   const spin = useSharedValue(1);
   useEffect(() => {
     if(propsOpen && spin.value != 0){
@@ -68,9 +69,7 @@ const Card = (props) => {
     //console.log(response);
 		if(response.code == 200){
 			spin.value = spin.value ? 0 : 1;
-		}
-
-    
+		}    
   };
 
   const ViewDetail = () => {
@@ -111,7 +110,7 @@ const Card = (props) => {
               <ImgDomain fileWidth={(innerWidth/2)-5} fileName={'front.png'} />
             </View>
             <View style={[styles.peopleImg]}>
-              <AutoHeightImage width={(innerWidth/2)-5} source={{uri:imgDomain+'woman.png'}}  resizeMethod='resize' />
+              <ImgDomain2 fileWidth={(innerWidth/2)-5} fileName={propsImg} />
             </View>
             <View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
               <View style={styles.cardFrontNick}>

@@ -1,10 +1,8 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 
@@ -22,6 +20,7 @@ const FindId = ({navigation, route}) => {
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
   const [certnumber, setCertnumber] = useState('');
+  const [certId, setCertId] = useState('');
   const [certSt, setCertSt] = useState(false);
 
 	const isFocused = useIsFocused();
@@ -40,18 +39,23 @@ const FindId = ({navigation, route}) => {
 		return () => isSubscribed = false;
 	}, [isFocused]);
   
-  const fnCert = async () => {
-		// if(certnumber == ""){
-		// 	ToastMessage('인증번호를 입력해 주세요.');
-		// 	return false;
-		// }
-
-		// if(!certSt){
-		// 	ToastMessage('번호 인증을 완료해 주세요.');
-		// 	return false;
-    // }
-    setCertnumber('010-1234-3336');
-    setCertSt(true);
+  const fnCert = async () => {				
+    let sData = {
+      basePath: "/api/member/",
+      type: 'IsPass',
+      pass_type: 1,
+      member_phone: '010-0000-0000',
+      test_yn: 'n'
+    }
+    const response = await APIs.send(sData);    
+    if(response.code == 200){
+      setCertId(response.id);
+      setCertnumber('010-0000-0000');
+      setCertSt(true);
+    }else{
+      ToastMessage('일치하는 정보가 없습니다.');
+      setCertSt(false);
+    }
   }
 
   const result_id = async () => {
@@ -59,20 +63,22 @@ const FindId = ({navigation, route}) => {
 			ToastMessage('번호 인증을 완료해 주세요.');
 			return false;
     }
-    
-    let sData = {
-			basePath: "/api/member/",
-			type: "SetFindId",
-			member_phone: certnumber,
-		};
 
-		const response = await APIs.send(sData);    
-    if(response.code == 200){
-      navigation.navigate('IdResult', {result_id:response.data});
-    }else{
-      ToastMessage('일치하는 정보가 없습니다.');
-      return false;
-    }
+    navigation.navigate('IdResult', {result_id:certId});
+    
+    // let sData = {
+		// 	basePath: "/api/member/",
+		// 	type: "SetFindId",
+		// 	member_phone: certnumber,
+		// };
+
+		// const response = await APIs.send(sData);    
+    // if(response.code == 200){
+    //   navigation.navigate('IdResult', {result_id:response.data});
+    // }else{
+    //   ToastMessage('일치하는 정보가 없습니다.');
+    //   return false;
+    // }
   }
 
 	return (

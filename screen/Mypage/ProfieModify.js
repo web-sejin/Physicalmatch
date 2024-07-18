@@ -238,6 +238,10 @@ const ProfieModify = (props) => {
 		}
 	}
 
+  const notMember = () => {
+		ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+	}
+
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'프로필 수정'} />
@@ -285,7 +289,7 @@ const ProfieModify = (props) => {
             </View>
           </View>
           <View style={styles.screeningDesc}>
-            <Text style={styles.screeningDescText}>반려사유가 노출됩니다.</Text>
+            <Text style={styles.screeningDescText}>{rejectMemo}</Text>
           </View>
         </View>
         ) : null}
@@ -534,7 +538,13 @@ const ProfieModify = (props) => {
           <TouchableOpacity
             style={styles.modiBtn}
             activeOpacity={opacityVal}
-            onPress={()=>{navigation.navigate('MyDate')}}
+            onPress={()=>{
+              if(memberType != 1){
+                notMember();
+              }else{
+                navigation.navigate('MyDate');
+              }
+            }}
           >
             <View style={styles.modiBtnTop}>
               <View style={styles.modiBtnTopLeft}>
@@ -545,7 +555,7 @@ const ProfieModify = (props) => {
                   {memberInfo.info?.love_cnt > 0 ? (
                     <Text style={styles.modiBtnTopRightViewText}>작성 완료</Text>
                   ) : (
-                    <Text style={styles.modiBtnTopRightViewText}>프로틴 00개 혜택</Text>
+                    <Text style={styles.modiBtnTopRightViewText}>프로틴 30개 혜택</Text>
                   )}                  
                 </View>
                 <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
@@ -556,7 +566,13 @@ const ProfieModify = (props) => {
           <TouchableOpacity
             style={[styles.modiBtn, styles.modiBtn2]}
             activeOpacity={opacityVal}
-            onPress={()=>{navigation.navigate('MyHobby')}}
+            onPress={()=>{
+              if(memberType != 1){
+                notMember();
+              }else{
+                navigation.navigate('MyHobby');
+              }
+            }}
           >
             <View style={styles.modiBtnTop}>
               <View style={styles.modiBtnTopLeft}>
@@ -642,7 +658,7 @@ const ProfieModify = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },	
 	gapBox: {height:86,},
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
 	
 	swiperView: {height: widnowWidth/4.9,backgroundColor:'#fff'},	
   cmWrap: {paddingHorizontal:20,paddingTop:5,},

@@ -90,7 +90,8 @@ const MyPoint = (props) => {
 		}
 		const response = await APIs.send(sData);
 		if(response.code == 200){
-			setCurrPoint(response.data);
+			const protainComma = response.data.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+			setCurrPoint(protainComma);
 		}
 	}
 

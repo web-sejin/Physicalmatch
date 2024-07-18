@@ -66,6 +66,7 @@ const SocialView = (props) => {
   const [socialPop, setSocialPop] = useState(false);
   const [socialPop2, setSocialPop2] = useState(false);
   const [blockPop, setBlockPop] = useState(false);
+  const [fullPop, setFullPop] = useState(false);
   const [focusState, setFocusState] = useState(false);
   const [reportList, setReportList] = useState([]);
   const [productApiList, setProductApiList] = useState([]);
@@ -79,21 +80,23 @@ const SocialView = (props) => {
   const [deleteState, setDeleteState] = useState(false); //글 삭제 여부
   const [userType, setUserType] = useState(); //1=>호스트, 2=>게스트
   const [writerIdx, setWriteIdx] = useState();
+  const [useStatus, setUseStatus] = useState(true); //match_yn 이 y 라면 false
   const [nick, setNick] = useState('');
   const [age, setAge] = useState('');
+  const [dateDiff, setDateDiff] = useState('');
   const [datetime, setDatetime] = useState('');
   const [subject, setSubject] = useState('');
   const [meetDate, setMeetDate] = useState('');
   const [meetLocal, setMeetLocal] = useState('');
   const [meetCate, setMeetCate] = useState('');
   const [meetCnt, setMeetCnt] = useState('');
+  const [meetManCnt, setMeetManCnt] = useState('');
+  const [meetWomanCnt, setMeetWomanCnt] = useState('');
 
   const [content, setContent] = useState('');
-  const [upPoint ,setUpPoint] = useState(0); //끌어올리기에 필요한 포인트
   const [reviewType, setReviewType] = useState(0); //0=>댓글, 1=>대댓글
   const [reviewCont, setReviewCont] = useState('');
   const [orderChg, setOrderChg] = useState(0); //0=>끌어올리기 한 적 없음(무료), 1=>끌어올리기 한 적 있음(유료), 2=>포인트 부족
-  const [miniPoint, setMiniPoint] = useState(0); //미니프로필 오픈을 위한 포인트
   const [miniChg, setMiniChg] = useState(0); //0=>포인트 있음, 1=>포인트 부족
   const [report, setReport] = useState('');
   const [reportEtc, setReportEtc] = useState('');
@@ -116,14 +119,19 @@ const SocialView = (props) => {
   const [confirmManCnt, setConfirmManCnt] = useState(0);
   const [confirmWomanCnt, setConfirmWomanCnt] = useState(0);
   const [sjIdx, setSjIdx] = useState();
+  const [diffDate, setDiffDate] = useState();
 
   const [reqList, setReqList] = useState([]);
-  const [acceptList, setAcceptist] = useState([]);
+  const [acceptList, setAcceptList] = useState([]);
   const [joinList, setJoinList] = useState([]);
   
   const [memberIdx, setMemberIdx] = useState();
   const [memberInfo, setMemberInfo] = useState({});
+  const [memberPoint, setMemberPoint] = useState();
   const [guestPartyState, setGuestPartyState] = useState();  
+
+  const [miniUserIdx, setMiniUserIdx] = useState();
+  const [miniUserImg, setMiniUserImg] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -141,6 +149,10 @@ const SocialView = (props) => {
 			});
 
       console.log('social_idx :::: ',social_idx);
+      if(memberIdx){
+        getSocialDetail();
+        getMemberProtain();
+      }
 		}
 
 		Keyboard.dismiss();
@@ -330,6 +342,21 @@ const SocialView = (props) => {
 		const response = await APIs.send(sData);
 		if(response.code == 200){
       setMemberInfo(response.data);
+      setMemberPoint(response.data.member_point);
+    }
+  }
+
+  const getMemberProtain = async () => {
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyPoint",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){      
+      setMemberPoint(response.data);
     }
   }
 
@@ -348,11 +375,12 @@ const SocialView = (props) => {
       if(response.data.social.is_my_social == 'y'){
         setUserType(1);
         if(response.data.join.request.length > 0){
+          //console.log(response.data.join.request);
           setReqList(response.data.join.request);
         }else{
           setReqList([]);
         }
-        
+                
         if(response.data.join.accept.length > 0){
           let newAccept = [];
           response.data.join.accept.map((item, index) => {
@@ -383,19 +411,20 @@ const SocialView = (props) => {
               'leave_yn': item.leave_yn,
               'card_yn': item.card_yn,
               'available_yn': item.available_yn,
-              'isFlipped':flippedState
+              'isFlipped':flippedState,
+              'dateDiff':item.dateDiff
             });
           })
-          setAcceptist(newAccept);
+          setAcceptList(newAccept);
         }else{
-          setAcceptist([]);
+          setAcceptList([]);
         }
 
         if(response.data.join.join.length > 0){
           let newJoin = [];
           response.data.join.join.map((item, index) => {
             let flippedState = true;            
-            if(item.leave_yn == 'y' || item.available_yn == 'y'){
+            if(item.leave_yn == 'y' || item.available_yn == 'n'){
               flippedState = false;
             }
 
@@ -421,7 +450,8 @@ const SocialView = (props) => {
               'leave_yn': item.leave_yn,
               'card_yn': item.card_yn,
               'available_yn': item.available_yn,
-              'isFlipped':flippedState
+              'isFlipped':flippedState,
+              'dateDiff':item.dateDiff
             });
           })
           setJoinList(newJoin);
@@ -432,8 +462,9 @@ const SocialView = (props) => {
         setUserType(2);
         if(response.data.join.request[0] == null){
           setGuestPartyState();
-        }else{
+        }else{   
           setGuestPartyState(response.data.join.request[0].sj_status);
+          setSjIdx(response.data.join.request[0].sj_idx);
         }
       }
 
@@ -461,10 +492,12 @@ const SocialView = (props) => {
         setBookSt(false);
       }
 
+      setUseStatus(response.data.social.match_yn);
       setPbIdx(response.data.social.pb_idx);
       setWriteIdx(response.data.social.member_idx);
       setNick(response.data.social.host_social_nick);
       setAge(response.data.social.host_social_age);
+      setDateDiff(response.data.social.diff_date);
       setDatetime(response.data.social.AgoTime);
       setSubject(response.data.social.social_subject);
       setMeetDate(response.data.social.social_date_text);      
@@ -476,6 +509,8 @@ const SocialView = (props) => {
       }else if(response.data.social.social_type == 1){
         setMeetCate('미팅');
         setMeetCnt(response.data.social.social_mcnt+':'+response.data.social.social_wcnt);
+        setMeetManCnt(response.data.social.social_mcnt);
+        setMeetWomanCnt(response.data.social.social_wcnt);
       }else if(response.data.social.social_type == 2){
         setMeetCate('모임');
         setMeetCnt(response.data.social.social_cnt);
@@ -497,23 +532,14 @@ const SocialView = (props) => {
 
       if(response.data.social.delete_yn == 'y'){
         setDeleteState(true);
-      }
-
-
-      ////여기부터 작업해야 함
-      
-      setUpPoint(100); //끌어올리기에 필요한 포인트
+      }      
       
       //0=>끌어올리기 한 적 없음(무료), 1=>끌어올리기 한 적 있음(유료)
       if(response.data.social.is_update == 0){
         setOrderChg(0);
       }else if(response.data.social.is_update > 0){
         setOrderChg(1);
-      }
-      
-      setMiniPoint(200); //미니프로필 오픈을 위한 포인트
-      setMiniChg(0); //0=>포인트 있음, 1=>포인트 부족
-      
+      }      
 
       setTimeout(() => {
         setLoading(false);
@@ -623,8 +649,8 @@ const SocialView = (props) => {
   }
 
   const submitComment = async () => {
-    if(memberInfo.member_type == 0){
-      ToastMessage('정회원만 댓글 작성이 가능합니다.');
+    if(memberInfo?.member_type != 1){
+      ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
       return false;
     }
 
@@ -706,8 +732,10 @@ const SocialView = (props) => {
     };
     const response = await APIs.send(sData);
     if(response.code == 200){
+      getMemberProtain();
       setOrderChg(1);
-      setOrderPop(false);
+      setOrderPop(false);      
+      ToastMessage('끌어올리기가 진행되었습니다.');
     }
   }
 
@@ -777,6 +805,7 @@ const SocialView = (props) => {
     //console.log(response);
     if(response.code == 200){
       setGuestPartyState(0);
+      getMemberProtain();
       setSocialPop(false);
       ToastMessage('참여 신청이 완료되었습니다.');
     }
@@ -793,6 +822,7 @@ const SocialView = (props) => {
 
     };
     const response = await APIs.send(sData);
+    //console.log(response.data.join.accept);
     if(response.code == 200){
       if(response.data.join.request.length > 0){
         setReqList(response.data.join.request);
@@ -804,7 +834,7 @@ const SocialView = (props) => {
         let newAccept = [];
         response.data.join.accept.map((item, index) => {
           let flippedState = true;            
-          if(item.leave_yn == 'y' || item.available_yn == 'y'){
+          if(item.leave_yn == 'y' || item.available_yn == 'n'){
             flippedState = false;
           }
 
@@ -830,12 +860,13 @@ const SocialView = (props) => {
             'leave_yn': item.leave_yn,
             'card_yn': item.card_yn,
             'available_yn': item.available_yn,
-            'isFlipped':flippedState
+            'isFlipped':flippedState,
+            'dateDiff':item.dateDiff
           });
         })
-        setAcceptist(newAccept);
+        setAcceptList(newAccept);
       }else{
-        setAcceptist([]);
+        setAcceptList([]);
       }
 
       if(response.data.join.join.length > 0){
@@ -868,7 +899,8 @@ const SocialView = (props) => {
             'leave_yn': item.leave_yn,
             'card_yn': item.card_yn,
             'available_yn': item.available_yn,
-            'isFlipped':flippedState
+            'isFlipped':flippedState,
+            'dateDiff':item.dateDiff
           });
         })
         setJoinList(newJoin);
@@ -882,7 +914,7 @@ const SocialView = (props) => {
   }
 
   const getProductList = ({item, index}) => {
-    //const price = item.pd_price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    const priceComma = item.pd_price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
     return (
       <TouchableOpacity
         style={[styles.productBtn, prdIdx==item.pd_idx ? styles.productBtnOn : null, styles.mgr10, productApiList.length == index+1 ? styles.mgr40 : null]}
@@ -905,7 +937,7 @@ const SocialView = (props) => {
           <View style={styles.productBest}></View>
         )}        
         <Text style={[styles.productText3, prdIdx==item.pd_idx ? styles.productText3On : null]}>개당 ￦{item.pd_content}</Text>
-        <Text style={styles.productText4}>￦{item.pd_price}</Text>
+        <Text style={styles.productText4}>￦{priceComma}</Text>
       </TouchableOpacity>
     )
   }
@@ -935,32 +967,66 @@ const SocialView = (props) => {
     //setLoading2(true);
     let iapObj = {skus: [sku], sku: sku};
     let getItems = await getProducts(iapObj);
-    console.log('getItems :::: ', getItems);
+    //console.log('getItems :::: ', getItems);
+
+    let amount = 0;
+    if(prdIdx == 19){
+      amount = 30;
+    }else if(prdIdx == 20){
+      amount = 100;
+    }else if(prdIdx == 21){
+      amount = 200;
+    }else if(prdIdx == 22){
+      amount = 500;
+    }else if(prdIdx == 23){
+      amount = 1000;
+    }else if(prdIdx == 24){
+      amount = 2000;
+    }else if(prdIdx == 25){
+      amount = 4500;
+    }
+
+    const inappPayResult = {
+      basePath: "/api/order/",
+      type: "SetProductOrder",		
+      member_idx: memberIdx,
+      pd_idx: prdIdx,
+      pd_code: getItems[0].productId,
+      pd_name: getItems[0].name,
+      pd_price: getItems[0].price,
+      pd_amount: amount,
+    }
+    
     try {
       await requestPurchase(iapObj)
       .then(async (result) => {
           //console.log('IAP req sub', result);
           if (Platform.OS === 'android'){
-            console.log('dataAndroid', result[0].dataAndroid);
-            // console.log("purchaseToken : ", result.purchaseToken);
-            // console.log("packageNameAndroid : ", result.packageNameAndroid);
-            // console.log("productId : ", result.productId);
-            console.log("성공");
-            // let inappPayResult =JSON.stringify({
-            //     type: "inappResult",
-            //     code: result.productId,
-            //     tno: result.transactionId,
-            //     token: result.purchaseToken,
-            // });
-            // console.log("inappPayResult : ", inappPayResult);            
+            //console.log('dataAndroid', result[0].dataAndroid);
             // can do your API call here to save the purchase details of particular user
+            inappPayResult.biling_id = result[0].transactionId;
+            inappPayResult.biling_token = result[0].purchaseToken;
+            inappPayResult.biling_payment = 'card';            
+            inappPayResult.paymented_at = result[0].transactionDate;            
           } else if (Platform.OS === 'ios'){
-            console.log(result);
+            //console.log(result);
             //console.log(result.transactionReceipt);
             // can do your API call here to save the purchase details of particular user
+            inappPayResult.biling_id = result.transactionId;
+            inappPayResult.biling_token = result.transactionReceipt;
+            inappPayResult.biling_payment = 'card';            
+            inappPayResult.paymented_at = result.transactionDate;
           }
 
-          setLoading(false);
+          //console.log("inappPayResult : ", inappPayResult);
+          const response = await APIs.send(inappPayResult);
+          //console.log(response);
+          if(response.code == 200){
+            getMemberProtain();
+            ToastMessage('프로틴이 충전되었습니다.');
+          }else{
+            ToastMessage('잠시후 다시 이용해 주세요.');
+          }
       })
       .catch((err) => {
         //setLoading2(false);
@@ -970,11 +1036,39 @@ const SocialView = (props) => {
       //setLoading2(false);
       console.log('err2', err.message);
     }
+
+    
   }
 
   const buyProduct = async () => {  
+    setLoading2(true);
     setCashPop(false);
     _requestPurchase(skuCode);
+    setTimeout(() => { setLoading2(false); }, 3000);
+  }
+
+  const setOpenMiniProfile = async () => {
+    let sData = {
+      basePath: "/api/social/",
+      type: "OpenMemberProfile",
+      member_idx:memberIdx,
+      user_idx:miniUserIdx,
+      social_idx:social_idx,
+
+    };
+    const response = await APIs.send(sData);
+    if(response.code == 200){
+      if(response.data.join.request.length > 0){
+        //console.log(response.data.join.request);
+        setReqList(response.data.join.request);
+      }else{
+        setReqList([]);
+      }
+      setBigImgPop(true);      
+    }else{
+      ToastMessage('잠시후 다시 이용해 주세요.');
+    }
+    setMiniProfilePop(false);    
   }
 
   const headerHeight = 48;
@@ -998,7 +1092,13 @@ const SocialView = (props) => {
               <ImgDomain fileWidth={8} fileName={'icon_header_back2.png'}/>
             </TouchableOpacity>
             <TouchableOpacity 
-              onPress={() => {setDotPop(true)}} 
+              onPress={() => {
+                if(memberInfo?.member_type != 1){
+									ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+								}else{
+									setDotPop(true);
+								}                
+              }} 
               style={styles.DetailDotBtn} 
               activeOpacity={opacityVal}
               >              
@@ -1012,11 +1112,13 @@ const SocialView = (props) => {
             <View style={[styles.cmView, styles.pdt15, styles.pdb30]}>
               <View style={styles.nickArea}>
                 <View style={styles.nickView}>
-                  {profileState == 1 ? (
-                    <ImgDomain2 fileWidth={38} fileName={profileImg}/>
-                  ) : (
-                    <ImgDomain fileWidth={38} fileName={profileImg}/>
-                  )}                  
+                  <View style={styles.nickViewImg}>
+                    {profileState == 1 ? (
+                      <ImgDomain2 fileWidth={38} fileName={profileImg}/>
+                    ) : (
+                      <ImgDomain fileWidth={38} fileName={profileImg}/>
+                    )}
+                  </View>              
                   <Text style={styles.nickViewText}>{nick} · {age}</Text>
                 </View>
                 <View style={styles.insertTime}>
@@ -1025,23 +1127,25 @@ const SocialView = (props) => {
               </View>
 
               <View style={styles.viewSubject}>
-                <View style={styles.viewSubjectArea}>
+                <View style={[styles.viewSubjectArea, userType == 1 ? styles.viewSubjectArea2 : null]}>
                   <Text style={styles.viewSubjectText}>{subject}</Text>
                 </View>
-                <TouchableOpacity
-                  style={styles.viewBookBtn}
-                  activeOpacity={opacityVal}
-                  onPress={()=>{
-                    socialBook()
-                    //setCashPop(true);
-                  }}
-                >
-                  {bookSt ? (
-                    <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
-                  ): (
-                    <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
-                  )}                    
-                </TouchableOpacity>
+                {userType == 2 ? (
+                  <TouchableOpacity
+                    style={styles.viewBookBtn}
+                    activeOpacity={opacityVal}
+                    onPress={()=>{
+                      socialBook()
+                      //setCashPop(true);
+                    }}
+                  >
+                    {bookSt ? (
+                      <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
+                    ): (
+                      <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
+                    )}                    
+                  </TouchableOpacity>
+                ) : null}
               </View>
 
               <View style={styles.viewSubInfo1}>
@@ -1158,18 +1262,47 @@ const SocialView = (props) => {
                   <TouchableOpacity 
                     style={[styles.nextBtn]}
                     activeOpacity={opacityVal}
-                    onPress={() => setSocialPop(true)}
+                    onPress={() => {
+                      if(memberInfo?.member_type != 1){
+                        ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+                      }else{
+                        let joinAv = false;
+                        if(meetCate == '미팅'){
+                          if(memberInfo?.member_sex == 0){ 
+                            if(meetManCnt > confirmManCnt){
+                              joinAv = true;
+                            }else{
+                              joinAv = false;
+                            }
+                          }else if(memberInfo?.member_sex == 1){
+                            if(meetWomanCnt > confirmWomanCnt){
+                              joinAv = true;
+                            }else{
+                              joinAv = false;
+                            }
+                          }
+                        }else if(meetCate == '모임'){
+                          console.log(meetCate,' ::: ', meetCnt);
+                          if(meetCnt > confirmManCnt+confirmWomanCnt){
+                            joinAv = true;
+                          }else{
+                            joinAv = false;
+                          }
+                        }
+                        
+                        if(!joinAv){
+                          setFullPop(true);
+                        }else{                        
+                          if(memberPoint < 5){
+                            setCashPop(true);
+                          }else{
+                            setSocialPop(true);
+                          }
+                        }
+                      }                      
+                    }}
                   >
                     <Text style={styles.nextBtnText}>참여 신청하기</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.mgt30}>
-                  <TouchableOpacity 
-                    style={[styles.nextBtn]}
-                    activeOpacity={opacityVal}
-                    onPress={() => setCashPop(true)}
-                  >
-                    <Text style={styles.nextBtnText}>참여 포인트 부족</Text>
                   </TouchableOpacity>
                 </View>
                 </>
@@ -1209,20 +1342,38 @@ const SocialView = (props) => {
                     </View>
                   ) : null}
                   {reqList.map((item, index) => {
+                    let profile_img = 'profile_logo.png';
+                    if(item.mini_pofile_img){
+                      profile_img = item.mini_pofile_img;
+                    }else if(item.main_profile_img){
+                      profile_img = item.main_profile_img;
+                    }
+
                     return (
                       <View key={index} style={[styles.reqLi, styles.boxShadow2, index == 0 ? styles.mgt0 : null]}>
                         <TouchableOpacity
                           style={styles.reqUser}
                           activeOpacity={opacityVal}
                           onPress={()=>{
-                            setMiniChg(0);
-                            //setMiniChg(1);
-                            setMiniProfilePop(true);
+                            setMiniUserImg(profile_img);
+                            if(item.profile_open_yn == 'y'){
+                              setBigImgPop(true);
+                            }else{
+                              if(memberPoint < 5){
+                                setMiniChg(1);
+                              }else{
+                                setMiniChg(0);
+                                setMiniUserIdx(item.member_idx);                                
+                              }
+                              setMiniProfilePop(true);
+                            }                            
                           }}
-                        >                   
-                          <BlurView style={styles.blurView2} blurType="light" blurAmount={3} />
+                        >   
+                          {item.profile_open_yn == 'n' ? (
+                            <BlurView style={styles.blurView2} blurType="light" blurAmount={3} />
+                          ) : null}
                           {item.mini_pofile_img ? (
-                            <ImgDomain2 fileWidth={46} fileName={item.mini_pofile_img}/>
+                            <ImgDomain2 fileWidth={46} fileName={profile_img}/>
                           ) : (
                             item.main_profile_img ? (
                               <ImgDomain2 fileWidth={46} fileName={item.main_profile_img}/>
@@ -1241,7 +1392,8 @@ const SocialView = (props) => {
                             <View style={styles.reqDtLine}></View>
                             <Text style={styles.reqUserDetailText}>{item.member_main_local}</Text>
                           </View>
-                        </View>
+                        </View>                        
+                        {useStatus ? (
                         <TouchableOpacity
                           style={styles.reqOkBtn}
                           activeOpacity={opacityVal}
@@ -1252,69 +1404,10 @@ const SocialView = (props) => {
                         >
                           <Text style={styles.reqOkBtnText}>수락</Text>
                         </TouchableOpacity>
+                        ) : null}
                       </View>
                     )
                   })}
-                  {/* <View style={[styles.reqLi, styles.boxShadow2, styles.mgt0]}>
-                    <TouchableOpacity
-                      style={styles.reqUser}
-                      activeOpacity={opacityVal}
-                      onPress={()=>{
-                        setMiniChg(0);
-                        setMiniProfilePop(true);
-                      }}
-                    >                   
-                      <BlurView style={styles.blurView2} blurType="light" blurAmount={3} />   
-                      <ImgDomain fileWidth={46} fileName={'sample3.png'}/>
-                    </TouchableOpacity>
-                    <View style={styles.reqUserInfo}>
-                      <View style={styles.reqUserNick}>
-                        <Text style={styles.reqUserNickText}>자동생성닉네임1</Text>
-                      </View>
-                      <View style={styles.reqUserDetail}>
-                        <Text style={styles.reqUserDetailText}>1999년생</Text>
-                        <View style={styles.reqDtLine}></View>
-                        <Text style={styles.reqUserDetailText}>전남 곡성군</Text>
-                      </View>
-                    </View>
-                    <TouchableOpacity
-                      style={styles.reqOkBtn}
-                      activeOpacity={opacityVal}
-                      onPress={() => setSocialPop2(true)}
-                    >
-                      <Text style={styles.reqOkBtnText}>수락</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={[styles.reqLi, styles.boxShadow2,]}>
-                    <TouchableOpacity
-                      style={styles.reqUser}
-                      activeOpacity={opacityVal}
-                      onPress={()=>{
-                        setMiniChg(1);
-                        setMiniProfilePop(true);
-                      }}
-                    >                      
-                      <BlurView style={styles.blurView2} blurType="light" blurAmount={3} />   
-                      <ImgDomain fileWidth={46} fileName={'sample3.png'}/>
-                    </TouchableOpacity>
-                    <View style={styles.reqUserInfo}>
-                      <View style={styles.reqUserNick}>
-                        <Text style={styles.reqUserNickText}>자동생성닉네임2</Text>
-                      </View>
-                      <View style={styles.reqUserDetail}>
-                        <Text style={styles.reqUserDetailText}>1999년생</Text>
-                        <View style={styles.reqDtLine}></View>
-                        <Text style={styles.reqUserDetailText}>전남 곡성군</Text>
-                      </View>
-                    </View>
-                    <TouchableOpacity
-                      style={styles.reqOkBtn}
-                      activeOpacity={opacityVal}
-                      onPress={() => setSocialPop2(true)}
-                    >
-                      <Text style={styles.reqOkBtnText}>수락</Text>
-                    </TouchableOpacity>
-                  </View> */}
                 </View>     
 
                 <View style={styles.mgt40}>
@@ -1343,12 +1436,12 @@ const SocialView = (props) => {
 															setLeavePop(true);
 														}}
 													>
-														<View style={[styles.cardCont, styles.cardCont2]}>																												
+														<View style={[styles.cardCont, styles.cardCont2]}>
 															<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
 														</View>                            
 													</TouchableOpacity>
 												)
-                      }else{
+                      }else{                        
                         return (
                           <Card2 
                             navigation={navigation}
@@ -1357,9 +1450,14 @@ const SocialView = (props) => {
                             propsAge={item.member_age}													
                             propsHeight={item.member_height}													
                             propsFlip={item.isFlipped}
-                            propsDday={item.dday}
+                            propsDday={item.dateDiff}
                             propsSreen={'SocialView'}
                             viewOrder={index+1}
+                            propsSjIdx={item.sj_idx}
+                            propsSocialIdx={social_idx}
+                            propsMemberIdx={item.member_idx}
+                            propsState={item.sj_status}
+                            propsImg={item.main_profile_img}
                           />
                         )
                       }
@@ -1419,12 +1517,13 @@ const SocialView = (props) => {
 														style={[styles.cardBtn, styles.cardBtn2, (index+1)%3 == 0 ? styles.mgr0 : null]}
 														activeOpacity={opacityVal2}
 														onPress={() => {
+                              console.log(item);
                               if(item.leave_yn == 'y'){
                                 setLeavePopText('탈퇴한 회원이에요');
                               }else if(item.available_yn == 'n'){
                                 setLeavePopText('계정비활성화 회원이에요');
                               }
-															setLeavePop(true);
+															
 														}}
 													>
 														<View style={[styles.cardCont, styles.cardCont2]}>																												
@@ -1444,6 +1543,11 @@ const SocialView = (props) => {
                             propsDday={item.dday}
                             propsSreen={'SocialView'}
                             viewOrder={index+1}
+                            propsSjIdx={item.sj_idx}
+                            propsSocialIdx={social_idx}
+                            propsMemberIdx={item.member_idx}
+                            propsState={item.sj_status}
+                            propsImg={item.main_profile_img}
                           />
                         )
                       }
@@ -1542,42 +1646,64 @@ const SocialView = (props) => {
                 </TouchableOpacity>
                 ) : null}
 
-                {guestPartyState == 1 ? (
+                {guestPartyState == 1 || guestPartyState == 3 ? (
                 <TouchableOpacity 
                   style={styles.reqStateBox}
                   activeOpacity={1}
-                  onPress={()=>{navigation.navigate('MatchDetail')}}
+                  onPress={()=>{
+                    if(dateDiff > 0){
+                      navigation.navigate(
+                        'MatchDetail', 
+                        {
+                          accessType:'social', 
+                          mb_member_idx:writerIdx,
+                          commIdx:social_idx, 
+                          commIdx2:sjIdx,
+                          currState:guestPartyState,
+                          writeType:userType, //1:내 글, 2:남의 글
+                        }
+                      )
+                    }
+                  }}
                 >                                        
                   <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
-                    <View style={[styles.cardBtn, styles.cardBtn3]}>
-                      <View style={[styles.cardCont, styles.cardCont3]}>		
-                        <View style={styles.peopleImgBack}>
-                          <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                        </View>
-                        <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                    <View style={[styles.cardBtn, styles.cardBtn3]}>                      
+                      {dateDiff > 0 ? (
+                        <View style={[styles.cardCont, styles.cardCont3]}>		
                           <View style={styles.peopleImgBack}>
                             <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                           </View>
-                          <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
-                          <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
-                            <View	View style={styles.cardFrontDday}>
-                              <Text style={styles.cardFrontDdayText}>D-7</Text>
+                          <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                            <View style={styles.peopleImgBack}>
+                              <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                             </View>
-                            <View style={styles.cardFrontNick2}>
-                              <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>닉네임최대여덟자</Text>
-                            </View>
-                            <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                              <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>99</Text>
-                              <View style={styles.cardFrontContLine}></View>
-                              <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
+                            <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
+                            <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
+                              <View	View style={styles.cardFrontDday}>
+                                <Text style={styles.cardFrontDdayText}>D-{dateDiff}</Text>
+                              </View>
+                              <View style={styles.cardFrontNick2}>
+                                <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{nick}</Text>
+                              </View>
+                              <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{age}</Text>
+                                <View style={styles.cardFrontContLine}></View>
+                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
+                              </View>
                             </View>
                           </View>
                         </View>
-                      </View>
+                      ) : (
+                        <View style={[styles.cardCont, styles.cardCont2, styles.back]}>    
+                          <View style={styles.boxShadow}>
+                            <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />     
+                          </View>      
+                        </View>
+                      )}                      
                     </View>           
                     <View style={styles.reqStateInfo}>
                       <View style={styles.reqStateTitle}>
-                        <Text style={styles.reqStateTitleText}>참여를 확정해주세요!</Text>
+                        <Text style={styles.reqStateTitleText}>참여를 확정해 주세요!</Text>
                       </View>                      
                       <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
                       <View style={styles.reqStateCont}>
@@ -1590,38 +1716,60 @@ const SocialView = (props) => {
                 </TouchableOpacity>
                 ) : null}
 
-                {guestPartyState == 3 ? (
+                {guestPartyState == 5 ? (
                 <TouchableOpacity 
                   style={styles.reqStateBox}
                   activeOpacity={1}
-                  onPress={()=>{navigation.navigate('MatchDetail')}}
+                  onPress={()=>{
+                    if(dateDiff > 0){
+                      navigation.navigate(
+                        'MatchDetail', 
+                        {
+                          accessType:'social', 
+                          mb_member_idx:writerIdx,
+                          commIdx:social_idx, 
+                          commIdx2:sjIdx,
+                          currState:guestPartyState,
+                          writeType:userType, //1:내 글, 2:남의 글
+                        }
+                      )
+                    }
+                  }}
                 >                            
                   <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                     <View style={[styles.cardBtn, styles.cardBtn3]}>
-                      <View style={[styles.cardCont, styles.cardCont3]}>		
-                        <View style={styles.peopleImgBack}>
-                          <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                        </View>
-                        <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                      {dateDiff > 0 ? (
+                        <View style={[styles.cardCont, styles.cardCont3]}>		
                           <View style={styles.peopleImgBack}>
                             <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                           </View>
-                          <AutoHeightImage width={(innerWidth/3)-7} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
-                          <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
-                            <View	View style={styles.cardFrontDday}>
-                              <Text style={styles.cardFrontDdayText}>D-7</Text>
+                          <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                            <View style={styles.peopleImgBack}>
+                              <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                             </View>
-                            <View style={styles.cardFrontNick2}>
-                              <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>닉네임최대여덟자</Text>
-                            </View>
-                            <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                              <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>99</Text>
-                              <View style={styles.cardFrontContLine}></View>
-                              <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
+                            <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
+                            <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
+                              <View	View style={styles.cardFrontDday}>
+                                <Text style={styles.cardFrontDdayText}>D-{dateDiff}</Text>
+                              </View>
+                              <View style={styles.cardFrontNick2}>
+                                <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{nick}</Text>
+                              </View>
+                              <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{age}</Text>
+                                <View style={styles.cardFrontContLine}></View>
+                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
+                              </View>
                             </View>
                           </View>
                         </View>
-                      </View>
+                      ) : (
+                        <View style={[styles.cardCont, styles.cardCont2, styles.back]}>    
+                          <View style={styles.boxShadow}>
+                            <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />     
+                          </View>      
+                        </View>
+                      )} 
                     </View>           
                     <View style={styles.reqStateInfo}>
                       <View style={styles.reqStateTitle}>
@@ -1642,35 +1790,57 @@ const SocialView = (props) => {
                 <TouchableOpacity 
                   style={styles.reqStateBox}
                   activeOpacity={1}
-                  onPress={()=>{navigation.navigate('MatchDetail')}}
+                  onPress={()=>{
+                    if(dateDiff > 0){
+                      navigation.navigate(
+                        'MatchDetail', 
+                        {
+                          accessType:'social', 
+                          mb_member_idx:writerIdx,
+                          commIdx:social_idx, 
+                          commIdx2:sjIdx,
+                          currState:guestPartyState,
+                          writeType:userType, //1:내 글, 2:남의 글
+                        }
+                      )
+                    }
+                  }}
                 >                            
                   <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                     <View style={[styles.cardBtn, styles.cardBtn3]}>
-                      <View style={[styles.cardCont, styles.cardCont3]}>		                        
-                        <View style={styles.peopleImgBack}>
-                          <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                        </View>
-                        <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                      {dateDiff > 0 ? (
+                        <View style={[styles.cardCont, styles.cardCont3]}>		
                           <View style={styles.peopleImgBack}>
                             <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                           </View>
-                          <AutoHeightImage width={(innerWidth/3)-7} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
-                          <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
-                            <View	View style={styles.cardFrontDday}>
-                              <Text style={styles.cardFrontDdayText}>D-7</Text>
+                          <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                            <View style={styles.peopleImgBack}>
+                              <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                             </View>
-                            <View style={styles.cardFrontNick2}>
-                              <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>닉네임최대여덟자</Text>
-                            </View>
-                            <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                              <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>99</Text>
-                              <View style={styles.cardFrontContLine}></View>
-                              <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
+                            <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
+                            <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
+                              <View	View style={styles.cardFrontDday}>
+                                <Text style={styles.cardFrontDdayText}>D-{dateDiff}</Text>
+                              </View>
+                              <View style={styles.cardFrontNick2}>
+                                <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{nick}</Text>
+                              </View>
+                              <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{age}</Text>
+                                <View style={styles.cardFrontContLine}></View>
+                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
+                              </View>
                             </View>
                           </View>
                         </View>
-                      </View>
-                    </View>           
+                      ) : (
+                        <View style={[styles.cardCont, styles.cardCont2, styles.back]}>    
+                          <View style={styles.boxShadow}>
+                            <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />     
+                          </View>      
+                        </View>
+                      )}
+                    </View>          
                     <View style={styles.reqStateInfo}>
                       <View style={styles.reqStateTitle}>
                         <Text style={styles.reqStateTitleText}>참여가 확정되었어요!</Text>
@@ -1699,7 +1869,7 @@ const SocialView = (props) => {
               ) : null}
 
               <View style={[styles.reviewWrap, styles.pdt0]}>
-                {memberInfo.member_type == 0 ? (
+                {memberInfo?.member_type != 1 ? (
                 <>
                 <View style={{height:5,}}></View>
                 <BlurView style={styles.blurView} blurType="light" blurAmount={2} />
@@ -1785,7 +1955,7 @@ const SocialView = (props) => {
                   })}
                 </View>
 
-                {memberInfo.member_type == 0 ? ( <View style={{height:5,}}></View> ) : null}
+                {memberInfo?.member_type != 1 ? ( <View style={{height:5,}}></View> ) : null}
               </View>
             </View>
 
@@ -1800,7 +1970,7 @@ const SocialView = (props) => {
                   placeholderTextColor="#B8B8B8"
                   style={styles.reviewIpt}
                   returnKyeType='done'
-                  readOnly={memberInfo.member_type == 0 ? true : false}
+                  readOnly={memberInfo?.member_type != 1 ? true : false}
                 />                
               ) : (
                 <>
@@ -1865,6 +2035,9 @@ const SocialView = (props) => {
               style={styles.dotPopBtn}
               activeOpacity={opacityVal}
               onPress={()=>{
+                if(orderChg == 1 &&  memberPoint < 1){
+                  setOrderChg(2);
+                }
                 setDotPop(false);
                 setOrderPop(true);
               }}
@@ -2013,21 +2186,23 @@ const SocialView = (props) => {
 							onPress={() => setOrderPop(false)}
 						>							
               <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
-						</TouchableOpacity>		
-						<View>
-							<Text style={styles.popTitleText}>소셜 룸을 끌어 올리시겠어요?</Text>
-						</View>
+						</TouchableOpacity>            						
 
             {orderChg == 2 ? (
-            <View>
-							<Text style={[styles.popTitleDesc]}>프로틴을 충전하고 내 방을 상단 노출 해보세요!</Text>
-						</View>
-            ) : null}
+              <View>
+                <Text style={styles.popTitleText}>지금 끌어 올리시겠어요?</Text>
+                <Text style={[styles.popTitleDesc]}>프로틴을 충전하고 내 방을 상단 노출 해보세요!</Text>
+              </View>
+            ) : (
+              <View>
+                <Text style={styles.popTitleText}>소셜 룸을 끌어 올리시겠어요?</Text>
+              </View>
+            )}
             
             {orderChg != 0 ? (
             <View style={[styles.pointBox, styles.mgt20]}>
               <ImgDomain fileWidth={24} fileName={'coin.png'}/>
-							<Text style={styles.pointBoxText}>{upPoint}</Text>
+							<Text style={styles.pointBoxText}>1</Text>
 						</View>
             ) : null}
 
@@ -2036,7 +2211,10 @@ const SocialView = (props) => {
                 <TouchableOpacity 
                   style={[styles.popBtn]}
                   activeOpacity={opacityVal}
-                  onPress={() => {navigation.navigate('Shop')}}
+                  onPress={() => {
+                    setOrderPop(false);
+                    navigation.navigate('Shop');
+                  }}
                 >
                   <Text style={styles.popBtnText}>상점으로 이동</Text>
                 </TouchableOpacity>
@@ -2096,7 +2274,7 @@ const SocialView = (props) => {
 
             <View style={[styles.pointBox, styles.mgt20]}>
               <ImgDomain fileWidth={24} fileName={'coin.png'}/>
-							<Text style={styles.pointBoxText}>{miniPoint}</Text>
+							<Text style={styles.pointBoxText}>5</Text>
 						</View>
 
             <View style={[styles.popBtnBox]}>
@@ -2104,10 +2282,7 @@ const SocialView = (props) => {
                 <TouchableOpacity 
                   style={[styles.popBtn]}
                   activeOpacity={opacityVal}
-                  onPress={() => {         
-                    setMiniProfilePop(false);
-                    setBigImgPop(true);
-                  }}
+                  onPress={() => setOpenMiniProfile()}
                 >
                   <Text style={styles.popBtnText}>오픈하기</Text>
                 </TouchableOpacity>
@@ -2151,10 +2326,10 @@ const SocialView = (props) => {
 							style={styles.pop_x}					
 							onPress={() => {setBigImgPop(false)}}
 						>
-              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
             <ScrollView>
-              <AutoHeightImage width={innerWidth-20} source={{uri:'https://cnj02.cafe24.com/appImg/sample2.jpg'}} resizeMethod='resize' />
+              <ImgDomain2 fileWidth={innerWidth-20} fileName={miniUserImg} />
             </ScrollView>
 					</View>
 				</View>
@@ -2366,7 +2541,7 @@ const SocialView = (props) => {
 						</View>
             <View style={[styles.pointBox, styles.mgt20]}>
               <ImgDomain fileWidth={24} fileName={'coin.png'}/>
-              <Text style={styles.pointBoxText}>500</Text>
+              <Text style={styles.pointBoxText}>5</Text>
             </View>
             <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
 						  <TouchableOpacity 
@@ -2448,6 +2623,45 @@ const SocialView = (props) => {
         >
         </TouchableOpacity>
 			</Modal>
+      
+      <Modal
+				visible={fullPop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setFullPop(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setFullPop(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setFullPop(false)}}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+						</TouchableOpacity>		
+						<View style={[styles.popTitle, styles.popTitleFlex]}>							
+							<View style={styles.popTitleFlexWrap}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>참여 확정 인원이 꽉 찼어요</Text>
+              </View>
+              <ImgDomain fileWidth={18} fileName={'emiticon1.png'}/>
+						</View>
+						<View style={styles.popBtnBox}>
+							<TouchableOpacity 
+								style={[styles.popBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {setFullPop(false)}}
+							>
+								<Text style={styles.popBtnText}>확인</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
 
       {loading ? ( <View style={[styles.indicator]}><ActivityIndicator size="large" color="#D1913C" /></View> ) : null}
       {loading2 ? ( <View style={[styles.indicator, styles.indicator2]}><ActivityIndicator size="large" color="#fff" /></View> ) : null}
@@ -2470,12 +2684,14 @@ const styles = StyleSheet.create({
 
   nickArea: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingBottom:15,borderBottomWidth:1,borderBottomColor:'#ededed',marginBottom:20,},
   nickView: {flexDirection:'row',alignItems:'center'},
+  nickViewImg: {width:38,height:38,borderRadius:50,overflow:'hidden'},
   nickViewText: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:20,color:'#1e1e1e',marginLeft:10,},
   insertTime: {},
   insertTimeText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:15,color:'#888'},
 
   viewSubject: {flexDirection:'row',/*justifyContent:'space-between',*/alignItems:'flex-start'},
   viewSubjectArea: {width:innerWidth-36,},
+  viewSubjectArea2: {width:innerWidth},
   viewSubjectText: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:24,color:'#1e1e1e',},
   viewBookBtn: {width:26,alignItems:'flex-end',},
   viewSubInfo1: {flexDirection:'row',alignItems:'center',marginTop:10,marginBottom:2,},
@@ -2618,7 +2834,7 @@ const styles = StyleSheet.create({
 	prvPopBot: {width:widnowWidth,paddingTop:40,paddingBottom:10,paddingHorizontal:20,backgroundColor:'#fff',borderTopLeftRadius:20,borderTopRightRadius:20,position:'absolute',bottom:0,},
 	prvPopBot2: {width:widnowWidth,position:'absolute',bottom:0,},
   prvPopBot3: {paddingHorizontal:0,},
-	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,color:'#1e1e1e',},
+	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,lineHeight:26,color:'#1e1e1e',},
 	popBotTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#666',marginTop:10,},
 
   dotPop: {width:100,backgroundColor:'#fff',borderRadius:10,overflow:'hidden',position:'absolute',top:48+stBarHt,right:20,alignItems:'center'},
@@ -2649,13 +2865,13 @@ const styles = StyleSheet.create({
   productList: {flexDirection:'row',justifyContent:'space-between'},
 	productBtn: {width:(innerWidth/3)-7,backgroundColor:'#fff',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,paddingVertical:25,paddingHorizontal:10,},
 	productBtnOn: {backgroundColor:'rgba(209,145,60,0.15)',borderColor:'#D1913C'},
-	productText1: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
+	productText1: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
 	productBest: {height:20,paddingHorizontal:8,borderRadius:20,marginTop:5,},
 	productBest2: {backgroundColor:'#FFBF1A',},
 	productText2: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:18,color:'#fff'},
-	productText3: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
+	productText3: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
 	productText3On: {color:'#1e1e1e'},
-	productText4: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
+	productText4: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
 
   notData: {width:innerWidth,paddingTop:20},
 	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
@@ -2710,6 +2926,7 @@ const styles = StyleSheet.create({
   pdl20: {paddingLeft:20},
   pdr20: {paddingRight:20},
 	mgt0: {marginTop:0},
+  mgt4: {marginTop:4},
 	mgt5: {marginTop:5},
 	mgt10: {marginTop:10},
 	mgt20: {marginTop:20},

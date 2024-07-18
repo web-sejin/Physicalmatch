@@ -26,9 +26,13 @@ const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 
 const RegisterStep8 = ({navigation, route}) => {		
+	// console.log('phonenumber8 ::: ', route['params']['phonenumber']);
+	// console.log('age8 ::: ', route['params']['age']);
 	const nextObj = {
 		prvChk4:route['params']['prvChk4'],
 		accessRoute:route['params']['accessRoute'],
+		phonenumber:route['params']['phonenumber'],
+		age:route['params']['age'],
 		member_id:route['params']['member_id'],
 		member_pw:route['params']['member_pw'],
 		member_nick:route['params']['member_nick'],
@@ -468,16 +472,16 @@ const RegisterStep8 = ({navigation, route}) => {
 		}
 
 		const nextObj2 = {
-			basePath: "/api/member/index.php",
+			basePath: "/api/member/",
 			type: "SetReigst",
 			prvChk4:prv_chk,
-			accessRoute:route['params']['accessRoute'],
+			accessRoute:route['params']['accessRoute'],						
 			member_id:route['params']['member_id'],			
 			member_pw:route['params']['member_pw'],
 			member_name:route['params']['member_nick'],
 			member_nick:route['params']['member_nick'],			
-			member_phone:'010-1234-3336',
-			member_age:'30',
+			member_phone:route['params']['phonenumber'],
+			member_age:route['params']['age'],
 			member_sex:route['params']['member_sex'],
 			member_main_local:route['params']['member_main_local'],
 			member_main_local_detail:route['params']['member_main_local_detail'],
@@ -1909,7 +1913,7 @@ const styles = StyleSheet.create({
 	popBtnBoxFlex: {flexDirection:'row',justifyContent:'space-between'},
 	popBtn: {width:(innerWidth/2)-25,alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#243B55',borderRadius:5,},
 	popBtn2: {backgroundColor:'#999'},
-	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},	
+	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},	
 
 	header: {height:48,backgroundColor:'#fff',position:'relative',display:'flex',justifyContent:'center',paddingHorizontal:40},
 	headerBackBtn2: {width:56,height:48,position:'absolute',left:0,top:0,zIndex:10,display:'flex',alignItems:'center',justifyContent:'center',},

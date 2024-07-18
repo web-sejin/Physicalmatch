@@ -197,9 +197,9 @@ const MySocial = (props) => {
 							<Text style={styles.socialSubject} numberOfLines={1} ellipsizeMode='tail'>{item.social_subject}</Text>
 						</View>
 						<View style={styles.socialLiInfo3}>
-							<View style={styles.socialLiInfo3Flex}>							
-								<ImgDomain fileWidth={10} fileName={'icon_local.png'}/>
-								<Text style={styles.socialLiInfo3Text}>{item.social_location}</Text>
+							<View style={[styles.socialLiInfo3Flex, styles.socialLiInfo3Local]}>							
+								<ImgDomain fileWidth={10} fileName={'icon_local.png'}/>								
+								<Text style={[styles.socialLiInfo3Text, styles.socialLiInfo3TextLocal]} numberOfLines={1} ellipsizeMode='tail'>{item.social_location}</Text>
 							</View>
 							<View style={styles.socialLiInfo3Line}></View>
 							<View style={styles.socialLiInfo3Flex}>
@@ -419,15 +419,17 @@ const styles = StyleSheet.create({
 	socialSubject: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:16,color:'#1e1e1e'},
 	socialLiInfo3: {flexDirection:'row',alignItems:'center',},
 	socialLiInfo3Flex: {flexDirection:'row',alignItems:'center',},
+	socialLiInfo3Local: {width:innerWidth-180},
 	socialLiInfoProfile: {alignItems:'center',justifyContent:'center',width:20,height:20,borderRadius:50,overflow:'hidden'},
 	socialLiInfo3Text: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:13,color:'#1e1e1e',marginLeft:4,},
+	socialLiInfo3TextLocal: {width:innerWidth-204},
 	socialLiInfo3Line: {width:1,height:12,backgroundColor:'#EDEDED',marginHorizontal:12},
   beforeSocial: {alignItems:'center',position:'relative',height:17,marginTop:30,marginBottom:10,},
   beforeSocialLine: {width:innerWidth,height:1,backgroundColor:'#D1913C',position:'absolute',left:0,top:8,},
   beforeSocialTitle: {alignItems:'center',justifyContent:'center',width:90,height:17,backgroundColor:'#fff'},
   beforeSocialTitleText: {fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:18,color:'#D1913C'},
   socialOPacity: {opacity:0.5},
-  socialEventCnt: {alignItems:'center',justifyContent:'center',minWidth:20,height:16,backgroundColor:'#fff',borderWidth:1,borderColor:'#FF1A1A',borderRadius:20,position:'absolute',right:0,top:45,},
+  socialEventCnt: {alignItems:'center',justifyContent:'center',width:20,height:16,backgroundColor:'#fff',borderWidth:1,borderColor:'#FF1A1A',borderRadius:20,position:'absolute',right:0,top:45,},
   socialEventCntText: {fontFamily:Font.RobotoMedium,fontSize:10,lineHeight:line,color:'#FF1A1A'},
 
 	notData: {paddingTop:50},

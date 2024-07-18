@@ -24,6 +24,8 @@ import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
+import ProfieModify from '../Mypage/ProfieModify';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -48,13 +50,6 @@ const MatchDetail = (props) => {
     {idx:11, txt:'형제'},
   ]
 
-  const swp = [
-    {idx:1, imgUrl:''},
-    {idx:2, imgUrl:''},
-    {idx:3, imgUrl:''},
-    {idx:4, imgUrl:''},
-  ]
-
 	const {navigation, userInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
@@ -68,18 +63,36 @@ const MatchDetail = (props) => {
   const [loading2, setLoading2] = useState(false);
   const [memberIdx, setMemberIdx] = useState();
   const [memberInfo, setMemberInfo] = useState({});
+  const [memberPoint, setMemberPoint] = useState();
+  const [profileInfo, setProfileInfo] = useState();
+  const [profilePhysical, setProfilePhysical] = useState([]);
+  const [profileJob, setProfileJob] = useState();
+  const [profileSchool, setProfileSchool] = useState();
+  const [profileMarry, setProfileMarry] = useState();
+  const [profileMbti, setProfileMbti] = useState('');
+  const [profileRel, setProfileRel] = useState('');
+  const [profileDrink, setProfileDrink] = useState('');
+  const [profileSmoke, setProfileSmoke] = useState('');
+  const [profileSmokeType, setProfileSmokeType] = useState('');
+  const [profileDateQna, setProfileDateQna] = useState([]);
+  const [profileInterview, setProfileInterview] = useState([]);
+  const [profileHobby, setProfileHobby] = useState([]);
+  const [likeDate, setLikeDate] = useState('');
+  const [likeTime, setLikeTime] = useState('');
 
   const swiperRef = useRef(null);
   const etcRef = useRef(null);
 
   const [activeDot, setActiveDot] = useState(0);
   const [zzim, setZzim] = useState(false);
-  const [reviewState, setReviewState] = useState(true);
+  const [reviewState, setReviewState] = useState();
   const [reviewScore, setReviewScore] = useState(0);
   const [report, setReport] = useState('');
   const [reportEtc, setReportEtc] = useState('');
-  const [matchState, setMatchState] = useState(0);
+  const [matchState, setMatchState] = useState(); //0:좋아요 보냄, 1:좋아요 받음, 2:번호 오픈 전, 3:번호 오픈 후
+  const [matchPremium, setMatchPremium] = useState(false); //프리미엄 좋아요
 
+  const [popState, setPopState] = useState();
   const [dotPop, setDotPop] = useState(false);
   const [reportPop, setReportPop] = useState(false);
   const [reviewPop, setReviewPop] = useState(false);
@@ -90,7 +103,7 @@ const MatchDetail = (props) => {
   const [sendPop, setSendPop] = useState(false);
   const [preLikePop, setPreLikePop] = useState(false);
   const [preLikeCont, setPreLikeCont] = useState('');
-  const [cashType, setCashType] = useState(0); //1:소통 보내기, 2:번호 오픈, 3:연애관 팝업
+  const [cashType, setCashType] = useState(0); //1:소통 보내기, 2:번호 오픈, 3:연애관 팝업, 4:커뮤니티-초대, 5:커뮤니티-신청, 6:커뮤니티-수락
   const [cashPop, setCashPop] = useState(false);
   const [prdIdx, setPrdIdx] = useState(1);
   const [skuCode, setSkuCode] = useState();
@@ -115,8 +128,15 @@ const MatchDetail = (props) => {
   const [productInappList, setProductInappList] = useState([]);
   const [platformData, setPlatformData] = useState(null);
 
+  const [curr_state, setCurrState] = useState(params?.currState);
+  const [curr_req_mb_idx, setCurrReqMbIdx] = useState(params?.reqMbIdx);
+  const [curr_rec_mb_idx, setCurrRecMbIdx] = useState(params?.recMbIdx);
+
   const accessType = params?.accessType;
   const mb_member_idx = params?.mb_member_idx;  
+  const comm_idx = params?.commIdx;
+  const comm_idx2 = params?.commIdx2;  
+  const write_type = params?.writeType;
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -189,29 +209,25 @@ const MatchDetail = (props) => {
 
   useEffect(() => {
     if(memberIdx){
+      setLoading(true);
       getMemInfo();
+      getProfileInfo();
+      getProfileDateQna();
     }
   }, [memberIdx])
 
   useEffect(() => {
-    setLoading(true);
     setPhoneNumber('01000000000');
-    setSwiperList(swp);
-
     let warterAry = [];
-    for(let i=0; i<50; i++){
+    for(let i=0; i<100; i++){
       warterAry = [...warterAry, {order:i}];
     }
     setWarterList(warterAry);
-
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
   }, []);
 
   useEffect(() => {
     if(report != ''){
-      if(report == 6){
+      if(report == '기타'){
         setTimeout(function(){
           etcRef.current?.focus();
         }, 100)
@@ -235,7 +251,7 @@ const MatchDetail = (props) => {
           // Platform ANDROID
           flushFailedPurchasesCachedAsPendingAndroid()        
           .catch((err) => {
-            console.log(err);
+            console.log('1111',err);
           })
           .then(() => {
             purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
@@ -245,7 +261,7 @@ const MatchDetail = (props) => {
               if(receipt){
                 await finishTransaction({purchase, isConsumable: true})
                 .catch((error) => {
-                  console.log(error)
+                  console.log('2222',err);
                 })
               }
               setLoading(false);
@@ -349,13 +365,204 @@ const MatchDetail = (props) => {
 		const response = await APIs.send(sData);
 		if(response.code == 200){
       setMemberInfo(response.data);
+      setMemberPoint(response.data.member_point);
+    }
+  }
+
+  const getMemberProtain = async () => {
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyPoint",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    console.log(response);
+		if(response.code == 200){      
+      setMemberPoint(response.data);
+    }
+  }
+
+  const getProfileInfo = async () => {
+    let profileType = 0;
+    if(accessType == 'match'){
+      profileType = 0;
+    }else if(accessType == 'social'){
+      profileType = 1;
+    }else if(accessType == 'community'){
+      profileType = 2;
+    }
+
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetProfile",
+      member_idx: memberIdx,
+			user_idx: mb_member_idx,
+      profile_type: profileType,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setProfileInfo(response.data);
+      
+      if(response.data.img.length > 0){
+        setSwiperList(response.data.img);
+      }
+
+      if(response.data.info.is_bookmark == 'y'){ setZzim(true); }else{ setZzim(false); }
+
+      const physicalArray = [];
+      const memberPhysical = response.data.info.member_physical.split('|');
+      memberPhysical.map((item) => {
+        physicalArray.push(item);
+      });
+      setProfilePhysical(physicalArray);
+
+      if(response.data.auth.length > 0){
+        response.data.auth.map((item, index) => {
+          if(item.pa_idx == 1){
+            if(item.auth_yn == 'y'){ setProfileJob(item); }else{ setProfileJob(); }
+          }else if(item.pa_idx == 2){
+            if(item.auth_yn == 'y'){ setProfileSchool(item); }else{ setProfileSchool(); }
+          }else if(item.pa_idx == 3){
+            if(item.auth_yn == 'y'){ setProfileMarry(item); }else{ setProfileMarry(); }
+          }
+        });
+      }
+
+      let physicalMbtiString = '';
+      const physicalMbti = response.data.info.member_mbti.split('|');
+      physicalMbti.map((item, index) => {
+        if((index%2) == 1 && item != ''){
+          physicalMbtiString += `(${item})`;          
+        }else{
+          physicalMbtiString += item;
+        }        
+      });
+      setProfileMbti(physicalMbtiString);
+
+      let relString = '';
+      if(response.data.info.member_religion == 1){
+        relString = '무교';
+      }else if(response.data.info.member_religion == 2){
+        relString = '기독교';
+      }else if(response.data.info.member_religion == 3){
+        relString = '천주교';
+      }else if(response.data.info.member_religion == 4){
+        relString = '불교';
+      }else if(response.data.info.member_religion == 5){
+        relString = '기타';
+      }
+      setProfileRel(relString);
+
+      let drinkString = '';
+      if(response.data.info.member_drink_status == 0){
+        drinkString = '마시지 않음';
+      }else if(response.data.info.member_drink_status == 1){
+        drinkString = '어쩔 수 없을 때만';
+      }else if(response.data.info.member_drink_status == 2){
+        drinkString = '가끔 마심';
+      }else if(response.data.info.member_drink_status == 3){
+        drinkString = '어느정도 즐김';
+      }else if(response.data.info.member_drink_status == 4){
+        drinkString = '좋아하는 편';
+      }else if(response.data.info.member_drink_status == 5){
+        drinkString = '매우 즐기는 편';
+      }
+      setProfileDrink(drinkString);
+
+      let smokeString = '';
+      if(response.data.info.member_smoke_status == 0){
+        smokeString = '비흡연';
+      }else if(response.data.info.member_smoke_status == 1){
+        smokeString = '가끔 피움';
+      }else if(response.data.info.member_smoke_status == 2){
+        smokeString = '흡연 중';
+      }
+      setProfileSmoke(smokeString);
+
+      let smokeTypeString = '';
+      if(response.data.info.member_smoke_type == 1){
+        smokeTypeString = '연초';
+      }else if(response.data.info.member_smoke_type == 2){
+        smokeTypeString = '권련형 전자담배';
+      }else if(response.data.info.member_smoke_type == 3){
+        smokeTypeString = '액상형 전자담배';
+      }
+      setProfileSmokeType(smokeTypeString);
+
+      if(response.data.interview){
+        setProfileInterview(response.data.interview);
+      }else{
+        setProfileInterview([]);
+      }
+
+      if(response.data.hobby){
+        setProfileHobby(response.data.hobby);
+      }else{
+        setProfileHobby([]);
+      }
+
+      if(response.data.info.is_before_score){
+        if(response.data.info.is_before_score == 'y'){
+          setReviewState(false);
+        }else if(response.data.info.is_before_score == 'n'){
+          setReviewState(true);
+        }
+      }else if(response.data.info.is_after_score){
+        if(response.data.info.is_after_score == 'y'){
+          setReviewState(false);
+        }else if(response.data.info.is_after_score == 'n'){
+          setReviewState(true);
+        }
+      }
+
+      if(response.data.content && response.data.feel_yn == 'n'){
+        if(response.data.content.request_member_idx == memberIdx && response.data.content.ml_status == 0){
+          setMatchState(0);
+        }else if(response.data.content.receive_member_idx == memberIdx && response.data.content.ml_status == 0){      
+          setMatchState(1);
+          if(response.data.content.ml_type == 1){
+            setMatchPremium(true);
+          }else{
+            setMatchPremium(false);
+          }
+        }else if(response.data.content.ml_status == 1 && response.data.content.request_member_idx == memberIdx && response.data.content.request_open_status == 1){
+          setMatchState(3);
+        }else if(response.data.content.ml_status == 1 && response.data.content.receive_member_idx == memberIdx && response.data.content.receive_open_status == 1){          
+          setMatchState(3);
+        }else if(response.data.content.ml_status == 1 && (response.data.content.request_open_status == 0 || response.data.content.receive_open_status == 0)){
+          setMatchState(2);
+        }
+        
+        const like_date = response.data.content.created_at.split(' ');
+        setLikeDate(like_date[0].replaceAll('-', '.'));
+        setLikeTime(like_date[1].substr(0, 5));
+      }
+    }
+    setLoading(false);
+  }
+
+  const getProfileDateQna = async () => {
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetQuestion",
+      member_idx: mb_member_idx,
+		};
+
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+      setProfileDateQna(response.data);
+    }else{
+      setProfileDateQna([]);
     }
   }
 
   const getReportList = async () => {
     let sData = {
 			basePath: "/api/etc/",
-			type: "GetReportReasonList",
+			type: "GetReportReasonList2",
 		};
 
 		const response = await APIs.send(sData);    
@@ -405,9 +612,32 @@ const MatchDetail = (props) => {
   }
 
   const reviewConfirm = async () => {
-    setReviewState(false);
-    //setReviewScore(0);
-    setReviewPop(false);    
+    let ms_type = 0;
+    if(profileInfo?.info.is_before_score){
+      ms_type = 0;
+    }else if(profileInfo?.info.is_before_score){
+      ms_type = 1;
+    }
+
+    let sData = {
+			basePath: "/api/member/",
+			type: "SetMemberSocre",
+      ms_type: ms_type,
+      member_idx: memberIdx,
+      user_idx: mb_member_idx,
+      ms_score: reviewScore,
+		};
+
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+      setReviewState(false); 
+      ToastMessage('평가가 완료되었습니다.');
+    }else{
+      setReviewScore(0);
+      ToastMessage('잠시후 다시 이용해 주세요.');
+    }
+    setReviewPop(false);
+    
   }
 
   const reportPopClose = () => {
@@ -423,13 +653,27 @@ const MatchDetail = (props) => {
       return false;
     }
 
-    if(report == 6 && (reportEtc == '' || reportEtc.length < 3)){
+    if(report == '기타' && (reportEtc == '' || reportEtc.length < 3)){
       ToastMessage('상세 사유를 3자 이상 입력해 주세요.');
       return false;
     }
 
-    ToastMessage('신고접수가 완료되었습니다.');
-    reportPopClose();
+    let sData = {
+			basePath: "/api/match/",
+			type: "SetReportMember",
+      member_idx: memberIdx,
+      rm_member_idx: mb_member_idx,
+      rm_content: report == '기타' ? reportEtc : report,
+		};
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      reportPopClose();
+      ToastMessage('신고접수가 완료되었습니다.');      
+      // setTimeout(function(){
+      //   navigation.navigate('Home', {reload: true});
+      // } ,300);    
+    }
   }  
   
   const sotongClose = () => {
@@ -477,6 +721,7 @@ const MatchDetail = (props) => {
     const response = await APIs.send(sData);
     //console.log(response);
     if(response.code == 200){      
+      getProfileInfo();
       ToastMessage(sotongTypeText+' 보냈습니다.');
       sotongSendClose();
     }        
@@ -519,7 +764,7 @@ const MatchDetail = (props) => {
 
   const cashBuy = async () => {
     //1:소통 보내기, 2:번호 오픈, 3:연애관 팝업
-    console.log('cashType ::: ',cashType);
+    //console.log('cashType ::: ',cashType);
     if(cashType == 1){
 
     }else if(cashType == 2){
@@ -527,8 +772,10 @@ const MatchDetail = (props) => {
     }else if(cashType == 3){
       
     }
+    setLoading2(true);
     cashPopClose();
     _requestPurchase(skuCode);
+    setTimeout(() => { setLoading2(false); }, 3000);
   }
 
   const shareApp = () => {
@@ -556,7 +803,7 @@ const MatchDetail = (props) => {
   };
 
   const getProductList = ({item, index}) => {
-    //const price = item.pd_price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    const priceComma = item.pd_price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
     return (
       <TouchableOpacity
         style={[styles.productBtn, prdIdx==item.pd_idx ? styles.productBtnOn : null, styles.mgr10, productApiList.length == index+1 ? styles.mgr40 : null]}
@@ -579,7 +826,7 @@ const MatchDetail = (props) => {
           <View style={styles.productBest}></View>
         )}        
         <Text style={[styles.productText3, prdIdx==item.pd_idx ? styles.productText3On : null]}>개당 ￦{item.pd_content}</Text>
-        <Text style={styles.productText4}>￦{item.pd_price}</Text>
+        <Text style={styles.productText4}>￦{priceComma}</Text>
       </TouchableOpacity>
     )
   }
@@ -596,7 +843,7 @@ const MatchDetail = (props) => {
         if (products.length !== 0){
           setProductInappList(products);
         }
-        console.log('_getProducts success');
+        //console.log('_getProducts success');
     } catch (err){
         console.warn("IAP error code ", err.code);
         console.warn("IAP error message ", err.message);
@@ -609,32 +856,67 @@ const MatchDetail = (props) => {
     //setLoading2(true);
     let iapObj = {skus: [sku], sku: sku};
     let getItems = await getProducts(iapObj);
-    console.log('getItems :::: ', getItems);
+    //console.log('getItems :::: ', getItems);
+
+    let amount = 0;
+    if(prdIdx == 19){
+      amount = 30;
+    }else if(prdIdx == 20){
+      amount = 100;
+    }else if(prdIdx == 21){
+      amount = 200;
+    }else if(prdIdx == 22){
+      amount = 500;
+    }else if(prdIdx == 23){
+      amount = 1000;
+    }else if(prdIdx == 24){
+      amount = 2000;
+    }else if(prdIdx == 25){
+      amount = 4500;
+    }
+
+    const inappPayResult = {
+      basePath: "/api/order/",
+      type: "SetProductOrder",		
+      member_idx: memberIdx,
+      pd_idx: prdIdx,
+      pd_code: getItems[0].productId,
+      pd_name: getItems[0].name,
+      pd_price: getItems[0].price,
+      pd_amount: amount,
+    };
+
     try {
       await requestPurchase(iapObj)
       .then(async (result) => {
           //console.log('IAP req sub', result);
           if (Platform.OS === 'android'){
-            console.log('dataAndroid', result[0].dataAndroid);
-            // console.log("purchaseToken : ", result.purchaseToken);
-            // console.log("packageNameAndroid : ", result.packageNameAndroid);
-            // console.log("productId : ", result.productId);
-            console.log("성공");
-            // let inappPayResult =JSON.stringify({
-            //     type: "inappResult",
-            //     code: result.productId,
-            //     tno: result.transactionId,
-            //     token: result.purchaseToken,
-            // });
-            // console.log("inappPayResult : ", inappPayResult);            
+            //console.log('dataAndroid', result[0].dataAndroid);
+            //console.log("성공");                     
             // can do your API call here to save the purchase details of particular user
+            inappPayResult.biling_id = result[0].transactionId;
+            inappPayResult.biling_token = result[0].purchaseToken;
+            inappPayResult.biling_payment = 'card';            
+            inappPayResult.paymented_at = result[0].transactionDate;
           } else if (Platform.OS === 'ios'){
             console.log(result);
             //console.log(result.transactionReceipt);
             // can do your API call here to save the purchase details of particular user
+            inappPayResult.biling_id = result.transactionId;
+            inappPayResult.biling_token = result.transactionReceipt;
+            inappPayResult.biling_payment = 'card';            
+            inappPayResult.paymented_at = result.transactionDate;
           }
 
-          setLoading(false);
+          //console.log("inappPayResult : ", inappPayResult);
+          const response = await APIs.send(inappPayResult);
+          //console.log(response);
+          if(response.code == 200){
+            getMemberProtain();
+            ToastMessage('프로틴이 충전되었습니다.');
+          }else{
+            ToastMessage('잠시후 다시 이용해 주세요.');
+          }
       })
       .catch((err) => {
         //setLoading2(false);
@@ -669,12 +951,173 @@ const MatchDetail = (props) => {
       };
     }
    
-    const response = await APIs.send(sData);    
+    const response = await APIs.send(sData);
     //console.log(response);
     if(response.code == 200){
       setZzim(!zzim);
     }
       
+  }
+
+  const scoreOff = () => {
+    setReviewPop(false);
+    setReviewScore(0);
+  }
+
+  const acceptLike = async () => {
+    let sData = {
+      basePath: "/api/match/",
+      type: "AcceptMemberLike",		
+      ml_idx: profileInfo?.content.ml_idx,
+      member_idx: memberIdx,
+      user_idx: mb_member_idx,      
+    };
+
+    const response = await APIs.send(sData);
+    if(response.code == 200){
+      getProfileInfo();
+      setMatchPop(true);
+      setPreventBack(true);
+    }        
+  }
+
+  const openPhonenumber = async () => {  
+    if(memberPoint < 30){
+      setCashType(2);
+      setCashPop(true);
+      setSotongPop(false);
+    }else{
+      let sData = {
+        basePath: "/api/match/",
+        type: "OpenMemberPhone",		
+        ml_idx: profileInfo?.content.ml_idx,    
+      };
+  
+      const response = await APIs.send(sData);
+      if(response.code == 200){
+        getProfileInfo();
+        setNumbOpenPop(false);
+        ToastMessage('번호가 오픈되었습니다.');
+      }
+    }    
+  }
+
+  const lastJoinSocial = async () => {
+    //console.log(socialType);
+    let socialMsg = '';
+    let socialState = '';
+    if(socialType == 1){
+      socialMsg = '최종 참여를 신청했습니다.'
+      socialState = 3;
+    }else if(socialType == 2){
+      socialMsg = '최종 초대를 전송했습니다.'
+      socialState = 5;
+    }
+
+    let sData = {
+      basePath: "/api/social/",
+      type: "SetSocialState",		
+      sj_idx: comm_idx2,
+      sj_status: socialState,
+      member_idx: memberIdx,
+      social_idx: comm_idx,
+    };
+
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setCurrState(socialState);
+      ToastMessage(socialMsg);
+    }else{
+      ToastMessage('잠시후 다시 이용해 주세요.');
+    }
+    setSocialPop(false);
+  }
+
+  const lastPermitSocial = async () => {
+    //console.log(socialType);    
+    let sData = {
+      basePath: "/api/social/",
+      type: "SetSocialState",		
+      sj_idx: comm_idx2,
+      sj_status: 4,
+      member_idx: memberIdx,
+      social_idx: comm_idx,
+    };
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setCurrState(4);
+      ToastMessage('최종 참여 수락이 되었습니다.');
+    }else{
+      ToastMessage('잠시후 다시 이용해 주세요.');
+    }
+    setSocialPop2(false);
+  }
+
+  const changeTradeProfile = async () => {
+    let sData = {
+      basePath: "/api/community/",
+      type: "SetNumberChange",		
+      cpc_idx: comm_idx,
+      cpc_type: 2,
+      request_member_idx: memberIdx,
+      permit_member_idx: mb_member_idx,
+    };
+
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      ToastMessage('번호 교환을 신청했습니다.');
+      setCurrState(2);
+
+      console.log(memberIdx);
+      console.log(mb_member_idx);
+      setCurrReqMbIdx(memberIdx);
+      setCurrRecMbIdx(mb_member_idx);
+    }else{
+      ToastMessage('잠시후 다시 이용해 주세요.');
+    }
+
+    setNumberTradePop2(false);
+  }
+
+  const permitTradeProfile = async () => {
+    let sData = {
+      basePath: "/api/community/",
+      type: "SetNumberChange",		
+      cpc_idx: comm_idx,
+      cpc_type: 3,
+      request_member_idx: mb_member_idx,
+      permit_member_idx: memberIdx,
+    };
+
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      ToastMessage('번호 교환을 수락했습니다.');
+      setCurrState(3);
+    }else{
+      ToastMessage('잠시후 다시 이용해 주세요.');
+    }
+
+    setNumberTradePop(false);
+  }
+
+  const openSubProfile = async () => {
+    let sData = {
+      basePath: "/api/match/",
+      type: "OpenSubProfile",
+      member_idx: memberIdx,
+    };
+
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      getMemberProtain();
+      setValuesConfirm(false);
+      setValuesPop(true);
+    }    
   }
  
   const headerHeight = 48;
@@ -693,6 +1136,7 @@ const MatchDetail = (props) => {
           >
           <ImgDomain fileWidth={8} fileName={'icon_header_back2.png'}/>
         </TouchableOpacity>
+        {profileInfo?.info.member_idx != memberIdx ? (
         <TouchableOpacity 
           onPress={() => {setDotPop(true)}} 
           style={styles.DetailDotBtn} 
@@ -700,68 +1144,78 @@ const MatchDetail = (props) => {
         >
           <ImgDomain fileWidth={24} fileName={'icon_hd_dot.png'}/>
         </TouchableOpacity>
+        ) : null}
 
-        <View style={styles.swiperView}>
-          <SwiperFlatList
-            ref={swiperRef}
-            //autoplay
-            //autoplayDelay={2}
-            //autoplayLoop
-            index={0}
-            showPagination
-            paginationStyle={{alignItems:'center',justifyContent:'center',gap:5,}}
-            paginationStyleItem={{width:10,height:4,backgroundColor:'#fff',borderRadius:50,opacity:0.3,margin:0,marginHorizontal:0}}
-            paginationStyleItemActive={{width:20,opacity:1,}}
-            paginationStyleItemInactive={{backgroundColor:'#fff',opacity:0.3,}}
-            data={swiperList}
-            onChangeIndex={(obj) => {
-              setActiveDot(obj.index);
-            }}
-            renderItem={({ item, index }) => (
-              <View key={index} style={styles.swiperWrap}>                
-                <AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/sample.jpg'}} resizeMethod='resize' />
-                <View style={styles.warterMark}>
-                  <View style={styles.warterMarkWrap}>
-                    {warterList.map((item2, index2) => {
-                      return (
-                        <View key={index2} style={styles.warterMarkView}><Text style={styles.warterMarkText}>{phoneNumber}</Text></View>
-                      )
-                    })}                    
+        {swiperList.length > 0 ? (
+        <>
+          <View style={styles.swiperView}>
+            <SwiperFlatList
+              ref={swiperRef}
+              //autoplay
+              //autoplayDelay={2}
+              //autoplayLoop
+              index={0}
+              showPagination
+              paginationStyle={{alignItems:'center',justifyContent:'center',gap:5,}}
+              paginationStyleItem={{width:10,height:4,backgroundColor:'#fff',borderRadius:50,opacity:0.3,margin:0,marginHorizontal:0}}
+              paginationStyleItemActive={{width:20,opacity:1,}}
+              paginationStyleItemInactive={{backgroundColor:'#fff',opacity:0.3,}}
+              data={swiperList}
+              onChangeIndex={(obj) => {
+                setActiveDot(obj.index);
+              }}
+              renderItem={({ item, index }) => (
+                <View key={index} style={styles.swiperWrap}>
+                  <ImgDomain2 fileWidth={widnowWidth} fileName={item.mpi_img} />
+                  <View style={styles.warterMark}>
+                    <View style={styles.warterMarkWrap}>
+                      {warterList.map((item2, index2) => {
+                        return (
+                          <View key={index2} style={styles.warterMarkView}><Text style={styles.warterMarkText}>{phoneNumber}</Text></View>
+                        )
+                      })}                    
+                    </View>
                   </View>
                 </View>
-              </View>
-            )}
-          />
-				</View>
-				<View style={styles.pagination}>
-          {swiperList.map((item, index) => {
-            return (
-              <TouchableOpacity
-                key={index}
-                style={[styles.paginationBtn, activeDot == index ? styles.paginationActive : null]}
-                activeOpacity={opacityVal}
-                onPress={() => {
-                  swiperRef.current.scrollToIndex({index:index})
-                }}
-              >                
-               <AutoHeightImage width={46} source={{uri:'https://cnj02.cafe24.com/appImg/sample.jpg'}} resizeMethod='resize' style={[styles.paginationImg]} />                
-              </TouchableOpacity>
-            )
-          })}
-				</View>
+              )}
+            />
+          </View>
+          <View style={styles.pagination}>
+            {swiperList.map((item, index) => {
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.paginationBtn, activeDot == index ? styles.paginationActive : null]}
+                  activeOpacity={opacityVal}
+                  onPress={() => {
+                    swiperRef.current.scrollToIndex({index:index})
+                  }}
+                >                
+                  <ImgDomain2 fileWidth={46} fileName={item.mpi_img} />
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+        </>
+        ) : null}
 
         <View style={styles.detailInfo1}>
           <View style={[styles.detailInfo1Wrap, styles.boxShadow]}>
             <View style={styles.detailInfo1View}>
-              <Text style={styles.detailInfo1ViewText}>닉네임최대여덟자</Text>
-              <Text style={styles.detailInfo1ViewAge}><Text style={styles.roboto}>1999</Text>년생</Text>
+              <Text style={styles.detailInfo1ViewText}>{profileInfo?.info.member_nick}</Text>
+              <Text style={styles.detailInfo1ViewAge}><Text style={styles.roboto}>{profileInfo?.info.member_age}</Text>년생</Text>
             </View>
+            {profileInfo?.badge.length > 0 ? (
             <View style={styles.detailInfo1BadgeBox}>
-              <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_money2_1.png'}/></View>
-              <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_money1_2.png'}/></View>
-              <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_car3.png'}/></View>
-              <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_school1.png'}/></View>
+              {profileInfo?.badge.map((item, index) => {
+                return (
+                  <View key={index} style={styles.detailInfo1Badge}><ImgDomain2 fileWidth={45} fileName={item.badge_img}/></View>
+                )
+              })}                        
             </View>
+            ) : null}
+
+            {profileInfo?.bookmark_yn == 'y' && profileInfo?.info.member_idx != memberIdx ? (
             <TouchableOpacity
               style={styles.zzimBtn}
               activeOpacity={opacityVal}
@@ -773,228 +1227,361 @@ const MatchDetail = (props) => {
                 <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
               )}              
             </TouchableOpacity>
+            ) : null}
           </View>
         </View>
 
-        <View style={styles.detailInfo2}>          
-          {matchState == 0 ? (
-            <>
-            <View style={styles.detailInfo2TextBox}>
-              <Text style={styles.detailInfo2Text}>좋아요를 수락하시겠습니까?</Text>
-            </View>
-            <View style={styles.detailInfo2Text2Box}>
-              <Text style={styles.detailInfo2Text2}>2024.03.14</Text>
-              <Text style={styles.detailInfo2Text2}>12:53</Text>
-            </View>
-            <LinearGradient
-              colors={['#D1913C', '#FFD194', '#D1913C']}
-              start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
-              style={[styles.grediant, styles.mgt20]}
-            >
-              <TouchableOpacity
-                style={styles.detailInfo2Btn}
+        {accessType == 'match' ? (
+          <View>
+            {matchState == 0 ? (
+              <View style={styles.detailInfo2}>
+                <View style={styles.detailInfo2TextBox}>
+                  <Text style={styles.detailInfo2Text}>좋아요를 보냈어요</Text>
+                <Text style={styles.detailInfo2Text3}>응답을 기다려주세요!</Text>
+                </View>
+                <View style={styles.detailInfo2Text2Box}>
+                  <Text style={styles.detailInfo2Text2}>{likeDate}</Text>
+                  <Text style={styles.detailInfo2Text2}>{likeTime}</Text>
+                </View>
+              </View>
+            ) : null}
+
+            {matchState == 1 ? (
+              <View style={styles.detailInfo2}>
+                <View style={styles.detailInfo2TextBox}>
+                  <Text style={styles.detailInfo2Text}>좋아요를 수락하시겠습니까?</Text>
+                </View>
+                <View style={styles.detailInfo2Text2Box}>
+                  <Text style={styles.detailInfo2Text2}>{likeDate}</Text>
+                  <Text style={styles.detailInfo2Text2}>{likeTime}</Text>
+                </View>
+                <LinearGradient
+                  colors={['#D1913C', '#FFD194', '#D1913C']}
+                  start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
+                  style={[styles.grediant, styles.mgt20]}
+                >
+                  <TouchableOpacity
+                    style={styles.detailInfo2Btn}
+                    activeOpacity={opacityVal}
+                    onPress={() => {
+                      if(!matchPremium && memberPoint < 5){
+                        setCashType(1);
+                        setCashPop(true);
+                        setSotongPop(false);
+                      }else{
+                        acceptLike();
+                      }                   
+                    }}
+                  >
+                    <Text style={styles.detailInfo2BtnText}>수락</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
+              </View>
+            ) : null}
+
+            {matchState == 2 ? (
+              <View style={styles.detailInfo2}>
+                <LinearGradient
+                  colors={['#D1913C', '#FFD194', '#D1913C']}
+                  start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
+                  style={[styles.grediant]}
+                >
+                  <TouchableOpacity
+                    style={styles.detailInfo2Btn}
+                    activeOpacity={opacityVal}
+                    onPress={() => {                      
+                      setNumbOpenPop(true);                      
+                    }}
+                  >
+                    <Text style={styles.detailInfo2BtnText}>번호 오픈</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
+              </View>
+            ) : null}
+
+            {matchState == 3 ? (
+              <View style={styles.detailInfo2}>
+                <TouchableOpacity
+                  style={[styles.detailInfo2Btn, styles.detailInfo2BtnGray]}
+                  activeOpacity={opacityVal}
+                  onPress={() => copyToClipboard(phoneNumber)}
+                >
+                  <Text style={styles.detailInfo2BtnText, styles.detailInfo2BtnGrayText}>{phoneNumber}</Text>            
+                  <ImgDomain fileWidth={10} fileName={'icon_copy.png'}/>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+
+
+        {accessType == 'social' ? (
+          <View>
+            {write_type == 1 ? (
+              //소셜에서 호스트가 게스트 프로필로 들어왔을 때
+              <>
+                {curr_state == 1 ? (
+                <View style={styles.detailInfo2}>                    
+                  <View style={styles.detailInfo2TextBox}>
+                    <Text style={styles.detailInfo2Text}>최종 참여를 초대 하시겠습니까?</Text>
+                  </View>
+                  <View style={[styles.pointBox, styles.mgt20]}>
+                    <ImgDomain fileWidth={24} fileName={'coin.png'}/>
+                    <Text style={styles.pointBoxText}>20</Text>
+                  </View>
+                  <TouchableOpacity 
+                    style={[styles.nextBtn, styles.mgt20]}
+                    activeOpacity={opacityVal}
+                    onPress={() => {                                 
+                      if(memberPoint < 20){
+                        setCashType(4);
+                        setCashPop(true);
+                      }else{
+                        setSocialType(2);
+                        setSocialPop(true);
+                      }
+                    }}
+                  >
+                    <Text style={styles.nextBtnText}>초대하기</Text>
+                  </TouchableOpacity>         
+                </View>
+                ) : null}
+
+                {curr_state == 3 ? (
+                <View style={styles.detailInfo2}>
+                  <View style={styles.detailInfo2TextBox}>
+                    <Text style={styles.detailInfo2Text}>최종 참여를 수락 하시겠습니까?</Text>
+                  </View>
+                  <View style={[styles.pointBox, styles.mgt20]}>
+                    <ImgDomain fileWidth={24} fileName={'coin.png'}/>
+                    <Text style={styles.pointBoxText}>5</Text>
+                  </View>
+                  <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.popBtnBoxFlex2]}>
+                    <TouchableOpacity 
+                      style={[styles.popBtn, styles.popBtn3]}
+                      activeOpacity={opacityVal}
+                      onPress={() => {
+                        console.log(memberPoint);                        
+                        if(memberPoint < 5){
+                          setCashType(6);
+                          setCashPop(true);
+                        }else{
+                          setSocialType(1);
+                          setSocialPop2(true);
+                        }
+                      }}
+                    >
+                      <Text style={[styles.popBtnText]}>수락</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[styles.popBtn, styles.popBtn3, styles.popBtnOff]}
+                      activeOpacity={opacityVal}
+                      onPress={() => {}}
+                    >
+                      <Text style={[styles.popBtnText, styles.popBtnOffText]}>거절</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                ) : null}
+
+                {curr_state == 5 ? (
+                <View style={styles.detailInfo2}>
+                  <View style={styles.detailInfo2TextBox}>
+                    <Text style={styles.detailInfo2Text}>최종 초대를 전송 했어요</Text>
+                    <Text style={styles.detailInfo2Text3}>응답을 기다려주세요!</Text>
+                  </View>
+                </View>
+                ) : null}
+
+                {curr_state == 2 ? (
+                  <View style={styles.detailInfo2}>
+                    <View style={styles.detailInfo2TextBox}>
+                      <View style={styles.textFlex}>
+                        <Text style={styles.detailInfo2Text}>소셜룸에 참여하지 못했어요</Text>
+                        <ImgDomain fileWidth={20} fileName={'emiticon4.png'}/>
+                      </View>
+                      <Text style={styles.detailInfo2Text3}>다른 소셜룸을 만나보세요!</Text>
+                    </View>
+                  </View>
+                ) : null}
+              </>
+            ) : null}
+
+            {write_type == 2 ? ( 
+              //소셜에서 게스트가 호스트 프로필로 들어왔을 때              
+              <>
+                {curr_state == 1 ? (
+                <View style={styles.detailInfo2}>
+                  <View style={styles.detailInfo2TextBox}>
+                    <Text style={styles.detailInfo2Text}>최종 참여를 신청 하시겠습니까?</Text>
+                  </View>
+                  <View style={[styles.pointBox, styles.mgt20]}> 
+                    <ImgDomain fileWidth={24} fileName={'coin.png'}/>
+                    <Text style={styles.pointBoxText}>20</Text>
+                  </View>
+                  <TouchableOpacity 
+                    style={[styles.nextBtn, styles.mgt20]}
+                    activeOpacity={opacityVal}
+                    onPress={() => {
+                      if(memberPoint < 20){
+                        setCashType(5);
+                        setCashPop(true);
+                      }else{
+                        setSocialType(1);
+                        setSocialPop(true);
+                      }
+                    }}
+                  >
+                    <Text style={styles.nextBtnText}>신청하기</Text>
+                  </TouchableOpacity>
+                </View>
+                ) : null}
+
+                {curr_state == 3 ? (
+                <View style={styles.detailInfo2}>
+                  <View style={styles.detailInfo2TextBox}>
+                    <Text style={styles.detailInfo2Text}>최종 참여를 신청 했어요</Text>
+                    <Text style={styles.detailInfo2Text3}>응답을 기다려주세요!</Text>
+                  </View>
+                </View>
+                ) : null}
+
+                {curr_state == 5 ? (
+                <View style={styles.detailInfo2}>
+                  <View style={styles.detailInfo2TextBox}>
+                    <Text style={styles.detailInfo2Text}>최종 참여를 수락 하시겠습니까?</Text>
+                  </View>
+                  <View style={[styles.pointBox, styles.mgt20]}>
+                    <ImgDomain fileWidth={24} fileName={'coin.png'}/>
+                    <Text style={styles.pointBoxText}>5</Text>
+                  </View>
+                  <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.popBtnBoxFlex2]}>
+                    <TouchableOpacity 
+                      style={[styles.popBtn, styles.popBtn3]}
+                      activeOpacity={opacityVal}
+                      onPress={() => {                    
+                        if(memberPoint < 5){
+                          setCashType(6);
+                          setCashPop(true);
+                        }else{
+                          setSocialType(1);
+                          setSocialPop2(true);
+                        }
+                      }}
+                    >
+                      <Text style={[styles.popBtnText]}>수락</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[styles.popBtn, styles.popBtn3, styles.popBtnOff]}
+                      activeOpacity={opacityVal}
+                      onPress={() => {}}
+                    >
+                      <Text style={[styles.popBtnText, styles.popBtnOffText]}>거절</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                ) : null}
+
+                {curr_state == 2 ? (
+                  <View style={styles.detailInfo2}>
+                    <View style={styles.detailInfo2TextBox}>
+                      <View style={styles.textFlex}>
+                        <Text style={styles.detailInfo2Text}>소셜룸에 참여하지 못했어요</Text>
+                        <ImgDomain fileWidth={20} fileName={'emiticon4.png'}/>
+                      </View>
+                      <Text style={styles.detailInfo2Text3}>다른 소셜룸을 만나보세요!</Text>
+                    </View>
+                  </View>
+                ) : null}
+              </>
+            ) : null} 
+            
+          </View>
+        ) : null}
+
+        
+        {accessType == 'community' ? (
+          <View>            
+            {/* 커뮤니티 - 번호 교환 수락(양쪽 모두 신청하지 않은 상황) */}
+            {curr_state == 1 ? (
+            <View style={styles.detailInfo2}>
+              <View style={styles.detailInfo2TextBox}>
+                <Text style={styles.detailInfo2Text}>번호를 교환 하시겠습니까?</Text>
+              </View>
+              <View style={[styles.pointBox, styles.mgt20]}>            
+                <ImgDomain fileWidth={24} fileName={'coin.png'}/>
+                <Text style={styles.pointBoxText}>20</Text>
+              </View>
+              <TouchableOpacity 
+                style={[styles.nextBtn, styles.mgt20]}
                 activeOpacity={opacityVal}
                 onPress={() => {
-                  setMatchState(1);
-                  setMatchPop(true);
-                  setPreventBack(true);
+                  if(memberPoint < 20){
+                    setCashType(1);
+                    setCashPop(true);
+                  }else{
+                    setNumberTradePop2(true);
+                  }
                 }}
               >
-                <Text style={styles.detailInfo2BtnText}>수락</Text>
-              </TouchableOpacity>
-            </LinearGradient>
-            </>
-          ) : null}
-
-          {matchState == 1 ? (
-          <LinearGradient
-            colors={['#D1913C', '#FFD194', '#D1913C']}
-            start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
-            style={[styles.grediant]}
-          >
-            <TouchableOpacity
-              style={styles.detailInfo2Btn}
-              activeOpacity={opacityVal}
-              onPress={() => setNumbOpenPop(true)}
-            >
-              <Text style={styles.detailInfo2BtnText}>번호 오픈</Text>
-            </TouchableOpacity>
-          </LinearGradient>
-          ) : null}
-
-          {matchState == 2 ? (
-          <TouchableOpacity
-            style={[styles.detailInfo2Btn, styles.detailInfo2BtnGray]}
-            activeOpacity={opacityVal}
-            onPress={() => copyToClipboard(phoneNumber)}
-          >
-            <Text style={styles.detailInfo2BtnText, styles.detailInfo2BtnGrayText}>{phoneNumber}</Text>            
-            <ImgDomain fileWidth={10} fileName={'icon_copy.png'}/>
-          </TouchableOpacity>
-          ) : null}
-        </View>
-
-
-        {/* 소셜에서 게스트가 호스트 프로필로 들어왔을 때 */}
-        <View style={styles.detailInfo2}>
-          <View style={styles.detailInfo2TextBox}>
-            <Text style={styles.detailInfo2Text}>최종 참여를 신청 하시겠습니까?</Text>
-          </View>
-          <View style={[styles.pointBox, styles.mgt20]}> 
-            <ImgDomain fileWidth={24} fileName={'coin.png'}/>
-            <Text style={styles.pointBoxText}>500</Text>
-          </View>
-          <TouchableOpacity 
-            style={[styles.nextBtn, styles.mgt20]}
-            activeOpacity={opacityVal}
-            onPress={() => {
-              setSocialType(1);
-              setSocialPop(true);
-            }}
-          >
-            <Text style={styles.nextBtnText}>신청하기</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* 소셜에서 게스트가 호스트 프로필로 들어왔을 때 */}
-        <View style={styles.detailInfo2}>
-          <View style={styles.detailInfo2TextBox}>
-            <Text style={styles.detailInfo2Text}>최종 참여를 수락 하시겠습니까?</Text>
-          </View>
-          <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.popBtnBoxFlex2]}>
-            <TouchableOpacity 
-              style={[styles.popBtn, styles.popBtn3]}
-              activeOpacity={opacityVal}
-              onPress={() => {
-                setSocialType(1);
-                setSocialPop2(true);
-              }}
-            >
-              <Text style={[styles.popBtnText]}>수락</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.popBtn, styles.popBtn3, styles.popBtnOff]}
-              activeOpacity={opacityVal}
-              onPress={() => {}}
-            >
-              <Text style={[styles.popBtnText, styles.popBtnOffText]}>거절</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* 소셜에서 호스트가 게스트 프로필로 들어왔을 때 */}
-        <View style={styles.detailInfo2}>                    
-          <View style={styles.detailInfo2TextBox}>
-            <Text style={styles.detailInfo2Text}>최종 참여를 초대 하시겠습니까?</Text>
-          </View>
-          <View style={[styles.pointBox, styles.mgt20]}>
-            <ImgDomain fileWidth={24} fileName={'coin.png'}/>
-            <Text style={styles.pointBoxText}>500</Text>
-          </View>
-          <TouchableOpacity 
-            style={[styles.nextBtn, styles.mgt20]}
-            activeOpacity={opacityVal}
-            onPress={() => {
-              // setSocialType(2);
-              // setSocialPop(true);
-
-              setCashType(4);
-              setCashPop(true);
-            }}
-          >
-            <Text style={styles.nextBtnText}>초대하기</Text>
-          </TouchableOpacity>         
-        </View>
-
-        {/* 소셜에서 호스트가 게스트 프로필로 들어왔을 때 */}
-        <View style={styles.detailInfo2}>
-          <View style={styles.detailInfo2TextBox}>
-            <Text style={styles.detailInfo2Text}>최종 참여를 수락 하시겠습니까?</Text>
-          </View>
-          <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.popBtnBoxFlex2]}>
-            <TouchableOpacity 
-              style={[styles.popBtn, styles.popBtn3]}
-              activeOpacity={opacityVal}
-              onPress={() => {
-                setSocialType(2);
-                setSocialPop2(true);
-              }}
-            >
-              <Text style={[styles.popBtnText]}>수락</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.popBtn, styles.popBtn3, styles.popBtnOff]}
-              activeOpacity={opacityVal}
-              onPress={() => {}}
-            >
-              <Text style={[styles.popBtnText, styles.popBtnOffText]}>거절</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* 소셜 관련 */}
-        <View style={styles.detailInfo2}>
-          <View style={styles.detailInfo2TextBox}>
-            <Text style={styles.detailInfo2Text}>최종 참여를 초대 했어요</Text>
-            <Text style={styles.detailInfo2Text3}>응답을 기다려주세요!</Text>
-          </View>
-        </View>
-
-        {/* 소셜 관련 */}
-        <View style={styles.detailInfo2}>
-          <View style={styles.detailInfo2TextBox}>
-            <View style={styles.textFlex}>
-              <Text style={styles.detailInfo2Text}>소셜룸에 참여하지 못했어요</Text>
-              <ImgDomain fileWidth={20} fileName={'emiticon4.png'}/>
+                <Text style={styles.nextBtnText}>번호 교환 신청하기</Text>
+              </TouchableOpacity> 
             </View>
-            <Text style={styles.detailInfo2Text3}>다른 소셜룸을 만나보세요!</Text>
+            ) : null}
+
+            {/* 커뮤니티 - 번호 교환 수락(한 쪽이 신청한 상황) */}
+            {curr_state == 2 ? (
+            <View style={styles.detailInfo2}>
+              {curr_req_mb_idx == memberIdx ? (
+                <View style={styles.detailInfo2TextBox}>
+                  <Text style={styles.detailInfo2Text}>번호 교환을 신청했어요</Text>
+                  <Text style={styles.detailInfo2Text3}>응답을 기다려주세요!</Text>
+                </View>
+              ) : null}
+
+              {curr_rec_mb_idx == memberIdx ? (
+                <>
+                  <View style={styles.detailInfo2TextBox}>
+                    <Text style={styles.detailInfo2Text}>번호 교환을 수락하시겠습니까?</Text>
+                  </View>
+                  <View style={[styles.pointBox, styles.mgt20]}>            
+                    <ImgDomain fileWidth={24} fileName={'coin.png'}/>
+                    <Text style={styles.pointBoxText}>5</Text>
+                  </View>
+                  <TouchableOpacity 
+                    style={[styles.nextBtn, styles.mgt20]}
+                    activeOpacity={opacityVal}
+                    onPress={() => {
+                      if(memberPoint < 5){
+                        setCashType(1);
+                        setCashPop(true);
+                      }else{
+                        setNumberTradePop(true);
+                      }
+                    }}
+                  >
+                    <Text style={styles.nextBtnText}>수락</Text>
+                  </TouchableOpacity> 
+                </>
+              ) : null}
+              
+            </View>
+            ) : null}
+
+            {curr_state == 3 ? (
+              <View style={styles.detailInfo2}>
+                <TouchableOpacity
+                  style={[styles.detailInfo2Btn, styles.detailInfo2BtnGray]}
+                  activeOpacity={opacityVal}
+                  onPress={() => copyToClipboard(phoneNumber)}
+                >
+                  <Text style={styles.detailInfo2BtnText, styles.detailInfo2BtnGrayText}>{phoneNumber}</Text>            
+                  <ImgDomain fileWidth={10} fileName={'icon_copy.png'}/>
+                </TouchableOpacity>
+              </View>
+            ) : null}
           </View>
-        </View>
-        
-
-
-        {/* 커뮤니티 - 번호 교환 수락(한 쪽이 신청한 상황) */}
-        <View style={styles.detailInfo2}>
-          <View style={styles.detailInfo2TextBox}>
-            <Text style={styles.detailInfo2Text}>번호 교환을 수락 하시겠습니까?</Text>
-          </View>
-          <TouchableOpacity 
-            style={[styles.nextBtn, styles.mgt20]}
-            activeOpacity={opacityVal}
-            onPress={() => {
-              setNumberTradePop(true);
-            }}
-          >
-            <Text style={styles.nextBtnText}>수락</Text>
-          </TouchableOpacity> 
-        </View>
-
-        {/* 커뮤니티 - 번호 교환 수락(양쪽 모두 신청하지 않은 상황) */}
-        <View style={styles.detailInfo2}>
-          <View style={styles.detailInfo2TextBox}>
-            <Text style={styles.detailInfo2Text}>번호를 교환 하시겠습니까?</Text>
-          </View>
-          <View style={[styles.pointBox, styles.mgt20]}>            
-            <ImgDomain fileWidth={24} fileName={'coin.png'}/>
-            <Text style={styles.pointBoxText}>500</Text>
-          </View>
-          <TouchableOpacity 
-            style={[styles.nextBtn, styles.mgt20]}
-            activeOpacity={opacityVal}
-            onPress={() => {
-              //캐시 부족
-              //setCashType(1);
-              //setCashPop(true);
-
-              //교환 가능
-              setNumberTradePop2(true);
-            }}
-          >
-            <Text style={styles.nextBtnText}>번호 교환 신청하기</Text>
-          </TouchableOpacity> 
-        </View>
-
-
+        ) : null}
         
         <View style={styles.border}></View>
 
@@ -1005,50 +1592,80 @@ const MatchDetail = (props) => {
           <View style={styles.physicalBox1}>
             <View style={styles.physicalBox1Cont}>
               <Text style={styles.physicalBox1ContText1}>키</Text>
-              <Text style={styles.physicalBox1ContText2}>000 cm</Text>
+              {profileInfo?.info.member_height != 0 ? (
+                <Text style={styles.physicalBox1ContText2}>{profileInfo?.info.member_height} cm</Text>
+              ) : null}
             </View>
             <View style={styles.physicalBox1Cont}>
               <Text style={styles.physicalBox1ContText1}>몸무게</Text>
-              <Text style={styles.physicalBox1ContText2}>00 kg</Text>
+              {profileInfo?.info.member_weight != 0 ? (
+                <Text style={styles.physicalBox1ContText2}>{profileInfo?.info.member_weight} kg</Text>
+              ) : (
+                <Text style={styles.physicalBox1ContText2}>비공개</Text>
+              )}
+              
             </View>
             <View style={styles.physicalBox1Cont}>
               <Text style={styles.physicalBox1ContText1}>체지방률</Text>
-              <Text style={styles.physicalBox1ContText2}>00 %</Text>
+              {profileInfo?.info.member_fat != 0 ? (
+                <Text style={styles.physicalBox1ContText2}>{profileInfo?.info.member_fat} %</Text>
+              ) : (
+                <Text style={styles.physicalBox1ContText2}>비공개</Text>
+              )}
             </View>
             <View style={styles.physicalBox1Cont}>
               <Text style={styles.physicalBox1ContText1}>골격근량</Text>
-              <Text style={styles.physicalBox1ContText2}>00 kg</Text>
+              {profileInfo?.info.member_muscle != 0 ? (
+                <Text style={styles.physicalBox1ContText2}>{profileInfo?.info.member_muscle} kg</Text>
+              ) : (
+                <Text style={styles.physicalBox1ContText2}>비공개</Text>
+              )}
             </View>
           </View>
 
           <View style={styles.physicalBox2}>
-            <View style={styles.physicalBox2Tab}>
-              <Text style={styles.physicalBox2TabText}>소두</Text>
-            </View>
-            <View style={styles.physicalBox2Tab}>
-              <Text style={styles.physicalBox2TabText}>비율이 좋은</Text>
-            </View>
-            <View style={styles.physicalBox2Tab}>
-              <Text style={styles.physicalBox2TabText}>팔다리가 긴</Text>
-            </View>
+            {profilePhysical.map((item, index) => {
+              return (
+                <View key={index} style={styles.physicalBox2Tab}>
+                  <Text style={styles.physicalBox2TabText}>{item}</Text>
+                </View>
+              )
+            })}
           </View>
 
+          
           <View style={styles.cmInfoBox}>
             <ImgDomain fileWidth={32} fileName={'icon_cont_muscle.png'}/>
             <View style={styles.cmInfoBoxCont}>
               <View style={styles.cmInfoBoxContTit}>
                 <Text style={styles.cmInfoBoxContTitText}>운동</Text>
               </View>
-              <View style={styles.cmInfoBoxContUl}>
-                <View style={styles.cmInfoBoxContLi}>
-                  <Text style={styles.cmInfoBoxContWrapText}>매주 N일 <Text style={styles.bold}>헬스</Text>을(를) 해요</Text>
+              {profileInfo?.exercise.length > 0 ? (
+                <View style={styles.cmInfoBoxContUl}>
+                  {profileInfo?.exercise.map((item, index) => {
+                    let cycleString = '';
+                    if(item.me_cycle == 0){
+                      cycleString = '주';
+                    }else{
+                      cycleString = '월';
+                    }
+                    return (
+                      <View key={index} style={styles.cmInfoBoxContLi}>
+                        <Text style={styles.cmInfoBoxContWrapText}>매{cycleString} {item.me_count}일 <Text style={styles.bold}>{item.me_name}</Text>을(를) 해요</Text>
+                      </View>
+                    )
+                  })}
                 </View>
-                <View style={styles.cmInfoBoxContLi}>
-                  <Text style={styles.cmInfoBoxContWrapText}>매주 N일 <Text style={styles.bold}>클라이밍</Text>을(를) 해요</Text>
+              ) : (
+                <View style={styles.cmInfoBoxContUl}>
+                  <View style={styles.cmInfoBoxContLi}>
+                    <Text style={styles.cmInfoBoxContWrapText}>쉬고 있어요</Text>
+                  </View>
                 </View>
-              </View>
+              )}
             </View>
           </View>
+          
         </View>
 
         <View style={styles.border}></View>
@@ -1067,12 +1684,14 @@ const MatchDetail = (props) => {
               <View style={styles.cmInfoBoxContUl}>
                 <View style={[styles.cmInfoBoxContLi]}>
                   <Text style={styles.cmInfoBoxContWrapText}>주 활동 지역 :</Text>
-                  <Text style={[styles.cmInfoBoxContWrapText2, styles.bold]}>인천 연수구</Text>
+                  <Text style={[styles.cmInfoBoxContWrapText2, styles.bold]}>{profileInfo?.info.member_main_local}</Text>
                 </View>
+                {profileInfo?.info.member_sub_local ? (
                 <View style={[styles.cmInfoBoxContLi]}>
                   <Text style={styles.cmInfoBoxContWrapText}>부 활동 지역 :</Text>
-                  <Text style={[styles.cmInfoBoxContWrapText2, styles.bold]}>인천 남동구</Text>
+                  <Text style={[styles.cmInfoBoxContWrapText2, styles.bold]}>{profileInfo?.info.member_sub_local}</Text>
                 </View>
+                ) : null}
               </View>
             </View>
           </View>
@@ -1081,15 +1700,17 @@ const MatchDetail = (props) => {
             <ImgDomain fileWidth={32} fileName={'icon_cont_job.png'}/>
             <View style={styles.cmInfoBoxCont}>
               <View style={styles.cmInfoBoxContTit}>
-                <Text style={styles.cmInfoBoxContTitText}>직업</Text>                
+                <Text style={styles.cmInfoBoxContTitText}>직업</Text>       
+                {profileJob ? (
                 <View style={styles.certIcon}>
                   <ImgDomain fileWidth={12} fileName={'icon_cert.png'} />
                 </View>
+                ) : null}
               </View>              
               <View style={styles.cmInfoBoxContUl}>
                 <View style={[styles.cmInfoBoxContLi]}>
-                  <Text style={[styles.cmInfoBoxContWrapText, styles.bold]}>직업최대열자입력가능</Text>
-                  <Text style={[styles.cmInfoBoxContWrapText2]}>직업상세최대열자입력</Text>
+                  <Text style={[styles.cmInfoBoxContWrapText, styles.bold]}>{profileInfo?.info.member_job}</Text>
+                  <Text style={[styles.cmInfoBoxContWrapText2]}>{profileInfo?.info.member_job_detail}</Text>
                 </View>
               </View>
             </View>
@@ -1100,14 +1721,18 @@ const MatchDetail = (props) => {
             <View style={styles.cmInfoBoxCont}>
               <View style={styles.cmInfoBoxContTit}>
                 <Text style={styles.cmInfoBoxContTitText}>학력</Text>
+                {profileSchool ? (
                 <View style={styles.certIcon}>
                   <ImgDomain fileWidth={12} fileName={'icon_cert.png'} />
                 </View>
+                ) : null}
               </View>              
               <View style={styles.cmInfoBoxContUl}>
                 <View style={[styles.cmInfoBoxContLi]}>
-                  <Text style={[styles.cmInfoBoxContWrapText, styles.bold]}>ㅇㅇ대학교 졸업</Text>
-                  <Text style={[styles.cmInfoBoxContWrapText2]}>ㅇㅇㅇㅇㅇ 전공</Text>
+                  <Text style={[styles.cmInfoBoxContWrapText, styles.bold]}>{profileSchool?.mpa_info1}{profileInfo?.info.member_education} {profileInfo?.info.member_education_status}</Text>
+                  {profileSchool?.mpa_info2 != '' ? (
+                  <Text style={[styles.cmInfoBoxContWrapText2]}>{profileSchool?.mpa_info2} 전공</Text>
+                  ) : null}
                 </View>
               </View>              
             </View>
@@ -1116,16 +1741,24 @@ const MatchDetail = (props) => {
           <TouchableOpacity
             style={styles.valuesBtn}
             activeOpacity={opacityVal}
-            onPress={() => {
-              //상세 프로필 오픈 컨펌
-              //setValuesConfirm(true);
-
-              //나의 연애관 입력 유도 팝업
-              //setValuesDisable(true);
-
-              //포인트 구매
-              setCashType(3);
-              setCashPop(true);
+            onPress={() => {                     
+              if(profileInfo?.info.member_idx == memberIdx && profileInfo?.info.is_my_love == 'y'){
+                setValuesPop(true);
+              }else if(profileInfo?.info.is_my_love == 'n'){
+                //나의 연애관 입력 유도 팝업
+                setValuesDisable(true);
+              }else if(profileInfo?.info.is_user_love == 'n'){
+                ToastMessage(`${profileInfo?.info.member_nick}님이 아직 등록하지 않았어요`);
+              }else{
+                //상세 프로필 오픈 컨펌
+                if(memberPoint < 5){
+                  setCashType(3);
+                  setCashPop(true);
+                  setSotongPop(false);
+                }else{
+                  setValuesConfirm(true);
+                }
+              }
             }}
           >
             <Text style={styles.valuesBtnText}>연애 및 결혼관</Text>            
@@ -1140,8 +1773,8 @@ const MatchDetail = (props) => {
                   <Text style={styles.cmInfoBoxContTitText}>MBTI</Text>
                 </View>              
                 <View style={styles.cmInfoBoxContUl}>
-                  <View style={[styles.cmInfoBoxContLi]}>
-                    <Text style={[styles.cmInfoBoxContWrapText]}>E(I)ST(F)J</Text>
+                  <View style={[styles.cmInfoBoxContLi, styles.cmInfoBoxHalf]}>
+                    <Text style={[styles.cmInfoBoxContWrapText]}>{profileMbti}</Text>
                   </View>
                 </View>              
               </View>
@@ -1154,8 +1787,8 @@ const MatchDetail = (props) => {
                   <Text style={styles.cmInfoBoxContTitText}>종교</Text>
                 </View>              
                 <View style={styles.cmInfoBoxContUl}>
-                  <View style={[styles.cmInfoBoxContLi]}>
-                    <Text style={[styles.cmInfoBoxContWrapText]}>무교</Text>
+                  <View style={[styles.cmInfoBoxContLi, styles.cmInfoBoxHalf]}>
+                    <Text style={[styles.cmInfoBoxContWrapText]}>{profileRel}</Text>
                   </View>
                 </View>              
               </View>
@@ -1168,8 +1801,8 @@ const MatchDetail = (props) => {
                   <Text style={styles.cmInfoBoxContTitText}>음주</Text>
                 </View>              
                 <View style={styles.cmInfoBoxContUl}>
-                  <View style={[styles.cmInfoBoxContLi]}>
-                    <Text style={[styles.cmInfoBoxContWrapText]}>어쩔 수 없을 때만</Text>
+                  <View style={[styles.cmInfoBoxContLi, styles.cmInfoBoxHalf]}>
+                    <Text style={[styles.cmInfoBoxContWrapText]}>{profileDrink}</Text>
                   </View>
                 </View>              
               </View>
@@ -1182,143 +1815,107 @@ const MatchDetail = (props) => {
                   <Text style={styles.cmInfoBoxContTitText}>흡연</Text>
                 </View>              
                 <View style={styles.cmInfoBoxContUl}>
-                  <View style={[styles.cmInfoBoxContLi]}>
-                    <Text style={[styles.cmInfoBoxContWrapText]}>액상형 전자담배</Text>
+                  <View style={[styles.cmInfoBoxContLi, styles.cmInfoBoxHalf]}>
+                    <Text style={[styles.cmInfoBoxContWrapText]}>{profileSmoke} {profileSmokeType}</Text>
                   </View>
                 </View>              
               </View>
             </View>
 
+            {profileMarry ? (
             <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
               <ImgDomain fileWidth={32} fileName={'icon_cont_marry.png'} />
               <View style={styles.cmInfoBoxCont}>
                 <View style={styles.cmInfoBoxContTit}>
                   <Text style={styles.cmInfoBoxContTitText}>혼인</Text>
+                  
                   <View style={styles.certIcon}>
                     <ImgDomain fileWidth={12} fileName={'icon_cert.png'} />
                   </View>
+                  
                 </View>              
                 <View style={styles.cmInfoBoxContUl}>
-                  <View style={[styles.cmInfoBoxContLi]}>
-                    <Text style={[styles.cmInfoBoxContWrapText]}>미혼</Text>
+                  <View style={[styles.cmInfoBoxContLi, styles.cmInfoBoxHalf]}>
+                    <Text style={[styles.cmInfoBoxContWrapText]}>{profileMarry?.mpa_info1}</Text>
                   </View>
                 </View>              
               </View>
             </View>
+            ) : null}
           </View>
 
           <View style={styles.myIntroCont}>
-            <Text style={styles.myIntroContText}>
-              밝고 긍정적인 성격이며 새로운 것에 대한 도전을 즐기는 성향을 가지고 있습니다. 자기관리를 게을리 하지 않으나 완벽주의는 아닙니다. 서로 존중하며, 상호 간 부족한 면이 있다면 충족시켜 줄 수 있는 진지한 만남을 희망합니다.
-            </Text>
+            <Text style={styles.myIntroContText}>{profileInfo?.info.member_intro}</Text>
           </View>
         </View>
 
-        <View style={styles.border}></View>
+        {profileInterview.length > 0 ? (
+          <>
+            <View style={styles.border}></View>
+            <View style={[styles.detailInfoCm]}>
+              {profileInterview.map((item, index) => {
+                return (
+                  <View key={index} style={[styles.detailQnaBox, index == 0 ? styles.mgt0 : styles.mgt30]}>
+                    <View style={[styles.cmInfoBox, styles.mgt0]}>
+                      <ImgDomain fileWidth={32} fileName={'icon_cont_qna.png'} />
+                      <View style={styles.cmInfoBoxCont}>
+                        <View style={styles.cmInfoBoxContTit}>
+                          <Text style={styles.cmInfoBoxContTitText}>{item.mi_subject}</Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View style={[styles.myIntroCont, styles.mgt10]}>
+                      <Text style={styles.myIntroContText}>{item.mi_content}</Text>
+                    </View>
+                  </View>
+                )
+              })}            
+            </View>
+          </>
+        ) : null}
 
-        <View style={[styles.detailInfoCm]}>
-          <View style={[styles.detailQnaBox, styles.mgt0]}>
-            <View style={[styles.cmInfoBox, styles.mgt0]}>
-              <ImgDomain fileWidth={32} fileName={'icon_cont_qna.png'} />
-              <View style={styles.cmInfoBoxCont}>
-                <View style={styles.cmInfoBoxContTit}>
-                  <Text style={styles.cmInfoBoxContTitText}>질문 내용</Text>
+        {profileHobby.length > 0 ? (
+          <>
+          <View style={styles.border}></View>
+
+          <View style={[styles.detailInfoCm, styles.detailInfoCm2]}>
+            <View style={styles.cmTitle}>
+              <Text style={styles.cmTitleText}>Interest</Text>
+            </View>
+            {profileHobby.map((item, index) => {
+              const hobbySplt = item.hk_names.split('|');
+              return (
+                <View key={index} style={[styles.detailInterestBox, index == 0 ? styles.mgt0 : styles.mgt20]}>
+                  <View style={[styles.cmInfoBoxContTit, styles.mgb10]}>
+                    <Text style={styles.cmInfoBoxContTitText}>{item.hc_name}</Text>
+                  </View>
+                  <ScrollView
+                    horizontal={true}
+                    showsHorizontalScrollIndicator = {false}
+                    onMomentumScrollEnd ={() => {}}
+                  >
+                    {hobbySplt.map((item2, index2) => {
+                      return (
+                        <View key={index2} style={[styles.interestKeyword, index2 == 0 ? styles.mgl0 : null]}>
+                        <Text style={styles.interestKeywordText}>#{item2}</Text>
+                      </View>
+                      )
+                    })}
+                  </ScrollView>
                 </View>
-              </View>
-            </View>
-            <View style={[styles.myIntroCont, styles.mgt10]}>
-              <Text style={styles.myIntroContText}>답변 내용이 노출됩니다.</Text>
-            </View>
+              )
+            })}
           </View>
-          <View style={[styles.detailQnaBox, styles.mgt30]}>
-            <View style={[styles.cmInfoBox, styles.mgt0]}>
-              <ImgDomain fileWidth={32} fileName={'icon_cont_qna.png'} />
-              <View style={styles.cmInfoBoxCont}>
-                <View style={styles.cmInfoBoxContTit}>
-                  <Text style={styles.cmInfoBoxContTitText}>질문 내용</Text>
-                </View>
-              </View>
-            </View>
-            <View style={[styles.myIntroCont, styles.mgt10]}>
-              <Text style={styles.myIntroContText}>답변 내용이 노출됩니다.</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.border}></View>
-
-        <View style={[styles.detailInfoCm, styles.detailInfoCm2]}>
-          <View style={styles.cmTitle}>
-            <Text style={styles.cmTitleText}>Interest</Text>
-          </View>
-          <View style={[styles.detailInterestBox, styles.mgt0]}>
-            <View style={[styles.cmInfoBoxContTit, styles.mgb10]}>
-              <Text style={styles.cmInfoBoxContTitText}>운동</Text>
-            </View>
-            <ScrollView
-              horizontal={true}
-							showsHorizontalScrollIndicator = {false}
-							onMomentumScrollEnd ={() => {}}
-            >
-              <View style={[styles.interestKeyword, styles.mgl0]}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-              <View style={styles.interestKeyword}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-              <View style={styles.interestKeyword}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-              <View style={styles.interestKeyword}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-              <View style={styles.interestKeyword}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-              <View style={styles.interestKeyword}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-            </ScrollView>
-          </View>
-
-          <View style={[styles.detailInterestBox, styles.mgt20]}>
-            <View style={[styles.cmInfoBoxContTit, styles.mgb10]}>
-              <Text style={styles.cmInfoBoxContTitText}>여행</Text>
-            </View>
-            <ScrollView
-              horizontal={true}
-							showsHorizontalScrollIndicator = {false}
-							onMomentumScrollEnd ={() => {}}
-            >
-              <View style={[styles.interestKeyword, styles.mgl0]}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-              <View style={styles.interestKeyword}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-              <View style={styles.interestKeyword}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-              <View style={styles.interestKeyword}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-              <View style={styles.interestKeyword}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-              <View style={styles.interestKeyword}>
-                <Text style={styles.interestKeywordText}>#관심사_키워드</Text>
-              </View>
-            </ScrollView>
-          </View>
-        </View>
+          </>
+        ) : null}
          
         {/* 매칭된 사람에게 또는 평가를 한 사람에게 별점 숨김 처리 */}
-        {reviewState ? (
+        {reviewState && profileInfo?.info.member_idx != memberIdx ? (
           <>
           <View style={styles.border}></View>
           <View style={[styles.detailInfoCm, styles.detailInfoCm3]}>
             <View style={styles.reviewTitle}>
-              <Text style={styles.reviewTitleText}>ㅇㅇ님은 어떠셨어요?</Text>
+              <Text style={styles.reviewTitleText}>{profileInfo?.info.member_nick}님은 어떠셨어요?</Text>
             </View>
             <View style={styles.starArea}>
               <TouchableOpacity
@@ -1386,6 +1983,7 @@ const MatchDetail = (props) => {
         ) : null}
       </ScrollView>
 
+      {profileInfo?.like_yn == 'y' && profileInfo?.info.member_idx != memberIdx ? (
       <TouchableOpacity
         style={[styles.likeBtn, styles.boxShadow, styles.boxShadow2]}
         activeOpacity={opacityVal}
@@ -1396,6 +1994,7 @@ const MatchDetail = (props) => {
       >
         <ImgDomain fileWidth={60} fileName={'icon_like.png'} />
       </TouchableOpacity>
+      ) : null}
 
       {/* 신고 버튼 팝업 */}
 			<Modal
@@ -1467,10 +2066,10 @@ const MatchDetail = (props) => {
                       key={index}
                       style={[styles.reportRadioBtn, index == 0 ? styles.mgt0 : null]}
                       activeOpacity={opacityVal}
-                      onPress={() => setReport(item.rr_idx)}
+                      onPress={() => setReport(item.rr_content)}
                     >
                       <Text style={styles.reportRadioBtnText}>{item.rr_content}</Text>
-                      {report == item.rr_idx ? (                        
+                      {report == item.rr_content ? (                        
                         <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'}/>
                       ) : (
                         <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'}/>
@@ -1479,7 +2078,7 @@ const MatchDetail = (props) => {
                   )
                 })}                  
               </View>
-              {report == 6 ? (
+              {report == '기타' ? (
               <View style={[styles.popIptBox]}>		
                 <TextInput
                   value={reportEtc}
@@ -1517,19 +2116,19 @@ const MatchDetail = (props) => {
 				visible={reviewPop}
 				transparent={true}
 				animationType={"none"}
-				onRequestClose={() => setReviewPop(false)}
+				onRequestClose={() => scoreOff()}
 			>
 				<View style={styles.cmPop}>
 					<TouchableOpacity 
 						style={styles.popBack} 
 						activeOpacity={1} 
-						onPress={()=>{setReviewPop(false)}}
+						onPress={()=>scoreOff()}
 					>
 					</TouchableOpacity>
 					<View style={styles.prvPop}>
 						<TouchableOpacity
 							style={styles.pop_x}					
-							onPress={() => {setReviewPop(false)}}
+							onPress={() => scoreOff()}
 						>
               <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
@@ -1567,52 +2166,61 @@ const MatchDetail = (props) => {
               <ImgDomain fileWidth={20} fileName={'icon_message.png'} />
             </View>
             <ScrollView>
+              {profileInfo?.feel_yn == 'y' ? (
               <TouchableOpacity
                 style={[styles.sotongBtn]}
                 activeOpacity={opacityVal}
                 onPress={()=>{
-                  sotongSend('호감을', 100, 'feel');
-                  setSendPop(true);
+                  if(memberPoint < 1){
+                    setCashType(1);
+                    setCashPop(true);
+                    setSotongPop(false);
+                  }else{
+                    sotongSend('호감을', 1, 'feel');
+                    setSendPop(true);
+                  }                  
                 }}
               >
                 <Text style={styles.sotongBtnText}>호감</Text>
                 <ImgDomain fileWidth={24} fileName={'coin.png'} />
-                <Text style={styles.sotongBtnText2}>100</Text>
+                <Text style={styles.sotongBtnText2}>1</Text>
               </TouchableOpacity>
+              ) : null}
               <TouchableOpacity
                 style={styles.sotongBtn}
                 activeOpacity={opacityVal}
                 onPress={()=>{
-                  sotongSend('좋아요를', 200, 'like');
-                  setSendPop(true);
+                  if(memberPoint < 10){
+                    setCashType(1);
+                    setCashPop(true);
+                    setSotongPop(false);
+                  }else{
+                    sotongSend('좋아요를', 10, 'like');
+                    setSendPop(true);
+                  }                   
                 }}
               >
                 <Text style={styles.sotongBtnText}>좋아요</Text>
                 <ImgDomain fileWidth={24} fileName={'coin.png'} />
-                <Text style={styles.sotongBtnText2}>200</Text>
+                <Text style={styles.sotongBtnText2}>10</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.sotongBtn}
                 activeOpacity={opacityVal}
-                onPress={()=>{
-                  setPreLikePop(true);
-                  setSotongPop(false);
+                onPress={()=>{                  
+                  if(memberPoint < 15){
+                    setCashType(1);
+                    setCashPop(true);
+                    setSotongPop(false);
+                  }else{
+                    setPreLikePop(true);
+                    setSotongPop(false);
+                  }
                 }}
               >
                 <Text style={styles.sotongBtnText}>프리미엄</Text>
                 <ImgDomain fileWidth={24} fileName={'coin.png'} />
-                <Text style={styles.sotongBtnText2}>500</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.sotongBtn}
-                activeOpacity={opacityVal}
-                onPress={() => {
-                  setCashType(1);
-                  setCashPop(true);
-                  setSotongPop(false);
-                }}
-              >
-                <Text style={styles.popBtnOffText}>캐시 구매 팝업 확인 목적 임시버튼</Text>
+                <Text style={styles.sotongBtnText2}>15</Text>
               </TouchableOpacity>
             </ScrollView>
             <View style={[styles.popBtnBox, styles.mgt20]}>         
@@ -1764,7 +2372,7 @@ const MatchDetail = (props) => {
           <View style={[styles.popTitle, styles.pdl20, styles.pdr20]}>
             {cashType == 1 ? (
             <>
-						<Text style={[styles.popBotTitleText, styles.popBotTitleTextLine]}>개팅님을 놓치지 마세요!</Text>							
+						<Text style={[styles.popBotTitleText, styles.popBotTitleTextLine]}>{profileInfo.info.member_nick}님을 놓치지 마세요!</Text>							
 						<Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 즉시 마음을 보내보세요</Text>
             </>
             ) : null}
@@ -1788,6 +2396,20 @@ const MatchDetail = (props) => {
 						<Text style={[styles.popBotTitleText, styles.popBotTitleTextLine]}>즐거운 만남에 초대하세요!</Text>							
 						<Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 즉시 초대할 수 있어요</Text>
             </>
+            ) : null}
+
+            {cashType == 5 ? (
+              <>
+              <Text style={[styles.popBotTitleText, styles.popBotTitleTextLine]}>즐거운 만남에 신청하세요!</Text>							
+              <Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 즉시 신청할 수 있어요</Text>
+              </>
+            ) : null}
+
+            {cashType == 6 ? (
+              <>
+              <Text style={[styles.popBotTitleText, styles.popBotTitleTextLine]}>즐거운 만남에 수락하세요!</Text>							
+              <Text style={[styles.popBotTitleDesc]}>프로틴을 구매해 즉시 수락할 수 있어요</Text>
+              </>
             ) : null}
 					</View>					
 					<View style={styles.productList}>
@@ -1952,7 +2574,7 @@ const MatchDetail = (props) => {
 						</View>
 						<View style={styles.pointBox}>
               <ImgDomain fileWidth={24} fileName={'coin.png'} />
-							<Text style={styles.pointBoxText}>000</Text>
+							<Text style={styles.pointBoxText}>30</Text>
 						</View>						
 						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
 						  <TouchableOpacity 
@@ -1965,12 +2587,7 @@ const MatchDetail = (props) => {
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
-								onPress={() => {
-                  setCashType(2);
-                  setCashPop(true);
-									// setMatchState(2);
-                  setNumbOpenPop(false);
-								}}
+								onPress={() => openPhonenumber()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>
@@ -2006,16 +2623,13 @@ const MatchDetail = (props) => {
 						</View>
 						<View style={styles.pointBox}>
               <ImgDomain fileWidth={24} fileName={'coin.png'} />
-							<Text style={styles.pointBoxText}>000</Text>
+							<Text style={styles.pointBoxText}>5</Text>
 						</View>						
 						<View style={[styles.popBtnBox]}>
               <TouchableOpacity 
                 style={[styles.popBtn]}
                 activeOpacity={opacityVal}
-                onPress={() => {
-                  setValuesConfirm(false);
-                  setValuesPop(true);
-                }}
+                onPress={() => openSubProfile()}
               >
                 <Text style={styles.popBtnText}>상세 프로필 확인하기</Text>
               </TouchableOpacity>
@@ -2111,76 +2725,47 @@ const MatchDetail = (props) => {
               <Text style={styles.cmWrapDescText}>나의 연애 및 결혼관이 입력되어야</Text>
               <Text style={styles.cmWrapDescText}>상대방의 연애 및 결혼관을 열 수 있어요.</Text>
             </View>
-            <View style={styles.mgt40}>
-              <View>
-                <View style={styles.valueTitle}>
-                  <Text style={styles.valueTitleText}>첫만남</Text>
+            {profileDateQna.map((item, index) => {
+              return (
+                <View key={index} style={[index == 0 ? styles.mgt40 : styles.mgt50]}>
+                  <View>
+                    <View style={styles.valueTitle}>
+                      <Text style={styles.valueTitleText}>{item.title}</Text>
+                    </View>
+                    {item.data.map((item2, index2) => {
+                      return (
+                        <View key={index2} style={[index2 != 0 ? styles.mgt30 : null]}>
+                          <View style={styles.valueQuestion}>
+                          {item2.question.is_multi == 'y' ? (
+                            <Text style={styles.valueQuestionText}>													
+                              <Text style={styles.roboto}>Q{index2+1}.</Text> {item2.question.lq_content} (다중선택)
+                            </Text>
+                            ) : (
+                              <Text style={styles.valueQuestionText}>
+                                <Text style={styles.roboto}>Q{index2+1}.</Text> {item2.question.lq_content}																											
+                              </Text>
+                            )}
+                          </View>   
+                          <View style={styles.valueAnswer}>
+                            {item2.answer.map((item3, index3) => {
+                              return (
+                                <TouchableOpacity
+                                  key={index3}
+                                  style={[styles.valueAnswerBtn, styles.boxShadow3, index3 == 0 ? styles.mgt0 : null, item3.is_chk == 'y' ? styles.boxShadow4 : null]}
+                                  activeOpacity={1}
+                                >
+                                  <Text style={[styles.valueAnswerBtnText, item3.is_chk == 'y' ? styles.valueAnswerBtnTextOn : null]}>{item3.la_content}</Text>
+                                </TouchableOpacity>
+                              )
+                            })}													
+                          </View>  
+                        </View>
+                      )
+                    })}								              									              
+                  </View>
                 </View>
-                <View style={styles.valueQuestion}>
-                  <Text style={styles.valueQuestionText}><Text style={styles.roboto}>Q1.</Text> 질문 내용입니다.</Text>
-                </View>                
-                <View style={styles.valueAnswer}>
-                  <TouchableOpacity
-                    style={[styles.valueAnswerBtn, styles.boxShadow3, styles.boxShadow4, styles.mgt0]}
-                    activeOpacity={1}
-                  >
-                    <Text style={[styles.valueAnswerBtnText, styles.valueAnswerBtnTextOn]}>선택지1</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.valueAnswerBtn, styles.boxShadow3]}
-                    activeOpacity={1}
-                  >
-                    <Text style={styles.valueAnswerBtnText}>선택지2</Text>
-                  </TouchableOpacity>
-                </View>                
-              </View>
-            </View>
-            <View style={styles.mgt50}>
-              <View>
-                <View style={styles.valueTitle}>
-                  <Text style={styles.valueTitleText}>연애관</Text>
-                </View>
-                <View style={styles.valueQuestion}>
-                  <Text style={styles.valueQuestionText}><Text style={styles.roboto}>Q2.</Text> 질문 내용입니다.</Text>
-                </View>
-                <View style={styles.valueQuestionDesc}>
-                  <Text style={styles.valueQuestionDescText}>해당되는 답변을 모두 선택해 주세요</Text>
-                </View>                
-                <View style={styles.valueAnswer}>
-                  <TouchableOpacity
-                    style={[styles.valueAnswerBtn, styles.boxShadow3, styles.mgt0]}
-                    activeOpacity={1}
-                  >
-                    <Text style={styles.valueAnswerBtnText}>선택지1</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.valueAnswerBtn, styles.boxShadow3]}
-                    activeOpacity={1}
-                  >
-                    <Text style={styles.valueAnswerBtnText}>선택지2</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View style={styles.mgt30}>
-                <View style={styles.valueQuestion}>
-                  <Text style={styles.valueQuestionText}><Text style={styles.roboto}>Q3.</Text> 질문 내용입니다.</Text>
-                </View>
-                <View style={styles.valueAnswer}>
-                  <TouchableOpacity
-                    style={[styles.valueAnswerBtn, styles.boxShadow3, styles.mgt0]}
-                    activeOpacity={1}
-                  >
-                    <Text style={styles.valueAnswerBtnText}>선택지1</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.valueAnswerBtn, styles.boxShadow3]}
-                    activeOpacity={1}
-                  >
-                    <Text style={styles.valueAnswerBtnText}>선택지2</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
+              )
+            })}            
 					</View>
 				</ScrollView>
 			</Modal>
@@ -2216,23 +2801,21 @@ const MatchDetail = (props) => {
             
             <View style={[styles.pointBox, styles.mgt20]}>
               <ImgDomain fileWidth={24} fileName={'coin.png'} />
-							<Text style={styles.pointBoxText}>500</Text>
+							<Text style={styles.pointBoxText}>20</Text>
 						</View>
 
             <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
 						  <TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
 								activeOpacity={opacityVal}
-								onPress={() => {
-                  setSocialPop(false);
-                }}
+								onPress={() => setSocialPop(false)}
 							>
 								<Text style={[styles.popBtnText, styles.popBtnOffText]}>아니오</Text>
 							</TouchableOpacity>
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
-								onPress={() => setSocialPop(false)}
+								onPress={() => lastJoinSocial()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>
@@ -2270,7 +2853,12 @@ const MatchDetail = (props) => {
               )}
 						</View>
 
-            <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.mgt50]}>
+            <View style={[styles.pointBox, styles.mgt20]}>
+              <ImgDomain fileWidth={24} fileName={'coin.png'} />
+							<Text style={styles.pointBoxText}>5</Text>
+						</View>
+
+            <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
 						  <TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
 								activeOpacity={opacityVal}
@@ -2283,7 +2871,7 @@ const MatchDetail = (props) => {
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
-								onPress={() => setSocialPop2(false)}
+								onPress={() => lastPermitSocial()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>
@@ -2314,10 +2902,13 @@ const MatchDetail = (props) => {
               <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
 						<View>
-            <Text style={styles.popTitleText}>번호 교환을 수락하시겠어요?</Text>
+              <Text style={styles.popTitleText}>번호 교환을 수락하시겠어요?</Text>
 						</View>
-
-            <View style={[styles.popBtnBox, styles.popBtnBoxFlex, styles.mgt50]}>
+            <View style={[styles.pointBox, styles.mgt20]}>
+              <ImgDomain fileWidth={24} fileName={'coin.png'} />
+              <Text style={styles.pointBoxText}>5</Text>
+            </View>
+            <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
 						  <TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
 								activeOpacity={opacityVal}
@@ -2330,7 +2921,7 @@ const MatchDetail = (props) => {
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
-								onPress={() => setNumberTradePop(false)}
+								onPress={() => permitTradeProfile()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>
@@ -2365,7 +2956,7 @@ const MatchDetail = (props) => {
 						</View>
             <View style={[styles.pointBox, styles.mgt20]}>
               <ImgDomain fileWidth={24} fileName={'coin.png'} />
-              <Text style={styles.pointBoxText}>500</Text>
+              <Text style={styles.pointBoxText}>20</Text>
             </View>
             <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
 						  <TouchableOpacity 
@@ -2380,7 +2971,7 @@ const MatchDetail = (props) => {
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
-								onPress={() => setNumberTradePop2(false)}
+								onPress={() => changeTradeProfile()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
 							</TouchableOpacity>
@@ -2428,7 +3019,7 @@ const styles = StyleSheet.create({
   detailInfo1Badge: {marginTop:10,marginHorizontal:10,},
   zzimBtn: {alignItems:'center',justifyContent:'center',width:38,height:38,position:'absolute',top:14,right:10,},
 
-  detailInfo2: {paddingHorizontal:20,paddingBottom:30,alignItems:'center'},
+  detailInfo2: {paddingHorizontal:20,paddingBottom:30,alignItems:'center',},
   detailInfo2TextBox: {},
   detailInfo2Text: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:20,lineHeight:26,color:'#1e1e1e'},
   detailInfo2Text2Box: {flexDirection:'row',alignItems:'center',paddingHorizontal:7,paddingTop:6,paddingBottom:3,backgroundColor:'#F9FAFB',borderRadius:50,marginTop:10,},
@@ -2453,10 +3044,11 @@ const styles = StyleSheet.create({
   certIcon: {marginLeft:4,},
   cmInfoBoxContUl: {marginTop:2,},
   cmInfoBoxContLi: {flexDirection:'row',marginTop:8,},
+  cmInfoBoxHalf: {width:(innerWidth/2)-52,},
   cmInfoBoxContWrapText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#1E1E1E'},
   cmInfoBoxContWrapText2: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#1E1E1E',marginLeft:8},
 
-  physicalBox1: {flexDirection:'row',justifyContent:'space-between'},
+  physicalBox1: {flexDirection:'row',justifyContent:'space-between',},
   physicalBox1Cont: {width:(innerWidth/4)-7.5,alignItems:'center',padding:8,backgroundColor:'#F9FAFB',borderRadius:5,},
   physicalBox1ContText1: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:15,color:'#1E1E1E'},
   physicalBox1ContText2: {fontFamily:Font.RobotoMedium,fontSize:13,lineHeight:15,color:'#1E1E1E',marginTop:6},
@@ -2465,7 +3057,7 @@ const styles = StyleSheet.create({
   physicalBox2TabText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:18,color:'#1e1e1e'},
 
   valuesBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',height:52,backgroundColor:'#243B55',borderRadius:5,marginTop:40,},
-  valuesBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff',marginRight:6,},
+  valuesBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff',marginRight:6,},
 
   myIntroCont: {backgroundColor:'#F9FAFB',paddingVertical:10,paddingHorizontal:15,borderRadius:5,marginTop:30,},
   myIntroContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:26,color:'#1e1e1e'},
@@ -2499,7 +3091,7 @@ const styles = StyleSheet.create({
 
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
 	input2: {width: innerWidth},
-  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,},
+  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e'},
 
   modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},
@@ -2527,14 +3119,14 @@ const styles = StyleSheet.create({
   popBtn3: {width:(innerWidth/2)-5,},
 	popBtnOff: {backgroundColor:'#EDEDED',},
 	popBtnOff2: {backgroundColor:'#fff',marginTop:10,},
-	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},
+	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},
 	popBtnOffText: {color:'#1e1e1e'},
 
   prvPopBot: {width:widnowWidth,maxHeight:innerHeight,paddingTop:40,paddingBottom:10,paddingHorizontal:20,backgroundColor:'#fff',borderTopLeftRadius:20,borderTopRightRadius:20,position:'absolute',bottom:0,},
 	prvPopBot2: {width:widnowWidth,position:'absolute',bottom:0,},
   prvPopBot3: {paddingHorizontal:0,},
-	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,lineHeight:24,color:'#1e1e1e',},
-  popBotTitleTextLine: {lineHeight:22,},
+	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,lineHeight:25,color:'#1e1e1e',},
+  popBotTitleTextLine: {},
 	popBotTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#666',marginTop:10,},
 
   dotPop: {width:100,backgroundColor:'#fff',borderRadius:10,overflow:'hidden',position:'absolute',top:48+stBarHt,right:20,alignItems:'center'},
@@ -2560,13 +3152,13 @@ const styles = StyleSheet.create({
   productList: {flexDirection:'row',justifyContent:'space-between'},
 	productBtn: {width:(innerWidth/3)-7,backgroundColor:'#fff',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,paddingVertical:25,paddingHorizontal:10,},
 	productBtnOn: {backgroundColor:'rgba(209,145,60,0.15)',borderColor:'#D1913C'},
-	productText1: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
+	productText1: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
 	productBest: {height:20,paddingHorizontal:8,borderRadius:20,marginTop:5,},
 	productBest2: {backgroundColor:'#FFBF1A',},
 	productText2: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:18,color:'#fff'},
-	productText3: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
+	productText3: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
 	productText3On: {color:'#1e1e1e'},
-	productText4: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
+	productText4: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
 
   popInImageNick: {marginTop:20,},
   popInImageNickText: {fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:22,color:'#1e1e1e'},
@@ -2638,6 +3230,7 @@ const styles = StyleSheet.create({
   mgt50: {marginTop:50},
   mgb0: {marginBottom:0,},
   mgb10: {marginBottom:10,},
+  mgr0: {marginRight:0,},
   mgr10: {marginRight:10},
   mgr15: {marginRight:15},
   mgr20: {marginRight:20},

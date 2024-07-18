@@ -40,7 +40,6 @@ const ModifyLogin = (props) => {
 	const [pw, setPw] = useState('');
 	const [pw2, setPw2] = useState('');
 	const [pw3, setPw3] = useState('');
-	const [cert, setCert] = useState(false);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -83,12 +82,12 @@ const ModifyLogin = (props) => {
   }, [navigationUse, preventBack]);
 
 	useEffect(() => {
-		if(pw != "" && pw2 != "" && pw3 != "" && pw2.length >= 6 && pw2.length <= 16 && pw != pw2 && pw2 == pw3 && cert){			
+		if(pw != "" && pw2 != "" && pw3 != "" && pw2.length >= 6 && pw2.length <= 16 && pw != pw2 && pw2 == pw3){			
 			setState(true);
 		}else{
 			setState(false);
 		}
-	}, [pw, pw2, pw3, cert]);
+	}, [pw, pw2, pw3]);
 
 	useEffect(() => {
 		if(memberIdx){
@@ -112,8 +111,29 @@ const ModifyLogin = (props) => {
 	}
 
 	const fnCert = async () => {
-		setNewPhone('010-9999-7570');
-		setCert(!cert);
+		setNewPhone();
+    let sData = {
+      basePath: "/api/member/",
+      type: 'IsPass',
+      pass_type: 3,
+      member_phone: '010-9999-7570',
+      test_yn: 'n'
+    }
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setNewPhone('010-9999-7571');
+    }else{
+      if(response.msg == 'MANAGER BAN'){
+				setNewPhone();
+        ToastMessage('회원가입이 제한된 번호입니다.');
+        return false;
+      }else if(response.msg == 'DUPLICATION PHONE'){
+				setNewPhone();
+        ToastMessage('이미 가입된 번호입니다.');
+        return false;
+      }
+    }
 	}
 
 	const update = async () => {
@@ -151,10 +171,10 @@ const ModifyLogin = (props) => {
 			return false;
     }
 
-		if(!cert){
-			ToastMessage('휴대폰 번호를 인증해 주세요.');
-			return false;
-		}
+		// if(!cert){
+		// 	ToastMessage('휴대폰 번호를 인증해 주세요.');
+		// 	return false;
+		// }
 
 		let sData = {
 			basePath: "/api/member/",
@@ -163,9 +183,11 @@ const ModifyLogin = (props) => {
       member_pw: pw,
       member_new_pw: pw2,
       member_new_repw: pw3,
-			member_phone: phone,
-			member_new_phone: newPhone,
 		};
+		if(newPhone){
+			sData.member_phone = phone;
+			sData.member_new_phone = newPhone;
+		}
 		const response = await APIs.send(sData);
 		console.log(response);
 	}

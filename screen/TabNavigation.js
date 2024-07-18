@@ -16,7 +16,6 @@ import {
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, CardStyleInterpolators } from "@react-navigation/stack";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import AutoHeightImage from "react-native-auto-height-image";
 import {connect} from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -33,6 +32,7 @@ import Home from './Home';
 import Social from './Social/Social';
 import Community from './Community/Community';
 import Mypage from './Mypage/Mypage';
+import Alim from './Mypage/Alim';
 
 const Tab = createBottomTabNavigator();
 
@@ -42,9 +42,12 @@ const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
 const TabBarMenu = (props) => {
-  const {state, navigation, chatInfo} = props;
+  const {state, navigation} = props;
   const [memberIdx, setMemberIdx] = useState();
   const [memberType, setMemberType] = useState(0);
+  const [matchBan, setMatchBan] = useState();
+  const [socialBan, setSocialBan] = useState();
+  const [commBan, setCommBan] = useState();
   const screenName = state.routes[state.index].name; 
 
   //console.log('screenName : ',screenName);
@@ -57,8 +60,12 @@ const TabBarMenu = (props) => {
 
   useEffect(() => {
     if(memberIdx){
-      getMemInfo();
+      memoizedGetMemInfo();
     }
+  }, [memberIdx, memoizedGetMemInfo]);
+
+  const memoizedGetMemInfo = useCallback(async () => {
+    getMemInfo();
   }, [memberIdx]);
 
   const getMemInfo = async () => {
@@ -68,11 +75,15 @@ const TabBarMenu = (props) => {
 			member_idx: memberIdx,
 		};
 	
-		const response = await APIs.send(sData);
+		const response = await APIs.send(sData);    
     if(response.code == 200){
 		  setMemberType(response.data.member_type);
+      //setMatchBan(response.data.is_match_ban);
+      setMatchBan(response.data.is_match_ban);
+      setSocialBan(response.data.is_social_ban);
+      setCommBan(response.data.is_comm_ban);
     }
-  }
+  }  
 
   return (
     <>
@@ -81,8 +92,12 @@ const TabBarMenu = (props) => {
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
         onPress={() => {
-          if(memberType == 1 || memberType == 2){
-            navigation.navigate('Home');
+          if(memberType == 1){
+            if(matchBan == 'y'){
+              ToastMessage('앗! 매칭을 이용할 수 없어요🥲');  
+            }else{
+              navigation.navigate('Home');
+            }
           }else{
             ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
             return false;
@@ -104,7 +119,11 @@ const TabBarMenu = (props) => {
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
         onPress={() => {
-          navigation.navigate('Social');
+          if(socialBan == 'y'){
+            ToastMessage('앗! 소셜을 이용할 수 없어요🥲');  
+          }else{
+            navigation.navigate('Social');
+          }          
         }}
       >
         <View style={styles.tabIcon}>
@@ -122,7 +141,11 @@ const TabBarMenu = (props) => {
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
         onPress={() => {
-          navigation.navigate('Community');
+          if(socialBan == 'y'){
+            ToastMessage('앗! 커뮤니티를 이용할 수 없어요🥲');  
+          }else{
+            navigation.navigate('Community');
+          }
         }}
       >
         <View style={styles.tabIcon}>
@@ -160,19 +183,7 @@ const TabBarMenu = (props) => {
 }
 
 const TabNavigation = (props) => {
-	const {navigation, userInfo, route} = props;    
-
-	const isFocused = useIsFocused();
-	useEffect(() => {
-		let isSubscribed = true;
-
-		if(!isFocused){			
-		}else{
-		}
-
-		return () => isSubscribed = false;
-	}, [isFocused]);
-
+	const {navigation, userInfo, route} = props;
   const requestUserPermission = async () => {
     const authStatus = await messaging().requestPermission();
     const enabled =
@@ -183,28 +194,65 @@ const TabNavigation = (props) => {
         console.log('Authorization status:', authStatus);
     }
   }
-
   if (Platform.OS === 'ios') { PushNotificationIOS.setApplicationIconBadgeNumber(0); }
 
   useEffect(() => {
-    //포그라운드 상태
-     messaging().onMessage((remoteMessage) => {
-       console.log('포그라운드 ::: ',remoteMessage);     
-     });
- 
-     //백그라운드 상태
-     messaging().onNotificationOpenedApp((remoteMessage) => {
-       //console.log('onNotificationOpenedApp', remoteMessage);
-       console.log('백그라운드 ::: ', remoteMessage);     
-     });
- 
-     //종료상태
-     messaging().getInitialNotification().then((remoteMessage) => {
-       // console.log('getInitialNotification', remoteMessage);
-       console.log('종료상태 ::: ',remoteMessage)
-     });
- 
-   }, []);
+    // 포그라운드 메시지 처리
+    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
+      console.log('포그라운드 메시지:', remoteMessage);
+      ToastMessage(remoteMessage.data.subject, 3000, '1', '', remoteMessage.data.content);
+      
+      let mb_idx = await AsyncStorage.getItem('member_idx');
+      if (mb_idx) {
+        memberHandler(mb_idx);
+      }
+    });
+
+    // 백그라운드에서 알림을 탭하여 앱을 열었을 때
+    const unsubscribeOnNotificationOpenedApp = messaging().onNotificationOpenedApp(remoteMessage => {
+      //console.log('백그라운드에서 알림으로 앱 열림:', remoteMessage);
+      // 필요한 처리 로직 추가
+      //navigation.navigate('Alim');
+      handleNotificationNavigation(remoteMessage);
+    });
+
+    // 앱이 종료된 상태에서 알림을 탭하여 앱을 열었을 때
+    messaging()
+      .getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          //console.log('종료 상태에서 알림으로 앱 열림:', remoteMessage);
+          // 필요한 처리 로직 추가
+          //navigation.navigate('Alim');
+          handleNotificationNavigation(remoteMessage);
+        }
+      });
+
+    // 클린업 함수
+    return () => {
+      unsubscribeOnMessage();
+      unsubscribeOnNotificationOpenedApp();
+    };    
+  }, []);
+
+  const handleNotificationNavigation = (remoteMessage) => {
+    // 알림 데이터에 따라 적절한 화면으로 이동
+    if (remoteMessage.data) {
+      const { screen, params } = remoteMessage.data;
+      if (screen) {
+        //navigation.navigate(screen, params ? JSON.parse(params) : {});
+        navigation.navigate('Alim');
+      }
+    }
+  };
+
+  const memberHandler = async (mb_idx) => {
+    console.log('memberHandler ::: ', mb_idx);
+    const formData = new FormData();
+    formData.append('type', 'GetMyInfo');
+    formData.append('member_idx', mb_idx);
+    const mem_info = await member_info(formData);
+  }
 
 	return (
 		<>

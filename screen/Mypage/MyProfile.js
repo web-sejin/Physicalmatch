@@ -9,6 +9,7 @@ import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import RenderHtml from 'react-native-render-html';
+import { WebView } from 'react-native-webview';
 
 import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
@@ -29,6 +30,7 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const MyProfile = (props) => {
+	const webViews = useRef();
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, member_info, member_logout, member_out, route} = props;
 	const {params} = route
@@ -349,10 +351,10 @@ const MyProfile = (props) => {
 		}
 		const response = await APIs.send(sData);		
 		if(response.code == 200){
-			const source = {
-        html: response.data
-      };
-      setGuideCont(source);
+			// const source = {
+      //   html: response.data
+      // };
+      setGuideCont(response.data);
 		}
 	}
 
@@ -580,14 +582,32 @@ const MyProfile = (props) => {
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
-				<ScrollView>
+				<View style={{flex:1}}>
+          <WebView
+            ref={webViews}
+            source={{uri: guideCont}}
+            useWebKit={false}						
+            javaScriptEnabledAndroid={true}
+            allowFileAccess={true}
+            renderLoading={true}
+            mediaPlaybackRequiresUserAction={false}
+            setJavaScriptEnabled = {false}
+            scalesPageToFit={true}
+            allowsFullscreenVideo={true}
+            allowsInlineMediaPlayback={true}						
+            originWhitelist={['*']}
+            javaScriptEnabled={true}
+            textZoom = {100}
+          />
+        </View>
+				{/* <ScrollView>
 					<View style={styles.guidePopCont}>
 						<RenderHtml
               contentWidth={widnowWidth}
               source={guideCont}            
             />
 					</View>
-				</ScrollView>
+				</ScrollView> */}
 			</Modal>
 
 			{loading ? (

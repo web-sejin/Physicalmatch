@@ -1,14 +1,13 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
-import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
+import {ActivityIndicator, Alert, Button, Dimensions, View, Text, Linking, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, Keyboard, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import VersionCheck from 'react-native-version-check';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
@@ -32,9 +31,13 @@ const SettingMenu = (props) => {
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
   const [currVer, setCurrVer] = useState('');
-  const [latestVer, setLatestVer] = useState('');
   const [modal, setModal] = useState(false);
   const [modal2, setModal2] = useState(false);
+	const [newVer, setNewVer] = useState('');
+	const [playstoreUrl, setPlaystoreUrl] = useState('');
+	const [appstoreUrl, setAppstoreUrl] = useState('');
+	const [memberIdx, setMemberIdx] = useState();
+	const [memberInfo, setMemberInfo] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -47,6 +50,11 @@ const SettingMenu = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
@@ -73,12 +81,52 @@ const SettingMenu = (props) => {
 
   useEffect(() => {
     setCurrVer(VersionCheck.getCurrentVersion());  
+  }, []);
 
-    //추후에 스토어에 업로드 된 버전 넣어줘야 함
-    //VersionCheck.getLatestVersion().then(latestVersion => {
-      //console.log(latestVersion);   
-    //});
-  }, [])
+	useEffect(() => {
+		getVersionInfo();
+	}, []);
+
+	useEffect(() => {
+		if(memberIdx){
+			getMemInfo();
+		}
+	}, [memberIdx]);
+
+	const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);    
+		if(response.code == 200){
+			setMemberInfo(response.data);		
+		}
+	}
+
+	const getVersionInfo = async () => {
+		let sData = {
+			basePath: "/api/etc/",
+			type: 'GetAppVersion',
+		}
+		const response = await APIs.send(sData);
+    if(response.code == 200){
+			setNewVer(response.appVersion);
+			setPlaystoreUrl(response.playstoreUrl);
+			setAppstoreUrl(response.appstoreUrl);
+		}
+	}
+
+	const appDownload = () => {
+		setModal2(false);
+		if(Platform.OS === 'ios'){
+			if(appstoreUrl != ''){ Linking.openURL(appstoreUrl); }else{ ToastMessage('준비중입니다.\n조금만 기다려 주세요.'); }
+		}else{
+			if(playstoreUrl != ''){ Linking.openURL(playstoreUrl); }else{ ToastMessage('준비중입니다.\n조금만 기다려 주세요.'); }
+		}		
+	}
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -109,7 +157,13 @@ const SettingMenu = (props) => {
           <TouchableOpacity
             style={[styles.btn, styles.btnLine]}
             activeOpacity={opacityVal}
-            onPress={()=>{navigation.navigate('AccountSet')}}
+            onPress={()=>{
+							if(memberInfo?.member_type != 1){
+								ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+							}else{
+								navigation.navigate('AccountSet');
+							}
+						}}
           >
             <Text style={styles.btnText}>계정관리</Text>
             <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
@@ -192,30 +246,42 @@ const SettingMenu = (props) => {
 							onPress={() => {setModal2(false)}}
 						>
 							<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
-						</TouchableOpacity>		
-						<View>
-							<Text style={styles.popTitleText}>최신 버전</Text>
-              {latestVer != '' ? (
-                <>
-                  <Text style={[styles.popTitleDesc]}>앱의 최신 버전은</Text>
-                  <Text style={[styles.popTitleDesc, styles.mgt5]}><Text style={[styles.gold, styles.notoBold]}>{latestVer}</Text> 입니다.</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={[styles.popTitleDesc]}>스토어에 출시 전입니다.</Text>
-                  <Text style={[styles.popTitleDesc, styles.mgt5]}>조금만 기다려 주세요.</Text>
-                </>
-              )}				
-						</View>		
-						<View style={styles.popBtnBox}>
-							<TouchableOpacity 
-								style={[styles.popBtn]}
-								activeOpacity={opacityVal}
-								onPress={() => setModal2(false)}
-							>
-								<Text style={styles.popBtnText}>확인</Text>
-							</TouchableOpacity>
-						</View>
+						</TouchableOpacity>
+						{currVer == newVer ? (
+							<>
+								<View>
+									<Text style={styles.popTitleText}>최신 버전</Text>
+									<Text style={[styles.popTitleDesc]}>앱의 최신 버전은</Text>
+									<Text style={[styles.popTitleDesc, styles.mgt5]}><Text style={[styles.gold, styles.notoBold]}>{newVer}</Text> 입니다.</Text>		
+								</View>		
+								<View style={styles.popBtnBox}>
+									<TouchableOpacity 
+										style={[styles.popBtn]}
+										activeOpacity={opacityVal}
+										onPress={() => setModal2(false)}
+									>
+										<Text style={styles.popBtnText}>확인</Text>
+									</TouchableOpacity>
+								</View>
+							</>
+						) : (
+							<>
+								<View>
+									<Text style={styles.popTitleText}>최신 버전</Text>
+									<Text style={[styles.popTitleDesc]}>앱의 최신 버전 <Text style={[styles.gold, styles.notoBold]}>{newVer}</Text>이 출시되었습니다.</Text>
+									<Text style={[styles.popTitleDesc, styles.mgt5]}>다운로드를 진행해 주세요.</Text>		
+								</View>		
+								<View style={styles.popBtnBox}>
+									<TouchableOpacity 
+										style={[styles.popBtn]}
+										activeOpacity={opacityVal}
+										onPress={() => appDownload()}
+									>
+										<Text style={styles.popBtnText}>다운로드</Text>
+									</TouchableOpacity>
+								</View>
+							</>
+						)}
 					</View>
 				</View>
 			</Modal>

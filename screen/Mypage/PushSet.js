@@ -37,6 +37,7 @@ const PushSet = (props) => {
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
   const [memberIdx, setMemberIdx] = useState();
+  const [memberInfo, setMemberInfo] = useState();
   
   const [allControl, setAllControl] = useState(false);
   const [onOffAll, setOnOffAll] = useState();
@@ -92,7 +93,7 @@ const PushSet = (props) => {
 
   useEffect(() => {
     if(memberIdx){
-      getPushList();
+      getMemInfo();      
     }
   }, [memberIdx])
 
@@ -144,6 +145,20 @@ const PushSet = (props) => {
     chkOnOffState();
 	}, [onOff6]);
 
+  const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);    
+		if(response.code == 200){
+			setMemberInfo(response.data);
+      getPushList();
+		}
+	}
+
   const getPushList = async () => {
     let sData = {
 			basePath: "/api/member/index.php",
@@ -151,12 +166,13 @@ const PushSet = (props) => {
 			member_idx: memberIdx,
 			push_type: 0,
 		};
-		const response = await APIs.send(sData);
-    if(response.code == 200){
+		const response = await APIs.send(sData);    
+    console.log(response);
+    if(response.code == 200){      
       if(response.data.match_push_yn == 'y'){ setOnOff(true); }else{ setOnOff(false); }
       if(response.data.social_push_yn == 'y'){ setOnOff2(true); }else{ setOnOff2(false); }
       if(response.data.community_push_yn == 'y'){ setOnOff3(true); }else{ setOnOff3(false); }
-      if(response.data.reply_push_yn == 'y'){ setOnOff4(true); }else{ setOnOff4(false); }
+      if(response.data.reply_push_yn == 'y'){ setOnOff4(true); }else{ setOnOff4(false); }      
       if(response.data.system_push_yn == 'y'){ setOnOff5(true); }else{ setOnOff5(false); }
       if(response.data.event_push_yn == 'y'){ setOnOff6(true); }else{ setOnOff6(false); }
     }
@@ -178,15 +194,23 @@ const PushSet = (props) => {
       push_yn: yn 
 		};
     const response = await APIs.send(sData);
-    //console.log(response);
+    console.log(response);
   }
 
   const chkOnOffState = () => {
-    if(onOff && onOff2 && onOff3 && onOff4 && onOff5 && onOff6){
-      setOnOffAll(true);
+    if(memberInfo?.member_type == 1){
+      if(onOff && onOff2 && onOff3 && onOff4 && onOff5 && onOff6){
+        setOnOffAll(true);
+      }else{
+        setOnOffAll(false);
+      }
     }else{
-      setOnOffAll(false);
-    }
+      if(onOff5 && onOff6){
+        setOnOffAll(true);
+      }else{
+        setOnOffAll(false);
+      }
+    }    
   }
 
   const chgOnOff = async () => {
@@ -196,50 +220,58 @@ const PushSet = (props) => {
 
   const chgOnOff2 = async () => {
     setOnOff2(!onOff2);
-    updatePushList('social_push_yn', !onOff);
+    updatePushList('social_push_yn', !onOff2);
   }
 
   const chgOnOff3 = async () => {
     setOnOff3(!onOff3);
-    updatePushList('community_push_yn', !onOff);
+    updatePushList('community_push_yn', !onOff3);
   }
 
   const chgOnOff4 = async () => {
     setOnOff4(!onOff4);
-    updatePushList('reply_push_yn', !onOff);
+    updatePushList('reply_push_yn', !onOff4);
   }
 
   const chgOnOff5 = async () => {
     setOnOff5(!onOff5);
-    updatePushList('system_push_yn', !onOff);
+    updatePushList('system_push_yn', !onOff5);
   }
 
   const chgOnOff6 = async () => {
     setOnOff6(!onOff6);
-    updatePushList('event_push_yn', !onOff);
+    updatePushList('event_push_yn', !onOff6);
   }
 
   const chgOnOffAll = async () => {
     if(onOffAll){
       setOnOffAll(false);
-      setOnOff(false);
-      setOnOff2(false);
-      setOnOff3(false);
-      setOnOff4(false);
+      if(memberInfo?.member_type == 1){      
+        setOnOff(false);
+        setOnOff2(false);
+        setOnOff3(false);
+        setOnOff4(false);
+      }
       setOnOff5(false);
       setOnOff6(false);
     }else{
       setOnOffAll(true);
-      setOnOff(true);
-      setOnOff2(true);
-      setOnOff3(true);
-      setOnOff4(true);
+      if(memberInfo?.member_type == 1){
+        setOnOff(true);
+        setOnOff2(true);
+        setOnOff3(true);
+        setOnOff4(true);
+      }
       setOnOff5(true);
       setOnOff6(true);
     }    
 
     updatePushList('all', !onOffAll);
   }
+
+  const notMember = () => {
+		ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+	}
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -287,11 +319,13 @@ const PushSet = (props) => {
                 <Text style={styles.onOffInfoDesc}>호감, 좋아요, 매칭 도착 알림</Text>
               </View>
               <TouchableOpacity 
-                style={[styles.onOffBtn, !onOff ? styles.onOffBtn2 : null]}
-                activeOpacity={opacityVal}
+                style={[styles.onOffBtn, !onOff ? styles.onOffBtn2 : null, memberInfo?.member_type == 0 ? styles.onOffBtn3 : opacityVal]}
+                activeOpacity={memberInfo?.member_type == 0 ? 1 : opacityVal}
                 onPress={()=>{
-                  setAllControl(false);
-                  chgOnOff();
+                  if(memberInfo?.member_type != 0){  
+                    setAllControl(false);
+                    chgOnOff();
+                  }
                 }}
               >
                 <Animated.View 
@@ -310,11 +344,13 @@ const PushSet = (props) => {
                 <Text style={styles.onOffInfoDesc}>소셜 신청, 수락, 거절, 댓글 도착 알림</Text>
               </View>
               <TouchableOpacity 
-                style={[styles.onOffBtn, !onOff2 ? styles.onOffBtn2 : null]}
-                activeOpacity={opacityVal}
+                style={[styles.onOffBtn, !onOff2 ? styles.onOffBtn2 : null, memberInfo?.member_type == 0 ? styles.onOffBtn3 : opacityVal]}
+                activeOpacity={memberInfo?.member_type == 0 ? 1 : opacityVal}
                 onPress={()=>{
-                  setAllControl(false);
-                  chgOnOff2();
+                  if(memberInfo?.member_type != 0){  
+                    setAllControl(false);
+                    chgOnOff2();
+                  }
                 }}
               >
                 <Animated.View 
@@ -333,11 +369,13 @@ const PushSet = (props) => {
                 <Text style={styles.onOffInfoDesc}>프로필 교환 신청, 수락, 거절 도착 알림</Text>
               </View>
               <TouchableOpacity 
-                style={[styles.onOffBtn, !onOff3 ? styles.onOffBtn2 : null]}
-                activeOpacity={opacityVal}
+                style={[styles.onOffBtn, !onOff3 ? styles.onOffBtn2 : null, memberInfo?.member_type == 0 ? styles.onOffBtn3 : opacityVal]}
+                activeOpacity={memberInfo?.member_type == 0 ? 1 : opacityVal}
                 onPress={()=>{
-                  setAllControl(false);
-                  chgOnOff3();
+                  if(memberInfo?.member_type != 0){  
+                    setAllControl(false);
+                    chgOnOff3();
+                  }
                 }}
               >
                 <Animated.View 
@@ -356,11 +394,13 @@ const PushSet = (props) => {
                 <Text style={styles.onOffInfoDesc}>커뮤니티 내 댓글, 대댓글 도착 알림</Text>
               </View>
               <TouchableOpacity 
-                style={[styles.onOffBtn, !onOff4 ? styles.onOffBtn2 : null]}
-                activeOpacity={opacityVal}
+                style={[styles.onOffBtn, !onOff4 ? styles.onOffBtn2 : null, memberInfo?.member_type == 0 ? styles.onOffBtn3 : opacityVal]}
+                activeOpacity={memberInfo?.member_type == 0 ? 1 : opacityVal}
                 onPress={()=>{
-                  setAllControl(false);
-                  chgOnOff4();
+                  if(memberInfo?.member_type != 0){  
+                    setAllControl(false);
+                    chgOnOff4();
+                  }
                 }}
               >
                 <Animated.View 
@@ -456,6 +496,7 @@ const styles = StyleSheet.create({
   onOffInfoDesc: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:16,color:'#888888',marginTop:7,},
   onOffBtn: {width:36,height:15,backgroundColor:'rgba(36,59,85,0.4)',borderRadius:20,position:'relative'},
   onOffBtn2: {backgroundColor:'#DBDBDB'},
+  onOffBtn3: {opacity:0.5},
   onOffCircle: {width:21,height:21,borderRadius:50,position:'absolute',left:0,top:-3,},
 
   boxShadow: {    

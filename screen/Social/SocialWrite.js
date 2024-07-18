@@ -111,21 +111,22 @@ const SocialWrite = (props) => {
   }, [navigationUse, preventBack]);
 
   useEffect(() => {
-    let totalReq = 6;
+    let totalReq = 7;
     let currReq = 0;
     if(cate == 1 || cate == 2){
-      totalReq = 7;
+      totalReq = 8;
     }
 
     if(subject != '' && subject.length >= 5 && subject.length <= 20){ currReq++; }
     if(meetDate != ''){ currReq++; }
     if(meetLocal != ''){ currReq++; }
     if(imageType != 0){ currReq++; }
+    if(appImage){ currReq++; }
     if(content != '' && content.length >= 10  && content.length <= 300){ currReq++; }
     if(hostFriend != ''){ currReq++; }
     if(guestFriend != ''){ currReq++; }
 
-    //console.log(currReq+'/'+totalReq);
+    //console.log(cate+'/'+currReq+'/'+totalReq);
     if(currReq == totalReq){
       setState(true);
     }else{
@@ -797,7 +798,7 @@ const styles = StyleSheet.create({
   input4: {width:innerWidth-25,},
   inputLine0 : {borderBottomWidth:0,},
   inputText: {fontFamily:Font.NotoSansRegular,fontSize: 16, lineHeight:21, color: '#1e1e1e',},
-  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,marginTop:30,paddingTop:15,},
+  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,marginTop:30,paddingTop:15,color:'#1e1e1e'},
 
   help_box: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:5,},
 	alertText2: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#B8B8B8',},

@@ -488,6 +488,8 @@ PODS:
     - RCTTypeSafety
     - React-Core
     - ReactCommon/turbomodule/core
+  - react-native-screenshot-prevention (1.0.6):
+    - React-Core
   - react-native-version-check (3.4.7):
     - React-Core
   - react-native-video (5.2.1):
@@ -628,7 +630,8 @@ PODS:
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
-  - RNScreens (3.20.0):
+  - RNScreens (3.32.0):
+    - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - React-RCTImage
   - RNSVG (15.3.0):
@@ -711,6 +714,7 @@ DEPENDENCIES:
   - react-native-kakao-share-link (from `../node_modules/react-native-kakao-share-link`)
   - react-native-render-html (from `../node_modules/react-native-render-html`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-screenshot-prevention (from `../node_modules/react-native-screenshot-prevention`)
   - react-native-version-check (from `../node_modules/react-native-version-check`)
   - react-native-video (from `../node_modules/react-native-video`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -870,6 +874,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-render-html"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-screenshot-prevention:
+    :path: "../node_modules/react-native-screenshot-prevention"
   react-native-version-check:
     :path: "../node_modules/react-native-version-check"
   react-native-video:
@@ -1013,6 +1019,7 @@ SPEC CHECKSUMS:
   react-native-kakao-share-link: f9be590aec95928451f6ce1a622ef9c91a48d79b
   react-native-render-html: 984dfe2294163d04bf5fe25d7c9f122e60e05ebe
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
+  react-native-screenshot-prevention: 8775dc9e64f56d4f31bf58a10268f34cc20561f1
   react-native-version-check: 6cd36aad4e30b8e3216747e3b4ddeb09e0647af8
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   react-native-webview: c411cd2a9fbccf825b1c580a192914a9ce14b4ff
@@ -1044,7 +1051,7 @@ SPEC CHECKSUMS:
   RNImageCropPicker: e7ab6fb43d2fc3e84651e786ef4a080d63b0ed3d
   RNPermissions: f1b49dd05fa9b83993cd05a9ee115247944d8f1a
   RNReanimated: c112febb9548b8e0bcc5abddff308f69913c4270
-  RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
+  RNScreens: 0bd9eec783bed1032e02a4db9976dae1664a5c7b
   RNSVG: a48668fd382115bc89761ce291a81c4ca5f2fd2e
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654

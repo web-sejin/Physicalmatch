@@ -14,6 +14,9 @@ import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
 import ImgDomain2 from '../../components/ImgDomain2';
 
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
+
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
@@ -39,6 +42,7 @@ const Community = (props) => {
 	const [refreshing, setRefreshing] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [memberIdx, setMemberIdx] = useState();
+	const [memberInfo, setMemberInfo] = useState();
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [nowPage, setNowPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
@@ -61,11 +65,14 @@ const Community = (props) => {
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 
+			//console.log('userInfo :::: ', userInfo);
+
 			AsyncStorage.getItem('member_idx', (err, result) => {		
 				setMemberIdx(result);
 			});
 
 			if(params?.reload){	
+				getMemInfo();
         getCommList();
         delete params?.reload;
       }
@@ -117,9 +124,24 @@ const Community = (props) => {
 	useEffect(() => {
 		if(memberIdx){
 			setLoading(true);
+			getMemInfo();
 			getCommList();
 		}
 	}, [memberIdx, tabState]);
+
+	const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){
+			setMemberInfo(response.data);
+		}
+	}
 
 	const getCommList = async (viewPage) => {
 		let curr_page = nowPage;
@@ -268,14 +290,26 @@ const Community = (props) => {
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => navigation.navigate('MyCommunity')}
+							onPress={() => {
+								if(memberInfo?.member_type != 1){
+									ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+								}else{
+									navigation.navigate('MyCommunity');
+								}
+							}}
 						>
 							<ImgDomain fileWidth={24} fileName={'icon_mycommuity.png'} />
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {navigation.navigate('Shop')}}		
+							onPress={() => {
+								if(memberInfo?.member_type != 1){
+									ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+								}else{
+									navigation.navigate('Shop');
+								}
+							}}		
 						>
 							<ImgDomain fileWidth={24} fileName={'icon_shop.png'} />
 						</TouchableOpacity>
@@ -284,8 +318,11 @@ const Community = (props) => {
 							activeOpacity={opacityVal}
 							onPress={() => {navigation.navigate('Alim')}}
 						>
-							<ImgDomain fileWidth={24} fileName={'icon_alim_off.png'} />
-							{/* <ImgDomain fileWidth={24} fileName={'icon_alim_on.png'} /> */}
+							{userInfo?.is_new == 'y' ? (
+								<ImgDomain fileWidth={24} fileName={'icon_alim_on.png'}/>
+							) : (
+								<ImgDomain fileWidth={24} fileName={'icon_alim_off.png'}/>
+							)}
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -407,7 +444,8 @@ const Community = (props) => {
 								value={commSch}
 								onChangeText={(v) => setCommSch(v)}
 								style={[styles.socialSchBoxWrapInput]}
-								returnKyeType='done'                      
+								returnKyeType='done'  
+								onSubmitEditing={Search}
 							/>
 						</View>
 					</View>
@@ -428,7 +466,13 @@ const Community = (props) => {
 			<TouchableOpacity
 				style={[styles.wrtBtn, styles.wrtBtnBoxShadow, keyboardStatus == 1 ? styles.wrtBtnHide : null]}
         activeOpacity={opacityVal}
-        onPress={()=>{navigation.navigate('CommunityWrite')}}
+        onPress={()=>{
+					if(memberInfo?.member_type != 1){
+						ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+					}else{
+						navigation.navigate('CommunityWrite');
+					}
+				}}
       >
 				<ImgDomain fileWidth={60} fileName={'icon_write.png'}/>
       </TouchableOpacity>
@@ -674,4 +718,11 @@ const styles = StyleSheet.create({
 	mgl0: {marginLeft:0},
 })
 
-export default Community
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+	})
+)(Community);

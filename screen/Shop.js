@@ -45,8 +45,10 @@ const Shop = (props) => {
   const [tabSt, setTabSt] = useState(1);
   const [protainList, setProtainList] = useState([]);
   const [freeList, setFreeList] = useState([]);
+  const [prdIdx, setPrdIdx] = useState();
   const [memberIdx, setMemberIdx] = useState();
   const [memberInfo, setMemberInfo] = useState();
+  const [memberPoint, setMemberPoint] = useState();
 
 	const [skuCode, setSkuCode] = useState();
 	const [productApiList, setProductApiList] = useState([]);
@@ -234,9 +236,27 @@ const Shop = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-    console.log(response.data.member_point);
+    //console.log(response.data.member_point);
 		if(response.code == 200){
       setMemberInfo(response.data);
+
+      const protainComma = response.data.member_point.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+      setMemberPoint(protainComma);
+    }
+  }
+
+  const getMemberProtain = async () => {
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyPoint",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){      
+      const protainComma = response.data.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+      setMemberPoint(protainComma);
     }
   }
 
@@ -292,35 +312,19 @@ const Shop = (props) => {
                 style={[styles.prdLi, index2 == 0 ? styles.mgt0 : null]}
                 activeOpacity={opacityVal}
                 onPress={()=>{
+                  setLoading(true);
                   if(Platform.OS === 'ios'){
-                    _requestPurchase(item2.pd_code_ios);
+                    _requestPurchase(item2.pd_code_ios, item2.pd_idx);
                   }else{
-                    _requestPurchase(item2.pd_code_aos);
+                    _requestPurchase(item2.pd_code_aos, item2.pd_idx);
                   }                  
+                  setTimeout(() => { setLoading(false); }, 3000);
                 }}
               >
                 <ImgDomain2 fileWidth={innerWidth} fileName={item2.pi_img}/>
               </TouchableOpacity>
             )
           })}
-          {/* <TouchableOpacity
-            style={[styles.prdLi, styles.mgt0]}
-            activeOpacity={opacityVal}
-            onPress={()=>{
-              _requestPurchase('test_item1');
-            }}
-          >
-            <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/product1.png'}} resizeMethod='resize' />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.prdLi]}
-            activeOpacity={opacityVal}
-            onPress={()=>{
-              _requestPurchase('test_item2');
-            }}
-          >
-            <AutoHeightImage width={innerWidth} source={{uri:'https://cnj02.cafe24.com/appImg/product2.png'}} resizeMethod='resize' />
-          </TouchableOpacity> */}
         </View>
       </View>
     )
@@ -444,37 +448,71 @@ const Shop = (props) => {
     }
   }
 
-  const _requestPurchase = async (sku) => {
+  const _requestPurchase = async (sku, pd_idx) => {
     //console.log("IAP req", sku);
     //setLoading2(true);
     let iapObj = {skus: [sku], sku: sku};
     let getItems = await getProducts(iapObj);
-    console.log('getItems :::: ', getItems);
+    //console.log('getItems :::: ', getItems);
+
+    let amount = 0;
+    if(pd_idx == 19){
+      amount = 30;
+    }else if(pd_idx == 20){
+      amount = 100;
+    }else if(pd_idx == 21){
+      amount = 200;
+    }else if(pd_idx == 22){
+      amount = 500;
+    }else if(pd_idx == 23){
+      amount = 1000;
+    }else if(pd_idx == 24){
+      amount = 2000;
+    }else if(pd_idx == 25){
+      amount = 4500;
+    }
+
+    const inappPayResult = {
+      basePath: "/api/order/",
+      type: "SetProductOrder",		
+      member_idx: memberIdx,
+      pd_idx: prdIdx,
+      pd_code: getItems[0].productId,
+      pd_name: getItems[0].name,
+      pd_price: getItems[0].price,
+      pd_amount: amount,
+    };
+
     try {
       await requestPurchase(iapObj)
       .then(async (result) => {
           //console.log('IAP req sub', result);
           if (Platform.OS === 'android'){
-            console.log('dataAndroid', result[0].dataAndroid);
-            // console.log("purchaseToken : ", result.purchaseToken);
-            // console.log("packageNameAndroid : ", result.packageNameAndroid);
-            // console.log("productId : ", result.productId);
-            console.log("성공");
-            // let inappPayResult =JSON.stringify({
-            //     type: "inappResult",
-            //     code: result.productId,
-            //     tno: result.transactionId,
-            //     token: result.purchaseToken,
-            // });
-            // console.log("inappPayResult : ", inappPayResult);            
+            //console.log('dataAndroid', result[0].dataAndroid);                    
             // can do your API call here to save the purchase details of particular user
+            inappPayResult.biling_id = result[0].transactionId;
+            inappPayResult.biling_token = result[0].purchaseToken;
+            inappPayResult.biling_payment = 'card';            
+            inappPayResult.paymented_at = result[0].transactionDate;
           } else if (Platform.OS === 'ios'){
-            console.log(result);
+            //console.log(result);
             //console.log(result.transactionReceipt);
             // can do your API call here to save the purchase details of particular user
+            inappPayResult.biling_id = result.transactionId;
+            inappPayResult.biling_token = result.transactionReceipt;
+            inappPayResult.biling_payment = 'card';            
+            inappPayResult.paymented_at = result.transactionDate;
           }
 
-          setLoading(false);
+          //console.log("inappPayResult : ", inappPayResult);
+          const response = await APIs.send(inappPayResult);
+          //console.log(response);
+          if(response.code == 200){
+            getMemberProtain();
+            ToastMessage('프로틴이 충전되었습니다.');
+          }else{
+            ToastMessage('잠시후 다시 이용해 주세요.');
+          }
       })
       .catch((err) => {
         //setLoading2(false);
@@ -526,7 +564,7 @@ const Shop = (props) => {
             <>
               <View style={styles.currPoint}>
                 <Text style={styles.currPointText1}>내 프로틴</Text>
-                <Text style={styles.currPointText2}>{memberInfo?.member_point}</Text>
+                <Text style={styles.currPointText2}>{memberPoint}</Text>
               </View>
 
               <View style={styles.currPointPage}>
@@ -581,7 +619,7 @@ const Shop = (props) => {
           ListHeaderComponent={
             <View style={styles.currPoint}>
               <Text style={styles.currPointText1}>내 프로틴</Text>
-              <Text style={styles.currPointText2}>{memberInfo?.member_point}</Text>
+              <Text style={styles.currPointText2}>{memberPoint}</Text>
             </View>
           }
           ListFooterComponent={<View style={{height:50,backgroundColor:'#fff'}}></View>}

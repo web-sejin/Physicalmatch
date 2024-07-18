@@ -49,12 +49,22 @@ const FindPw = (props) => {
 			return false;
 		}
 
-		// if(!certSt){
-		// 	ToastMessage('번호 인증을 완료해 주세요.');
-		// 	return false;
-    // }
-    setCertnumber('010-1234-3336');
-    setCertSt(true);
+    let sData = {
+      basePath: "/api/member/",
+      type: 'IsPass',
+      pass_type: 2,
+      member_phone: '010-0000-0000',
+      member_id: id,
+      test_yn: 'n'
+    }
+    const response = await APIs.send(sData);    
+    if(response.code == 200){
+      setCertnumber('010-0000-0000');
+      setCertSt(true);
+    }else{
+      ToastMessage('일치하는 정보가 없습니다.');
+      setCertSt(false);
+    }
   }
 
   const result_pw = async () => {
@@ -67,7 +77,7 @@ const FindPw = (props) => {
 			ToastMessage('번호 인증을 완료해 주세요.');
 			return false;
     }
-
+    
     let sData = {
 			basePath: "/api/member/",
 			type: "SetFindPw",
@@ -76,12 +86,13 @@ const FindPw = (props) => {
 		};
 
 		const response = await APIs.send(sData);
+    console.log(response);
     if(response.code == 200){
       navigation.navigate('PwResult', {idx:response.data});
     }else{ 
       ToastMessage('일치하는 정보가 없습니다.');
       return false;
-    }    
+    } 
   }
 
   const headerHeight = 48;

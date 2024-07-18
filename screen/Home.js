@@ -26,6 +26,7 @@ import ToastMessage from "../components/ToastMessage";
 import ImgDomain from '../assets/common/ImgDomain';
 import Card from '../components/Card';
 import Card2 from '../components/Card2';
+import Card3 from '../components/Card3';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -36,63 +37,7 @@ const opacityVal = 0.8;
 const opacityVal2 = 0.95;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
-const Home = (props) => {
-	const Data1 = [
-		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },		
-	];
-
-	const Data2 = [
-		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },		
-		{ 'idx': 4, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 5, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 6, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },	
-	];
-
-	const Data3 = [
-		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },		
-	];
-
-	const Data4 = [
-		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },		
-	];
-	
-	const Data5 = [
-		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },		
-	];
-
-	const Data6 = [
-		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },		
-	];
-
-	const Data7 = [
-		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },				
-	];
-
-	const Data8 = [
-		{ 'idx': 1, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 2, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 3, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },		
-		{ 'idx': 4, 'isFlipped':true, 'name':'닉네임최대여덟1', 'age':'99', 'height':160, 'img':'man.png', 'dday':7, 'leave':false },
-		{ 'idx': 5, 'isFlipped':true, 'name':'닉네임최대여덟2', 'age':'00', 'height':165, 'img':'woman.png', 'dday':6, 'leave':false },
-		{ 'idx': 6, 'isFlipped':false, 'name':'닉네임최대여덟3', 'age':'01', 'height':162, 'img':'man.png', 'dday':4, 'leave':true },		
-	];
-
-	let timeOut;
-	
+const Home = (props) => {			
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, member_info, route} = props;
 	const {params} = route;
@@ -103,10 +48,11 @@ const Home = (props) => {
 	const [loading2, setLoading2] = useState(false);
 	const [memberIdx, setMemberIdx] = useState();
 	const [memberInfo, setMemberInfo] = useState();
+	const [memberPoint, setMemberPoint] = useState();
 
 	const [tabState, setTabState] = useState(1); //추천, 관심	
-	const [tabState2, setTabState2] = useState(1); //관심[ 찜&교환, 호감, 매칭된 ]
-	const [todayFree, setTodayFree] = useState(2);
+	const [tabState2, setTabState2] = useState(0); //관심[ 찜&교환, 호감, 매칭된 ]
+	const [todayFree, setTodayFree] = useState();
 	const [nonCollidingMultiSliderValue, setNonCollidingMultiSliderValue] = useState([]);
 	const [nonCollidingMultiSliderValue2, setNonCollidingMultiSliderValue2] = useState([]);
 	const [cardList, setCardList] = useState([]);	
@@ -120,6 +66,7 @@ const Home = (props) => {
 	const [data8List, setData8List] = useState([]);
 
 	const [welcomePop, setWelcomePop] = useState(false);
+	const [welcomePoint, setWelcomePoint] = useState();
 	const [filterPop, setFilterPop] = useState(false);
 	const [leavePop, setLeavePop] = useState(false);
 	const [leaveMsg, setLeaveMsg] = useState('');
@@ -166,7 +113,7 @@ const Home = (props) => {
 	const [tempDistanceStandard, setTempDistanceStandard] = useState();
 	const [tempDistance, setTempDistance] = useState();
 	const [tempDistance2, setTempDistance2] = useState();
-	const [tempRecentAccess, setTempRecentAccess] = useState();
+	const [tempRecentAccess, setTempRecentAccess] = useState();	
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -178,11 +125,19 @@ const Home = (props) => {
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 
+			//console.log('userInfo :::: ', userInfo);
+
 			AsyncStorage.getItem('member_idx', (err, result) => {		
 				setMemberIdx(result);
 			});
 
-			//console.log('userInfo ::: ', userInfo);
+			if(params?.reload){	
+        getMemberInfo();
+				getMemberProtain();
+				getCardList();
+				getInterList();
+        delete params?.reload;
+      }			
 		}
 
 		Keyboard.dismiss();
@@ -217,11 +172,13 @@ const Home = (props) => {
     }, [backPressCount])
   );
 
-	useEffect(() => {
-		if(memberIdx){
+	useEffect(() => {		
+		if(memberIdx){			
 			setLoading(true);
 			getMemberInfo();
+			getMemberProtain();
 			getCardList();
+			getInterList();
 		}
 	}, [memberIdx]);
 
@@ -352,6 +309,11 @@ const Home = (props) => {
     }
   }, [platformData]);
 
+	useEffect(() => {
+		setLoading2(true);
+		getInterList();
+	}, [tabState2]);
+
 	//리덕스 샘플
 	// const testApi = async (idx) => {
 	// 	const formData = new FormData();
@@ -378,10 +340,34 @@ const Home = (props) => {
 		};
 
 		const response = await APIs.send(sData);
+		//console.log(response.data);
 		if(response.code == 200){
       setMemberInfo(response.data);
+			setMemberPoint(response.data.member_point);
+			if(response.data.member_first_popup == 'y'){
+				setWelcomePop(true);
+				if(response.regist_point >= 0){
+					setWelcomePoint(response.regist_point);
+				}
+				checkWelcom();		
+			}
+			setTodayFree(response.data.free_cnt);
     }
 	}
+
+	const getMemberProtain = async () => {
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyPoint",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){      
+      setMemberPoint(response.data);
+    }
+  }
 
 	const getCardFilter = async () => {
 		let sData = {
@@ -513,6 +499,37 @@ const Home = (props) => {
 		setAgeMaxInt(cnt-5);
 		// setNonCollidingMultiSliderValue([5, cnt-5]);
 		// setNonCollidingMultiSliderValue2([5, cnt-5]);
+	}	
+
+	const getInterList = async () => {
+		let sData = {      
+      basePath: "/api/match/",
+			type: "GetInterestCard",
+			member_idx: memberIdx,
+			tab: tabState2
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			if(tabState2 == 0){
+				if(response.data[0].length > 0){setData1List(response.data[0]);}else{setData1List([]);}
+				if(response.data[1].length > 0){setData2List(response.data[1]);}else{setData2List([]);}
+				
+			}else if(tabState2 == 1){
+				//console.log(response.data);
+				if(response.data[0].length > 0){setData3List(response.data[0]);}else{setData3List([]);}
+				if(response.data[1].length > 0){setData4List(response.data[1]);}else{setData4List([]);}
+				if(response.data[2].length > 0){setData5List(response.data[2]);}else{setData5List([]);}
+				if(response.data[3].length > 0){setData6List(response.data[3]);}else{setData6List([]);}
+				if(response.data[4].length > 0){setData7List(response.data[4]);}else{setData7List([]);}
+			}else if(tabState2 == 2){
+				if(response.data[0].length > 0){setData8List(response.data[0]);}else{setData8List([]);}				
+			}
+			
+		}
+
+		setTimeout(() => {
+			setLoading2(false);
+		}, 100);
 	}
 
 	const getProductListApi = async () => {
@@ -552,49 +569,12 @@ const Home = (props) => {
 
 	const getMatchCard = async(v) => {
 		setTabState(v);
-		setLoading(true);
+		//setLoading(true);
 		if(v == 1){			
 			getCardList();
-
 		}else if(v == 2){			
-			setTimeout(() => {							
-				if(tabState2 == 1){
-					setData1List(Data1);
-					setData2List(Data2);
-				}else if(tabState2 == 2){
-					setData3List(Data3);
-					setData4List(Data4);
-					setData5List(Data5);
-					setData5List(Data6);
-					setData5List(Data7);
-				}else if(tabState2 == 3){
-					setData8List(Data8);
-				}
-				setLoading(false);
-			}, 300);
+			getInterList();
 		}
-	}
-
-	const getInterest = async (v) => {
-		setTabState2(v);
-		setLoading(true);
-		setTimeout(() => {							
-			if(v == 1){
-				setData1List(Data1);
-				setData2List(Data2);
-			}else if(v == 2){
-				setData3List(Data3);
-				setData4List(Data4);
-				setData5List(Data5);
-				setData5List(Data6);
-				setData5List(Data7);
-			}else if(v == 3){
-				setData8List(Data8);
-			}
-			setLoading(false);
-		}, 300);
-		
-		
 	}
 
 	const saveFilterSubmit = async () => {
@@ -628,7 +608,7 @@ const Home = (props) => {
 
 		let msg = '';
 		const response = await APIs.send(sData);
-		console.log(response);
+		//console.log(response);
 		if(response.code == 200){
 			msg = '필터가 수정되었습니다.';
 			setFilterSave(true);
@@ -639,7 +619,7 @@ const Home = (props) => {
 		setFilterPop(false);	
 		setTimeout(function(){
 			ToastMessage(msg);
-		}, 50);
+		}, 100);
 	}
 
 	const getProductList = ({item, index}) => {
@@ -683,7 +663,7 @@ const Home = (props) => {
         if (products.length !== 0){
           setProductInappList(products);
         }
-        console.log('_getProducts success');
+        //console.log('_getProducts success');
     } catch (err){
         console.warn("IAP error code ", err.code);
         console.warn("IAP error message ", err.message);
@@ -693,49 +673,82 @@ const Home = (props) => {
 
   const _requestPurchase = async (sku) => {
     //console.log("IAP req", sku);
-    //setLoading2(true);
     let iapObj = {skus: [sku], sku: sku};
     let getItems = await getProducts(iapObj);
-    console.log('getItems :::: ', getItems);
+    //console.log('getItems :::: ', getItems);
+
+		let amount = 0;
+    if(prdIdx == 19){
+      amount = 30;
+    }else if(prdIdx == 20){
+      amount = 100;
+    }else if(prdIdx == 21){
+      amount = 200;
+    }else if(prdIdx == 22){
+      amount = 500;
+    }else if(prdIdx == 23){
+      amount = 1000;
+    }else if(prdIdx == 24){
+      amount = 2000;
+    }else if(prdIdx == 25){
+      amount = 4500;
+    }
+
+		const inappPayResult = {
+      basePath: "/api/order/",
+      type: "SetProductOrder",		
+      member_idx: memberIdx,
+      pd_idx: prdIdx,
+      pd_code: getItems[0].productId,
+      pd_name: getItems[0].name,
+      pd_price: getItems[0].price,
+      pd_amount: amount,
+    };
+
     try {
       await requestPurchase(iapObj)
       .then(async (result) => {
           //console.log('IAP req sub', result);
           if (Platform.OS === 'android'){
-            console.log('dataAndroid', result[0].dataAndroid);
-            // console.log("purchaseToken : ", result.purchaseToken);
-            // console.log("packageNameAndroid : ", result.packageNameAndroid);
-            // console.log("productId : ", result.productId);
-            console.log("성공");
-            // let inappPayResult =JSON.stringify({
-            //     type: "inappResult",
-            //     code: result.productId,
-            //     tno: result.transactionId,
-            //     token: result.purchaseToken,
-            // });
-            // console.log("inappPayResult : ", inappPayResult);            
+            //console.log('dataAndroid', result[0].dataAndroid);       
             // can do your API call here to save the purchase details of particular user
+						inappPayResult.biling_id = result[0].transactionId;
+            inappPayResult.biling_token = result[0].purchaseToken;
+            inappPayResult.biling_payment = 'card';            
+            inappPayResult.paymented_at = result[0].transactionDate;
           } else if (Platform.OS === 'ios'){
-            console.log(result);
+            //console.log(result);
             //console.log(result.transactionReceipt);
             // can do your API call here to save the purchase details of particular user
+						inappPayResult.biling_id = result.transactionId;
+            inappPayResult.biling_token = result.transactionReceipt;
+            inappPayResult.biling_payment = 'card';            
+            inappPayResult.paymented_at = result.transactionDate;
           }
 
-          setLoading(false);
+          //console.log("inappPayResult : ", inappPayResult);
+          const response = await APIs.send(inappPayResult);
+          //console.log(response);
+          if(response.code == 200){
+            getMemberProtain();
+            ToastMessage('프로틴이 충전되었습니다.');
+          }else{
+            ToastMessage('잠시후 다시 이용해 주세요.');
+          }
       })
-      .catch((err) => {
-        //setLoading2(false);
+      .catch((err) => {        
         console.log('err1', err);
       });
-    } catch (err) {
-      //setLoading2(false);
+    } catch (err) {      
       console.log('err2', err.message);
     }
   }
 
   const buyProduct = async () => {  
+		setLoading2(true);
     setCashPop(false);
     _requestPurchase(skuCode);
+		setTimeout(() => { setLoading2(false); }, 3000);
   }
 
 	const nonCollidingMultiSliderValuesChange = (a,b) => {
@@ -857,6 +870,52 @@ const Home = (props) => {
 	const modalPopOff = (v) => {
 		setLeavePop(true);
 	}
+
+	const addCardList = async () => {
+		setLoading(true);
+		let openType = 0;
+		if(todayFree < 1){
+			openType = 1;
+		}else{
+			openType = 0;
+		}
+		let sData = {
+			basePath: "/api/match/",
+			type: "SetDailyCard",
+			member_idx: memberIdx,
+			open_type: openType,
+		};
+		const response = await APIs.send(sData);		
+		//console.log(response);
+		if(response.code == 200){
+			if(response.add_yn == 'y'){
+				getMemberProtain();
+				const newsTest = response.data.filter(el => el.length > 0);			
+				setCardList(newsTest);
+			}else{
+				if(filterSave){
+					setUnAddIntroPop2(true);
+				}else{
+					setUnAddIntroPop1(true);
+				}
+			}
+		}
+		setAddIntroPop(false);
+		setTimeout(() => {
+			setLoading(false);
+		}, 100);
+	}
+
+	const checkWelcom = async () => {
+		let sData = {
+			basePath: "/api/etc/",
+			type: "SetFirstPopup",
+			member_idx: memberIdx,
+		};
+		const response = await APIs.send(sData);
+		//console.log(response);
+		setAddIntroPop(false);
+	}
 	
 	const toastConfig2 = {
 		custom_type: (internalState) => (
@@ -883,7 +942,7 @@ const Home = (props) => {
 				</Text>
 			</View>
 		),
-  };
+  };	
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -933,8 +992,11 @@ const Home = (props) => {
 							activeOpacity={opacityVal}
 							onPress={() => {navigation.navigate('Alim')}}
 						>
-							{/* <ImgDomain fileWidth={24} fileName={'icon_alim_off.png'} /> */}
-							<ImgDomain fileWidth={24} fileName={'icon_alim_on.png'} />
+							{userInfo?.is_new == 'y' ? (
+								<ImgDomain fileWidth={24} fileName={'icon_alim_on.png'} />
+							) : (
+								<ImgDomain fileWidth={24} fileName={'icon_alim_off.png'} />
+							)}							
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -963,23 +1025,23 @@ const Home = (props) => {
 				<TouchableOpacity
 					style={styles.state2TabBtn}
 					activeOpacity={opacityVal}
-					onPress={()=>{getInterest(1)}}
+					onPress={()=>setTabState2(0)}
 				>
-					<Text style={[styles.state2TabBtnText, tabState2 == 1 ? styles.state2TabBtnTextOn : null]}>찜&교환한 카드</Text>
+					<Text style={[styles.state2TabBtnText, tabState2 == 0 ? styles.state2TabBtnTextOn : null]}>찜&교환한 카드</Text>
 				</TouchableOpacity>
 				<TouchableOpacity
 					style={styles.state2TabBtn}
 					activeOpacity={opacityVal}
-					onPress={()=>{getInterest(2)}}
+					onPress={()=>setTabState2(1)}
 				>
-					<Text style={[styles.state2TabBtnText, tabState2 == 2 ? styles.state2TabBtnTextOn : null]}>호감 카드</Text>
+					<Text style={[styles.state2TabBtnText, tabState2 == 1 ? styles.state2TabBtnTextOn : null]}>호감 카드</Text>
 				</TouchableOpacity>
 				<TouchableOpacity
 					style={styles.state2TabBtn}
 					activeOpacity={opacityVal}
-					onPress={()=>{getInterest(3)}}
+					onPress={()=>setTabState2(2)}
 				>
-					<Text style={[styles.state2TabBtnText, tabState2 == 3 ? styles.state2TabBtnTextOn : null]}>매칭된 카드</Text>
+					<Text style={[styles.state2TabBtnText, tabState2 == 2 ? styles.state2TabBtnTextOn : null]}>매칭된 카드</Text>
 				</TouchableOpacity>
 			</View>
 			) : null}
@@ -1016,10 +1078,10 @@ const Home = (props) => {
 											activeOpacity={opacityVal}
 											onPress={() => setAddIntroPop(true)}
 										>
-											<Text style={styles.todayFreeBtnText}>추가 소개 받기 (00개)</Text>
+											<Text style={styles.todayFreeBtnText}>추가 소개 받기</Text>
 										</TouchableOpacity>
 
-										<TouchableOpacity
+										{/* <TouchableOpacity
 											style={[styles.todayFreeBtn, styles.mgt10]}
 											activeOpacity={opacityVal}
 											onPress={() => {
@@ -1031,7 +1093,7 @@ const Home = (props) => {
 											}}
 										>
 											<Text style={styles.todayFreeBtnText}>추가 소개 받기 불가</Text>
-										</TouchableOpacity>
+										</TouchableOpacity> */}
 										</>
 									)}
 								</LinearGradient>
@@ -1041,7 +1103,7 @@ const Home = (props) => {
 						<View style={[styles.newCardSection]}>
 							{cardList.map((item, index) => {
 								return (
-									<View key={index} style={styles.cardView}>		
+									<View key={index} style={[styles.cardView, styles.cardView2]}>		
 										{item.map((item2, index2) => {
 											const dday = 7-parseInt(item2.diff_date);
 											return (
@@ -1069,7 +1131,7 @@ const Home = (props) => {
 												<View key={index2}>																								
 													<Card 
 														navigation={navigation}
-														key={index}											
+														//key={index}											
 														propsMemberIdx={item2.member_idx}
 														propsJob={job}
 														propsAge={item2.member_age}
@@ -1084,6 +1146,7 @@ const Home = (props) => {
 														propsCardState={item2.card_yn}
 														propsDeleteState={item2.delete_yn}
 														propsBlockState={item2.block_yn}
+														propsImg={item2.mpi_img}
 														myMemberIdx={memberIdx}
 														ModalEvent={modalPopOn}
 													/>
@@ -1126,347 +1189,487 @@ const Home = (props) => {
 
 					{tabState == 2 ? (
 					<View>
-						{tabState2 == 1 ? (
+						{tabState2 == 0 ? (
 						<View>			
-							{/* 찜한 카드	*/}
-							{data1List.length > 0 ? (
+							{/* 찜한 카드	*/}							
 							<View style={styles.interestBox}>
 								<View style={styles.interestBoxTitle}>
 									<Text style={styles.interestBoxTitleText}>찜한 카드</Text>
 								</View>
-								<View style={styles.cardView}>
-									{data1List.map((item, index) => {
-										if(item.leave && !item.isFlipped){
-											return (
-												<TouchableOpacity 
-													key={index}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal2}
-													onPress={() => {													
-														setLeavePop(true);
-													}}
-												>
-													<View style={[styles.cardCont, styles.cardCont2]}>																												
-														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-													</View>
-												</TouchableOpacity>
-											)
-										}else{
-											return (
-												<Card2 
-													navigation={navigation}
-													key={index}
-													propsNick={item.name}													
-													propsAge={item.age}													
-													propsHeight={item.height}													
-													propsFlip={item.isFlipped}
-													propsDday={item.dday}
-												/>
-											)
-										}
-									})}
-								</View>
+								{data1List.length > 0 ? (
+									loading2 ? (
+										<View style={[styles.indicator3]}><ActivityIndicator size="large" color="#D1913C" /></View>
+									) : (
+										<View style={styles.cardView}>
+											{data1List.map((item, index) => {	
+												if(item.leave && !item.isFlipped){
+													return (
+														<TouchableOpacity 
+															key={index}
+															style={[styles.cardBtn, styles.cardBtn2]}
+															activeOpacity={opacityVal2}
+															onPress={() => {													
+																setLeavePop(true);
+															}}
+														>
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+															</View>
+														</TouchableOpacity>
+													)
+												}else{
+													return (
+														<Card3
+															navigation={navigation}
+															key={index}													
+															propsNick={item.member_nick}
+															propsAge={item.member_age}													
+															propsHeight={item.member_height}											
+															//propsFlip={item.isFlipped}
+															viewOrder={index+1}
+															myMemberIdx={memberIdx}
+															propsMemberIdx={item.member_idx}
+															propsAvailableState={item.available_yn}
+															propsCardState={item.card_yn}
+															propsDeleteState={item.delete_yn}
+															propsBlockState={item.block_yn}
+															propsImg={item.mpi_img}
+															propsDday={item.diff_date}
+															ModalEvent={modalPopOn}
+														/>
+													)
+												}
+											})}
+										</View>
+									)
+									
+								) : (
+									<View style={styles.notData}>
+										<Text style={styles.notDataText}>내역이 없습니다.</Text>
+									</View>
+								)}								
 							</View>
-							) : null}
+							
 
-							{/* 교환한 프로필 */}
-							{data2List.length > 0 ? (
+							{/* 교환한 프로필 */}							
 							<View style={[styles.interestBox, styles.mgt50]}>
 								<View style={styles.interestBoxTitle}>
 									<Text style={styles.interestBoxTitleText}>교환한 프로필</Text>
 								</View>
-								<View style={styles.cardView}>
-									{data2List.map((item, index) => {
-										if(item.leave && !item.isFlipped){
-											return (
-												<TouchableOpacity 
-													key={index}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal2}
-													onPress={() => {													
-														setLeavePop(true);
-													}}
-												>
-													<View style={[styles.cardCont, styles.cardCont2]}>																												
-														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-													</View>
-												</TouchableOpacity>
-											)
-										}else{
-											return (
-												<Card2 
-													navigation={navigation}
-													key={index}
-													propsNick={item.name}													
-													propsAge={item.age}													
-													propsHeight={item.height}													
-													propsFlip={item.isFlipped}
-													propsDday={item.dday}
-												/>
-											)
-										}
-									})}
-								</View>
-							</View>
-							) : null}
+								{data2List.length > 0 ? (
+									loading2 ? (
+										<View style={[styles.indicator3]}><ActivityIndicator size="large" color="#D1913C" /></View>
+									) : (
+										<View style={styles.cardView}>
+											{data2List.map((item, index) => {
+												if(item.leave && !item.isFlipped){
+													return (
+														<TouchableOpacity 
+															key={index}
+															style={[styles.cardBtn, styles.cardBtn2]}
+															activeOpacity={opacityVal2}
+															onPress={() => {													
+																setLeavePop(true);
+															}}
+														>
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+															</View>
+														</TouchableOpacity>
+													)
+												}else{
+													return (
+														<Card3
+															navigation={navigation}
+															key={index}													
+															propsNick={item.member_nick}
+															propsAge={item.member_age}													
+															propsHeight={item.member_height}											
+															//propsFlip={item.isFlipped}
+															viewOrder={index+1}
+															myMemberIdx={memberIdx}
+															propsMemberIdx={item.member_idx}
+															propsAvailableState={item.available_yn}
+															propsCardState={item.card_yn}
+															propsDeleteState={item.delete_yn}
+															propsBlockState={item.block_yn}
+															propsImg={item.mpi_img}
+															propsDday={item.diff_date}
+															ModalEvent={modalPopOn}
+														/>
+													)
+												}
+											})}
+										</View>
+									)
+								) : (
+									<View style={styles.notData}>
+										<Text style={styles.notDataText}>내역이 없습니다.</Text>
+									</View>
+								)}
+							</View>							
 						</View>
 						) : null}
 
-						{tabState2 == 2 ? (
+						{tabState2 == 1 ? (
 						<View>				
-							{/* 받은 좋아요 */}
-							{data3List.length > 0 ? (
+							{/* 받은 좋아요 */}							
 							<View style={styles.interestBox}>
 								<View style={styles.interestBoxTitle}>
 									<Text style={styles.interestBoxTitleText}>받은 좋아요</Text>
 								</View>
-								<View style={styles.cardView}>
-									{data3List.map((item, index) => {
-										if(item.leave && !item.isFlipped){
-											return (
-												<TouchableOpacity 
-													key={index}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal2}
-													onPress={() => {													
-														setLeavePop(true);
-													}}
-												>
-													<View style={[styles.cardCont, styles.cardCont2]}>																												
-														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-													</View>
-												</TouchableOpacity>
-											)
-										}else{
-											return (
-												<Card2 
-													navigation={navigation}
-													key={index}
-													propsNick={item.name}													
-													propsAge={item.age}													
-													propsHeight={item.height}													
-													propsFlip={item.isFlipped}
-													propsDday={item.dday}
-												/>
-											)
-										}
-									})}
-								</View>
-							</View>
-							) : null}
+								{data3List.length > 0 ? (
+									loading2 ? (
+										<View style={[styles.indicator3]}><ActivityIndicator size="large" color="#D1913C" /></View>
+									) : (
+										<View style={styles.cardView}>
+											{data3List.map((item, index) => {
+												if(item.leave && !item.isFlipped){
+													return (
+														<TouchableOpacity 
+															key={index}
+															style={[styles.cardBtn, styles.cardBtn2]}
+															activeOpacity={opacityVal2}
+															onPress={() => {													
+																setLeavePop(true);
+															}}
+														>
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+															</View>
+														</TouchableOpacity>
+													)
+												}else{
+													return (
+														<Card3
+															navigation={navigation}
+															key={index}													
+															propsNick={item.member_nick}
+															propsAge={item.member_age}													
+															propsHeight={item.member_height}											
+															//propsFlip={item.isFlipped}
+															viewOrder={index+1}
+															myMemberIdx={memberIdx}
+															propsMemberIdx={item.member_idx}
+															propsAvailableState={item.available_yn}
+															propsCardState={item.card_yn}
+															propsDeleteState={item.delete_yn}
+															propsBlockState={item.block_yn}
+															propsImg={item.mpi_img}
+															propsDday={item.diff_date}
+															ModalEvent={modalPopOn}
+														/>
+													)
+												}
+											})}
+										</View>
+									)
+								) : (
+									<View style={styles.notData}>
+										<Text style={styles.notDataText}>내역이 없습니다.</Text>
+									</View>
+								)}
+							</View>							
 							
-							{/* 보낸 좋아요 */}
-							{data4List.length > 0 ? (
+							{/* 보낸 좋아요 */}							
 							<View style={[styles.interestBox, styles.mgt50]}>
 								<View style={styles.interestBoxTitle}>
 									<Text style={styles.interestBoxTitleText}>보낸 좋아요</Text>
 								</View>
-								<View style={styles.cardView}>
-									{data4List.map((item, index) => {
-										if(item.leave && !item.isFlipped){
-											return (
-												<TouchableOpacity 
-													key={index}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal2}
-													onPress={() => {													
-														setLeavePop(true);
-													}}
-												>
-													<View style={[styles.cardCont, styles.cardCont2]}>																												
-														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-													</View>
-												</TouchableOpacity>
-											)
-										}else{
-											return (
-												<Card2 
-													navigation={navigation}
-													key={index}
-													propsNick={item.name}													
-													propsAge={item.age}													
-													propsHeight={item.height}													
-													propsFlip={item.isFlipped}
-													propsDday={item.dday}
-												/>
-											)
-										}
-									})}
-								</View>
+								{data4List.length > 0 ? (
+									loading2 ? (
+										<View style={[styles.indicator3]}><ActivityIndicator size="large" color="#D1913C" /></View>
+									) : (
+										<View style={styles.cardView}>
+											{data4List.map((item, index) => {
+												if(item.leave && !item.isFlipped){
+													return (
+														<TouchableOpacity 
+															key={index}
+															style={[styles.cardBtn, styles.cardBtn2]}
+															activeOpacity={opacityVal2}
+															onPress={() => {													
+																setLeavePop(true);
+															}}
+														>
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+															</View>
+														</TouchableOpacity>
+													)
+												}else{
+													return (
+														<Card3
+															navigation={navigation}
+															key={index}													
+															propsNick={item.member_nick}
+															propsAge={item.member_age}													
+															propsHeight={item.member_height}											
+															//propsFlip={item.isFlipped}
+															viewOrder={index+1}
+															myMemberIdx={memberIdx}
+															propsMemberIdx={item.member_idx}
+															propsAvailableState={item.available_yn}
+															propsCardState={item.card_yn}
+															propsDeleteState={item.delete_yn}
+															propsBlockState={item.block_yn}
+															propsImg={item.mpi_img}
+															propsDday={item.diff_date}
+															ModalEvent={modalPopOn}
+														/>
+													)
+												}
+											})}
+										</View>
+									)
+								) : (
+									<View style={styles.notData}>
+										<Text style={styles.notDataText}>내역이 없습니다.</Text>
+									</View>
+								)}
 							</View>
-							) : null}
 
-							{/* 주고받은 호감 */}
-							{data5List.length > 0 ? (
+							{/* 주고받은 호감 */}							
 							<View style={[styles.interestBox, styles.mgt50]}>
 								<View style={styles.interestBoxTitle}>
 									<Text style={styles.interestBoxTitleText}>주고받은 호감</Text>
 								</View>
-								<View style={styles.cardView}>
-									{data5List.map((item, index) => {
-										if(item.leave && !item.isFlipped){
-											return (
-												<TouchableOpacity 
-													key={index}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal2}
-													onPress={() => {													
-														setLeavePop(true);
-													}}
-												>
-													<View style={[styles.cardCont, styles.cardCont2]}>																												
-														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-													</View>
-												</TouchableOpacity>
-											)
-										}else{
-											return (
-												<Card2 
-													navigation={navigation}
-													key={index}
-													propsNick={item.name}													
-													propsAge={item.age}													
-													propsHeight={item.height}													
-													propsFlip={item.isFlipped}
-													propsDday={item.dday}
-												/>
-											)
-										}
-									})}
-								</View>
+								{data5List.length > 0 ? (
+									loading2 ? (
+										<View style={[styles.indicator3]}><ActivityIndicator size="large" color="#D1913C" /></View>
+									) : (
+										<View style={styles.cardView}>
+											{data5List.map((item, index) => {
+												if(item.leave && !item.isFlipped){
+													return (
+														<TouchableOpacity 
+															key={index}
+															style={[styles.cardBtn, styles.cardBtn2]}
+															activeOpacity={opacityVal2}
+															onPress={() => {													
+																setLeavePop(true);
+															}}
+														>
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+															</View>
+														</TouchableOpacity>
+													)
+												}else{
+													return (
+														<Card3
+															navigation={navigation}
+															key={index}													
+															propsNick={item.member_nick}
+															propsAge={item.member_age}													
+															propsHeight={item.member_height}											
+															//propsFlip={item.isFlipped}
+															viewOrder={index+1}
+															myMemberIdx={memberIdx}
+															propsMemberIdx={item.member_idx}
+															propsAvailableState={item.available_yn}
+															propsCardState={item.card_yn}
+															propsDeleteState={item.delete_yn}
+															propsBlockState={item.block_yn}
+															propsImg={item.mpi_img}
+															propsDday={item.diff_date}
+															ModalEvent={modalPopOn}
+														/>
+													)
+												}
+											})}
+										</View>
+									)
+								) : (
+									<View style={styles.notData}>
+										<Text style={styles.notDataText}>내역이 없습니다.</Text>
+									</View>
+								)}
 							</View>
-							) : null}
 
-							{/* 받은 호감 */}
-							{data6List.length > 0 ? (
+							{/* 받은 호감 */}							
 							<View style={[styles.interestBox, styles.mgt50]}>
 								<View style={styles.interestBoxTitle}>
 									<Text style={styles.interestBoxTitleText}>받은 호감</Text>
 								</View>
-								<View style={styles.cardView}>
-									{data6List.map((item, index) => {
-										if(item.leave && !item.isFlipped){
-											return (
-												<TouchableOpacity 
-													key={index}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal2}
-													onPress={() => {													
-														setLeavePop(true);
-													}}
-												>
-													<View style={[styles.cardCont, styles.cardCont2]}>																												
-														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-													</View>
-												</TouchableOpacity>
-											)
-										}else{
-											return (
-												<Card2 
-													navigation={navigation}
-													key={index}
-													propsNick={item.name}													
-													propsAge={item.age}													
-													propsHeight={item.height}													
-													propsFlip={item.isFlipped}
-													propsDday={item.dday}
-												/>
-											)
-										}
-									})}
-								</View>
+								{data6List.length > 0 ? (
+									loading2 ? (
+										<View style={[styles.indicator3]}><ActivityIndicator size="large" color="#D1913C" /></View>
+									) : (
+										<View style={styles.cardView}>
+											{data6List.map((item, index) => {
+												if(item.leave && !item.isFlipped){
+													return (
+														<TouchableOpacity 
+															key={index}
+															style={[styles.cardBtn, styles.cardBtn2]}
+															activeOpacity={opacityVal2}
+															onPress={() => {													
+																setLeavePop(true);
+															}}
+														>
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+															</View>
+														</TouchableOpacity>
+													)
+												}else{
+													return (
+														<Card3
+															navigation={navigation}
+															key={index}													
+															propsNick={item.member_nick}
+															propsAge={item.member_age}													
+															propsHeight={item.member_height}											
+															//propsFlip={item.isFlipped}
+															viewOrder={index+1}
+															myMemberIdx={memberIdx}
+															propsMemberIdx={item.member_idx}
+															propsAvailableState={item.available_yn}
+															propsCardState={item.card_yn}
+															propsDeleteState={item.delete_yn}
+															propsBlockState={item.block_yn}
+															propsImg={item.mpi_img}
+															propsDday={item.diff_date}
+															ModalEvent={modalPopOn}
+														/>
+													)
+												}
+											})}
+										</View>
+									)
+								) : (
+									<View style={styles.notData}>
+										<Text style={styles.notDataText}>내역이 없습니다.</Text>
+									</View>
+								)}
 							</View>
-							) : null}
 
-							{/* 보낸 호감 */}
-							{data7List.length > 0 ? (
+							{/* 보낸 호감 */}							
 							<View style={[styles.interestBox, styles.mgt50]}>
 								<View style={styles.interestBoxTitle}>
 									<Text style={styles.interestBoxTitleText}>보낸 호감</Text>
 								</View>
-								<View style={styles.cardView}>
-									{data7List.map((item, index) => {
-										if(item.leave && !item.isFlipped){
-											return (
-												<TouchableOpacity 
-													key={index}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal2}
-													onPress={() => {													
-														setLeavePop(true);
-													}}
-												>
-													<View style={[styles.cardCont, styles.cardCont2]}>																												
-														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-													</View>
-												</TouchableOpacity>
-											)
-										}else{
-											return (
-												<Card2 
-													navigation={navigation}
-													key={index}
-													propsNick={item.name}													
-													propsAge={item.age}													
-													propsHeight={item.height}													
-													propsFlip={item.isFlipped}
-													propsDday={item.dday}
-												/>
-											)
-										}
-									})}
-								</View>
+								{data7List.length > 0 ? (
+									loading2 ? (
+										<View style={[styles.indicator3]}><ActivityIndicator size="large" color="#D1913C" /></View>
+									) : (
+										<View style={styles.cardView}>
+											{data7List.map((item, index) => {
+												if(item.leave && !item.isFlipped){
+													return (
+														<TouchableOpacity 
+															key={index}
+															style={[styles.cardBtn, styles.cardBtn2]}
+															activeOpacity={opacityVal2}
+															onPress={() => {													
+																setLeavePop(true);
+															}}
+														>
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+															</View>
+														</TouchableOpacity>
+													)
+												}else{
+													return (
+														<Card3
+															navigation={navigation}
+															key={index}													
+															propsNick={item.member_nick}
+															propsAge={item.member_age}													
+															propsHeight={item.member_height}											
+															//propsFlip={item.isFlipped}
+															viewOrder={index+1}
+															myMemberIdx={memberIdx}
+															propsMemberIdx={item.member_idx}
+															propsAvailableState={item.available_yn}
+															propsCardState={item.card_yn}
+															propsDeleteState={item.delete_yn}
+															propsBlockState={item.block_yn}
+															propsImg={item.mpi_img}
+															propsDday={item.diff_date}
+															ModalEvent={modalPopOn}
+														/>
+													)
+												}
+											})}
+										</View>
+									)
+								) : (
+									<View style={styles.notData}>
+										<Text style={styles.notDataText}>내역이 없습니다.</Text>
+									</View>
+								)}
 							</View>
-							) : null}					
 						</View>
 						) : null}
 						
-						{tabState2 == 3 ? (
+						{tabState2 == 2 ? (
 						<View>			
-							{/* 매칭된 이성 */}
-							{data8List.length > 0 ? (
+							{/* 매칭된 이성 */}							
 							<View style={styles.interestBox}>
 								<View style={styles.interestBoxTitle}>
 									<Text style={styles.interestBoxTitleText}>매칭된 이성</Text>
 								</View>
-								<View style={styles.interestBoxDesc}>
-									<Text style={styles.interestBoxDescText}>매칭을 축하합니다!</Text>										
-									<ImgDomain fileWidth={12} fileName={'icon_pang.png'} />
-								</View>
-								<View style={styles.cardView}>
-									{data8List.map((item, index) => {
-										if(item.leave && !item.isFlipped){
-											return (
-												<TouchableOpacity 
-													key={index}
-													style={[styles.cardBtn, styles.cardBtn2]}
-													activeOpacity={opacityVal2}
-													onPress={() => {													
-														setLeavePop(true);
-													}}
-												>
-													<View style={[styles.cardCont, styles.cardCont2]}>																												
-														<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
-													</View>
-												</TouchableOpacity>
-											)
-										}else{
-											return (
-												<Card2 
-													navigation={navigation}
-													key={index}
-													propsNick={item.name}													
-													propsAge={item.age}													
-													propsHeight={item.height}													
-													propsFlip={item.isFlipped}
-													propsDday={item.dday}
-												/>
-											)
-										}
-									})}
-								</View>
+								{data8List.length > 0 ? (
+									loading2 ? (
+										<View style={[styles.indicator3]}><ActivityIndicator size="large" color="#D1913C" /></View>
+									) : (
+										<>
+										<View style={styles.interestBoxDesc}>
+											<Text style={styles.interestBoxDescText}>매칭을 축하합니다!</Text>										
+											<ImgDomain fileWidth={12} fileName={'icon_pang.png'} />
+										</View>
+										<View style={styles.cardView}>
+											{data8List.map((item, index) => {
+												if(item.leave && !item.isFlipped){
+													return (
+														<TouchableOpacity 
+															key={index}
+															style={[styles.cardBtn, styles.cardBtn2]}
+															activeOpacity={opacityVal2}
+															onPress={() => {													
+																setLeavePop(true);
+															}}
+														>
+															<View style={[styles.cardCont, styles.cardCont2]}>																												
+																<ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+															</View>
+														</TouchableOpacity>
+													)
+												}else{
+													return (
+														<Card3
+															navigation={navigation}
+															key={index}													
+															propsNick={item.member_nick}
+															propsAge={item.member_age}													
+															propsHeight={item.member_height}											
+															//propsFlip={item.isFlipped}
+															viewOrder={index+1}
+															myMemberIdx={memberIdx}
+															propsMemberIdx={item.member_idx}
+															propsAvailableState={item.available_yn}
+															propsCardState={item.card_yn}
+															propsDeleteState={item.delete_yn}
+															propsBlockState={item.block_yn}
+															propsImg={item.mpi_img}
+															propsDday={item.diff_date}
+															ModalEvent={modalPopOn}
+														/>
+													)
+												}
+											})}
+										</View>
+										</>
+									)
+								) : (
+									<View style={styles.notData}>
+										<Text style={styles.notDataText}>내역이 없습니다.</Text>
+									</View>
+								)}
 							</View>
-							) : null}
 						</View>
 						) : null}
 					</View>
@@ -1845,7 +2048,7 @@ const Home = (props) => {
 						</View>
 						<View style={styles.pointBox}>
 							<ImgDomain fileWidth={24} fileName={'coin.png'} />
-							<Text style={styles.pointBoxText}>100</Text>
+							<Text style={styles.pointBoxText}>5</Text>
 						</View>						
 						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
 						<TouchableOpacity 
@@ -1858,9 +2061,13 @@ const Home = (props) => {
 							<TouchableOpacity 
 								style={[styles.popBtn, styles.popBtn2]}
 								activeOpacity={opacityVal}
-								onPress={() => {
-									setAddIntroPop(false);
-									setCashPop(true);
+								onPress={() => {									
+									if(memberPoint < 5){
+										setAddIntroPop(false);
+										setCashPop(true);
+									}else{
+										addCardList();
+									}									
 								}}
 							>
 								<Text style={styles.popBtnText}>네</Text>
@@ -2000,7 +2207,7 @@ const Home = (props) => {
 						</View>
 						<View style={[styles.popTitle, styles.popTitleFlex]}>							
 							<View style={styles.popTitleFlexWrap}>
-								<Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>카드가 없어요</Text>
+								<Text style={[styles.popTitleText]}>카드가 없어요</Text>
 							</View>
 							<ImgDomain fileWidth={14} fileName={'emiticon2.png'} />
 						</View>
@@ -2047,10 +2254,10 @@ const Home = (props) => {
 				<TouchableOpacity 
 					style={[styles.popBack, styles.popBack2]} 
 					activeOpacity={1} 
-					onPress={()=>{setWelcomePop(false)}}
+					onPress={()=>setWelcomePop(false)}
 				>
 				</TouchableOpacity>
-				<View style={styles.prvPopBot2}>
+				<View style={[styles.prvPopBot2, styles.prvPopBot4]}>
 					<ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/welcome.png'}} resizeMode="cover" >
 						<View style={styles.prvPopBot2Wrap}>
 							<View style={styles.prvPopBot2Title}>
@@ -2083,8 +2290,7 @@ const Home = (props) => {
 				</View>
 			</Modal>
 
-			{loading ? ( <View style={[styles.indicator]}><ActivityIndicator size="large" color="#D1913C" /></View> ) : null}
-      {loading2 ? ( <View style={[styles.indicator, styles.indicator2]}><ActivityIndicator size="large" color="#fff" /></View> ) : null}
+			{loading && tabState == 1 ? ( <View style={[styles.indicator]}><ActivityIndicator size="large" color="#D1913C" /></View> ) : null}      
 			
 		</SafeAreaView>
 	)
@@ -2095,6 +2301,7 @@ const styles = StyleSheet.create({
 	gapBox: {height:86,},
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
   indicator2: { backgroundColor:'rgba(0,0,0,0.5)'},
+	indicator3: {paddingVertical:50,},
 
 	header: {backgroundColor:'#141E30'},
 	headerTop: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingTop:20,paddingBottom:10,},
@@ -2160,7 +2367,8 @@ const styles = StyleSheet.create({
 
 	cmWrap: {paddingVertical:40,paddingHorizontal:20,},
 	cmWrap2: {paddingTop:30,},
-	cardView: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', },
+	cardView: {flexDirection: 'row',flexWrap: 'wrap'},
+	cardView2: {justifyContent: 'space-between',},
 	dday: {width:innerWidth,height:17,backgroundColor:'#fff',marginTop:30,flexDirection:'row',justifyContent:'center',position:'relative'},
 	ddayLine: {width:innerWidth,height:1,backgroundColor:'#D1913C',position:'absolute',left:0,top:8,},
 	ddayText: {width:40,height:17,textAlign:'center',backgroundColor:'#fff',position:'relative',zIndex:10,fontFamily:Font.RobotoRegular,fontSize:15,lineHeight:17,color:'#D1913C'},
@@ -2196,7 +2404,7 @@ const styles = StyleSheet.create({
 	state2TabBtnTextOn: {color:'#141E30'},
 
 	interestBoxTitle: {},
-	interestBoxTitleText: {fontFamily:Font.NotoSansBold,fontSize:17,lineHeight:19,color:'#1e1e1e',},
+	interestBoxTitleText: {fontFamily:Font.NotoSansBold,fontSize:17,lineHeight:22,color:'#1e1e1e',},
 	interestBoxDesc: {flexDirection:'row',alignItems:'center',marginTop:4,},
 	interestBoxDescText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#666',marginRight:2,},
 
@@ -2209,9 +2417,9 @@ const styles = StyleSheet.create({
 	popTitle: {paddingBottom:20,},
 	popTitleFlex: {flexDirection:'row',alignItems:'center',justifyContent:'center',flexWrap:'wrap'},
 	popTitleFlexWrap: {position:'relative',},
-	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E',},
+	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:25,color:'#1E1E1E',},
   popTitleFlexText: {position:'relative',top:0.5,},	
-	popTitleDesc: {width:innerWidth-40,textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:20,},
+	popTitleDesc: {width:innerWidth-40,textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e',marginTop:20,},
 	emoticon: {},
 	popIptBox: {paddingTop:10,},
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
@@ -2228,6 +2436,7 @@ const styles = StyleSheet.create({
 	prvPopBot: {width:widnowWidth,paddingTop:40,paddingBottom:10,paddingHorizontal:20,backgroundColor:'#fff',borderTopLeftRadius:20,borderTopRightRadius:20,position:'absolute',bottom:0,},
 	prvPopBot2: {width:widnowWidth,position:'absolute',bottom:0,},
 	prvPopBot3: {paddingHorizontal:0,},
+	prvPopBot4: {borderTopLeftRadius:20,borderTopRightRadius:20,overflow:'hidden'},
 	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,color:'#1e1e1e',},
 	popBotTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#666',marginTop:10,},
 
@@ -2263,9 +2472,9 @@ const styles = StyleSheet.create({
 	productBest: {height:20,paddingHorizontal:8,borderRadius:20,marginTop:5,},
 	productBest2: {backgroundColor:'#FFBF1A',},
 	productText2: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:18,color:'#fff'},
-	productText3: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
+	productText3: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
 	productText3On: {color:'#1e1e1e'},
-	productText4: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
+	productText4: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
 
 	accImg: {alignItems:'center',justifyContent:'center',width:widnowWidth,height:180,backgroundColor:'#F2F4F6',position:'relative'},
 	accCircle: {alignItems:'center',justifyContent:'center',width:80,height:80,borderWidth:2,borderColor:'#EDEDED',borderRadius:50,overflow:'hidden',position:'absolute',bottom:-40},
@@ -2276,6 +2485,9 @@ const styles = StyleSheet.create({
 	accInfoTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#666'},
 	accInfoDesc: {flexDirection:'row',alignItems:'center',justifyContent:'center'},
 	accInfoDescText: {fontFamily:Font.NotoSansRegular,fontSize:16,lineHeight:28,color:'#666'},
+
+	notData: {paddingTop:30},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	boxShadow: {
 		shadowColor: "#000",

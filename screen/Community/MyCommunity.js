@@ -36,7 +36,7 @@ const MyCommunity = (props) => {
 	];
 
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -130,7 +130,7 @@ const MyCommunity = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-		//console.log(response);
+		console.log(tabState);
 		if(response.code == 200){						
 			if(response.data){
 				setTotalPage(Math.ceil(response.data.length/10));
@@ -157,13 +157,15 @@ const MyCommunity = (props) => {
 			cateString = '셀소';
 		}
 
+		//console.log(item.comm_subject+"::::"+item.notice_member_idx);
+
 		return (
 		<View style={[styles.commLi, index == 0 ? styles.mgt0 : null, item.delete_yn == 'y' ? styles.commOPacity : null]}>
 			<TouchableOpacity
 				style={[styles.commLiBtn, index == 0 ? styles.pdt0 : null]}
 				activeOpacity={opacityVal}
 				onPress={()=>{
-					navigation.navigate('CommunityView', {comm_idx:item.comm_idx, cateName:cateString});
+					navigation.navigate('CommunityView', {comm_idx:item.comm_idx, cateName:cateString, needUpdate:item.notice_member_idx == memberIdx ? 1 : null});
 				}}
 			>
 				<View style={styles.commLiProfile}>
@@ -173,7 +175,14 @@ const MyCommunity = (props) => {
 						<ImgDomain fileWidth={40} fileName={'profile_sample2.png'}/>
 					)}
 				</View>
-				<View style={[styles.commLiInfo, item.ci_img ? null : styles.commLiInfo2]}>
+				{/* styles.commCnt */}
+				<View style={[
+					styles.commLiInfo,
+					item.ci_img ? null : styles.commLiInfo2,
+					item.notice_member_idx == memberIdx && item.ci_img ? styles.commCnt : null,
+					item.notice_member_idx == memberIdx && !item.ci_img ? styles.commCnt2 : null
+				]}
+				>
 					<View style={styles.commLiInfoSubject}>
 						<Text style={styles.commLiInfoSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.comm_subject}</Text>
 						{item.comm_care == 1 ? (
@@ -195,8 +204,13 @@ const MyCommunity = (props) => {
 						<View style={styles.commLiSubView}>
 							<Text style={styles.commLiSubViewText}>{item.comm_date_text}</Text>
 						</View>
-					</View>
+					</View>					
 				</View>
+				{item.notice_member_idx == memberIdx ? (
+				<View style={styles.commEventCnt}>
+					<Text style={styles.commEventCntText}>N</Text>
+				</View>
+				) : null}
 				{item.ci_img ? (
 				<ImageBackground
 					style={styles.commLiThumb}						
@@ -220,13 +234,18 @@ const MyCommunity = (props) => {
 
 	//리스트 무한 스크롤
 	const moreData = async () => {
-
+		if(totalPage > nowPage){
+			console.log('moreData nowPage ::::', nowPage);
+			getCommList(nowPage+1);
+			setNowPage(nowPage+1);
+		}
 	}
 
 	const onRefresh = () => {
 		if(!refreshing) {
 			setRefreshing(true);
-			//getItemList();
+			getCommList(1);
+			setNowPage(1);
 			setTimeout(() => {
 				setRefreshing(false);
 			}, 2000);
@@ -357,20 +376,21 @@ const styles = StyleSheet.create({
 	commOPacity: {opacity:0.5},
 	commLiBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:20,paddingVertical:20,},
 	commLiProfile: {alignItems:'center',justifyContent:'center',width:38,height:38,borderRadius:50,overflow:'hidden'},
-	commLiInfo: {width:innerWidth-80,paddingHorizontal:10,position:'relative'},
+	commLiInfo: {width:innerWidth-80,paddingHorizontal:10,position:'relative',},
 	commLiInfo2: {width:innerWidth-38,paddingRight:0,},
+	commCnt: {width:innerWidth-115,},
+	commCnt2: {width:innerWidth-58,},
 	commLiInfoSubject: {flexDirection:'row',alignItems:'center',paddingRight:25,},
 	commLiInfoSubjectText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:19,color:'#1e1e1e'},
 	commLiInfoAlert: {marginLeft:4,},
-	commLiSubInfo: {flexDirection:'row',alignItems:'center',marginTop:5},
+	commLiSubInfo: {flexDirection:'row',alignItems:'center',marginTop:5,},
 	commLiSubView: {flexDirection:'row',alignItems:'center',},
 	commLiSubView2: {marginLeft:4,},
 	commLiSubViewText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:14,color:'#B8B8B8'},
 	commLiSubLine: {width:1,height:6,backgroundColor:'#EDEDED',marginHorizontal:7,position:'relative',top:1,},
 	commLiThumb : {alignItems:'center',justifyContent:'center',width:42,height:42,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,overflow:'hidden'},
-	socialEventCnt: {alignItems:'center',justifyContent:'center',minWidth:20,height:16,backgroundColor:'#fff',borderWidth:1,borderColor:'#FF1A1A',borderRadius:20,position:'absolute',right:10,top:10,},
-  socialEventCnt2: {right:0},
-  socialEventCntText: {fontFamily:Font.RobotoMedium,fontSize:10,lineHeight:line,color:'#FF1A1A'},
+	commEventCnt: {alignItems:'center',justifyContent:'center',width:20,height:16,backgroundColor:'#fff',borderWidth:1,borderColor:'#FF1A1A',borderRadius:20,},
+  commEventCntText: {fontFamily:Font.RobotoMedium,fontSize:10,lineHeight:line,color:'#FF1A1A'},
 
 	filterTitle: {},
 	filterTitleText: {fontFamily:Font.NotoSansSemiBold,fontSize:16,lineHeight:18,color:'#1e1e1e'},

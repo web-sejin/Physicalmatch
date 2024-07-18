@@ -1,12 +1,10 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import { WebView } from 'react-native-webview';
 import RenderHtml from 'react-native-render-html';
 
 import APIs from "../../assets/APIs";
@@ -24,6 +22,7 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const UseGuide = (props) => {
+  const webViews = useRef();
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, chatInfo, route} = props;
 	const {params} = route
@@ -81,17 +80,17 @@ const UseGuide = (props) => {
 
   const getCont = async () => {
     let sData = {      
-      basePath: "/api/etc/index.php",
+      basePath: "/api/etc/",
 			type: "GetGuide",
       tab: tabSt,
 		}
 		const response = await APIs.send(sData);
     //console.log(response);
 		if(response.code == 200){
-      const source = {
-        html: response.data
-      };
-      setTabCont(source);
+      // const source = {
+      //   html: response.data
+      // };
+      setTabCont(response.data);
     }
   }
 
@@ -128,14 +127,32 @@ const UseGuide = (props) => {
       </View>
 
       {tabCont ? (
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.cmWrap}>
-            <RenderHtml
-              contentWidth={widnowWidth}
-              source={tabCont}            
-            />
-          </View>
-        </ScrollView>
+        <View style={{flex:1}}>
+          <WebView
+            ref={webViews}
+            source={{uri: tabCont}}
+            useWebKit={false}						
+            javaScriptEnabledAndroid={true}
+            allowFileAccess={true}
+            renderLoading={true}
+            mediaPlaybackRequiresUserAction={false}
+            setJavaScriptEnabled = {false}
+            scalesPageToFit={true}
+            allowsFullscreenVideo={true}
+            allowsInlineMediaPlayback={true}						
+            originWhitelist={['*']}
+            javaScriptEnabled={true}
+            textZoom = {100}
+          />
+        </View>
+        // <ScrollView style={styles.scrollView}>
+        //   <View style={styles.cmWrap}>
+        //     <RenderHtml
+        //       contentWidth={widnowWidth}
+        //       source={tabCont}            
+        //     />
+        //   </View>
+        // </ScrollView>
       ) : (
         <View style={[styles.indicator]}>
           <ActivityIndicator size="large" color="#D1913C" />

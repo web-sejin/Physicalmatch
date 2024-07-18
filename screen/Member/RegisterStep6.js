@@ -27,10 +27,14 @@ const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 
 const RegisterStep6 = ({navigation, route}) => {		
+	// console.log('phonenumber6 ::: ', route['params']['phonenumber']);
+	// console.log('age6 ::: ', route['params']['age']);
 	
 	const nextObj = {
 		prvChk4:route['params']['prvChk4'],
 		accessRoute:route['params']['accessRoute'],
+		phonenumber:route['params']['phonenumber'],
+		age:route['params']['age'],
 		member_id:route['params']['member_id'],
 		member_pw:route['params']['member_pw'],
 		member_nick:route['params']['member_nick'],
@@ -67,6 +71,7 @@ const RegisterStep6 = ({navigation, route}) => {
 		member_religion:route['params']['member_religion'],
 	}
 
+	const webViews = useRef();
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
 	const navigationUse = useNavigation();
@@ -157,15 +162,16 @@ const RegisterStep6 = ({navigation, route}) => {
 
 	const getGuideCont = async () => {
 		let sData = {      
-      basePath: "/api/etc/index.php",
+      basePath: "/api/etc/",
 			type: "GetProfileGuide",
 		}
 		const response = await APIs.send(sData);		
+		console.log('response ::: ', response);
 		if(response.code == 200){
-			const source = {
-        html: response.data
-      };
-      setGuideCont(source);
+			// const source = {
+      //   html: response.data
+      // };			
+      setGuideCont(response.data);
 		}
 	}
 
@@ -289,6 +295,10 @@ const RegisterStep6 = ({navigation, route}) => {
 		navigation.navigate('RegisterStep7', nextObj);
 	}
 
+	const source = {
+    html: '<p style="color: red;">This is a red paragraph.</p>'
+  };
+
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
 	const behavior = Platform.OS === "ios" ? "padding" : "height";
@@ -309,8 +319,8 @@ const RegisterStep6 = ({navigation, route}) => {
 							nextObj.file4 = file4;
 							nextObj.file5 = file5;
 							nextObj.file6 = file6;
-							if(route['params']['qnaList']){ nextObj.qnaList = route['params']['qnaList']; }
-							if(route['params']['intro']){ nextObj.intro = route['params']['intro']; }
+							if(route['params']['qnaList']){ nextObj.qnaList = route['params']['qnaList']; }														
+							if(route['params']['member_intro']){ nextObj.member_intro = route['params']['member_intro']; }
 							//if(route['params']['qnaListData']){ nextObj.qnaListData = route['params']['qnaListData']; }
 							if(route['params']['qnaListChk']){ nextObj.qnaListChk = route['params']['qnaListChk']; }
 							if(route['params']['step8File1']){ nextObj.step8File1 = route['params']['step8File1']; }
@@ -489,6 +499,7 @@ const RegisterStep6 = ({navigation, route}) => {
 
 			<Modal
 				visible={guideModal}
+				//visible={true}
 				animationType={"none"}
 				onRequestClose={() => {
 					setGuideModal(false);
@@ -509,15 +520,32 @@ const RegisterStep6 = ({navigation, route}) => {
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
-				<ScrollView>
+				<View style={{flex:1}}>
+					<WebView
+						ref={webViews}
+						source={{uri: guideCont}}
+						useWebKit={false}						
+						javaScriptEnabledAndroid={true}
+						allowFileAccess={true}
+						renderLoading={true}
+						mediaPlaybackRequiresUserAction={false}
+						setJavaScriptEnabled = {false}
+						scalesPageToFit={true}
+						allowsFullscreenVideo={true}
+						allowsInlineMediaPlayback={true}						
+						originWhitelist={['*']}
+						javaScriptEnabled={true}
+						textZoom = {100}
+					/>
+				</View>
+				{/* <ScrollView>
 					<View style={styles.guidePopCont}>
-						{/* <Text style={styles.guidePopContText}>{guideCont}</Text> */}
 						<RenderHtml
               contentWidth={widnowWidth}
               source={guideCont}            
             />
 					</View>
-				</ScrollView>
+				</ScrollView> */}
 			</Modal>
 
 			{loading ? (

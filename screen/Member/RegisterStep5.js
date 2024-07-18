@@ -65,8 +65,13 @@ const smokeSortList = [
 ]
 
 const RegisterStep5 = ({navigation, route}) => {		
+	// console.log('phonenumber5 ::: ', route['params']['phonenumber']);
+	// console.log('age5 ::: ', route['params']['age']);
+
 	const prvChk4 = route['params']['prvChk4'];
   const accessRoute = route['params']['accessRoute'];
+	const phonenumber = route['params']['phonenumber'];
+  const age = route['params']['age'];
   const member_id = route['params']['member_id'];
 	const member_pw = route['params']['member_pw'];
 
@@ -841,6 +846,8 @@ const RegisterStep5 = ({navigation, route}) => {
 		const nextObj = {
 			prvChk4:prvChk4,
 			accessRoute:accessRoute,
+			phonenumber:phonenumber,
+      age:age,
 			member_id:member_id,
 			member_pw:member_pw,
 			member_nick:realNick,
@@ -1482,7 +1489,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
 				</TouchableOpacity>
 				<Postcode
-					style={{ width: innerWidth-40, height: innerHeight-90, }}
+					style={{ width: '100%', height: innerHeight-90, }}
 					jsOptions={{ animation: true }}
 					onSelected={data => {
 						//console.log(JSON.stringify(data))
@@ -2632,7 +2639,7 @@ const styles = StyleSheet.create({
 	popBack: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,},
 	prvPop: {position:'relative',zIndex:10,width:innerWidth,maxHeight:innerHeight,paddingTop:50,paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',borderRadius:10,},
 	prvPop2: {height:innerHeight,},
-	prvPop3: {position:'absolute',left:20,top:20+(stBarHt/2),},
+	prvPop3: {position:'absolute',left:20,top:20+(stBarHt/2),paddingHorizontal:10,},
 	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
 	popTitle: {paddingBottom:20,},
 	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E'},
@@ -2718,7 +2725,7 @@ const styles = StyleSheet.create({
 
 	physicalList: {flexDirection:'row',flexWrap:'wrap',justifyContent:'center'},
 	phyBtn: {justifyContent:'center',height:33,marginHorizontal:4,paddingHorizontal:14,borderWidth:1,borderColor:'#EDEDED',borderRadius:50,marginTop:8,},
-	phyBtnText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1E1E1E'},
+	phyBtnText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:19,color:'#1E1E1E'},
 	phyBtnOn: {backgroundColor:'rgba(209,145,60,0.1)',borderColor:'#D1913C'},
 	phyBtnTextOn: {color:'#D1913C'},
 

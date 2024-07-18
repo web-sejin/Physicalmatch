@@ -21,9 +21,10 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 const radius = widnowWidth >= 640 ? 240 : 90;
 const radius2 = widnowWidth >= 640 ? 15 : 5;
 
-const Card2 = (props) => {
+const Card3 = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, propsNick, propsAge, propsHeight, propsFlip, propsDday, propsSreen, viewOrder, propsSjIdx, propsSocialIdx, propsMemberIdx, propsState, propsImg} = props;  
+
+	const {navigation, propsNick, propsAge, propsHeight, viewOrder, myMemberIdx, propsMemberIdx, propsAvailableState, propsCardState, propsDeleteState, propsBlockState, ModalEvent, propsImg, propsDday} = props;  
   const spin = useSharedValue(0);
 
 	const frontAnimatedStyle = useAnimatedStyle(() => {
@@ -47,8 +48,19 @@ const Card2 = (props) => {
     };
   }, []);
 
-	const onFlip = () => {
-    spin.value = spin.value ? 0 : 1;
+	const onFlip = async () => {
+    //propsMrIdx
+    let sData = {      
+      basePath: "/api/match/",
+			type: "OpenDailyCard",
+      member_idx: myMemberIdx,
+			mr_idx: propsMrIdx,
+		}
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){
+			spin.value = spin.value ? 0 : 1;
+		}    
   };
 
   const ViewDetail = () => {
@@ -56,23 +68,25 @@ const Card2 = (props) => {
 		navigation.navigate(
       'MatchDetail', 
       {
-        accessType:'social', 
+        accessType:'match', 
         mb_member_idx:propsMemberIdx,
-        commIdx:propsSocialIdx, 
-        commIdx2:propsSjIdx,
-        currState:propsState,
-        writeType:1, //1:내 글, 2:남의 글
       }
     )
 	}
 
 	return (
-    <View style={[styles.cardBtn, styles.cardBtn2, propsSreen == 'SocialView' ? styles.cardBtn3 : null, viewOrder%3 == 0 ? styles.mgr0 : null]}>
+    <View style={[styles.cardBtn, styles.cardBtn2, viewOrder%3 == 0 ? styles.mgr0 : null]}>
       <TouchableOpacity 
         style={[styles.fakeView]} 
         activeOpacity={opacityVal}
-        onPress={()=>{        
-          if(propsDday > 0){
+        onPress={()=>{          
+          if(propsAvailableState == 'n'){
+            ModalEvent(1)
+          }else if(propsDeleteState == 'y'){
+            ModalEvent(3)
+          }else if(propsBlockState == 'y'){
+            ModalEvent(4)
+          }else{
             if(spin.value == 0){
               ViewDetail();
             }else if(spin.value == 1){
@@ -81,7 +95,11 @@ const Card2 = (props) => {
           }
         }}
       >
-        {propsDday > 0 ? (
+        {propsAvailableState == 'n' || propsDeleteState == 'y' || propsBlockState == 'y' ? (
+          <View style={[styles.cardCont, styles.cardCont2]}>
+            <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />
+          </View>
+        ) : (
           <>
             <Animated.View style={[styles.cardCont, styles.cardCont2, styles.front, frontAnimatedStyle]}>
               <View style={[styles.cardFrontInfo, styles.cardFrontInfo2]}>
@@ -111,16 +129,9 @@ const Card2 = (props) => {
               <View style={styles.boxShadow}>
                 <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />     
                 </View>      
-            </Animated.View> 
+            </Animated.View>
           </>
-        ) : (
-          <View style={[styles.cardCont, styles.cardCont2, styles.back]}>    
-            <View style={styles.boxShadow}>
-              <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />     
-            </View>      
-          </View>
-        )}
-           
+        )}                      
       </TouchableOpacity>  
     </View>
 	)
@@ -203,4 +214,4 @@ const styles = StyleSheet.create({
 	w100p: {width:innerWidth},
 })
 
-export default Card2
+export default Card3

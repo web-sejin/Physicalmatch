@@ -1,11 +1,9 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
+import { WebView } from 'react-native-webview';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
@@ -24,6 +22,7 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const RegisterStep1 = ({navigation, route}) => {	
+	const webViews = useRef();
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const navigationUse = useNavigation();
@@ -303,11 +302,29 @@ const RegisterStep1 = ({navigation, route}) => {
 				<View style={styles.popTitle}>
 					<Text style={styles.popTitleText}>{prvTitle}</Text>
 				</View>
-				<ScrollView>
+				<View style={{flex:1}}>
+					<WebView
+						ref={webViews}
+						source={{uri: prvContent}}
+						useWebKit={false}						
+						javaScriptEnabledAndroid={true}
+						allowFileAccess={true}
+						renderLoading={true}
+						mediaPlaybackRequiresUserAction={false}
+						setJavaScriptEnabled = {false}
+						scalesPageToFit={true}
+						allowsFullscreenVideo={true}
+						allowsInlineMediaPlayback={true}						
+						originWhitelist={['*']}
+						javaScriptEnabled={true}
+						textZoom = {100}
+					/>
+				</View>
+				{/* <ScrollView>
 					<View style={styles.prvPopCont}>
 						<Text style={styles.prvPopContText}>{prvContent}</Text>
 					</View>
-				</ScrollView>
+				</ScrollView> */}
 			</View>
 			</>
 			) : null}
@@ -359,7 +376,7 @@ const styles = StyleSheet.create({
 	mgt25: {marginTop:25},
 
 	popBack: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,backgroundColor:'#000',opacity:0.7},
-	prvPop: {position:'absolute',left:20,top:stBarHt,width:innerWidth,height:innerHeight,backgroundColor:'#fff',borderRadius:10},
+	prvPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,backgroundColor:'#fff',},
 	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
 	popTitle: {paddingTop:50,paddingBottom:20,},
 	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1e1e1e'},

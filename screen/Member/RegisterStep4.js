@@ -19,8 +19,13 @@ const opacityVal = 0.8;
 
 const RegisterStep4 = ({navigation, route}) => {	
 
+	// console.log('phonenumber4 ::: ', route['params']['phonenumber']);
+	// console.log('age4 ::: ', route['params']['age']);
+
   const prvChk4 = route['params']['prvChk4'];
   const accessRoute = route['params']['accessRoute'];
+	const phonenumber = route['params']['phonenumber'];
+  const age = route['params']['age'];
   const member_id = route['params']['member_id'];
 
 	const [routeLoad, setRouteLoad] = useState(false);
@@ -74,6 +79,8 @@ const RegisterStep4 = ({navigation, route}) => {
 		navigation.navigate('RegisterStep5', {
       prvChk4:prvChk4,
       accessRoute:accessRoute, 
+			phonenumber:phonenumber,
+      age:age,
       member_id:member_id,
 			member_pw:pw,
     })

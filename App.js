@@ -12,7 +12,6 @@ class App extends Component {
 
 	componentDidMount() {
 		BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-
 		//앱 로딩페이지 2초 후 사라짐
 		setTimeout(() => {
 			this.setState({

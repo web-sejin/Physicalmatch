@@ -1,17 +1,17 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import ImgDomain from '../assets/common/ImgDomain';
 import AsyncStorage from '@react-native-community/async-storage';
-import {connect} from 'react-redux';
-import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
 import DeviceInfo from 'react-native-device-info';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import APIs from "../assets/APIs"
+
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
 const widnowWidth = Dimensions.get('window').width;
@@ -100,22 +100,33 @@ const Intro = (props) => {
 		}
 		const response = await APIs.send(sData);		
 		//console.log('자동로그인 체크 ::::: ',response);		
-		
+		if(response.code == 200){
+			saveRedux(response.data.member_idx);
+		}
 		setTimeout(() => {
-			if(response.code == 200){				
+			if(response.code == 200){						
 				if(response.data.member_type == 0){
 					navigation.replace('RegisterResult');
+				}else if(response.data.member_type == 2 || response.data.is_match_ban == 'y' || response.data.is_social_ban == 'y' || response.data.is_comm_ban == 'y'){
+					navigation.replace('TabNavigation', {screen: 'Mypage'});
 				}else{
 					if(response.data.available_yn == 'n'){
 						navigation.replace('Disable');
 					}else{
 						navigation.replace('TabNavigation');
 					}
-				}
+				}				
 			}else{
 				navigation.navigate('Intro2');
 			}			
 		}, 2000);		
+	}
+
+	const saveRedux = async (idx) => {
+		const formData = new FormData();
+		formData.append('type', 'GetMyInfo');
+		formData.append('member_idx', idx);
+		const mem_info = await member_info(formData);
 	}
 
 	return (
@@ -139,4 +150,13 @@ const styles = StyleSheet.create({
 	indicator: { width:widnowWidth, height: widnowHeight-stBarHt, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', position:'absolute', left:0, top:0, paddingBottom:50,},		
 })
 
-export default Intro
+//export default Intro
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		member_login: (user) => dispatch(UserAction.member_login(user)), //회원 로그인
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+	})
+)(Intro);

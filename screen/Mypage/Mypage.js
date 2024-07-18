@@ -49,6 +49,9 @@ const Mypage = (props) => {
 	const [memberNick, setMemberNick] = useState('');
 	const [memberProfile, setMemberProfile] = useState('');
 	const [memberType, setMemberType] = useState();
+	const [eva, setEva] = useState();
+	const [evaPoint, setEvaPoint] = useState();
+	const [rejectMemo, setRejectMemo] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -105,8 +108,12 @@ const Mypage = (props) => {
 		};
 
 		const response = await APIs.send(sData);    
+		console.log(response);
 		if(response.code == 200){
-			setMemberType(response.data.member_type);		
+			setMemberType(response.data.member_type);
+			setEva(response.e_yn);
+			setEvaPoint(response.e_point);
+			setRejectMemo(response.data.reject_memo);
 		}
 	}
 
@@ -118,16 +125,24 @@ const Mypage = (props) => {
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'MY PAGE'} />
 
-			{memberType == 0 ? (
+			{memberType != 1 ? (
 			<View style={{...styles.screening, paddingTop:padding_top}}>
 				<View style={styles.screeningTitle}>					
 					<ImgDomain fileWidth={16} fileName={'icon_screening.png'}/>
 					<View style={styles.screeningView}>
-						<Text style={styles.screeningText}>프로필이 심사 중에 있습니다.</Text>
+						{rejectMemo != '' ? (
+							<Text style={styles.screeningText}>프로필이 반려되었습니다.</Text>
+						) : (
+							<Text style={styles.screeningText}>프로필이 심사 중에 있습니다.</Text>
+						)}						
 					</View>
 				</View>
 				<View style={styles.screeningDesc}>
-					<Text style={styles.screeningDescText}>심사 완료까지 1~2일이 소요됩니다.</Text>
+					{rejectMemo != '' ? (
+						<Text style={styles.screeningDescText}>{rejectMemo}</Text>
+					) : (
+						<Text style={styles.screeningDescText}>심사 완료까지 1~2일이 소요됩니다.</Text>
+					)}
 				</View>
 			</View>
 			) : null}
@@ -137,7 +152,15 @@ const Mypage = (props) => {
 					<TouchableOpacity
 						style={styles.myProfInfoBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{navigation.navigate('MatchDetail')}}
+						onPress={()=>{
+							navigation.navigate(
+								'MatchDetail', 
+								{
+									accessType:'myProfile', 
+									mb_member_idx:memberIdx,
+								}
+							)
+						}}
 					>
 						<ImgDomain fileWidth={36} fileName={'icon_my_sch.png'}/>
 					</TouchableOpacity>
@@ -171,7 +194,13 @@ const Mypage = (props) => {
 					<TouchableOpacity
 						style={styles.mypageMenuBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{navigation.navigate('MyPoint')}}
+						onPress={()=>{
+							if(memberType != 1){
+								notMember();
+							}else{
+								navigation.navigate('MyPoint');
+							}
+						}}
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
@@ -189,7 +218,13 @@ const Mypage = (props) => {
 					<TouchableOpacity
 						style={styles.mypageMenuBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{navigation.navigate('MyCharm')}}
+						onPress={()=>{
+							if(memberType != 1){
+								notMember();
+							}else{
+								navigation.navigate('MyCharm');
+							}
+						}}
 					>						
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
@@ -203,32 +238,48 @@ const Mypage = (props) => {
 							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
 						</View>
 					</TouchableOpacity>
+					{eva == 'y' ? (
+						<>
+						<View style={styles.mypageMenuLine}></View>
+						<TouchableOpacity
+							style={styles.mypageMenuBtn}
+							activeOpacity={opacityVal}
+							onPress={()=>{
+								if(memberType != 1){
+									notMember();
+								}else{
+									navigation.navigate('NewMember');
+								}
+							}}
+						>
+							<View style={styles.mypageMenuBtnLeft}>
+								<View style={styles.mypageMenuBtnIcon}>
+									<ImgDomain fileWidth={20} fileName={'mypage_menu3.png'}/>
+								</View>
+								<View style={styles.mypageMenuBtnName}>
+									<Text style={styles.mypageMenuBtnNameText}>새로운 회원 평가하기</Text>
+								</View>
+							</View>
+							<View style={styles.mypageMenuBtnRight}>
+								<View style={styles.mypageMenuBtnRightView}>
+									<Text style={styles.mypageMenuBtnRightViewText}>프로틴 {evaPoint}개 혜택</Text>
+								</View>
+								<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
+							</View>
+						</TouchableOpacity>
+						</>
+					) : null}
 					<View style={styles.mypageMenuLine}></View>
 					<TouchableOpacity
 						style={styles.mypageMenuBtn}
 						activeOpacity={opacityVal}
-						onPress={()=>{navigation.navigate('NewMember')}}
-					>
-						<View style={styles.mypageMenuBtnLeft}>
-							<View style={styles.mypageMenuBtnIcon}>
-								<ImgDomain fileWidth={20} fileName={'mypage_menu3.png'}/>
-							</View>
-							<View style={styles.mypageMenuBtnName}>
-								<Text style={styles.mypageMenuBtnNameText}>새로운 회원 평가하기</Text>
-							</View>
-						</View>
-						<View style={styles.mypageMenuBtnRight}>
-							<View style={styles.mypageMenuBtnRightView}>
-								<Text style={styles.mypageMenuBtnRightViewText}>프로틴 00개 혜택</Text>
-							</View>
-							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
-						</View>
-					</TouchableOpacity>
-					<View style={styles.mypageMenuLine}></View>
-					<TouchableOpacity
-						style={styles.mypageMenuBtn}
-						activeOpacity={opacityVal}
-						onPress={()=>{navigation.navigate('MyInvite')}}
+						onPress={()=>{
+							if(memberType != 1){
+								notMember();
+							}else{
+								navigation.navigate('MyInvite');
+							}
+						}}
 					>
 						<View style={styles.mypageMenuBtnLeft}>
 							<View style={styles.mypageMenuBtnIcon}>
@@ -238,12 +289,12 @@ const Mypage = (props) => {
 								<Text style={styles.mypageMenuBtnNameText}>지인 초대하기</Text>
 							</View>
 						</View>
-						<View style={styles.mypageMenuBtnRight}>
+						{/* <View style={styles.mypageMenuBtnRight}>
 							<View style={styles.mypageMenuBtnRightView}>
 								<Text style={styles.mypageMenuBtnRightViewText}>프로틴 00개 혜택</Text>
 							</View>
 							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
-						</View>
+						</View> */}
 					</TouchableOpacity>
 					<View style={styles.mypageMenuLine}></View>
 					<TouchableOpacity

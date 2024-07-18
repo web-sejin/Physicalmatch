@@ -39,6 +39,8 @@ const RegisterStep2 = ({ navigation, route }) => {
   const [routeList, setRouteList] = useState([]);
   const [accessRoute, setAccessRoute] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [phonenumber, setPhonenumber] = useState('');
+  const [age, setAge] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -64,7 +66,7 @@ const RegisterStep2 = ({ navigation, route }) => {
 
   const getRoute = async () => {
     let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetConnectList",
 		}
 		const response = await APIs.send(sData); 
@@ -72,16 +74,51 @@ const RegisterStep2 = ({ navigation, route }) => {
     setLoading(false);
   }
   
-  const nextStep = () => {
+  const nextStep = async () => {
     if (accessRoute == 0) {
       ToastMessage('접속 경로를 선택해 주세요.');
 			return false;
     }
 
-    navigation.navigate('RegisterStep3', {
-      prvChk4:prvChk4,
-      accessRoute:accessRoute, 
-    })
+    //본인 인증 작업
+
+    //현재는 본인인증을 하지 못해 번호와 나이를 얻을 수 없기 때문에 테스트 모드(test_yn='y')를 통해서 번호와 나이를 얻는다.
+    //본인인증을 이용할 때는 테스트 모드를 해제(test_yn='n')하고 번호를 넣어 중복가입인지 1년 이상 이용할 수 없는 회원인지 조회한다
+    //로그인 정보 변경(ModifyLogin.js) 파일도 함께 수정한다.
+    let apiNumber = '';
+    let apiAge = '';
+    let sData = {
+      basePath: "/api/member/",
+      type: 'IsPass',
+      pass_type: 0,
+      //member_phone: 번호 넣기,
+      test_yn: 'y'
+    }
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      apiNumber = response.member_phone;
+      apiAge = response.member_age;
+      setPhonenumber(apiNumber);
+      setAge(apiAge);
+
+      navigation.navigate('RegisterStep3', {
+        prvChk4:prvChk4,
+        accessRoute:accessRoute, 
+        phonenumber:apiNumber,
+        age:apiAge,
+      });
+    }else{
+      if(response.msg == 'MANAGER BAN'){
+        ToastMessage('회원가입이 제한된 번호입니다.');
+        return false;
+      }else if(response.msg == 'DUPLICATION PHONE'){
+        ToastMessage('이미 가입된 번호입니다.');
+        return false;
+      }
+    }
+
+    
   }
   
   const headerHeight = 48;

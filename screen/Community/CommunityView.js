@@ -68,6 +68,7 @@ const CommunityView = (props) => {
   const [tradeSort, setTradeSort] = useState('');
   const [tradeCrIdx, setTradeCrIdx] = useState();
   const [receiveMemberIdx, setReceiveMemberIdx] = useState();
+  const [falsePop, setFalsePop] = useState(false);
   const [focusState, setFocusState] = useState(false);
 
   const [report, setReport] = useState('');
@@ -106,6 +107,7 @@ const CommunityView = (props) => {
   
   const [memberIdx, setMemberIdx] = useState();
   const [memberInfo, setMemberInfo] = useState({});
+  const [memberPoint, setMemberPoint] = useState();
 
   const [permitCpcIdx, setPermitCpcIdx] = useState(); 
 
@@ -124,6 +126,11 @@ const CommunityView = (props) => {
 			});
 
       console.log('comm_idx :::: ',comm_idx);
+      if(memberIdx){
+        //console.log('get change list');
+        getReceive();
+        getSend();
+      }
 		}
 
 		Keyboard.dismiss();
@@ -204,7 +211,7 @@ const CommunityView = (props) => {
           })
           .then(() => {
             purchaseUpdateSubscription = purchaseUpdatedListener(async(purchase) => {
-              console.log('purchaseUpdatedListener Android', purchase);
+              //console.log('purchaseUpdatedListener Android', purchase);
               const receipt = purchase.transactionReceipt;
 
               if(receipt){
@@ -218,7 +225,7 @@ const CommunityView = (props) => {
           })        
 
           purchaseErrorSubscription = purchaseErrorListener(async(error) => {
-            console.log('purchaseErrorListener', error);
+            //console.log('purchaseErrorListener', error);
             let msg = '';
             if(error?.responseCode == -2){msg = '현재 기기의 플레이스토어 미지원'}
             if(error?.responseCode == -1){msg = '서비스 연결 해제'}
@@ -276,7 +283,7 @@ const CommunityView = (props) => {
             await clearTransactionIOS();
             setLoading(false);
           });
-          // Platform IOS END        
+          // Platform IOS END
 
         }
         
@@ -305,12 +312,17 @@ const CommunityView = (props) => {
   }, [platformData]);
 
   const getCommDetail = async () => {
+
     let sData = {
 			basePath: "/api/community/",
 			type: "GetCommunityDetail",
 			member_idx: memberIdx,
       comm_idx: comm_idx,
 		};
+
+    if(params?.needUpdate == 1){
+      sData.is_update = 'y';
+    }
 
 		const response = await APIs.send(sData);
     //console.log(response);
@@ -435,8 +447,7 @@ const CommunityView = (props) => {
 			member_idx: memberIdx,
 		};
 
-		const response = await APIs.send(sData);
-    //console.log(response);
+		const response = await APIs.send(sData);    
     if(response.code == 200 && response.data){
       setReceiveList(response.data);
       setHostUrl('https://'+response.httpHost);
@@ -493,7 +504,7 @@ const CommunityView = (props) => {
       rp_content: reportEtc,
 		};
 		const response = await APIs.send(sData);
-    console.log(response);
+    //console.log(response);
     if(response.code == 200){
       reportPopClose();
       ToastMessage('신고접수가 완료되었습니다.');
@@ -539,8 +550,8 @@ const CommunityView = (props) => {
   }
 
   const submitComment = async () => {
-    if(memberInfo.member_type == 0){
-      ToastMessage('정회원만 댓글 작성이 가능합니다.');
+    if(memberInfo?.member_type != 1){
+      ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
       return false;
     }
 
@@ -695,6 +706,19 @@ const CommunityView = (props) => {
   }
 
   const profileChange = async () => {
+    let usePoint = 0;
+    if(tradeType == 1 || tradeType == 2 || tradeType == 3){
+      usePoint = 5;
+    }else if(tradeType == 4){
+      usePoint = 20;
+    }
+
+    if(memberPoint < usePoint){
+      closeTradePop();
+      setCashPop(true);
+      return false;
+    }
+
     if(tradeType == 1){
       //프로필 교환 신청
       let sData = {
@@ -721,6 +745,7 @@ const CommunityView = (props) => {
       const response = await APIs.send(sData);  
       if(response.code == 200){
         getSend();
+        getMemberProtain();
         ToastMessage('프로필 교환을 요청했습니다.');
       }else if(response.code == 300){
         ToastMessage(response.msg);
@@ -773,32 +798,66 @@ const CommunityView = (props) => {
     //setLoading2(true);
     let iapObj = {skus: [sku], sku: sku};
     let getItems = await getProducts(iapObj);
-    console.log('getItems :::: ', getItems);
-    try {
+    //console.log('getItems :::: ', getItems);    
+
+    let amount = 0;
+    if(prdIdx == 19){
+      amount = 30;
+    }else if(prdIdx == 20){
+      amount = 100;
+    }else if(prdIdx == 21){
+      amount = 200;
+    }else if(prdIdx == 22){
+      amount = 500;
+    }else if(prdIdx == 23){
+      amount = 1000;
+    }else if(prdIdx == 24){
+      amount = 2000;
+    }else if(prdIdx == 25){
+      amount = 4500;
+    }
+
+    const inappPayResult = {
+      basePath: "/api/order/",
+      type: "SetProductOrder",		
+      member_idx: memberIdx,
+      pd_idx: prdIdx,
+      pd_code: getItems[0].productId,
+      pd_name: getItems[0].name,
+      pd_price: getItems[0].price,
+      pd_amount: amount,
+    }
+
+    try {           
       await requestPurchase(iapObj)
       .then(async (result) => {
           //console.log('IAP req sub', result);
           if (Platform.OS === 'android'){
-            console.log('dataAndroid', result[0].dataAndroid);
-            // console.log("purchaseToken : ", result.purchaseToken);
-            // console.log("packageNameAndroid : ", result.packageNameAndroid);
-            // console.log("productId : ", result.productId);
-            console.log("성공");
-            // let inappPayResult =JSON.stringify({
-            //     type: "inappResult",
-            //     code: result.productId,
-            //     tno: result.transactionId,
-            //     token: result.purchaseToken,
-            // });
-            // console.log("inappPayResult : ", inappPayResult);            
+            //console.log('dataAndroid', result[0]);       
+            //console.log("성공"); 
             // can do your API call here to save the purchase details of particular user
+            inappPayResult.biling_id = result[0].transactionId;
+            inappPayResult.biling_token = result[0].purchaseToken;
+            inappPayResult.biling_payment = 'card';            
+            inappPayResult.paymented_at = result[0].transactionDate;                                    
           } else if (Platform.OS === 'ios'){
-            console.log(result);
-            //console.log(result.transactionReceipt);
+            //console.log(result);            
             // can do your API call here to save the purchase details of particular user
+            inappPayResult.biling_id = result.transactionId;
+            inappPayResult.biling_token = result.transactionReceipt;
+            inappPayResult.biling_payment = 'card';            
+            inappPayResult.paymented_at = result.transactionDate;            
           }
 
-          setLoading(false);
+          //console.log("inappPayResult : ", inappPayResult);
+          const response = await APIs.send(inappPayResult);
+          //console.log(response);
+          if(response.code == 200){
+            getMemberProtain();
+            ToastMessage('프로틴이 충전되었습니다.');
+          }else{
+            ToastMessage('잠시후 다시 이용해 주세요.');
+          }
       })
       .catch((err) => {
         //setLoading2(false);
@@ -807,7 +866,7 @@ const CommunityView = (props) => {
     } catch (err) {
       //setLoading2(false);
       console.log('err2', err.message);
-    }
+    }        
   }
 
   const getMemInfo = async () => {    
@@ -820,20 +879,61 @@ const CommunityView = (props) => {
 		const response = await APIs.send(sData);
 		if(response.code == 200){
       setMemberInfo(response.data);
+      setMemberPoint(response.data.member_point);
+    }
+  }
+
+  const getMemberProtain = async () => {
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyPoint",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){      
+      console.log('현재 포인트 :::: ', response.data);
+      setMemberPoint(response.data);
     }
   }
 
   const buyProduct = async () => {
+    setLoading2(true);
     setCashPop(false);
     _requestPurchase(skuCode);
+    setTimeout(() => { setLoading2(false); }, 3000);
   }
+
+  const checkRelation = async (type, sort, idx, nickname, comment_idx) => {
+		let sData = {
+			basePath: "/api/community/",
+			type: "GetCommCheck",
+			member_idx: memberIdx,
+			receive_member_idx: idx,
+		};		
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){			
+      setTradeType(type);
+      setTradePop(true);
+      setTradeSort(sort);
+      setReceiveMemberIdx(idx);
+      setCashPopNick(nickname);
+      if(sort == 'comment'){
+        setTradeCrIdx(comment_idx);
+      }
+		}else{
+			setFalsePop(true);
+		}
+	}
 
   const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
 	const behavior = Platform.OS === "ios" ? "padding" : "height";
 
   const getProductList = ({item, index}) => {
-    //const price = item.pd_price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    const priceComma = item.pd_price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
     return (
       <TouchableOpacity
         style={[styles.productBtn, prdIdx==item.pd_idx ? styles.productBtnOn : null, styles.mgr10, productApiList.length == index+1 ? styles.mgr40 : null]}
@@ -856,7 +956,7 @@ const CommunityView = (props) => {
           <View style={styles.productBest}></View>
         )}        
         <Text style={[styles.productText3, prdIdx==item.pd_idx ? styles.productText3On : null]}>개당 ￦{item.pd_content}</Text>
-        <Text style={styles.productText4}>￦{item.pd_price}</Text>
+        <Text style={styles.productText4}>￦{priceComma}</Text>
       </TouchableOpacity>
     )
   }
@@ -873,7 +973,13 @@ const CommunityView = (props) => {
           <ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
         </TouchableOpacity>
         <TouchableOpacity 
-          onPress={() => {setDotPop(true)}} 
+          onPress={() => {
+            if(memberInfo?.member_type != 1){
+              ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+            }else{
+              setDotPop(true);
+            }            
+          }} 
           style={styles.headerBackBtn2} 
           activeOpacity={opacityVal}
           >
@@ -891,23 +997,22 @@ const CommunityView = (props) => {
             <>              
               <View style={[styles.cmView, styles.pdt30, styles.pdb40]}>
                 <View style={styles.viewTitle}>
-                  <View style={styles.viewTitleArea}>
+                  <View style={[styles.viewTitleArea, userType == 1 ? styles.viewTitleArea2 : null]}>
                     <Text style={styles.viewTitleAreaText}>{subject}</Text>
                   </View>
-                  <TouchableOpacity
-                    style={styles.viewBookBtn}
-                    activeOpacity={opacityVal}
-                    onPress={()=>{
-                      commBook()                      
-                      //setCashPop(true);
-                    }}
-                  >
-                    {bookSt ? (
-                      <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
-                    ): (
-                      <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
-                    )}                    
-                  </TouchableOpacity>
+                  {userType == 2 ? (
+                    <TouchableOpacity
+                      style={styles.viewBookBtn}
+                      activeOpacity={opacityVal}
+                      onPress={()=>commBook()}
+                    >
+                      {bookSt ? (
+                        <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
+                      ): (
+                        <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
+                      )}                    
+                    </TouchableOpacity>
+                  ) : null}
                 </View>                
 
                 <View style={styles.viewProf}>
@@ -923,15 +1028,21 @@ const CommunityView = (props) => {
                       activeOpacity={opacityVal}
                       //onPress={()=>profileChange('host', hostMemberIdx)}
                       onPress={()=>{
-                        if(memberInfo?.member_sex == hostSex){
-                          ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
-                          return false;
+                        if(memberInfo?.member_type != 1){
+                          ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+                        }else{                                                  
+                          if(memberInfo?.member_sex == hostSex){
+                            ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
+                            return false;
+                          }else{
+                            checkRelation(1, 'host', hostMemberIdx, nick);
+                            // setTradeType(1);
+                            // setTradePop(true);
+                            // setTradeSort('host');
+                            // setReceiveMemberIdx(hostMemberIdx);
+                            // setCashPopNick(nick);
+                          }                          
                         }
-                        setTradeType(1);
-                        setTradePop(true);
-                        setTradeSort('host');
-                        setReceiveMemberIdx(hostMemberIdx);
-                        //setCashPop(true);
                       }}
                     >
                       <ImgDomain fileWidth={30} fileName={'icon_profile_trade.png'}/>
@@ -962,40 +1073,44 @@ const CommunityView = (props) => {
                       <Text style={styles.voteViewCntText}>{goodCnt}</Text>
                     </View>
                     <TouchableOpacity
-                      style={styles.voteViewCntBtn}
-                      activeOpacity={opacityVal}
+                      style={[styles.voteViewCntBtn]}
+                      activeOpacity={memberInfo?.member_type != 1 ? 1 : opacityVal}
                       onPress={()=>{
-                        if(userType == 2){
-                          likeEvent(2);
-                        }else if(userType == 1){
-                          ToastMessage('글 작성자는 이용할 수 없습니다.');
-                        }
+                        if(memberInfo?.member_type == 1){
+                          if(userType == 2){
+                            likeEvent(2);
+                          }else if(userType == 1){
+                            ToastMessage('글 작성자는 이용할 수 없습니다.');
+                          }
+                        }                        
                       }}
                     >
                       {goodSt == 2 ? (
-                        <ImgDomain fileWidth={38} fileName={'good_on.png'}/>
+                        <ImgDomain fileWidth={38} fileName={'good_on.png'} memberType={memberInfo?.member_type} />
                       ) : (
-                        <ImgDomain fileWidth={38} fileName={'good_off.png'}/>
+                        <ImgDomain fileWidth={38} fileName={'good_off.png'} memberType={memberInfo?.member_type} />
                       )}                      
                     </TouchableOpacity>
                   </View>
                   <View style={styles.voteCenter}></View>
                   <View style={styles.voteView}>                    
                     <TouchableOpacity
-                      style={styles.voteViewCntBtn}
-                      activeOpacity={opacityVal}
-                      onPress={()=>{                        
-                        if(userType == 2){
-                          likeEvent(1);
-                        }else if(userType == 1){
-                          ToastMessage('글 작성자는 이용할 수 없습니다.');
-                        }
+                      style={[styles.voteViewCntBtn]}
+                      activeOpacity={memberInfo?.member_type == 0 ? 1 : opacityVal}
+                      onPress={()=>{             
+                        if(memberInfo?.member_type == 1){           
+                          if(userType == 2){
+                            likeEvent(1);
+                          }else if(userType == 1){
+                            ToastMessage('글 작성자는 이용할 수 없습니다.');
+                          }
+                        }                      
                       }}
                     >
                       {goodSt == 1 ? (
-                        <ImgDomain fileWidth={38} fileName={'hate_on.png'}/>
+                        <ImgDomain fileWidth={38} fileName={'hate_on.png'} memberType={memberInfo?.member_type} />
                       ) : (
-                        <ImgDomain fileWidth={38} fileName={'hate_off.png'}/>
+                        <ImgDomain fileWidth={38} fileName={'hate_off.png'} memberType={memberInfo?.member_type} />
                       )}
                     </TouchableOpacity>
                     <View style={[styles.voteViewCnt, styles.mgl15]}>
@@ -1059,30 +1174,28 @@ const CommunityView = (props) => {
                                 setTradeType(2);
                                 setTradePop(true);
                                 setPermitCpcIdx(item.cpc_idx);
-
-                                //캐시 부족시 해당 팝업 오픈
-                                //setCashPopNick(item.send_nick);
-                                //setCashPop(true);
                               }}
                             >
                               <Text style={styles.reqOkBtnText}>수락</Text>
                             </TouchableOpacity>
                           </View>                                                
                         )
-                      }else if(item.cpc_type == 1){
+                      }else if(item.cpc_type == 1 || item.cpc_type == 2){
                         return (
                           <TouchableOpacity 
                             key={index}
                             style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
-                            activeOpacity={opacityVal}           
+                            activeOpacity={1}           
                             onPress={()=>{
                               navigation.navigate(
                                 'MatchDetail', 
                                 {
                                   accessType:'community', 
                                   mb_member_idx:item.send_member_idx,
-                                  idx:item.cpc_idx, 
-                                  currState:1
+                                  commIdx:item.cpc_idx, 
+                                  currState:item.cpc_type,
+                                  reqMbIdx:item.cpc_request_member_idx,
+                                  recMbIdx:item.cpc_permit_member_idx,                                
                                 }
                               )
                             }}
@@ -1107,8 +1220,8 @@ const CommunityView = (props) => {
                                       </View>
                                       <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
                                         <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_age}</Text>
-                                        <View style={styles.cardFrontContLine}></View>
-                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_height}cm</Text>
+                                        {item.send_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
+                                        {item.send_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_height}cm</Text> ) : null}
                                       </View>
                                     </View>
                                   </View>
@@ -1127,54 +1240,69 @@ const CommunityView = (props) => {
                             </ImageBackground>
                           </TouchableOpacity>
                         )
+                      }else if(item.cpc_type == 3){
+                        return (
+                          <TouchableOpacity 
+                            key={index}
+                            style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
+                            activeOpacity={1}           
+                            onPress={()=>{
+                              navigation.navigate(
+                                'MatchDetail', 
+                                {
+                                  accessType:'community', 
+                                  mb_member_idx:item.send_member_idx,
+                                  commIdx:item.cpc_idx, 
+                                  currState:item.cpc_type,
+                                  reqMbIdx:item.cpc_request_member_idx,
+                                  recMbIdx:item.cpc_permit_member_idx,                                
+                                }
+                              )
+                            }}
+                          >                  
+                            <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
+                              <View style={[styles.cardBtn, styles.cardBtn3]}>
+                                <View style={[styles.cardCont, styles.cardCont3]}>		
+                                  <View style={styles.peopleImgBack}>
+                                    <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                                  </View>
+                                  <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                                    <View style={styles.peopleImgBack}>
+                                      <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                                    </View>
+                                    <AutoHeightImage width={110} source={{uri:profileImg}} resizeMethod='resize' style={styles.peopleImg} />
+                                    <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
+                                      <View	View style={styles.cardFrontDday}>
+                                        <Text style={styles.cardFrontDdayText}>D-7</Text>
+                                      </View>
+                                      <View style={styles.cardFrontNick2}>
+                                        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.send_nick}</Text>
+                                      </View>
+                                      <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_age}</Text>
+                                        {item.send_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
+                                        {item.send_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_height}cm</Text> ) : null}
+                                      </View>
+                                    </View>
+                                  </View>
+                                </View>
+                              </View>           
+                              <View style={styles.reqStateInfo}>
+                                <View style={styles.reqStateTitle}>
+                                  <Text style={styles.reqStateTitleText}>교환이 완료 되었어요</Text>
+                                </View>
+                                <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
+                                <View style={styles.reqStateCont}>
+                                  <Text style={styles.reqStateContText}>프로필에 오픈된 번호를</Text>
+                                  <Text style={styles.reqStateContText}>지금 바로 확인해보세요!</Text>
+                                </View>
+                              </View>         
+                            </ImageBackground>
+                          </TouchableOpacity>
+                        )
                       }
-                    })}                                         
-
-                    <TouchableOpacity 
-                      style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
-                      activeOpacity={opacityVal}
-                      onPress={()=>{navigation.navigate('MatchDetail')}}
-                    >                            
-                      <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
-                        <View style={[styles.cardBtn, styles.cardBtn3]}>
-                          <View style={[styles.cardCont, styles.cardCont3]}>		
-                            <View style={styles.peopleImgBack}>
-                              <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                            </View>
-                            <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
-                              <View style={styles.peopleImgBack}>
-                                <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                              </View>
-                              <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
-                              <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
-                                <View	View style={styles.cardFrontDday}>
-                                  <Text style={styles.cardFrontDdayText}>D-7</Text>
-                                </View>
-                                <View style={styles.cardFrontNick2}>
-                                  <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>닉네임최대여덟자</Text>
-                                </View>
-                                <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                                  <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>99</Text>
-                                  <View style={styles.cardFrontContLine}></View>
-                                  <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
-                                </View>
-                              </View>
-                            </View>
-                          </View>
-                        </View>           
-                        <View style={styles.reqStateInfo}>
-                          <View style={styles.reqStateTitle}>
-                            <Text style={styles.reqStateTitleText}>교환이 완료 되었어요</Text>
-                          </View>
-                          <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
-                          <View style={styles.reqStateCont}>
-                            <Text style={styles.reqStateContText}>프로필에 오픈된 번호를</Text>
-                            <Text style={styles.reqStateContText}>지금 바로 확인해보세요!</Text>
-                          </View>
-                        </View>         
-                      </ImageBackground>
-                    </TouchableOpacity>
-                  </View>  
+                    })}
+                  </View> 
                 </View>
 
                 <View style={styles.mgt30}>
@@ -1211,23 +1339,24 @@ const CommunityView = (props) => {
                             </View>
                           </View>
                         )
-                      }else if(item.cpc_type == 1){
+                      }else if(item.cpc_type == 1 || item.cpc_type == 2){
                         return (
                           <TouchableOpacity 
+                            key={index}
                             style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
-                            activeOpacity={opacityVal}
+                            activeOpacity={1}
                             onPress={()=>{
-                              console.log(item.send_member_idx);
-                              console.log(item.receive_member_idx);
-                              // navigation.navigate(
-                              //   'MatchDetail', 
-                              //   {
-                              //     accessType:'community', 
-                              //     matchMbIdx:item.receive_member_idx,
-                              //     idx:item.cpc_idx, 
-                              //     changeState:1
-                              //   }
-                              // )
+                              navigation.navigate(
+                                'MatchDetail', 
+                                {
+                                  accessType:'community', 
+                                  mb_member_idx:item.receive_member_idx,
+                                  commIdx:item.cpc_idx, 
+                                  currState:item.cpc_type,
+                                  reqMbIdx:item.cpc_request_member_idx,
+                                  recMbIdx:item.cpc_permit_member_idx,
+                                }
+                              )
                             }}
                           >                  
                             <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
@@ -1250,8 +1379,8 @@ const CommunityView = (props) => {
                                       </View>
                                       <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
                                         <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_age}</Text>
-                                        <View style={styles.cardFrontContLine}></View>
-                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_height}cm</Text>
+                                        {item.receive_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
+                                        {item.receive_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_height}cm</Text> ) : null}                                        
                                       </View>
                                     </View>
                                   </View>
@@ -1270,53 +1399,70 @@ const CommunityView = (props) => {
                             </ImageBackground>
                           </TouchableOpacity>
                         )
+                      }else if(item.cpc_type == 3){
+                        return (
+                          <TouchableOpacity 
+                            key={index}
+                            style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
+                            activeOpacity={1}
+                            onPress={()=>{
+                              //console.log(item.send_member_idx);
+                              //console.log(item.receive_member_idx);
+                              navigation.navigate(
+                                'MatchDetail', 
+                                {
+                                  accessType:'community', 
+                                  mb_member_idx:item.receive_member_idx,
+                                  commIdx:item.cpc_idx, 
+                                  currState:item.cpc_type,
+                                  reqMbIdx:item.cpc_request_member_idx,
+                                  recMbIdx:item.cpc_permit_member_idx,
+                                }
+                              )
+                            }}
+                          >                  
+                            <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
+                              <View style={[styles.cardBtn, styles.cardBtn3]}>
+                                <View style={[styles.cardCont, styles.cardCont3]}>		
+                                  <View style={styles.peopleImgBack}>
+                                    <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                                  </View>
+                                  <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                                    <View style={styles.peopleImgBack}>
+                                      <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                                    </View>
+                                    <AutoHeightImage width={110} source={{uri:profileImg}} resizeMethod='resize' style={styles.peopleImg} />                              
+                                    <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
+                                      <View	View style={styles.cardFrontDday}>
+                                        <Text style={styles.cardFrontDdayText}>D-7</Text>
+                                      </View>
+                                      <View style={styles.cardFrontNick2}>
+                                        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.receive_nick}</Text>
+                                      </View>
+                                      <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_age}</Text>
+                                        {item.receive_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
+                                        {item.receive_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_height}cm</Text> ) : null}                                        
+                                      </View>
+                                    </View>
+                                  </View>
+                                </View>
+                              </View>           
+                              <View style={styles.reqStateInfo}>
+                                <View style={styles.reqStateTitle}>
+                                  <Text style={styles.reqStateTitleText}>교환이 완료 되었어요</Text>
+                                </View>
+                                <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
+                                <View style={styles.reqStateCont}>
+                                  <Text style={styles.reqStateContText}>프로필에 오픈된 번호를</Text>
+                                  <Text style={styles.reqStateContText}>지금 바로 확인해보세요!</Text>
+                                </View>
+                              </View>    
+                            </ImageBackground>
+                          </TouchableOpacity>
+                        )
                       }
-                    })}                                      
-
-                    <TouchableOpacity 
-                      style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
-                      activeOpacity={opacityVal}
-                      onPress={()=>{navigation.navigate('MatchDetail')}}
-                    >                  
-                      <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
-                        <View style={[styles.cardBtn, styles.cardBtn3]}>
-                          <View style={[styles.cardCont, styles.cardCont3]}>		                            
-                            <View style={styles.peopleImgBack}>
-                              <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                            </View>
-                            <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
-                              <View style={styles.peopleImgBack}>
-                                <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                              </View>
-                              <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
-                              <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
-                                <View	View style={styles.cardFrontDday}>
-                                  <Text style={styles.cardFrontDdayText}>D-7</Text>
-                                </View>
-                                <View style={styles.cardFrontNick2}>
-                                  <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>닉네임최대여덟자</Text>
-                                </View>
-                                <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                                  <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>99</Text>
-                                  <View style={styles.cardFrontContLine}></View>
-                                  <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
-                                </View>
-                              </View>
-                            </View>
-                          </View>
-                        </View>           
-                        <View style={styles.reqStateInfo}>
-                          <View style={styles.reqStateTitle}>
-                            <Text style={styles.reqStateTitleText}>교환이 완료 되었어요</Text>
-                          </View>
-                          <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
-                          <View style={styles.reqStateCont}>
-                            <Text style={styles.reqStateContText}>프로필에 오픈된 번호를</Text>
-                            <Text style={styles.reqStateContText}>지금 바로 확인해보세요!</Text>
-                          </View>
-                        </View>         
-                      </ImageBackground>
-                    </TouchableOpacity>
+                    })}
                   </View>  
                 </View>
               </View>
@@ -1329,7 +1475,7 @@ const CommunityView = (props) => {
                 </View>
                 
                 <View style={styles.reviewWrap}>
-                  {memberInfo.member_type == 0 ? (
+                  {memberInfo?.member_type != 1 ? (
                   <>
                   <View style={{height:5,}}></View>
                   <BlurView style={styles.blurView} blurType="light" blurAmount={2} />
@@ -1365,15 +1511,23 @@ const CommunityView = (props) => {
                                     style={styles.reviewTradeBtn}
                                     activeOpacity={opacityVal}
                                     onPress={()=>{
-                                      if(memberInfo?.member_sex == hostSex){
-                                        ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
-                                        return false;
-                                      }
-                                      setTradeType(1);
-                                      setTradePop(true);
-                                      setTradeSort('comment');
-                                      setReceiveMemberIdx(item.member_idx);
-                                      setTradeCrIdx(item.comment_idx);
+                                      if(memberInfo?.member_type != 1){
+                                        ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+                                      }else{                                                  
+                                        if(memberInfo?.member_sex == hostSex){
+                                          ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
+                                          return false;                                        
+                                        }
+                                        
+                                        checkRelation(1, 'comment', item.member_idx, item.comment_nick,item.comment_idx);
+
+                                        // setTradeType(1);
+                                        // setTradePop(true);
+                                        // setTradeSort('comment');
+                                        // setReceiveMemberIdx(item.member_idx);
+                                        // setTradeCrIdx(item.comment_idx);
+                                        // setCashPopNick(item.comment_nick);
+                                      }                                     
                                     }}
                                   >
                                     <ImgDomain fileWidth={30} fileName={'icon_profile_trade.png'}/>
@@ -1433,7 +1587,7 @@ const CommunityView = (props) => {
                     })}
                   </View>
 
-                  {memberInfo.member_type == 0 ? ( <View style={{height:5,backgroundColor:'blue'}}></View> ) : null}
+                  {memberInfo?.member_type != 1 ? ( <View style={{height:5,backgroundColor:'blue'}}></View> ) : null}
                 </View>
               </View>
 
@@ -1448,7 +1602,7 @@ const CommunityView = (props) => {
                     placeholderTextColor="#B8B8B8"
                     style={styles.reviewIpt}
                     returnKyeType='done'
-                    readOnly={memberInfo.member_type == 0 ? true : false}
+                    readOnly={memberInfo?.member_type != 1 ? true : false}
                   />                
                 ) : (
                   <>
@@ -1796,7 +1950,10 @@ const CommunityView = (props) => {
 						</View>
             <View style={[styles.pointBox, styles.mgt20]}>
               <ImgDomain fileWidth={24} fileName={'coin.png'}/>
-              <Text style={styles.pointBoxText}>500</Text>
+              {tradeType == 1 ? (<Text style={styles.pointBoxText}>5</Text>) : null}
+              {tradeType == 2 ? (<Text style={styles.pointBoxText}>5</Text>) : null}
+              {tradeType == 3 ? (<Text style={styles.pointBoxText}>5</Text>) : null}
+              {tradeType == 4 ? (<Text style={styles.pointBoxText}>20</Text>) : null}
             </View>
             <View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
 						  <TouchableOpacity 
@@ -1812,6 +1969,48 @@ const CommunityView = (props) => {
 								onPress={() => profileChange()}
 							>
 								<Text style={styles.popBtnText}>네</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+      <Modal
+				visible={falsePop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setFalsePop(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setFalsePop(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setFalsePop(false)}}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+						</TouchableOpacity>		
+						<View style={[styles.popTitle]}>							
+							<View style={styles.popTitleFlexWrap}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>지인과는 프로필 교환을</Text>
+              </View>
+              <View style={styles.popTitleFlex}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>할 수 없습니다.</Text>
+                <ImgDomain fileWidth={18} fileName={'emiticon1.png'}/>
+              </View>              
+						</View>
+						<View style={styles.popBtnBox}>
+							<TouchableOpacity 
+								style={[styles.popBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {setFalsePop(false)}}
+							>
+								<Text style={styles.popBtnText}>확인</Text>
 							</TouchableOpacity>
 						</View>
 					</View>
@@ -1974,6 +2173,7 @@ const styles = StyleSheet.create({
 
   viewTitle: {flexDirection:'row',justifyContent:'space-between',paddingBottom:20,borderBottomWidth:1,borderBottomColor:'#EDEDED'},
   viewTitleArea: {width:innerWidth-40},
+  viewTitleArea2: {width:innerWidth},
   viewTitleAreaText: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
   viewBookBtn: {width:26,alignItems:'center',},
   viewProf: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginVertical:20,},
@@ -2043,13 +2243,13 @@ const styles = StyleSheet.create({
   productList: {flexDirection:'row',justifyContent:'space-between',position:'relative',},
 	productBtn: {width:(innerWidth/3)-7,backgroundColor:'#fff',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,paddingVertical:25,paddingHorizontal:10,},
 	productBtnOn: {backgroundColor:'rgba(209,145,60,0.15)',borderColor:'#D1913C'},
-	productText1: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
+	productText1: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
 	productBest: {width:46,height:20,paddingHorizontal:8,borderRadius:20,marginTop:5,},
 	productBest2: {backgroundColor:'#FFBF1A',},
 	productText2: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:18,color:'#fff'},
-	productText3: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
+	productText3: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
 	productText3On: {color:'#1e1e1e'},
-	productText4: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
+	productText4: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
 
 	boxShadow: {
 		shadowColor: "#000",
@@ -2098,6 +2298,7 @@ const styles = StyleSheet.create({
   pdl20: {paddingLeft:20},
   pdr20: {paddingRight:20},
 	mgt0: {marginTop:0},
+  mgt4: {marginTop:4},
 	mgt5: {marginTop:5},
 	mgt10: {marginTop:10},
 	mgt20: {marginTop:20},

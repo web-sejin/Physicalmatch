@@ -14,6 +14,9 @@ import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
 import ImgDomain2 from '../../components/ImgDomain2';
 
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
+
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
@@ -41,7 +44,7 @@ const Social = (props) => {
   ]
 
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route;	
 	const [routeLoad, setRouteLoad] = useState(false);
 	const swiperRef = useRef(null);
@@ -49,6 +52,7 @@ const Social = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [memberIdx, setMemberIdx] = useState();
+	const [memberInfo, setMemberInfo] = useState();
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
 	const [socialList, setSocialList] = useState([]);
 	const [filterMonth, setFilterMonth] = useState([]);
@@ -104,6 +108,8 @@ const Social = (props) => {
 			//console.log("isFocused");
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+			//console.log('userInfo ::: ', userInfo.is_new);
 
 			AsyncStorage.getItem('member_idx', (err, result) => {		
 				setMemberIdx(result);
@@ -165,9 +171,28 @@ const Social = (props) => {
 	useEffect(() => {
 		if(memberIdx){
 			setLoading(true);
-			getSocialList();
+			getMemInfo();
+			getSocialList();			
 		}
-	}, [memberIdx, tabState]);
+	}, [memberIdx, tabState]);	
+
+	useEffect(() => {
+		//console.log(nonCollidingMultiSliderValue);
+	}, [nonCollidingMultiSliderValue]);
+
+	const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){
+			setMemberInfo(response.data);
+		}
+	}
 
 	const getDateInfo = async () => {
 		const date = new Date();		
@@ -244,10 +269,6 @@ const Social = (props) => {
 		setNonCollidingMultiSliderValue([5, cnt-5]);
 	}
 
-	useEffect(() => {
-		//console.log(nonCollidingMultiSliderValue);
-	}, [nonCollidingMultiSliderValue]);
-
 	const getSocialList = async (viewPage) => {
 		let socialDate = [];		
 		filterPickDate.map((item, index) => {
@@ -272,7 +293,7 @@ const Social = (props) => {
 			page:curr_page,
 		};		
 		const response = await APIs.send(sData);
-		console.log(response);
+		//console.log(response);
 		if(response.code == 200){						
 			if(response.data){
 				setTotalPage(Math.ceil(response.data.length/10));
@@ -285,6 +306,22 @@ const Social = (props) => {
 		setTimeout(function(){
 			setLoading(false);
 		}, 300);
+	}
+
+	const checkRelation = async (social_idx, host_sex) => {
+		let sData = {
+			basePath: "/api/social/",
+			type: "GetSocialCheck",
+			member_idx: memberIdx,
+			social_idx: social_idx,
+		};		
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			navigation.navigate('SocialView', {social_idx:social_idx, social_host_sex:host_sex});
+		}else{
+			setOverPop(true);
+		}
 	}
 
 	const getList = ({item, index}) => {
@@ -310,12 +347,8 @@ const Social = (props) => {
 					style={[styles.socialLiBtn, index == 0 ? styles.pdt0 : null]}
 					activeOpacity={opacityVal}
 					onPress={()=>{
-						// if(index == 0){
-						// 	setOverPop(true);
-						// }else if(index == 1){
-						// 	navigation.navigate('SocialView', {social_idx:item.social_idx})
-						// }
-						navigation.navigate('SocialView', {social_idx:item.social_idx, social_host_sex:item.host_social_sex})
+						//navigation.navigate('SocialView', {social_idx:item.social_idx, social_host_sex:item.host_social_sex})
+						checkRelation(item.social_idx, item.host_social_sex);			
 					}}
 				>
 					<View style={styles.socialLiThumb}>
@@ -334,9 +367,9 @@ const Social = (props) => {
 							<Text style={styles.socialSubject} numberOfLines={1} ellipsizeMode='tail'>{item.social_subject}</Text>
 						</View>
 						<View style={styles.socialLiInfo3}>
-							<View style={styles.socialLiInfo3Flex}>
+							<View style={[styles.socialLiInfo3Flex, styles.socialLiInfo3Local]}>
 								<ImgDomain fileWidth={10} fileName={'icon_local.png'}/>
-								<Text style={styles.socialLiInfo3Text}>{item.social_location}</Text>
+								<Text style={[styles.socialLiInfo3Text, styles.socialLiInfo3TextLocal]} numberOfLines={1} ellipsizeMode='tail'>{item.social_location}</Text>
 							</View>
 							<View style={styles.socialLiInfo3Line}></View>
 							<View style={styles.socialLiInfo3Flex}>
@@ -519,14 +552,26 @@ const Social = (props) => {
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => navigation.navigate('MySocial')}
+							onPress={() => {
+								if(memberInfo?.member_type != 1){
+									ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+								}else{
+									navigation.navigate('MySocial');
+								}
+						}}
 						>
 							<ImgDomain fileWidth={24} fileName={'icon_mysocial.png'}/>
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {navigation.navigate('Shop')}}					
+							onPress={() => {
+								if(memberInfo?.member_type != 1){
+									ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+								}else{
+									navigation.navigate('Shop');
+								}								
+							}}					
 						>
 							<ImgDomain fileWidth={24} fileName={'icon_shop.png'}/>
 						</TouchableOpacity>
@@ -535,8 +580,11 @@ const Social = (props) => {
 							activeOpacity={opacityVal}
 							onPress={() => {navigation.navigate('Alim')}}
 						>
-							<ImgDomain fileWidth={24} fileName={'icon_alim_off.png'}/>
-							{/* <ImgDomain fileWidth={24} fileName={'icon_alim_on.png'}/> */}
+							{userInfo?.is_new == 'y' ? (
+								<ImgDomain fileWidth={24} fileName={'icon_alim_on.png'}/>
+							) : (
+								<ImgDomain fileWidth={24} fileName={'icon_alim_off.png'}/>
+							)}		
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -637,7 +685,8 @@ const Social = (props) => {
 								value={socialSch}
 								onChangeText={(v) => setSocialSch(v)}						
 								style={[styles.socialSchBoxWrapInput]}
-								returnKyeType='done'                      
+								returnKyeType='done'
+								onSubmitEditing={socialSearch} 
 							/>
 						</View>
 						<TouchableOpacity
@@ -675,7 +724,13 @@ const Social = (props) => {
 			<TouchableOpacity
         style={[styles.wrtBtn, styles.wrtBtnBoxShadow, keyboardStatus == 1 ? styles.wrtBtnHide : null]}
         activeOpacity={opacityVal}
-        onPress={()=>{navigation.navigate('SocialType')}}
+        onPress={()=>{
+					if(memberInfo?.member_type != 1){
+						ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+					}else{
+						navigation.navigate('SocialType');
+					}
+			}}
       >
 				<ImgDomain fileWidth={60} fileName={'icon_write.png'}/>
       </TouchableOpacity>
@@ -1022,7 +1077,7 @@ const styles = StyleSheet.create({
 	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
 	socialSchBoxWrap: {flexDirection:'row',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
 	socialSchBoxWrapBtn: {alignItems:'center',justifyContent:'center',width:38,height:40,backgroundColor:'#F9FAFB',},
-	socialSchBoxWrapInput: {width:innerWidth-78,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},
+	socialSchBoxWrapInput: {width:innerWidth-78,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},
 	socialSchFilterBtn: {justifyContent:'center',width:28,height:40,},
 	flatListPad: {height:20,},
 
@@ -1045,7 +1100,7 @@ const styles = StyleSheet.create({
 	},
 
 	socialLi: {paddingHorizontal:20,},
-	socialLiBtn: {flexDirection:'row',paddingVertical:18,borderBottomWidth:1,borderColor:'#EDEDED'},
+	socialLiBtn: {flexDirection:'row',paddingVertical:18,borderBottomWidth:1,borderColor:'#EDEDED',},
 	socialLiThumb: {alignItems:'center',justifyContent:'center',width:60,height:60,borderRadius:50,overflow:'hidden'},
 	socialLiInfo: {width:innerWidth-60,paddingLeft:20,},
 	socialLiInfo1: {flexDirection:'row',alignItems:'center',},
@@ -1057,8 +1112,10 @@ const styles = StyleSheet.create({
 	socialSubject: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:16,color:'#1e1e1e'},
 	socialLiInfo3: {flexDirection:'row',alignItems:'center',},
 	socialLiInfo3Flex: {flexDirection:'row',alignItems:'center',},
+	socialLiInfo3Local: {width:innerWidth-180},
 	socialLiInfoProfile: {alignItems:'center',justifyContent:'center',width:20,height:20,borderRadius:50,overflow:'hidden'},
 	socialLiInfo3Text: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:13,color:'#1e1e1e',marginLeft:4,},
+	socialLiInfo3TextLocal: {width:innerWidth-204},
 	socialLiInfo3Line: {width:1,height:12,backgroundColor:'#EDEDED',marginHorizontal:12},
 
 	filterTitle: {},
@@ -1174,4 +1231,11 @@ const styles = StyleSheet.create({
 	mgl0: {marginLeft:0},
 })
 
-export default Social
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+	})
+)(Social);

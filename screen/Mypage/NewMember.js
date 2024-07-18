@@ -3,17 +3,16 @@ import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, Tou
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import Swiper from 'react-native-web-swiper';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import Toast from 'react-native-toast-message';
-import Clipboard from '@react-native-clipboard/clipboard';
+import AsyncStorage from '@react-native-community/async-storage';
 
+import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -63,14 +62,30 @@ const NewMember = (props) => {
 	const [keyboardHeight, setKeyboardHeight] = useState(0);
 	const [currFocus, setCurrFocus] = useState('');	
 	const [preventBack, setPreventBack] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);  
+  const [memberIdx, setMemberIdx] = useState();
+  const [evaPoint, setEvaPoint] = useState();
+  const [protainCnt, setProtainCnt] = useState();
   const [newCnt, setNewCnt] = useState(1);
+
+  const [profileInfo, setProfileInfo] = useState();
+  const [profilePhysical, setProfilePhysical] = useState([]);
+  const [profileJob, setProfileJob] = useState();
+  const [profileSchool, setProfileSchool] = useState();
+  const [profileMarry, setProfileMarry] = useState();
+  const [profileMbti, setProfileMbti] = useState('');
+  const [profileRel, setProfileRel] = useState('');
+  const [profileDrink, setProfileDrink] = useState('');
+  const [profileSmoke, setProfileSmoke] = useState('');
+  const [profileSmokeType, setProfileSmokeType] = useState('');
+  const [profileDateQna, setProfileDateQna] = useState([]);
+  const [profileInterview, setProfileInterview] = useState([]);
+  const [profileHobby, setProfileHobby] = useState([]);
 
   const swiperRef = useRef(null);
   const etcRef = useRef(null);
 
   const [activeDot, setActiveDot] = useState(0);
-  const [zzim, setZzim] = useState(false);
   const [reviewState, setReviewState] = useState(true);
   const [reviewScore, setReviewScore] = useState(0);  
   const [reviewPop, setReviewPop] = useState(false);
@@ -88,6 +103,11 @@ const NewMember = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      AsyncStorage.getItem('member_idx', (err, result) => {		
+				//console.log('member_idx :::: ', result);		
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
@@ -140,34 +160,219 @@ const NewMember = (props) => {
     };
   }, [currFocus]);
 
+  useEffect(() => {
+    if(memberIdx){
+      setLoading(true);
+      getMemInfo();
+      getNewProfile();
+    }
+  }, [memberIdx]);
+
+  const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);    
+		//console.log(response);
+		if(response.code == 200){
+			setEvaPoint(response.e_point);
+		}
+	}
+
+  const getNewProfile = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetMemberFirstEvaluate",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);    
+		//console.log(response);
+    if(response.code == 200){
+      setProfileInfo(response.data);      
+      setProtainCnt(response.e_cnt);
+      
+      if(response.data){
+        setNewCnt(1);
+      }else{
+        setNewCnt(0);
+      }
+      
+      if(response.data.img.length > 0){
+        setSwiperList(response.data.img);
+      }
+
+      const physicalArray = [];
+      const memberPhysical = response.data.info.member_physical.split('|');
+      memberPhysical.map((item) => {
+        physicalArray.push(item);
+      });
+      setProfilePhysical(physicalArray);
+
+      if(response.data.auth.length > 0){
+        response.data.auth.map((item, index) => {
+          if(item.pa_idx == 1){
+            if(item.auth_yn == 'y'){ setProfileJob(item); }else{ setProfileJob(); }
+          }else if(item.pa_idx == 2){
+            if(item.auth_yn == 'y'){ setProfileSchool(item); }else{ setProfileSchool(); }
+          }else if(item.pa_idx == 3){
+            if(item.auth_yn == 'y'){ setProfileMarry(item); }else{ setProfileMarry(); }
+          }
+        });
+      }
+
+      let physicalMbtiString = '';
+      const physicalMbti = response.data.info.member_mbti.split('|');
+      physicalMbti.map((item, index) => {
+        if((index%2) == 1 && item != ''){
+          physicalMbtiString += `(${item})`;          
+        }else{
+          physicalMbtiString += item;
+        }        
+      });
+      setProfileMbti(physicalMbtiString);
+
+      let relString = '';
+      if(response.data.info.member_religion == 1){
+        relString = '무교';
+      }else if(response.data.info.member_religion == 2){
+        relString = '기독교';
+      }else if(response.data.info.member_religion == 3){
+        relString = '천주교';
+      }else if(response.data.info.member_religion == 4){
+        relString = '불교';
+      }else if(response.data.info.member_religion == 5){
+        relString = '기타';
+      }
+      setProfileRel(relString);
+
+      let drinkString = '';
+      if(response.data.info.member_drink_status == 0){
+        drinkString = '마시지 않음';
+      }else if(response.data.info.member_drink_status == 1){
+        drinkString = '어쩔 수 없을 때만';
+      }else if(response.data.info.member_drink_status == 2){
+        drinkString = '가끔 마심';
+      }else if(response.data.info.member_drink_status == 3){
+        drinkString = '어느정도 즐김';
+      }else if(response.data.info.member_drink_status == 4){
+        drinkString = '좋아하는 편';
+      }else if(response.data.info.member_drink_status == 5){
+        drinkString = '매우 즐기는 편';
+      }
+      setProfileDrink(drinkString);
+
+      let smokeString = '';
+      if(response.data.info.member_smoke_status == 0){
+        smokeString = '비흡연';
+      }else if(response.data.info.member_smoke_status == 1){
+        smokeString = '가끔 피움';
+      }else if(response.data.info.member_smoke_status == 2){
+        smokeString = '흡연 중';
+      }
+      setProfileSmoke(smokeString);
+
+      let smokeTypeString = '';
+      if(response.data.info.member_smoke_type == 1){
+        smokeTypeString = '연초';
+      }else if(response.data.info.member_smoke_type == 2){
+        smokeTypeString = '권련형 전자담배';
+      }else if(response.data.info.member_smoke_type == 3){
+        smokeTypeString = '액상형 전자담배';
+      }
+      setProfileSmokeType(smokeTypeString);
+
+      if(response.data.interview){
+        setProfileInterview(response.data.interview);
+      }else{
+        setProfileInterview([]);
+      }
+
+      if(response.data.hobby){
+        setProfileHobby(response.data.hobby);
+      }else{
+        setProfileHobby([]);
+      }
+
+      if(response.data.info.is_before_score){
+        if(response.data.info.is_before_score == 'y'){
+          setReviewState(false);
+        }else if(response.data.info.is_before_score == 'n'){
+          setReviewState(true);
+        }
+      }else if(response.data.info.is_after_score){
+        if(response.data.info.is_after_score == 'y'){
+          setReviewState(false);
+        }else if(response.data.info.is_after_score == 'n'){
+          setReviewState(true);
+        }
+      }
+
+      if(response.data.content && response.data.feel_yn == 'n'){
+        if(response.data.content.request_member_idx == memberIdx && response.data.content.ml_status == 0){
+          setMatchState(0);
+        }else if(response.data.content.receive_member_idx == memberIdx && response.data.content.ml_status == 0){      
+          setMatchState(1);
+          if(response.data.content.ml_type == 1){
+            setMatchPremium(true);
+          }else{
+            setMatchPremium(false);
+          }
+        }else if(response.data.content.ml_status == 1 && response.data.content.request_member_idx == memberIdx && response.data.content.request_open_status == 1){
+          setMatchState(3);
+        }else if(response.data.content.ml_status == 1 && response.data.content.receive_member_idx == memberIdx && response.data.content.receive_open_status == 1){          
+          setMatchState(3);
+        }else if(response.data.content.ml_status == 1 && (response.data.content.request_open_status == 0 || response.data.content.receive_open_status == 0)){
+          setMatchState(2);
+        }
+      }    
+    }
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 100);    
+  }
+
   const fnReview = (v) => {
     setReviewScore(v);
     setReviewPop(true);
   }
 
   const reviewConfirm = async () => {
-    setReviewState(false);
-    //setReviewScore(0);
-    setReviewPop(false);
+    let sData = {
+			basePath: "/api/etc/",
+			type: "SetMemberFirstEvaluate",      
+      member_idx: memberIdx,
+      user_idx: profileInfo?.info.member_idx,
+      me_score: reviewScore,
+		};
 
-		console.log('다음 회원으로 리셋');
+		const response = await APIs.send(sData);    
+    if(response.code == 200){
+      setLoading(true);
+      getNewProfile();
+      setReviewState(false);
+      setReviewScore(0);
+      setReviewPop(false);
+    }
   }
 
   useEffect(() => {
-    setLoading(true);
     setPhoneNumber('01000000000');
-    setSwiperList(swp);
-
     let warterAry = [];
-    for(let i=0; i<50; i++){
+    for(let i=0; i<100; i++){
       warterAry = [...warterAry, {order:i}];
     }
     setWarterList(warterAry);
-
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
   }, []);
+
+  const scoreOff = () => {
+    setReviewPop(false);
+    setReviewScore(0);
+  }
  
   const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -184,420 +389,470 @@ const NewMember = (props) => {
           <ImgDomain fileWidth={8} fileName={'icon_header_back.png'}/>
 				</TouchableOpacity>
         <View style={styles.headerDesc}>
-          <Text style={styles.headerDescText}>💝 NEW 회원 3번 평가하면 프로틴 00개</Text>
+          <Text style={styles.headerDescText}>💝 NEW 회원 3번 평가하면 프로틴 {evaPoint}개</Text>
         </View>
         <View style={styles.pointState}>
-          <View style={styles.mgr5}><ImgDomain fileWidth={22} fileName={'coin.png'}/></View>          
-          <View style={styles.mgr5}><ImgDomain fileWidth={22} fileName={'coin.png'}/></View>
-          <View><ImgDomain fileWidth={22} fileName={'coin_off.png'}/></View>
+          <View style={styles.mgr5}>
+            {protainCnt > 0 ? (<ImgDomain fileWidth={22} fileName={'coin.png'}/>) : (<ImgDomain fileWidth={22} fileName={'coin_off.png'}/>)}            
+          </View>
+          <View style={styles.mgr5}>
+            {protainCnt > 1 ? (<ImgDomain fileWidth={22} fileName={'coin.png'}/>) : (<ImgDomain fileWidth={22} fileName={'coin_off.png'}/>)}            
+          </View>
+          <View>
+            {protainCnt > 2 ? (<ImgDomain fileWidth={22} fileName={'coin.png'}/>) : (<ImgDomain fileWidth={22} fileName={'coin_off.png'}/>)}            
+          </View>
         </View>
 			</View>
 
       {newCnt > 0 ? (
-        <>
-        <ScrollView>
-          <View style={styles.swiperView}>
-            <SwiperFlatList
-              ref={swiperRef}
-              //autoplay
-              //autoplayDelay={2}
-              //autoplayLoop
-              index={0}
-              showPagination
-              paginationStyle={{alignItems:'center',justifyContent:'center',gap:5,}}
-              paginationStyleItem={{width:10,height:4,backgroundColor:'#fff',borderRadius:50,opacity:0.3,margin:0,marginHorizontal:0}}
-              paginationStyleItemActive={{width:20,opacity:1,}}
-              paginationStyleItemInactive={{backgroundColor:'#fff',opacity:0.3,}}
-              data={swiperList}
-              onChangeIndex={(obj) => {
-                setActiveDot(obj.index);
-              }}
-              renderItem={({ item, index }) => (
-                <View key={index} style={styles.swiperWrap}>                  
-                  <AutoHeightImage width={widnowWidth} source={{uri:'https://cnj02.cafe24.com/appImg/sample.jpg'}} resizeMethod='resize' />
-                  <View style={styles.warterMark}>
-                    <View style={styles.warterMarkWrap}>
-                      {warterList.map((item2, index2) => {
-                        return (
-                          <View key={index2} style={styles.warterMarkView}><Text style={styles.warterMarkText}>{phoneNumber}</Text></View>
-                        )
-                      })}                    
+        !loading ? (
+          <>
+            <ScrollView>
+              <View style={styles.swiperView}>
+                <SwiperFlatList
+                  ref={swiperRef}
+                  //autoplay
+                  //autoplayDelay={2}
+                  //autoplayLoop
+                  index={0}
+                  showPagination
+                  paginationStyle={{alignItems:'center',justifyContent:'center',gap:5,}}
+                  paginationStyleItem={{width:10,height:4,backgroundColor:'#fff',borderRadius:50,opacity:0.3,margin:0,marginHorizontal:0}}
+                  paginationStyleItemActive={{width:20,opacity:1,}}
+                  paginationStyleItemInactive={{backgroundColor:'#fff',opacity:0.3,}}
+                  data={swiperList}
+                  onChangeIndex={(obj) => {
+                    setActiveDot(obj.index);
+                  }}
+                  renderItem={({ item, index }) => (
+                    <View key={index} style={styles.swiperWrap}>
+                      <ImgDomain2 fileWidth={widnowWidth} fileName={item.mpi_img} />
+                      <View style={styles.warterMark}>
+                        <View style={styles.warterMarkWrap}>
+                          {warterList.map((item2, index2) => {
+                            return (
+                              <View key={index2} style={styles.warterMarkView}><Text style={styles.warterMarkText}>{phoneNumber}</Text></View>
+                            )
+                          })}                    
+                        </View>
+                      </View>
+                    </View>
+                  )}
+                />
+              </View>
+              <View style={styles.pagination}>
+                {swiperList.map((item, index) => {
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      style={[styles.paginationBtn, activeDot == index ? styles.paginationActive : null]}
+                      activeOpacity={opacityVal}
+                      onPress={() => {
+                        swiperRef.current.scrollToIndex({index:index})
+                      }}
+                    >                
+                      <ImgDomain2 fileWidth={46} fileName={item.mpi_img} />
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+
+              <View style={styles.detailInfo1}>
+              <View style={[styles.detailInfo1Wrap, styles.boxShadow]}>
+                <View style={styles.detailInfo1View}>
+                  <Text style={styles.detailInfo1ViewText}>{profileInfo?.info.member_nick}</Text>
+                  <Text style={styles.detailInfo1ViewAge}><Text style={styles.roboto}>{profileInfo?.info.member_age}</Text>년생</Text>
+                </View>
+                {profileInfo?.badge.length > 0 ? (
+                <View style={styles.detailInfo1BadgeBox}>
+                  {profileInfo?.badge.map((item, index) => {
+                    return (
+                      <View key={index} style={styles.detailInfo1Badge}><ImgDomain2 fileWidth={45} fileName={item.badge_img}/></View>
+                    )
+                  })}                        
+                </View>
+                ) : null}
+
+                {profileInfo?.bookmark_yn == 'y' && profileInfo?.info.member_idx != memberIdx ? (
+                <TouchableOpacity
+                  style={styles.zzimBtn}
+                  activeOpacity={opacityVal}
+                  onPress={() => matchZzim()}
+                >
+                  {zzim ? (
+                    <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
+                  ) : (
+                    <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
+                  )}              
+                </TouchableOpacity>
+                ) : null}
+              </View>
+            </View>
+
+              <View style={[styles.detailInfoCm]}>
+                <View style={styles.cmTitle}>
+                  <Text style={styles.cmTitleText}>Physical</Text>
+                </View>
+                <View style={styles.physicalBox1}>
+                  <View style={styles.physicalBox1Cont}>
+                    <Text style={styles.physicalBox1ContText1}>키</Text>
+                    {profileInfo?.info.member_height != 0 ? (
+                      <Text style={styles.physicalBox1ContText2}>{profileInfo?.info.member_height} cm</Text>
+                    ) : null}
+                  </View>
+                  <View style={styles.physicalBox1Cont}>
+                    <Text style={styles.physicalBox1ContText1}>몸무게</Text>
+                    {profileInfo?.info.member_weight != 0 ? (
+                      <Text style={styles.physicalBox1ContText2}>{profileInfo?.info.member_weight} kg</Text>
+                    ) : (
+                      <Text style={styles.physicalBox1ContText2}>비공개</Text>
+                    )}
+                    
+                  </View>
+                  <View style={styles.physicalBox1Cont}>
+                    <Text style={styles.physicalBox1ContText1}>체지방률</Text>
+                    {profileInfo?.info.member_fat != 0 ? (
+                      <Text style={styles.physicalBox1ContText2}>{profileInfo?.info.member_fat} %</Text>
+                    ) : (
+                      <Text style={styles.physicalBox1ContText2}>비공개</Text>
+                    )}
+                  </View>
+                  <View style={styles.physicalBox1Cont}>
+                    <Text style={styles.physicalBox1ContText1}>골격근량</Text>
+                    {profileInfo?.info.member_muscle != 0 ? (
+                      <Text style={styles.physicalBox1ContText2}>{profileInfo?.info.member_muscle} kg</Text>
+                    ) : (
+                      <Text style={styles.physicalBox1ContText2}>비공개</Text>
+                    )}
+                  </View>
+                </View>
+
+                <View style={styles.physicalBox2}>
+                  {profilePhysical.map((item, index) => {
+                    return (
+                      <View key={index} style={styles.physicalBox2Tab}>
+                        <Text style={styles.physicalBox2TabText}>{item}</Text>
+                      </View>
+                    )
+                  })}
+                </View>
+
+                <View style={styles.cmInfoBox}>
+                  <ImgDomain fileWidth={32} fileName={'icon_cont_muscle.png'}/>
+                  <View style={styles.cmInfoBoxCont}>
+                    <View style={styles.cmInfoBoxContTit}>
+                      <Text style={styles.cmInfoBoxContTitText}>운동</Text>
+                    </View>
+                    {profileInfo?.exercise.length > 0 ? (
+                      <View style={styles.cmInfoBoxContUl}>
+                        {profileInfo?.exercise.map((item, index) => {
+                          let cycleString = '';
+                          if(item.me_cycle == 0){
+                            cycleString = '주';
+                          }else{
+                            cycleString = '월';
+                          }
+                          return (
+                            <View key={index} style={styles.cmInfoBoxContLi}>
+                              <Text style={styles.cmInfoBoxContWrapText}>매{cycleString} {item.me_count}일 <Text style={styles.bold}>{item.me_name}</Text>을(를) 해요</Text>
+                            </View>
+                          )
+                        })}
+                      </View>
+                    ) : (
+                      <View style={styles.cmInfoBoxContUl}>
+                        <View style={styles.cmInfoBoxContLi}>
+                          <Text style={styles.cmInfoBoxContWrapText}>쉬고 있어요</Text>
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.border}></View>
+
+              <View style={[styles.detailInfoCm]}>
+                <View style={styles.cmTitle}>
+                  <Text style={styles.cmTitleText}>Profile</Text>
+                </View>
+
+                <View style={[styles.cmInfoBox, styles.mgt0]}>
+                  <ImgDomain fileWidth={32} fileName={'icon_cont_loc.png'}/>
+                  <View style={styles.cmInfoBoxCont}>
+                    <View style={styles.cmInfoBoxContTit}>
+                      <Text style={styles.cmInfoBoxContTitText}>지역</Text>
+                    </View>              
+                    <View style={styles.cmInfoBoxContUl}>
+                      <View style={[styles.cmInfoBoxContLi]}>
+                        <Text style={styles.cmInfoBoxContWrapText}>주 활동 지역 :</Text>
+                        <Text style={[styles.cmInfoBoxContWrapText2, styles.bold]}>{profileInfo?.info.member_main_local}</Text>
+                      </View>
+                      {profileInfo?.info.member_sub_local ? (
+                      <View style={[styles.cmInfoBoxContLi]}>
+                        <Text style={styles.cmInfoBoxContWrapText}>부 활동 지역 :</Text>
+                        <Text style={[styles.cmInfoBoxContWrapText2, styles.bold]}>{profileInfo?.info.member_sub_local}</Text>
+                      </View>
+                      ) : null}
                     </View>
                   </View>
                 </View>
-              )}
-            />
-          </View>
-          <View style={styles.pagination}>
-            {swiperList.map((item, index) => {
-              return (
+
+                <View style={[styles.cmInfoBox]}>
+                  <ImgDomain fileWidth={32} fileName={'icon_cont_job.png'}/>
+                  <View style={styles.cmInfoBoxCont}>
+                    <View style={styles.cmInfoBoxContTit}>
+                      <Text style={styles.cmInfoBoxContTitText}>직업</Text>
+                      {profileJob ? (
+                      <View style={styles.certIcon}>
+                        <ImgDomain fileWidth={12} fileName={'icon_cert.png'} />
+                      </View>
+                      ) : null}
+                    </View>              
+                    <View style={styles.cmInfoBoxContUl}>
+                      <View style={[styles.cmInfoBoxContLi]}>
+                        <Text style={[styles.cmInfoBoxContWrapText, styles.bold]}>{profileInfo?.info.member_job}</Text>
+                        <Text style={[styles.cmInfoBoxContWrapText2]}>{profileInfo?.info.member_job_detail}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+
+                <View style={[styles.cmInfoBox]}>
+                  <ImgDomain fileWidth={32} fileName={'icon_cont_school.png'} />
+                  <View style={styles.cmInfoBoxCont}>
+                    <View style={styles.cmInfoBoxContTit}>
+                      <Text style={styles.cmInfoBoxContTitText}>학력</Text>
+                      {profileSchool ? (
+                      <View style={styles.certIcon}>
+                        <ImgDomain fileWidth={12} fileName={'icon_cert.png'} />
+                      </View>
+                      ) : null}
+                    </View>              
+                    <View style={styles.cmInfoBoxContUl}>
+                      <View style={[styles.cmInfoBoxContLi]}>
+                        <Text style={[styles.cmInfoBoxContWrapText, styles.bold]}>{profileSchool?.mpa_info1}{profileInfo?.info.member_education} {profileInfo?.info.member_education_status}</Text>
+                        {profileSchool?.mpa_info2 != '' ? (
+                        <Text style={[styles.cmInfoBoxContWrapText2]}>{profileSchool?.mpa_info2} 전공</Text>
+                        ) : null}
+                      </View>
+                    </View>              
+                  </View>
+                </View>
+                
+                <View style={[styles.cmInfoBoxFlex]}>
+                  <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
+                    <ImgDomain fileWidth={32} fileName={'icon_cont_mbti.png'} />
+                    <View style={styles.cmInfoBoxCont}>
+                      <View style={styles.cmInfoBoxContTit}>
+                        <Text style={styles.cmInfoBoxContTitText}>MBTI</Text>
+                      </View>              
+                      <View style={styles.cmInfoBoxContUl}>
+                        <View style={[styles.cmInfoBoxContLi, styles.cmInfoBoxHalf]}>
+                          <Text style={[styles.cmInfoBoxContWrapText]}>{profileMbti}</Text>
+                        </View>
+                      </View>              
+                    </View>
+                  </View>
+
+                  <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
+                    <ImgDomain fileWidth={32} fileName={'icon_cont_rel.png'} />
+                    <View style={styles.cmInfoBoxCont}>
+                      <View style={styles.cmInfoBoxContTit}>
+                        <Text style={styles.cmInfoBoxContTitText}>종교</Text>
+                      </View>              
+                      <View style={styles.cmInfoBoxContUl}>
+                        <View style={[styles.cmInfoBoxContLi, styles.cmInfoBoxHalf]}>
+                          <Text style={[styles.cmInfoBoxContWrapText]}>{profileRel}</Text>
+                        </View>
+                      </View>              
+                    </View>
+                  </View>
+
+                  <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
+                    <ImgDomain fileWidth={32} fileName={'icon_cont_drink.png'} />
+                    <View style={styles.cmInfoBoxCont}>
+                      <View style={styles.cmInfoBoxContTit}>
+                        <Text style={styles.cmInfoBoxContTitText}>음주</Text>
+                      </View>              
+                      <View style={styles.cmInfoBoxContUl}>
+                        <View style={[styles.cmInfoBoxContLi, styles.cmInfoBoxHalf]}>
+                          <Text style={[styles.cmInfoBoxContWrapText]}>{profileDrink}</Text>
+                        </View>
+                      </View>              
+                    </View>
+                  </View>
+
+                  <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
+                    <ImgDomain fileWidth={32} fileName={'icon_cont_smoke.png'} />
+                    <View style={styles.cmInfoBoxCont}>
+                      <View style={styles.cmInfoBoxContTit}>
+                        <Text style={styles.cmInfoBoxContTitText}>흡연</Text>
+                      </View>              
+                      <View style={styles.cmInfoBoxContUl}>
+                        <View style={[styles.cmInfoBoxContLi, styles.cmInfoBoxHalf]}>
+                          <Text style={[styles.cmInfoBoxContWrapText]}>{profileSmoke} {profileSmokeType}</Text>
+                        </View>
+                      </View>              
+                    </View>
+                  </View>
+
+                  {profileMarry ? (
+                  <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
+                    <ImgDomain fileWidth={32} fileName={'icon_cont_marry.png'} />
+                    <View style={styles.cmInfoBoxCont}>
+                      <View style={styles.cmInfoBoxContTit}>
+                        <Text style={styles.cmInfoBoxContTitText}>혼인</Text>
+                        
+                        <View style={styles.certIcon}>
+                          <ImgDomain fileWidth={12} fileName={'icon_cert.png'} />
+                        </View>
+                        
+                      </View>              
+                      <View style={styles.cmInfoBoxContUl}>
+                        <View style={[styles.cmInfoBoxContLi, styles.cmInfoBoxHalf]}>
+                          <Text style={[styles.cmInfoBoxContWrapText]}>{profileMarry?.mpa_info1}</Text>
+                        </View>
+                      </View>              
+                    </View>
+                  </View>
+                  ) : null}
+                </View>
+
+                <View style={styles.myIntroCont}>
+                <Text style={styles.myIntroContText}>{profileInfo?.info.member_intro}</Text>
+                </View>
+              </View>
+              
+              {profileInterview.length > 0 ? (
+                <>
+                  <View style={styles.border}></View>
+                  <View style={[styles.detailInfoCm]}>
+                    {profileInterview.map((item, index) => {
+                      return (
+                        <View key={index} style={[styles.detailQnaBox, index == 0 ? styles.mgt0 : styles.mgt30]}>
+                          <View style={[styles.cmInfoBox, styles.mgt0]}>
+                            <ImgDomain fileWidth={32} fileName={'icon_cont_qna.png'} />
+                            <View style={styles.cmInfoBoxCont}>
+                              <View style={styles.cmInfoBoxContTit}>
+                                <Text style={styles.cmInfoBoxContTitText}>{item.mi_subject}</Text>
+                              </View>
+                            </View>
+                          </View>
+                          <View style={[styles.myIntroCont, styles.mgt10]}>
+                            <Text style={styles.myIntroContText}>{item.mi_content}</Text>
+                          </View>
+                        </View>
+                      )
+                    })}
+                  </View>
+                </>
+              ) : null}
+            </ScrollView>
+
+            <View style={styles.starBottom}>          
+              <View style={styles.starArea}>
                 <TouchableOpacity
-                  key={index}
-                  style={[styles.paginationBtn, activeDot == index ? styles.paginationActive : null]}
-                  activeOpacity={opacityVal}
-                  onPress={() => {
-                    swiperRef.current.scrollToIndex({index:index})
-                  }}
-                >                  
-                  <AutoHeightImage width={46} source={{uri:'https://cnj02.cafe24.com/appImg/sample.jpg'}} resizeMethod='resize' style={[styles.paginationImg]} />
+                  style={styles.starBtn}
+                  activeOpacity={reviewState ? opacityVal : 1}
+                  onPress={() => reviewState ? fnReview(1) : null}
+                >
+                  {reviewScore > 0 ? (
+                    <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
+                  ) : (
+                    <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
+                  )}
                 </TouchableOpacity>
-              )
-            })}
-          </View>
-
-          <View style={styles.detailInfo1}>
-            <View style={[styles.detailInfo1Wrap, styles.boxShadow]}>
-              <View style={styles.detailInfo1View}>
-                <Text style={styles.detailInfo1ViewText}>닉네임최대여덟자</Text>
-                <Text style={styles.detailInfo1ViewAge}><Text style={styles.roboto}>1999</Text>년생</Text>
-              </View>
-              <View style={styles.detailInfo1BadgeBox}>
-                <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_money2_1.png'}/></View>
-                <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_money1_2.png'}/></View>
-                <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_car3.png'}/></View>
-                <View style={styles.detailInfo1Badge}><ImgDomain fileWidth={45} fileName={'b_school1.png'}/></View>
-              </View>
-              <TouchableOpacity
-                style={styles.zzimBtn}
-                activeOpacity={opacityVal}
-                onPress={() => {setZzim(!zzim)}}
-              >
-                {zzim ? (
-                  <ImgDomain fileWidth={18} fileName={'icon_zzim_on.png'}/>
-                ) : (
-                  <ImgDomain fileWidth={18} fileName={'icon_zzim_off.png'}/>
-                )}                
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={[styles.detailInfoCm]}>
-            <View style={styles.cmTitle}>
-              <Text style={styles.cmTitleText}>Physical</Text>
-            </View>
-            <View style={styles.physicalBox1}>
-              <View style={styles.physicalBox1Cont}>
-                <Text style={styles.physicalBox1ContText1}>키</Text>
-                <Text style={styles.physicalBox1ContText2}>000 cm</Text>
-              </View>
-              <View style={styles.physicalBox1Cont}>
-                <Text style={styles.physicalBox1ContText1}>몸무게</Text>
-                <Text style={styles.physicalBox1ContText2}>00 kg</Text>
-              </View>
-              <View style={styles.physicalBox1Cont}>
-                <Text style={styles.physicalBox1ContText1}>체지방률</Text>
-                <Text style={styles.physicalBox1ContText2}>00 %</Text>
-              </View>
-              <View style={styles.physicalBox1Cont}>
-                <Text style={styles.physicalBox1ContText1}>골격근량</Text>
-                <Text style={styles.physicalBox1ContText2}>00 kg</Text>
-              </View>
-            </View>
-
-            <View style={styles.physicalBox2}>
-              <View style={styles.physicalBox2Tab}>
-                <Text style={styles.physicalBox2TabText}>소두</Text>
-              </View>
-              <View style={styles.physicalBox2Tab}>
-                <Text style={styles.physicalBox2TabText}>비율이 좋은</Text>
-              </View>
-              <View style={styles.physicalBox2Tab}>
-                <Text style={styles.physicalBox2TabText}>팔다리가 긴</Text>
-              </View>
-            </View>
-
-            <View style={styles.cmInfoBox}>
-              <ImgDomain fileWidth={32} fileName={'icon_cont_muscle.png'}/>
-              <View style={styles.cmInfoBoxCont}>
-                <View style={styles.cmInfoBoxContTit}>
-                  <Text style={styles.cmInfoBoxContTitText}>운동</Text>
-                </View>
-                <View style={styles.cmInfoBoxContUl}>
-                  <View style={styles.cmInfoBoxContLi}>
-                    <Text style={styles.cmInfoBoxContWrapText}>매주 N일 <Text style={styles.bold}>헬스</Text>을(를) 해요</Text>
-                  </View>
-                  <View style={styles.cmInfoBoxContLi}>
-                    <Text style={styles.cmInfoBoxContWrapText}>매주 N일 <Text style={styles.bold}>클라이밍</Text>을(를) 해요</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.border}></View>
-
-          <View style={[styles.detailInfoCm]}>
-            <View style={styles.cmTitle}>
-              <Text style={styles.cmTitleText}>Profile</Text>
-            </View>
-
-            <View style={[styles.cmInfoBox, styles.mgt0]}>
-              <ImgDomain fileWidth={32} fileName={'icon_cont_loc.png'}/>
-              <View style={styles.cmInfoBoxCont}>
-                <View style={styles.cmInfoBoxContTit}>
-                  <Text style={styles.cmInfoBoxContTitText}>지역</Text>
-                </View>              
-                <View style={styles.cmInfoBoxContUl}>
-                  <View style={[styles.cmInfoBoxContLi]}>
-                    <Text style={styles.cmInfoBoxContWrapText}>주 활동 지역 :</Text>
-                    <Text style={[styles.cmInfoBoxContWrapText2, styles.bold]}>인천 연수구</Text>
-                  </View>
-                  <View style={[styles.cmInfoBoxContLi]}>
-                    <Text style={styles.cmInfoBoxContWrapText}>부 활동 지역 :</Text>
-                    <Text style={[styles.cmInfoBoxContWrapText2, styles.bold]}>인천 남동구</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            <View style={[styles.cmInfoBox]}>
-              <ImgDomain fileWidth={32} fileName={'icon_cont_job.png'}/>
-              <View style={styles.cmInfoBoxCont}>
-                <View style={styles.cmInfoBoxContTit}>
-                  <Text style={styles.cmInfoBoxContTitText}>직업</Text>
-                  <View style={styles.certIcon}>
-                    <ImgDomain fileWidth={12} fileName={'icon_cert.png'}/>
-                  </View>
-                </View>              
-                <View style={styles.cmInfoBoxContUl}>
-                  <View style={[styles.cmInfoBoxContLi]}>
-                    <Text style={[styles.cmInfoBoxContWrapText, styles.bold]}>직업최대열자입력가능</Text>
-                    <Text style={[styles.cmInfoBoxContWrapText2]}>직업상세최대열자입력</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            <View style={[styles.cmInfoBox]}>              
-              <ImgDomain fileWidth={32} fileName={'icon_cont_school.png'}/>
-              <View style={styles.cmInfoBoxCont}>
-                <View style={styles.cmInfoBoxContTit}>
-                  <Text style={styles.cmInfoBoxContTitText}>학력</Text>                  
-                  <View style={styles.certIcon}>
-                    <ImgDomain fileWidth={12} fileName={'icon_cert.png'}/>
-                  </View>
-                </View>              
-                <View style={styles.cmInfoBoxContUl}>
-                  <View style={[styles.cmInfoBoxContLi]}>
-                    <Text style={[styles.cmInfoBoxContWrapText, styles.bold]}>ㅇㅇ대학교 졸업</Text>
-                    <Text style={[styles.cmInfoBoxContWrapText2]}>ㅇㅇㅇㅇㅇ 전공</Text>
-                  </View>
-                </View>              
+                <TouchableOpacity
+                  style={styles.starBtn}
+                  activeOpacity={reviewState ? opacityVal : 1}
+                  onPress={() => reviewState ? fnReview(2) : null}
+                >
+                  {reviewScore > 1 ? (
+                    <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
+                  ) : (
+                    <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.starBtn}
+                  activeOpacity={reviewState ? opacityVal : 1}
+                  onPress={() => reviewState ? fnReview(3) : null}
+                >
+                  {reviewScore > 2 ? (
+                    <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
+                  ) : (
+                    <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.starBtn}
+                  activeOpacity={reviewState ? opacityVal : 1}
+                  onPress={() => reviewState ? fnReview(4) : null}
+                >
+                  {reviewScore > 3 ? (
+                    <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
+                  ) : (
+                    <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.starBtn, styles.mgr0]}
+                  activeOpacity={reviewState ? opacityVal : 1}
+                  onPress={() => reviewState ? fnReview(5) : null}
+                >
+                  {reviewScore > 4 ? (
+                    <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
+                  ) : (
+                    <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
+                  )}
+                </TouchableOpacity>
               </View>
             </View>
             
-            <View style={[styles.cmInfoBoxFlex]}>
-              <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-                <ImgDomain fileWidth={32} fileName={'icon_cont_mbti.png'}/>
-                <View style={styles.cmInfoBoxCont}>
-                  <View style={styles.cmInfoBoxContTit}>
-                    <Text style={styles.cmInfoBoxContTitText}>MBTI</Text>
-                  </View>              
-                  <View style={styles.cmInfoBoxContUl}>
-                    <View style={[styles.cmInfoBoxContLi]}>
-                      <Text style={[styles.cmInfoBoxContWrapText]}>E(I)ST(F)J</Text>
-                    </View>
-                  </View>              
-                </View>
-              </View>
-
-              <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-                <ImgDomain fileWidth={32} fileName={'icon_cont_rel.png'}/>
-                <View style={styles.cmInfoBoxCont}>
-                  <View style={styles.cmInfoBoxContTit}>
-                    <Text style={styles.cmInfoBoxContTitText}>종교</Text>
-                  </View>              
-                  <View style={styles.cmInfoBoxContUl}>
-                    <View style={[styles.cmInfoBoxContLi]}>
-                      <Text style={[styles.cmInfoBoxContWrapText]}>무교</Text>
-                    </View>
-                  </View>              
-                </View>
-              </View>
-
-              <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-                <ImgDomain fileWidth={32} fileName={'icon_cont_drink.png'}/>
-                <View style={styles.cmInfoBoxCont}>
-                  <View style={styles.cmInfoBoxContTit}>
-                    <Text style={styles.cmInfoBoxContTitText}>음주</Text>
-                  </View>              
-                  <View style={styles.cmInfoBoxContUl}>
-                    <View style={[styles.cmInfoBoxContLi]}>
-                      <Text style={[styles.cmInfoBoxContWrapText]}>어쩔 수 없을 때만</Text>
-                    </View>
-                  </View>              
-                </View>
-              </View>
-
-              <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-                <ImgDomain fileWidth={32} fileName={'icon_cont_smoke.png'}/>
-                <View style={styles.cmInfoBoxCont}>
-                  <View style={styles.cmInfoBoxContTit}>
-                    <Text style={styles.cmInfoBoxContTitText}>흡연</Text>
-                  </View>              
-                  <View style={styles.cmInfoBoxContUl}>
-                    <View style={[styles.cmInfoBoxContLi]}>
-                      <Text style={[styles.cmInfoBoxContWrapText]}>액상형 전자담배</Text>
-                    </View>
-                  </View>              
-                </View>
-              </View>
-
-              <View style={[styles.cmInfoBox, styles.cmInfoBox2]}>
-                <ImgDomain fileWidth={32} fileName={'icon_cont_marry.png'}/>
-                <View style={styles.cmInfoBoxCont}>
-                  <View style={styles.cmInfoBoxContTit}>
-                    <Text style={styles.cmInfoBoxContTitText}>혼인</Text>
-                    <View style={styles.certIcon}>
-                      <ImgDomain fileWidth={12} fileName={'icon_cert.png'}/>
-                    </View>
-                  </View>              
-                  <View style={styles.cmInfoBoxContUl}>
-                    <View style={[styles.cmInfoBoxContLi]}>
-                      <Text style={[styles.cmInfoBoxContWrapText]}>미혼</Text>
-                    </View>
-                  </View>              
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.myIntroCont}>
-              <Text style={styles.myIntroContText}>
-                밝고 긍정적인 성격이며 새로운 것에 대한 도전을 즐기는 성향을 가지고 있습니다. 자기관리를 게을리 하지 않으나 완벽주의는 아닙니다. 서로 존중하며, 상호 간 부족한 면이 있다면 충족시켜 줄 수 있는 진지한 만남을 희망합니다.
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.border}></View>
-
-          <View style={[styles.detailInfoCm]}>
-            <View style={[styles.detailQnaBox, styles.mgt0]}>
-              <View style={[styles.cmInfoBox, styles.mgt0]}>
-                <ImgDomain fileWidth={32} fileName={'icon_cont_qna.png'}/>
-                <View style={styles.cmInfoBoxCont}>
-                  <View style={styles.cmInfoBoxContTit}>
-                    <Text style={styles.cmInfoBoxContTitText}>질문 내용</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={[styles.myIntroCont, styles.mgt10]}>
-                <Text style={styles.myIntroContText}>답변 내용이 노출됩니다.</Text>
-              </View>
-            </View>
-            <View style={[styles.detailQnaBox, styles.mgt30]}>
-              <View style={[styles.cmInfoBox, styles.mgt0]}>
-                <ImgDomain fileWidth={32} fileName={'icon_cont_qna.png'}/>
-                <View style={styles.cmInfoBoxCont}>
-                  <View style={styles.cmInfoBoxContTit}>
-                    <Text style={styles.cmInfoBoxContTitText}>질문 내용</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={[styles.myIntroCont, styles.mgt10]}>
-                <Text style={styles.myIntroContText}>답변 내용이 노출됩니다.</Text>
-              </View>
-            </View>
-          </View>        
-        </ScrollView>
-
-        <View style={styles.starBottom}>          
-          <View style={styles.starArea}>
-            <TouchableOpacity
-              style={styles.starBtn}
-              activeOpacity={reviewState ? opacityVal : 1}
-              onPress={() => reviewState ? fnReview(1) : null}
+            {/* 리뷰 점수 팝업 */}
+            <Modal
+              visible={reviewPop}
+              transparent={true}
+              animationType={"none"}
+              onRequestClose={() => scoreOff()}
             >
-              {reviewScore > 0 ? (
-                <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
-              ) : (
-                <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.starBtn}
-              activeOpacity={reviewState ? opacityVal : 1}
-              onPress={() => reviewState ? fnReview(2) : null}
-            >
-              {reviewScore > 1 ? (
-                <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
-              ) : (
-                <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.starBtn}
-              activeOpacity={reviewState ? opacityVal : 1}
-              onPress={() => reviewState ? fnReview(3) : null}
-            >
-              {reviewScore > 2 ? (
-                <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
-              ) : (
-                <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.starBtn}
-              activeOpacity={reviewState ? opacityVal : 1}
-              onPress={() => reviewState ? fnReview(4) : null}
-            >
-              {reviewScore > 3 ? (
-                <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
-              ) : (
-                <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.starBtn, styles.mgr0]}
-              activeOpacity={reviewState ? opacityVal : 1}
-              onPress={() => reviewState ? fnReview(5) : null}
-            >
-              {reviewScore > 4 ? (
-                <ImgDomain fileWidth={45} fileName={'star_on.png'}/>
-              ) : (
-                <ImgDomain fileWidth={45} fileName={'star_off.png'}/>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-        
-        {/* 리뷰 점수 팝업 */}
-        <Modal
-          visible={reviewPop}
-          transparent={true}
-          animationType={"none"}
-          onRequestClose={() => setReviewPop(false)}
-        >
-          <View style={styles.cmPop}>
-            <TouchableOpacity 
-              style={styles.popBack} 
-              activeOpacity={1} 
-              onPress={()=>{setReviewPop(false)}}
-            >
-            </TouchableOpacity>
-            <View style={styles.prvPop}>
-              <TouchableOpacity
-                style={styles.pop_x}					
-                onPress={() => {setReviewPop(false)}}
-              >                
-                <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
-              </TouchableOpacity>		
-              <View style={[styles.popTitle]}>
-                <Text style={styles.popTitleText}>{reviewScore}점으로</Text>
-                <Text style={[styles.popTitleText, styles.mgt5]}>평가하시겠어요?</Text>
-              </View>
-              <View style={styles.popBtnBox}>
+              <View style={styles.cmPop}>
                 <TouchableOpacity 
-                  style={[styles.popBtn]}
-                  activeOpacity={opacityVal}
-                  onPress={() => {reviewConfirm()}}
+                  style={styles.popBack} 
+                  activeOpacity={1} 
+                  onPress={()=>scoreOff()}
                 >
-                  <Text style={styles.popBtnText}>확인</Text>
                 </TouchableOpacity>
+                <View style={styles.prvPop}>
+                  <TouchableOpacity
+                    style={styles.pop_x}					
+                    onPress={() => scoreOff()}
+                  >                
+                    <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+                  </TouchableOpacity>		
+                  <View style={[styles.popTitle]}>
+                    <Text style={styles.popTitleText}>{reviewScore}점으로</Text>
+                    <Text style={[styles.popTitleText, styles.mgt5]}>평가하시겠어요?</Text>
+                  </View>
+                  <View style={styles.popBtnBox}>
+                    <TouchableOpacity 
+                      style={[styles.popBtn]}
+                      activeOpacity={opacityVal}
+                      onPress={() => {reviewConfirm()}}
+                    >
+                      <Text style={styles.popBtnText}>확인</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
-            </View>
+            </Modal>
+          </>
+        ) : (
+          <View style={[styles.indicator]}>
+            <ActivityIndicator size="large" color="#D1913C" />
           </View>
-        </Modal>
-        </>
+        )
       ) : (
         <View style={styles.notMember}>
           <View style={styles.notMemberWrap}>
@@ -611,7 +866,7 @@ const NewMember = (props) => {
             </View>
             <View style={styles.notMemberDesc2}>
               <View style={styles.notMemberDesc2View}>
-                <Text style={styles.notMemberDesc2Text}>신규회원에게 프로틴 00개 증정</Text>                
+                <Text style={styles.notMemberDesc2Text}>신규회원에게 프로틴 {evaPoint}개 증정</Text>                
               </View>
               <ImgDomain fileWidth={15} fileName={'icon_heart2.png'}/>
             </View>
@@ -626,12 +881,6 @@ const NewMember = (props) => {
           </TouchableOpacity>
         </View>
       )}
-
-      {loading ? (
-      <View style={[styles.indicator]}>
-        <ActivityIndicator size="large" color="#D1913C" />
-      </View>
-      ) : null}
 		</SafeAreaView>
 	)
 }
@@ -639,11 +888,17 @@ const NewMember = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },  
 	fullScreen: { flex: 1, },
-	indicator: { width:widnowWidth, height: widnowHeight, display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255, 0.3)', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },
 
   DetailBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   DetailDotBtn: {width:54,height:48,position:'absolute',right:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   
+  header: {height:48,backgroundColor:'#fff',position:'relative',justifyContent:'center',paddingLeft:47,paddingRight:100,},
+	headerBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},	
+  headerDesc: {position:'relative',top:1,},
+  headerDescText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1e1e1e'},
+  pointState: {flexDirection:'row',alignItems:'center',position:'absolute',right:20},
+
 	swiperView: { height: widnowWidth*1.25,},
 	swiperWrap: {},
   warterMark: {width:widnowWidth,height:widnowWidth*1.25,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
@@ -666,7 +921,7 @@ const styles = StyleSheet.create({
   detailInfo1Badge: {marginTop:10,marginHorizontal:10,},
   zzimBtn: {alignItems:'center',justifyContent:'center',width:38,height:38,position:'absolute',top:14,right:10,},
 
-  detailInfo2: {paddingHorizontal:20,paddingBottom:30,alignItems:'center'},
+  detailInfo2: {paddingHorizontal:20,paddingBottom:30,alignItems:'center',},
   detailInfo2TextBox: {},
   detailInfo2Text: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:20,lineHeight:26,color:'#1e1e1e'},
   detailInfo2Text2Box: {flexDirection:'row',alignItems:'center',paddingHorizontal:7,paddingTop:6,paddingBottom:3,backgroundColor:'#F9FAFB',borderRadius:50,marginTop:10,},
@@ -691,10 +946,11 @@ const styles = StyleSheet.create({
   certIcon: {marginLeft:4,},
   cmInfoBoxContUl: {marginTop:2,},
   cmInfoBoxContLi: {flexDirection:'row',marginTop:8,},
+  cmInfoBoxHalf: {width:(innerWidth/2)-52,},
   cmInfoBoxContWrapText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#1E1E1E'},
   cmInfoBoxContWrapText2: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#1E1E1E',marginLeft:8},
 
-  physicalBox1: {flexDirection:'row',justifyContent:'space-between'},
+  physicalBox1: {flexDirection:'row',justifyContent:'space-between',},
   physicalBox1Cont: {width:(innerWidth/4)-7.5,alignItems:'center',padding:8,backgroundColor:'#F9FAFB',borderRadius:5,},
   physicalBox1ContText1: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:15,color:'#1E1E1E'},
   physicalBox1ContText2: {fontFamily:Font.RobotoMedium,fontSize:13,lineHeight:15,color:'#1E1E1E',marginTop:6},
@@ -703,7 +959,7 @@ const styles = StyleSheet.create({
   physicalBox2TabText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:18,color:'#1e1e1e'},
 
   valuesBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',height:52,backgroundColor:'#243B55',borderRadius:5,marginTop:40,},
-  valuesBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff',marginRight:6,},
+  valuesBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff',marginRight:6,},
 
   myIntroCont: {backgroundColor:'#F9FAFB',paddingVertical:10,paddingHorizontal:15,borderRadius:5,marginTop:30,},
   myIntroContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:26,color:'#1e1e1e'},
@@ -711,19 +967,20 @@ const styles = StyleSheet.create({
   interestKeyword: {justifyContent:'center',height:33,paddingHorizontal:14,backgroundColor:'#EDF2FE',borderRadius:50,marginLeft:8},
   interestKeywordText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1e1e1e'},
 
-	starBottom: {borderTopWidth:1,borderTopColor:'#F2F4F6',paddingTop:17,paddingBottom:23,},
   reviewTitle: {},
   reviewTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:15,lineHeight:17,color:'#243B55',},
-  starArea: {flexDirection:'row',alignItems:'center',justifyContent:'center',},
-  starBtn: {marginRight:18},
+  starArea: {flexDirection:'row',alignItems:'center',justifyContent:'center',marginVertical:25,},
+  starBtn: {marginRight:20},
   reviewDesc: {flexDirection:'row',alignItems:'center',justifyContent:'center',},
   reviewDescText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:16,color:'#888',position:'relative',top:0.5},
 
-  header: {height:48,backgroundColor:'#fff',position:'relative',justifyContent:'center',paddingLeft:47,paddingRight:100,},
-	headerBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},	
-  headerDesc: {position:'relative',top:1,},
-  headerDescText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:17,color:'#1e1e1e'},
-  pointState: {flexDirection:'row',alignItems:'center',position:'absolute',right:20},
+  header: {height:48,backgroundColor:'#fff',position:'relative',display:'flex',justifyContent:'center',paddingHorizontal:40},
+	headerBackBtn2: {width:56,height:48,position:'absolute',left:0,top:0,zIndex:10,display:'flex',alignItems:'center',justifyContent:'center',},
+	headerTitle: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:48,color:'#000'},
+	headerDot: {width:43,height:48,position:'absolute',top:0,right:0,display:'flex',alignItems:'center',justifyContent:'center'},
+	headerSubmitBtn: {alignItems:'center',justifyContent:'center',width:50,height:48,position:'absolute',right:10,top:0},
+	headerSubmitBtnText: {fontFamily:Font.NotoSansMedium,fontSize:16,color:'#b8b8b8',},
+	headerSubmitBtnTextOn: {color:'#243B55'},
   
   cmWrap: {paddingVertical:30,paddingHorizontal:20},
 	cmWrap2: {paddingTop:0,paddingBottom:40,paddingHorizontal:20},
@@ -736,7 +993,7 @@ const styles = StyleSheet.create({
 
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
 	input2: {width: innerWidth},
-  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,},
+  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e'},
 
   modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},
@@ -764,13 +1021,14 @@ const styles = StyleSheet.create({
   popBtn3: {width:(innerWidth/2)-5,},
 	popBtnOff: {backgroundColor:'#EDEDED',},
 	popBtnOff2: {backgroundColor:'#fff',marginTop:10,},
-	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},
+	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},
 	popBtnOffText: {color:'#1e1e1e'},
 
   prvPopBot: {width:widnowWidth,maxHeight:innerHeight,paddingTop:40,paddingBottom:10,paddingHorizontal:20,backgroundColor:'#fff',borderTopLeftRadius:20,borderTopRightRadius:20,position:'absolute',bottom:0,},
 	prvPopBot2: {width:widnowWidth,position:'absolute',bottom:0,},
-	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,lineHeight:24,color:'#1e1e1e',},
-  popBotTitleTextLine: {lineHeight:22,},
+  prvPopBot3: {paddingHorizontal:0,},
+	popBotTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,lineHeight:25,color:'#1e1e1e',},
+  popBotTitleTextLine: {},
 	popBotTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:22,color:'#666',marginTop:10,},
 
   dotPop: {width:100,backgroundColor:'#fff',borderRadius:10,overflow:'hidden',position:'absolute',top:48+stBarHt,right:20,alignItems:'center'},
@@ -796,13 +1054,13 @@ const styles = StyleSheet.create({
   productList: {flexDirection:'row',justifyContent:'space-between'},
 	productBtn: {width:(innerWidth/3)-7,backgroundColor:'#fff',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,paddingVertical:25,paddingHorizontal:10,},
 	productBtnOn: {backgroundColor:'rgba(209,145,60,0.15)',borderColor:'#D1913C'},
-	productText1: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:20,color:'#1e1e1e'},
+	productText1: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:22,color:'#1e1e1e'},
 	productBest: {height:20,paddingHorizontal:8,borderRadius:20,marginTop:5,},
 	productBest2: {backgroundColor:'#FFBF1A',},
 	productText2: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:18,color:'#fff'},
-	productText3: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
+	productText3: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:17,color:'#666',marginTop:3,},
 	productText3On: {color:'#1e1e1e'},
-	productText4: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
+	productText4: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:5,},
 
   popInImageNick: {marginTop:20,},
   popInImageNickText: {fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:22,color:'#1e1e1e'},
@@ -831,24 +1089,13 @@ const styles = StyleSheet.create({
 	nextBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:52,color:'#fff'},
 
   textFlex: {flexDirection:'row',alignItems:'center',},
-
-  notMember: {alignItems:'center',justifyContent:'center',flex:1,backgroundColor:'#F2F4F6'},
-  notMemberWrap: {alignItems:'center',position:'relative',top:-100},
-  notMemberTitle: {marginTop:48},
-  notMemberTitleText: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#888888'},
-  notMemberDesc: {marginTop:15,},
-  notMemberDescText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:16,lineHeight:28,color:'#888888'},
-  notMemberDesc2: {flexDirection:'row',alignItems:'center',justifyContent:'center'},
-  notMemberDesc2View: {marginTop:10,},
-  notMemberDesc2Text: {fontFamily:Font.NotoSansBold,fontSize:15,lineHeight:18,color:'#888888'},
-  shareBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',width:innerWidth,height:52,backgroundColor:'#243B55',borderRadius:5,position:'absolute',left:20,bottom:50,},
-	shareBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},
   
   bold: {fontFamily:Font.NotoSansBold,},
   roboto: {fontFamily:Font.RobotoMedium,fontSize:15,},
   grediant: {padding:1,borderRadius:5,},
   border: {height:6,backgroundColor:'#F2F4F6'},
   boxShadow: {
+    backgroundColor:'#fff',
     borderRadius:5,
 		shadowColor: "#000",
     shadowOffset: {
@@ -861,6 +1108,7 @@ const styles = StyleSheet.create({
 	},
   boxShadow2: {borderRadius:35,},
   boxShadow3: {    
+    backgroundColor:'#fff',
     borderRadius:5,
 		shadowColor: "#000",
     shadowOffset: {
@@ -873,6 +1121,8 @@ const styles = StyleSheet.create({
 	},
   boxShadow4: {borderWidth:1,borderColor:'rgba(209,145,60,0.3)',shadowColor: "#D1913C",shadowOpacity: 0.25,shadowRadius: 4.65,elevation: 6,},
 
+  pdl20: {paddingLeft:20},
+  pdr20: {paddingRight:20},
   mgt0: {marginTop:0},
   mgt5: {marginTop:5},
   mgt10: {marginTop:10},
@@ -882,9 +1132,15 @@ const styles = StyleSheet.create({
   mgt50: {marginTop:50},
   mgb0: {marginBottom:0,},
   mgb10: {marginBottom:10,},
-  mgl0: {marginLeft:0,},
   mgr0: {marginRight:0,},
-  mgr5: {marginRight:5,},
+  mgr10: {marginRight:10},
+  mgr15: {marginRight:15},
+  mgr20: {marginRight:20},
+  mgr30: {marginRight:30},
+  mgr40: {marginRight:40},
+	mgl0: {marginLeft:0},
+  mgl10: {marginLeft:10},
+  mgl15: {marginLeft:15},
 })
 
 export default NewMember
