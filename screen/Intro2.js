@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {ActivityIndicator, Alert, BackHandler, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
+import {ActivityIndicator, Animated, Alert, BackHandler, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -15,13 +15,17 @@ const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
-const Intro2 = ({navigation, route}) => {
+const Intro2 = (props) => {
+	const {navigation, userInfo, route} = props;
+	const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);	
+	const [loading, setLoading] = useState(false);
 	const [backPressCount, setBackPressCount] = useState(0);
 	const [backgroundType, setBackgroundType] = useState();
 	const [backgroundUrl, setBackgroundUrl] = useState('');
 	const [backgroundOnlyUrl, setBackgroundOnlyUrl] = useState('');
+	const [fadeAnim] = useState(new Animated.Value(1));
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -67,6 +71,7 @@ const Intro2 = ({navigation, route}) => {
   );
 
 	useEffect(() => {
+		setLoading(true);
 		getBackground();
 	}, []);
 
@@ -78,69 +83,96 @@ const Intro2 = ({navigation, route}) => {
 
 		const response = await APIs.send(sData);
 		//console.log(response);
-		if(response.code == 200){
+		if(response.code == 200){			
 			setBackgroundType(response.data.intro_i_type);
 			setBackgroundUrl(response.host_url+response.data.intro_i_file);
 			setBackgroundOnlyUrl(response.data.intro_i_file);
+			// setTimeout(function(){
+			// 	setLoading(false);
+			// }, 1000)			
+
+			// 페이드 아웃 애니메이션 시작
+			Animated.timing(fadeAnim, {
+				toValue: 0,
+				duration: 1000, // 1초 동안 페이드 아웃
+				delay: 1000,
+				useNativeDriver: true,
+			}).start(() => {
+				setLoading(false); // 애니메이션이 끝나면 loading 상태를 false로 설정
+			});
 		}
 	}
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			{backgroundType == 1 && backgroundUrl != '' ? (
-				<Video
-					//source={require('../assets/video/intro.mp4')}
-					source={{uri:backgroundUrl}}
-					style={styles.fullScreen}
-					paused={false} // 재생/중지 여부
-					resizeMode={"cover"} // 프레임이 비디오 크기와 일치하지 않을 때 비디오 크기를 조정하는 방법을 결정합니다. cover : 비디오의 크기를 유지하면서 최대한 맞게
-					//onLoad={e => console.log(e)} // 미디어가 로드되고 재생할 준비가 되면 호출되는 콜백 함수입니다.
-					//onEnd={e => console.log(e)}
-					repeat={true} // video가 끝나면 다시 재생할 지 여부
-					onAnimatedValueUpdate={() => { }}					
-				/>
-			) : null}
 			
-			{backgroundType == 0 ? (
-				<ImgDomain2 fileWidth={widnowWidth} fileName={backgroundOnlyUrl} />
-			) : null}
-			
-			<View style={styles.introTextBox}>
-				<ImgDomain fileWidth={38} fileName={'intro_logo.png'} />
-				<View style={styles.introTextView}>
-					<Text style={styles.introText}>기다리던</Text>
-					<Text style={styles.introText}>그 인연을</Text>
-					<Text style={styles.introText}>지금, 여기서</Text>
+				<>
+				{backgroundType == 1 && backgroundUrl != '' ? (
+					<Video
+						//source={require('../assets/video/intro.mp4')}
+						source={{uri:backgroundUrl}}
+						poster={backgroundUrl} // 영상 썸네일 이미지 URL
+						posterResizeMode="cover"
+						style={styles.fullScreen}
+						paused={false} // 재생/중지 여부
+						resizeMode={"cover"} // 프레임이 비디오 크기와 일치하지 않을 때 비디오 크기를 조정하는 방법을 결정합니다. cover : 비디오의 크기를 유지하면서 최대한 맞게
+						//onLoad={e => console.log(e)} // 미디어가 로드되고 재생할 준비가 되면 호출되는 콜백 함수입니다.
+						//onEnd={e => console.log(e)}
+						repeat={true} // video가 끝나면 다시 재생할 지 여부
+						onAnimatedValueUpdate={() => { }}					
+					/>
+				) : null}
+
+				{backgroundType == 0 ? (
+					<ImgDomain2 fileWidth={widnowWidth} fileName={backgroundOnlyUrl} />
+				) : null}
+				
+				<View style={styles.introTextBox}>
+					<ImgDomain fileWidth={38} fileName={'intro_logo.png'} />
+					<View style={styles.introTextView}>
+						<Text style={styles.introText}>기다리던</Text>
+						<Text style={styles.introText}>그 인연을</Text>
+						<Text style={styles.introText}>지금, 여기서</Text>
+					</View>
 				</View>
-			</View>
-			<View style={styles.introBox}>
-				<TouchableOpacity
-					style={[styles.introBtn]}
-					activeOpacity={opacityVal}
-					onPress={() => {navigation.navigate('RegisterStep1')}}
-				>
-					<Text style={styles.introBtnText}>피지컬 매치 시작하기</Text>
-				</TouchableOpacity>
-				<TouchableOpacity
-					style={[styles.introBtn, styles.mgt15]}
-					activeOpacity={opacityVal}
-					onPress={() => {
-						navigation.navigate('Login');
-					}}
-				>
-					<Text style={styles.introBtnText}>로그인하기</Text>
-				</TouchableOpacity>
-				<TouchableOpacity
-					style={[styles.introBtn, styles.introBtn2, styles.mgt15]}
-					activeOpacity={opacityVal}
-					onPress={() => {navigation.navigate('CsCenter')}}
-				>
-					<Text style={styles.introBtnText}>피지컬 매치 알아보기</Text>
-					<View style={styles.introArr}>
-						<ImgDomain fileWidth={8} fileName={'intro2_arr.png'}/>
-					</View>					
-				</TouchableOpacity>
-			</View>
+				<View style={styles.introBox}>
+					<TouchableOpacity
+						style={[styles.introBtn]}
+						activeOpacity={opacityVal}
+						onPress={() => {navigation.navigate('RegisterStep1')}}
+					>
+						<Text style={styles.introBtnText}>피지컬 매치 시작하기</Text>
+					</TouchableOpacity>
+					<TouchableOpacity
+						style={[styles.introBtn, styles.mgt15]}
+						activeOpacity={opacityVal}
+						onPress={() => {
+							navigation.navigate('Login');
+						}}
+					>
+						<Text style={styles.introBtnText}>로그인하기</Text>
+					</TouchableOpacity>
+					<TouchableOpacity
+						style={[styles.introBtn, styles.introBtn2, styles.mgt15]}
+						activeOpacity={opacityVal}
+						onPress={() => {navigation.navigate('CsCenter')}}
+					>
+						<Text style={styles.introBtnText}>피지컬 매치 알아보기</Text>
+						<View style={styles.introArr}>
+							<ImgDomain fileWidth={8} fileName={'intro2_arr.png'}/>
+						</View>					
+					</TouchableOpacity>
+				</View>
+				</>
+			
+
+				{loading && (
+					<Animated.View style={[styles.indicator, { opacity: fadeAnim }]}>
+						<ImgDomain fileWidth={80} fileName={'logo.png'} />						
+						<ActivityIndicator size="large" color="#D1913C" style={{position:'absolute',bottom:50,}} />
+					</Animated.View>
+				)}
+			
 		</SafeAreaView>
 	)
 }
@@ -148,8 +180,7 @@ const Intro2 = ({navigation, route}) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },
 	fullScreen: { flex: 1, },
-	indicator: {height:widnowHeight-185, display:'flex', alignItems:'center', justifyContent:'center'},
-	indicator2: { marginTop: 62 },
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'#1e1e1e', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, zIndex:100},		
 
 	mgt15: {marginTop:15},
 

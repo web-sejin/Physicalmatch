@@ -59,6 +59,7 @@ const AccountSet = (props) => {
   const [leaveValList, setLeaveValList] = useState([]);
   const [leaveVal, setLeaveVal] = useState();
   const [leaveValString, setLeaveValString] = useState('');
+  const [isLoggedOut, setIsLoggedOut] = useState(false);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -123,6 +124,16 @@ const AccountSet = (props) => {
 		Animated.timing(onOffEvent2, {toValue: change, duration: 100, useNativeDriver: false,}).start();    
 	}, [onOff2]);
 
+  useEffect(() => {
+    console.log('isLoggedOut ::: ', isLoggedOut);
+    if (isLoggedOut) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Intro2' }],
+      });
+    }
+  }, [isLoggedOut]);
+
   const chgOnOff = async () => {
     if(onOff){
       setModal2(true);
@@ -143,7 +154,8 @@ const AccountSet = (props) => {
     }
   }
 
-  const logout = async () => {        
+  const logout = async () => { 
+    setLoading(true); 
     let sData = {
 			basePath: "/api/member/",
 			type: "SetLogout",
@@ -151,13 +163,13 @@ const AccountSet = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-		//console.log(response);
-    if(response.code == 200){
+		if(response.code == 200){
       AsyncStorage.removeItem('member_id');
       AsyncStorage.removeItem('member_idx');
-
+  
       setModal(false);
-      navigation.navigate('Intro2');
+      setLoading(false);
+      setIsLoggedOut(true);
     }
   }
 

@@ -41,6 +41,7 @@ const MyHobby = (props) => {
 	const [depth1, setDepth1] = useState('');	
 	const [keywordTotal, setKeywordTotal] = useState(12); //아직 db가 없어 임시로 12개의 데이터(1차 분류에 상관없는 모든 데이터값) 생성해서 작업하며, 추후 백엔드와 협업을 통해 변경해야 함
 	const [keywordAry, setKeywordAry] = useState([]);	
+	const [chgSt, setChgSt] = useState(false);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -157,6 +158,7 @@ const MyHobby = (props) => {
 			}
 		});
 		setKeywordAry(selectCon);
+		setChgSt(true);
 	}
 
 	const addKeywordChk = async () => {
@@ -219,6 +221,7 @@ const MyHobby = (props) => {
 		//console.log(sData);
 		const response = await APIs.send(sData);		
 		setLoading(false);
+		setChgSt(false);
 		if(response.code == 200){
 			navigation.navigate('ProfieModify');
 		}
@@ -234,14 +237,15 @@ const MyHobby = (props) => {
 						<Text style={styles.cmWrapTitleText}>취미·관심사 키워드</Text>
 					</View>
 					<View style={styles.cmWrapDescBox}>
-						<Text style={styles.cmWrapDescText}>나의 연애 및 결혼관이 입력되어야</Text>
-						<Text style={styles.cmWrapDescText}>상대방의 연애 및 결혼관을 열 수 있어요.</Text>
+						<Text style={styles.cmWrapDescText}>키워드를 많이 입력할수록</Text>
+						<Text style={styles.cmWrapDescText}>꼭 맞는 상대를 만날 수 있어요!</Text>
 					</View>
 					<View style={styles.mgt50}>
 						<View style={styles.selectView}>
 							<RNPickerSelect
 								value={depth1}
 								onValueChange={(value, index) => {
+									Keyboard.dismiss();
 									setDepth1(value);
 									if(value){
 										GetHobbyList(value);										
@@ -364,7 +368,7 @@ const MyHobby = (props) => {
 				</View>
 			</ScrollView>
 			
-			{depth1 != '' ? (
+			{depth1 != '' || chgSt ? (
 			<View style={styles.nextFix}>
         <TouchableOpacity 
 					style={[styles.nextBtn, keywordAry.length > 0 ? null : styles.nextBtnOff]}
@@ -432,7 +436,7 @@ const styles = StyleSheet.create({
 	myKeyword: {marginTop:15,},
 	myKeywordView: {flexDirection:'row',paddingVertical:15,borderBottomWidth:1,borderBottomColor:'#EDEDED'},
 	myKeywordViewTh: {marginRight:20,},
-	myKeywordViewThText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:27,color:'#1e1e1e'},
+	myKeywordViewThText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:23,color:'#1e1e1e'},
 	myKeywordViewTd: {flexDirection:'row',flexWrap:'wrap'},
 	myKeywordBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',height:27,paddingHorizontal:12,backgroundColor:'#EDF2FE',borderRadius:50,marginRight:8,},
 	myKeywordBtnText: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:25,color:'#1e1e1e',marginRight:5},

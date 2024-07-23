@@ -193,6 +193,9 @@ const MyInfo = (props) => {
 	const [nextOpen, setNextOpen] = useState(false);
 	const [outerScrollEnabled, setOuterScrollEnabled] = useState(true);
 	const [mbPhysical, setMbPhysical] = useState('');
+	const [saveDrink, setSaveDrink] = useState('');
+	const [saveSmoke, setSaveSmoke] = useState('');
+	const [saveSmoke2, setSaveSmoke2] = useState('');
 	
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -611,7 +614,7 @@ const MyInfo = (props) => {
 			for(let i=30; i<=120; i++){ ary2.push(i); }	
 			const aryIndx = ary2.findIndex((value) => value == response.data.info.member_weight);
 			setWeightIdx(aryIndx);
-			setWeight(response.data.info.member_weight);
+			setWeight(response.data.info.member_weight);			
 			setRealWeight(response.data.info.member_weight);
 			setNoWeight(false);
 			setRealNoWeight(false);
@@ -634,7 +637,7 @@ const MyInfo = (props) => {
 			setRealNoMuscle(false);
 
 			if(physicalString != ''){ physicalString += ' · '; }
-      physicalString += (response.data.info.member_muscle+'%'); 
+      physicalString += (response.data.info.member_muscle+'kg'); 
 		}else{
 			setNoMuscle(true);
 			setRealNoMuscle(true);
@@ -957,18 +960,21 @@ const MyInfo = (props) => {
 			setMbti8_2(mbti8);
 			setPreventBack(false);
 		}else if(v == 'physical2'){
-
 			setRealHeight(height);
-			setRealWeight(weight);
-			setRealMuscle(muscle);
-			setRealFat(fat);
+			if(!noWeight){
+				setRealWeight(weight);
+			}
+			if(!noMuscle){
+				setRealMuscle(muscle);
+			}
+			if(!noFat){
+				setRealFat(fat);
+			}
 			setRealNoWeight(noWeight);
 			setRealNoMuscle(noMuscle);
 			setRealNoFat(noFat);
 			setPopPhysical2(false);
-			setPreventBack(false);
-			
-			console.log(muscle+'////'+fat);
+			setPreventBack(false);			
 
 			let physicalString = height.replace('cm', '')+'cm';
 			if(!noWeight){
@@ -977,12 +983,14 @@ const MyInfo = (props) => {
 			}
 			if(!noMuscle){
 				if(physicalString != ''){ physicalString += ' · '; }
-      	physicalString += (muscle.replace('kg', '')+'kg'); 
+      	physicalString += (muscle.replace('kg', '')+'kg'); 				
 			}
 			if(!noFat){
 				if(physicalString != ''){ physicalString += ' · '; }
       	physicalString += (fat.replace('%', '')+'%'); 
 			}
+
+			//console.log(physicalString);
 			setMbPhysical(physicalString);
 			
 		}else if(v == 'exe'){
@@ -1065,9 +1073,9 @@ const MyInfo = (props) => {
 			member_job:realJob,
 			member_job_detail:realJobDetail,
 			member_height:realHeight,
-			member_weight:realWeight,
-			member_muscle:realMuscle,
-			member_fat:realFat,
+			member_weight:!noWeight ? realWeight : 0,
+			member_muscle:!noMuscle ? realMuscle : 0,
+			member_fat:!noFat ? realFat : 0,
 			member_no_weight:realNoWeight,
 			member_no_muscle:realNoMuscle,
 			member_no_fat:realFat,
@@ -1077,6 +1085,11 @@ const MyInfo = (props) => {
 			member_mbti:mbti1_2+'|'+mbti2_2+'|'+mbti3_2+'|'+mbti4_2+'|'+mbti5_2+'|'+mbti6_2+'|'+mbti7_2+'|'+mbti8_2,
 			member_religion:realRel,
 		}
+
+		// console.log('realHeight ::: ', realHeight);
+		// console.log('realWeight ::: ', realWeight);
+		// console.log('realMuscle ::: ', realMuscle);
+		// console.log('realFat ::: ', realFat);
 
 		if(realSmokeSort){
 			nextObj.member_smoke_type = realSmokeSort;
@@ -1091,6 +1104,7 @@ const MyInfo = (props) => {
 		nextObj.member_physical = phyTypeTrue;
 				
 		//console.log(nextObj);
+		//return false
 		const response = await APIs.send(nextObj);
 		//console.log(response);
 		if(response.code == 200){
@@ -1234,7 +1248,7 @@ const MyInfo = (props) => {
 					<TouchableOpacity
 						style={styles.regiStep5Btn}
 						activeOpacity={opacityVal}
-						onPress={() => {									
+						onPress={() => {								
 							if(realHeight != '') setHeight(realHeight); 
 							if(realWeight != '') setWeight(realWeight); 
 							if(realMuscle != '') setMuscle(realMuscle); 
@@ -1331,6 +1345,9 @@ const MyInfo = (props) => {
 						onPress={() => {
 							setPopDrink(true);
 							setPreventBack(true);
+							setSaveDrink(realDrink);
+							setSaveSmoke(realSmoke);
+							setSaveSmoke2(realSmokeSort);
 						}}
 					>
 						<View style={styles.regiStep5BtnLeft}>
@@ -1925,7 +1942,7 @@ const MyInfo = (props) => {
 						</View>
 						<View style={[styles.popRadioBox, styles.mgt30]}>
 							<View style={[styles.popRadioTitle, styles.popRadioTitleFlex]}>
-								<Text style={styles.popRadioTitleText}>몸무z게</Text>
+								<Text style={styles.popRadioTitleText}>몸무게</Text>
 								<TouchableOpacity
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
@@ -1933,6 +1950,8 @@ const MyInfo = (props) => {
 										if(noWeight){
 											setWeightIdx(30);
 											setWeight('60kg');
+										}else{
+											setWeight(0);
 										}
 										setNoWeight(!noWeight);
 									}}
@@ -1973,6 +1992,8 @@ const MyInfo = (props) => {
 										if(noMuscle){
 											setMuscleIdx(25);
 											setMuscle('25kg');
+										}else{
+											setMuscle(0);
 										}
 										setNoMuscle(!noMuscle);
 									}}
@@ -2010,9 +2031,11 @@ const MyInfo = (props) => {
 									style={styles.notPickBtn}
 									activeOpacity={opacityVal}
 									onPress={() => {
-										if(noFat){
+										if(noMuscle){
 											setFatIdx(15);
 											setFat('15%');
+										}else{
+											setFat(0);
 										}
 										setNoFat(!noFat);
 									}}
@@ -2035,7 +2058,7 @@ const MyInfo = (props) => {
 									visibleRest={1}
 									itemTextStyle={styles.activeStyle2}
 									containerStyle={styles.activeStyle3}
-									onChange={(index) => {
+									onChange={(index) => {										
 										setFatIdx(index);
 										setFat(fatList[index]);
 									}}
@@ -2321,6 +2344,10 @@ const MyInfo = (props) => {
 					onPress={()=>{
 						Keyboard.dismiss();
 						setPopDrink(false);
+
+						setRealDrink(saveDrink);
+						setRealSmoke(saveSmoke);
+						setRealSmokeSort(saveSmoke2);
 					}}
 				>
 				</TouchableOpacity>
@@ -2330,6 +2357,10 @@ const MyInfo = (props) => {
 						onPress={() => {
 							setPopDrink(false);
 							setPreventBack(false);
+
+							setRealDrink(saveDrink);
+							setRealSmoke(saveSmoke);
+							setRealSmokeSort(saveSmoke2);
 						}}
 					>
 						<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
@@ -2454,6 +2485,7 @@ const MyInfo = (props) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti1('E');
+										if(mbti2 != ''){ setMbti2('I'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti1 == 'E' ? styles.popRadioBoxBtnTextOn : null]}>E</Text>
@@ -2464,7 +2496,8 @@ const MyInfo = (props) => {
 									style={[styles.popRadioBoxBtn4, mbti1 == 'I' ? styles.popRadioBoxBtnOn : null]}
 									activeOpacity={opacityVal}
 									onPress={()=>{
-										setMbti1('I');			
+										setMbti1('I');		
+										if(mbti2 != ''){ setMbti2('E'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti1 == 'I' ? styles.popRadioBoxBtnTextOn : null]}>I</Text>
@@ -2515,6 +2548,7 @@ const MyInfo = (props) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti3('S');
+										if(mbti4 != ''){ setMbti4('N'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti3 == 'S' ? styles.popRadioBoxBtnTextOn : null]}>S</Text>
@@ -2526,6 +2560,7 @@ const MyInfo = (props) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti3('N');			
+										if(mbti4 != ''){ setMbti4('S'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti3 == 'N' ? styles.popRadioBoxBtnTextOn : null]}>N</Text>
@@ -2543,7 +2578,7 @@ const MyInfo = (props) => {
 												if(mbti3 == 'S'){
 													setMbti4('N');
 												}else{
-													setMbti4('N');
+													setMbti4('S');
 												}			
 											}else{
 												setMbti4('');
@@ -2576,6 +2611,7 @@ const MyInfo = (props) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti5('T');
+										if(mbti6 != ''){ setMbti6('F'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti5 == 'T' ? styles.popRadioBoxBtnTextOn : null]}>T</Text>
@@ -2587,6 +2623,7 @@ const MyInfo = (props) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti5('F');			
+										if(mbti6 != ''){ setMbti6('T'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti5 == 'F' ? styles.popRadioBoxBtnTextOn : null]}>F</Text>
@@ -2637,6 +2674,7 @@ const MyInfo = (props) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti7('J');
+										if(mbti8 != ''){ setMbti8('P'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti7 == 'J' ? styles.popRadioBoxBtnTextOn : null]}>J</Text>
@@ -2648,6 +2686,7 @@ const MyInfo = (props) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti7('P');			
+										if(mbti8 != ''){ setMbti8('J'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti7 == 'P' ? styles.popRadioBoxBtnTextOn : null]}>P</Text>
@@ -2824,7 +2863,7 @@ const styles = StyleSheet.create({
 	popRadioBoxBtn4: {width:(innerWidth/3)-20,height:(innerWidth/3)-20,alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,marginTop:10,},
 	popRadioBoxBtn4Text: {fontFamily:Font.NotoSansMedium,fontSize:24,lineHeight:31,color:'#666',marginBottom:5,},
 	popRadioBoxBtn4Img: {marginBottom:5,},
-	popRadioBoxBtn4TextDesc: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:15},
+	popRadioBoxBtn4TextDesc: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:15,color:'#666'},
 
 	popRadioBoxBtn5: {width:52,height:33,paddingHorizontal:0,},
 	popRadioBoxBtn5Text: {textAlign:'center',fontSize:13,lineHeight:33,color:'#1e1e1e'},

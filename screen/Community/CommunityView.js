@@ -39,6 +39,7 @@ const CommunityView = (props) => {
 	const {params} = route	
   const comm_idx = params['comm_idx'];
   const cate_name = params['cateName'];
+  const paramsString = JSON.stringify({comm_idx:comm_idx, cateName:cate_name});
   const scrollRef = useRef();	
   const etcRef = useRef(null);
   const [keyboardStatus, setKeyboardStatus] = useState(false);
@@ -381,6 +382,8 @@ const CommunityView = (props) => {
     setCommentCnt(response.data.comment.length);
     if(response.data.comment.length > 0){
       setCommentList(response.data.comment);
+    }else{
+      setCommentList([]);
     }
 
     if(response.data.comm.delete_yn == 'y'){
@@ -448,6 +451,7 @@ const CommunityView = (props) => {
 		};
 
 		const response = await APIs.send(sData);    
+    //console.log(response);
     if(response.code == 200 && response.data){
       setReceiveList(response.data);
       setHostUrl('https://'+response.httpHost);
@@ -493,6 +497,7 @@ const CommunityView = (props) => {
       return false;
     }
 
+    setLoading2(true);
     let sData = {
 			basePath: "/api/social/",
 			type: "SetReportPost",
@@ -510,10 +515,14 @@ const CommunityView = (props) => {
       ToastMessage('신고접수가 완료되었습니다.');
       if(reportType == 'comm'){
         setTimeout(function(){
+          setLoading2(false);
           navigation.navigate('Community', {reload: true});
         } ,300)      
       }else if(reportType == 'commComment'){
         getCommDetail();
+        setTimeout(() => {
+          setLoading2(false);
+        }, 200);
       }
     } 
   }
@@ -571,6 +580,7 @@ const CommunityView = (props) => {
       return false;
     }
   
+    setLoading2(true);
     let sData = {
 			basePath: "/api/community/",
 			type: "SetComment",
@@ -582,10 +592,15 @@ const CommunityView = (props) => {
       comment_depth: reviewType,
       comment_main_idx: comm_idx,
       comment_content: reviewCont,
+      params: paramsString,
+      
 		};
 
     if(reviewType == 1){
       sData.comment_idx = subReviewIdx;
+      sData.push_idx = 19;
+    }else{
+      sData.push_idx = 18;
     }
     
 		const response = await APIs.send(sData);    
@@ -598,6 +613,7 @@ const CommunityView = (props) => {
       setSubReviewIdx();
       setSubReivewNick('');
       setTimeout(function(){
+        setLoading2(false);
         scrollRef.current?.scrollTo({y:layout3.y+10});
       },300);  
     }
@@ -719,6 +735,7 @@ const CommunityView = (props) => {
       return false;
     }
 
+    setLoading2(true);
     if(tradeType == 1){
       //프로필 교환 신청
       let sData = {
@@ -727,6 +744,8 @@ const CommunityView = (props) => {
         comm_idx: comm_idx,   
         member_idx: memberIdx,               
         receive_member_idx: receiveMemberIdx,
+        params: paramsString,
+        push_idx: 14,
       };
 
       if(tradeSort == 'comment'){
@@ -746,11 +765,17 @@ const CommunityView = (props) => {
       if(response.code == 200){
         getSend();
         getMemberProtain();
-        ToastMessage('프로필 교환을 요청했습니다.');
+        setTimeout(function(){
+          setLoading2(false);
+          ToastMessage('프로필 교환을 요청했습니다.');
+        }, 100);      
       }else if(response.code == 300){
         ToastMessage(response.msg);
       }else{
-        ToastMessage('잠시후 다시 이용해 주세요.');
+        setTimeout(function(){
+          setLoading2(false);
+          ToastMessage('잠시후 다시 이용해 주세요.');
+        }, 100);
       }
       closeTradePop();
 
@@ -760,14 +785,22 @@ const CommunityView = (props) => {
         basePath: "/api/community/",
         type: "SetProfileChangePermit",	
         cpc_idx: permitCpcIdx,
+        params: paramsString,
+        push_idx: 15,
       };
       const response = await APIs.send(sData); 
       //console.log(response);
       if(response.code == 200){
-        getReceive();
-        ToastMessage('프로필 교환을 수락했습니다.');
-      }else{
-        ToastMessage('잠시후 다시 이용해 주세요.');
+        getReceive();        
+        setTimeout(function(){
+          setLoading2(false);
+          ToastMessage('프로필 교환을 수락했습니다.');
+        }, 100);
+      }else{        
+        setTimeout(function(){
+          setLoading2(false);
+          ToastMessage('잠시후 다시 이용해 주세요.');
+        }, 100);
       }
       closeTradePop();
     }
@@ -1058,11 +1091,11 @@ const CommunityView = (props) => {
                   <Text style={styles.viewProfContText}>{content}</Text>
                 </View>
 
-                {img != '' ? (
+                {img || img != '' ? (
                   <View style={styles.viewProfContImg}>
-                    {imgBlur == 1 ? (
+                    {/* {imgBlur == 1 ? (
                       <BlurView style={styles.blurView2} blurType="light" blurAmount={10} />
-                    ) : null}
+                    ) : null} */}
                     <ImgDomain2 fileWidth={innerWidth} fileName={img}/>
                   </View>
                 ) : null}                
@@ -1135,7 +1168,7 @@ const CommunityView = (props) => {
                     <Text style={styles.cmViewTitleText2}>받은 프로필 교환</Text>
                   </View>
                   {receiveList.length < 1 ? (
-                    <View style={[styles.notData]}>
+                    <View style={[styles.notData, styles.pdt0]}>
                       <Text style={styles.notDataText}>받은 프로필이 없습니다.</Text>
                     </View>
                   ) : null}
@@ -1213,7 +1246,7 @@ const CommunityView = (props) => {
                                     <AutoHeightImage width={110} source={{uri:profileImg}} resizeMethod='resize' style={styles.peopleImg} />
                                     <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                                       <View	View style={styles.cardFrontDday}>
-                                        <Text style={styles.cardFrontDdayText}>D-7</Text>
+                                        <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
                                       </View>
                                       <View style={styles.cardFrontNick2}>
                                         <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.send_nick}</Text>
@@ -1273,7 +1306,7 @@ const CommunityView = (props) => {
                                     <AutoHeightImage width={110} source={{uri:profileImg}} resizeMethod='resize' style={styles.peopleImg} />
                                     <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                                       <View	View style={styles.cardFrontDday}>
-                                        <Text style={styles.cardFrontDdayText}>D-7</Text>
+                                        <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
                                       </View>
                                       <View style={styles.cardFrontNick2}>
                                         <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.send_nick}</Text>
@@ -1372,7 +1405,7 @@ const CommunityView = (props) => {
                                     <AutoHeightImage width={110} source={{uri:profileImg}} resizeMethod='resize' style={styles.peopleImg} />                              
                                     <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                                       <View	View style={styles.cardFrontDday}>
-                                        <Text style={styles.cardFrontDdayText}>D-7</Text>
+                                        <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
                                       </View>
                                       <View style={styles.cardFrontNick2}>
                                         <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.receive_nick}</Text>
@@ -1434,7 +1467,7 @@ const CommunityView = (props) => {
                                     <AutoHeightImage width={110} source={{uri:profileImg}} resizeMethod='resize' style={styles.peopleImg} />                              
                                     <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                                       <View	View style={styles.cardFrontDday}>
-                                        <Text style={styles.cardFrontDdayText}>D-7</Text>
+                                        <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
                                       </View>
                                       <View style={styles.cardFrontNick2}>
                                         <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.receive_nick}</Text>
@@ -1514,7 +1547,8 @@ const CommunityView = (props) => {
                                       if(memberInfo?.member_type != 1){
                                         ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
                                       }else{                                                  
-                                        if(memberInfo?.member_sex == hostSex){
+                                        if(memberInfo?.member_sex == item.member_sex){
+                                          console.log(item);
                                           ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
                                           return false;                                        
                                         }
@@ -1550,7 +1584,7 @@ const CommunityView = (props) => {
                                   onPress={()=>{
                                     setReviewCont('');
                                     setReviewType(1);
-                                    setSubReivewNick(item.sc_social_nick);
+                                    setSubReivewNick(item.comment_nick);
                                     setSubReviewIdx(item.comment_idx);
                                     setTimeout(function(){
                                       scrollRef.current?.scrollTo({y:layout3.y+10});
@@ -1559,18 +1593,20 @@ const CommunityView = (props) => {
                                 >
                                   <Text style={styles.reviewBtnText}>대댓글달기</Text>
                                 </TouchableOpacity>
-                                <View style={styles.reviewBtnLine}></View>
+                                {item.delete_yn != 'y' || (item.is_my_comment != 'y' && item.delete_yn == 'y') ? (<View style={styles.reviewBtnLine}></View>) : null}                                
                                 </>
                               ) : null}                                                          
 
-                              {item.is_my_comment == 'y' ? (                              
+                              {item.is_my_comment == 'y' ? (    
+                                item.delete_yn != 'y' ?
                                 <TouchableOpacity
                                   style={styles.reviewBtn}
                                   activeOpacity={opacityVal}
                                   onPress={()=>deleteComment(item.comment_idx)}
                                 >
                                   <Text style={styles.reviewBtnText}>삭제하기</Text>
-                                </TouchableOpacity>                                                            
+                                </TouchableOpacity>    
+                                : null                                                        
                               ) : (
                                 <TouchableOpacity
                                   style={styles.reviewBtn}
@@ -2113,7 +2149,7 @@ const styles = StyleSheet.create({
   reviewContText2: {color:'#666'},
   reviewBtnBox: {flexDirection:'row',alignItems:'center',marginTop:9,},
   reviewBtn: {},
-  reviewBtnText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:17,color:'#666'},
+  reviewBtnText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:19,color:'#666'},
   reviewBtnLine: {width:1,height:8,backgroundColor:'#EDEDED',position:'relative',top:1,marginHorizontal:6,},
   reviewSubmitArea: {flexDirection:'row',justifyContent:'space-between',flexWrap:'wrap',paddingTop:15,paddingBottom:25,paddingHorizontal:20,borderTopWidth:1,borderTopColor:'#F2F4F6'},
   reviewIpt: {width:innerWidth-50,paddingVertical:3,backgroundColor:'#F9FAFB',borderRadius:5,paddingLeft:15,fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e'},

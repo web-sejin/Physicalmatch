@@ -16,6 +16,7 @@ import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
+const paddTop = Platform.OS === 'ios' ? 0 : 15;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
@@ -177,21 +178,35 @@ const CommunityWrite = (props) => {
       sData.comm_care = 0;
     }
     
+    let submitState = false;
     let fileData = [];
+    if(phoneImage.path != undefined){
       fileData[0] = {uri: phoneImage.path, name: 'community_image.png', type: phoneImage.mime};
       sData.comm_files = fileData;
 
       const formData = APIs.makeFormData(sData)
       const response = await APIs.multipartRequest(formData);
-      console.log(response);
-      if(response.code == 200){      
-        ToastMessage('커뮤니티가 작성되었습니다.');
-        setPreventBack(false);
-        setTimeout(function(){
-          setLoading(false);
-          navigation.navigate('TabNavigation', {screen:'Community', params : {reload:true}});
-        }, 500)
+      console.log('111 ', response);
+      if(response.code == 200){
+        submitState = true;
       }
+    }else{
+      const response = await APIs.send(sData);    
+      console.log('222 ', response);
+      if(response.code == 200){
+        submitState = true;
+      }
+    }
+
+      
+    if(submitState){      
+      ToastMessage('커뮤니티가 작성되었습니다.');
+      setPreventBack(false);
+      setTimeout(function(){
+        setLoading(false);
+        navigation.navigate('TabNavigation', {screen:'Community', params : {reload:true}});
+      }, 200)
+    }
   }
 
   const headerHeight = 48;
@@ -459,7 +474,7 @@ const styles = StyleSheet.create({
   input4: {width:innerWidth-25,},
   inputLine0 : {borderBottomWidth:0,},
   inputText: {fontFamily:Font.NotoSansRegular,fontSize: 16, lineHeight:21, color: '#1e1e1e',},
-  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,paddingTop:15,color:'#1e1e1e'},
+  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,paddingTop:15,color:'#1e1e1e',paddingTop:paddTop,},
 
   help_box: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:5,},
 	alertText2: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#B8B8B8',},

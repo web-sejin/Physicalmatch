@@ -55,6 +55,11 @@ const MySocial = (props) => {
 			AsyncStorage.getItem('member_idx', (err, result) => {		        
 				setMemberIdx(result);
 			});
+
+			if(memberIdx){
+				setNowPage(1);
+				getSocialList(1);
+			}
 		}
 
 		Keyboard.dismiss();
@@ -83,6 +88,7 @@ const MySocial = (props) => {
 	useEffect(() => {
 		if(memberIdx){
 			setLoading(true);
+			setNowPage(1);
 			getSocialList(1);
 		}
 	}, [memberIdx, tabSt, tabSt2]);
@@ -97,7 +103,7 @@ const MySocial = (props) => {
 
     //console.log(tabSt+'///'+tabSt2);
 		let curr_page = nowPage;
-		console.log('viewPage ::: ', viewPage);
+		//console.log('viewPage ::: ', viewPage);
 		if(viewPage){
 			curr_page = viewPage;
 		}
@@ -117,14 +123,19 @@ const MySocial = (props) => {
 		};
 		const response = await APIs.send(sData);
 		//console.log(response);
-		if(response.code == 200){
-			if(response.data){
-				setTotalPage(Math.ceil(response.data.length/10));
-				setSocialList(response.data);
-			}else if(response.msg == 'EMPTY'){
-				setTotalPage(1);
-				setSocialList([]);
-			}						
+		if(response.code == 200){				
+
+			if(curr_page == 1){
+				if(response.msg == 'EMPTY'){
+					setNowPage(1);
+					setSocialList([]);
+				}else{
+					setSocialList(response.data);
+				}
+			}else if(curr_page > 1 && response.msg != 'EMPTY'){					
+				const addList = [...socialList, ...response.data];
+				setSocialList(addList);
+			}
 		}
 		setTimeout(function(){
 			setLoading(false);

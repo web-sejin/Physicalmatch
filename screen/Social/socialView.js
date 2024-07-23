@@ -40,6 +40,7 @@ const SocialView = (props) => {
   const {params} = route
   const social_idx = params['social_idx'];
   const host_sex = params['social_host_sex'];
+  const paramsString = JSON.stringify({social_idx:social_idx, social_host_sex:host_sex});
   const scrollRef = useRef();	
   const etcRef = useRef(null);
   const navigationUse = useNavigation();
@@ -83,6 +84,7 @@ const SocialView = (props) => {
   const [useStatus, setUseStatus] = useState(true); //match_yn 이 y 라면 false
   const [nick, setNick] = useState('');
   const [age, setAge] = useState('');
+  const [height, setHeight] = useState('');  
   const [dateDiff, setDateDiff] = useState('');
   const [datetime, setDatetime] = useState('');
   const [subject, setSubject] = useState('');
@@ -496,7 +498,8 @@ const SocialView = (props) => {
       setPbIdx(response.data.social.pb_idx);
       setWriteIdx(response.data.social.member_idx);
       setNick(response.data.social.host_social_nick);
-      setAge(response.data.social.host_social_age);
+      setAge(response.data.social.host_social_age);      
+      setHeight(response.data.social.host_height);
       setDateDiff(response.data.social.diff_date);
       setDatetime(response.data.social.AgoTime);
       setSubject(response.data.social.social_subject);
@@ -525,10 +528,13 @@ const SocialView = (props) => {
       setHostGuest(response.data.social.host_guest_yn);
       setGuestGuest(response.data.social.guest_guest_yn);
 
+      //console.log(response.data.comment.length);
       setCommentCnt(response.data.comment.length);
       if(response.data.comment.length > 0){
         setCommentList(response.data.comment);
-      }              
+      }else{
+        setCommentList([]);
+      }
 
       if(response.data.social.delete_yn == 'y'){
         setDeleteState(true);
@@ -614,6 +620,7 @@ const SocialView = (props) => {
       return false;
     }
 
+    setLoading2(true);
     let sData = {
 			basePath: "/api/social/",
 			type: "SetReportPost",
@@ -630,10 +637,14 @@ const SocialView = (props) => {
       ToastMessage('신고접수가 완료되었습니다.');
       if(reportType == 'social'){
         setTimeout(function(){
+          setLoading2(false);
           navigation.navigate('Social', {reload: true});
         } ,300)      
       }else if(reportType == 'socialComment'){
         getSocialDetail();
+        setTimeout(() => {
+          setLoading2(false);
+        }, 200);
       }
     }    
   }
@@ -669,18 +680,23 @@ const SocialView = (props) => {
       ToastMessage('사용할 수없는 단어를 사용했습니다.\n내용을 다시 입력해 주세요.');
       return false;
     }
-  
+    
+    setLoading2(true);
     let sData = {
 			basePath: "/api/social/",
 			type: "SetSocialComment",
       social_idx: social_idx,
 			member_idx: memberIdx,
       sc_type: reviewType,
-      sc_content: reviewCont,
+      sc_content: reviewCont,      
+      params:paramsString,
 		};
 
     if(reviewType == 1){
       sData.sc_org_idx = subReviewIdx;
+      sData.push_idx = 13;
+    }else{
+      sData.push_idx = 12;
     }
 
 		const response = await APIs.send(sData);
@@ -693,6 +709,7 @@ const SocialView = (props) => {
       setSubReivewNick('');
       setSubReviewIdx();
       setTimeout(function(){
+        setLoading2(false);
         scrollRef.current?.scrollTo({y:layout3.y+10});
       },300);    
     }
@@ -794,12 +811,14 @@ const SocialView = (props) => {
     setPreventBack(true);
   }
 
-  const submitParty = async () => {
+  const submitParty = async () => {        
     let sData = {
       basePath: "/api/social/",
       type: "SetSocialJoin",		      
       social_idx: social_idx,
       member_idx: memberIdx,
+      push_idx:6,
+      params:paramsString,
     };
     const response = await APIs.send(sData);
     //console.log(response);
@@ -811,7 +830,7 @@ const SocialView = (props) => {
     }
   }
 
-  const socialAgree = async () => {
+  const socialAgree = async () => {    
     let sData = {
       basePath: "/api/social/",
       type: "SetSocialState",		      
@@ -819,7 +838,8 @@ const SocialView = (props) => {
       sj_status: 1,
       member_idx:memberIdx,
       social_idx:social_idx,
-
+      push_idx:7,
+      params:paramsString,
     };
     const response = await APIs.send(sData);
     //console.log(response.data.join.accept);
@@ -1080,6 +1100,7 @@ const SocialView = (props) => {
       <KeyboardAvoidingView
         keyboardVerticalOffset={0}
         behavior={behavior}
+        style={{flex:1}}
       >
         <ScrollView ref={scrollRef}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -1661,6 +1682,7 @@ const SocialView = (props) => {
                           commIdx2:sjIdx,
                           currState:guestPartyState,
                           writeType:userType, //1:내 글, 2:남의 글
+                          social_host_sex:host_sex,
                         }
                       )
                     }
@@ -1688,7 +1710,7 @@ const SocialView = (props) => {
                               <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
                                 <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{age}</Text>
                                 <View style={styles.cardFrontContLine}></View>
-                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
+                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{height}cm</Text>
                               </View>
                             </View>
                           </View>
@@ -1882,7 +1904,7 @@ const SocialView = (props) => {
 
                 <View style={styles.cmView}>
                   {commentCnt < 1 ? (
-                    <View style={styles.notData}>
+                    <View style={[styles.notData, styles.pdt0]}>
                       <Text style={styles.notDataText}>등록된 댓글이 없습니다.</Text>
                     </View>
                   ) : null}
@@ -2778,7 +2800,7 @@ const styles = StyleSheet.create({
   reviewContText2: {color:'#666'},
   reviewBtnBox: {flexDirection:'row',alignItems:'center',marginTop:9,},
   reviewBtn: {},
-  reviewBtnText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:17,color:'#666'},
+  reviewBtnText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:19,color:'#666'},
   reviewBtnLine: {width:1,height:8,backgroundColor:'#EDEDED',position:'relative',top:1,marginHorizontal:6,},
   reviewSubmitArea: {flexDirection:'row',justifyContent:'space-between',flexWrap:'wrap',paddingTop:15,paddingBottom:25,paddingHorizontal:20,borderTopWidth:1,borderTopColor:'#F2F4F6'},
   reviewIpt: {width:innerWidth-50,paddingVertical:3,backgroundColor:'#F9FAFB',borderRadius:5,paddingLeft:15,fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e'},

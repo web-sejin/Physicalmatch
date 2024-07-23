@@ -2299,6 +2299,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti1('E');
+										if(mbti2 != ''){ setMbti2('I'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti1 == 'E' ? styles.popRadioBoxBtnTextOn : null]}>E</Text>
@@ -2309,7 +2310,8 @@ const RegisterStep5 = ({navigation, route}) => {
 									style={[styles.popRadioBoxBtn4, mbti1 == 'I' ? styles.popRadioBoxBtnOn : null]}
 									activeOpacity={opacityVal}
 									onPress={()=>{
-										setMbti1('I');			
+										setMbti1('I');
+										if(mbti2 != ''){ setMbti2('E'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti1 == 'I' ? styles.popRadioBoxBtnTextOn : null]}>I</Text>
@@ -2360,6 +2362,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti3('S');
+										if(mbti4 != ''){ setMbti4('N'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti3 == 'S' ? styles.popRadioBoxBtnTextOn : null]}>S</Text>
@@ -2370,7 +2373,8 @@ const RegisterStep5 = ({navigation, route}) => {
 									style={[styles.popRadioBoxBtn4, mbti3 == 'N' ? styles.popRadioBoxBtnOn : null]}
 									activeOpacity={opacityVal}
 									onPress={()=>{
-										setMbti3('N');			
+										setMbti3('N');
+										if(mbti4 != ''){ setMbti4('S'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti3 == 'N' ? styles.popRadioBoxBtnTextOn : null]}>N</Text>
@@ -2388,7 +2392,7 @@ const RegisterStep5 = ({navigation, route}) => {
 												if(mbti3 == 'S'){
 													setMbti4('N');
 												}else{
-													setMbti4('N');
+													setMbti4('S');
 												}			
 											}else{
 												setMbti4('');
@@ -2421,6 +2425,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti5('T');
+										if(mbti6 != ''){ setMbti6('F'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti5 == 'T' ? styles.popRadioBoxBtnTextOn : null]}>T</Text>
@@ -2431,7 +2436,8 @@ const RegisterStep5 = ({navigation, route}) => {
 									style={[styles.popRadioBoxBtn4, mbti5 == 'F' ? styles.popRadioBoxBtnOn : null]}
 									activeOpacity={opacityVal}
 									onPress={()=>{
-										setMbti5('F');			
+										setMbti5('F');
+										if(mbti6 != ''){ setMbti6('T'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti5 == 'F' ? styles.popRadioBoxBtnTextOn : null]}>F</Text>
@@ -2482,6 +2488,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									activeOpacity={opacityVal}
 									onPress={()=>{
 										setMbti7('J');
+										if(mbti8 != ''){ setMbti8('P'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti7 == 'J' ? styles.popRadioBoxBtnTextOn : null]}>J</Text>
@@ -2492,7 +2499,8 @@ const RegisterStep5 = ({navigation, route}) => {
 									style={[styles.popRadioBoxBtn4, mbti7 == 'P' ? styles.popRadioBoxBtnOn : null]}
 									activeOpacity={opacityVal}
 									onPress={()=>{
-										setMbti7('P');			
+										setMbti7('P');
+										if(mbti8 != ''){ setMbti8('J'); }
 									}}
 								>
 									<Text style={[styles.popRadioBoxBtn4Text, mbti7 == 'P' ? styles.popRadioBoxBtnTextOn : null]}>P</Text>

@@ -85,7 +85,16 @@ const Login = (props) => {
 			setLoading(false);
 			AsyncStorage.setItem('member_id', id);
 			AsyncStorage.setItem('member_idx', response.data.member_idx);
-			saveRedux(response.data.member_idx, response.data.member_type);						
+			console.log(response.data);
+			saveRedux(
+				response.data.member_idx, 
+				response.data.member_type, 
+				response.data.is_match_ban, 
+				response.data.is_social_ban, 
+				response.data.is_comm_ban,
+				response.data.available_yn,
+			);						
+
 		}else{
 			setLoading(false);
 			if(response.msg == 'INVALID ID'){
@@ -98,7 +107,7 @@ const Login = (props) => {
 		}
   }
 
-	const saveRedux = async (idx, type) => {
+	const saveRedux = async (idx, type, is_match_ban, is_social_ban, is_comm_ban, available_yn,) => {
 		const formData = new FormData();
 		formData.append('type', 'GetMyInfo');
 		formData.append('member_idx', idx);
@@ -115,13 +124,15 @@ const Login = (props) => {
 		//console.log('mem_info', mem_info);
 		if(type == 0){
 			navigation.navigate('RegisterResult');
-		}else if(type == 1){
-			//최종 승인
-			navigation.navigate('TabNavigation', {screen:'Home'});
-		}else if(type == 2){
-			//관리자 + 신규회원평가 인증
-			navigation.navigate('TabNavigation', {screen:'Mypage'});
-		}
+		}else if(type == 2 && is_match_ban == 'y' && is_social_ban == 'y' && is_comm_ban == 'y'){
+			navigation.replace('TabNavigation', {screen: 'Mypage'});
+		}else{
+			if(available_yn == 'n'){
+				navigation.replace('Disable');
+			}else{
+				navigation.replace('TabNavigation');
+			}
+		}	
 	}
 
 	const headerHeight = 48;
@@ -217,7 +228,7 @@ const styles = StyleSheet.create({
 	input: { fontFamily: Font.NotoSansRegular, width: innerWidth, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
 	
 	findInfo: { width:192, paddingTop: 8, paddingBottom:7, borderWidth: 1, borderColor: '#EDEDED', borderRadius:50,marginVertical: 30, },
-	findInfoText: {fontFamily:Font.NotoSansRegular, fontSize:12, lineHeight:14,color:'#666', textAlign:'center'},
+	findInfoText: {fontFamily:Font.NotoSansRegular, fontSize:12, lineHeight:17,color:'#666', textAlign:'center'},
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,},
 	nextBtn: {height:52,backgroundColor:'#243B55',borderRadius:5,display:'flex',alignItems:'center',justifyContent:'center',},

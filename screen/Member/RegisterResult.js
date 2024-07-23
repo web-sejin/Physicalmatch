@@ -28,6 +28,7 @@ const RegisterResult = (props) => {
 	const [backPressCount, setBackPressCount] = useState(0);
 	const [memberId, setMemberId] = useState();
 	const [memberIdx, setMemberIdx] = useState();
+	const [memberName, setMemberName] = useState('');
 	const [firebaseToken, setFirebaseToken] = useState();
 	const [deviceToken, setDeviceToken] = useState();
 
@@ -102,6 +103,24 @@ const RegisterResult = (props) => {
 		getBackground();
 	}, []);
 
+	useEffect(() => {
+		getMemInfo();
+	}, [memberIdx])
+
+	const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyProfile",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){
+			setMemberName(response.data.info.member_nick);
+		}
+	}
+
 	const getBackground = async () => {
 		let sData = {
 			basePath: "/api/etc/",
@@ -138,7 +157,7 @@ const RegisterResult = (props) => {
 			) : null}
       <View style={styles.introDescBox}>
         <View style={styles.introDescBoxWrap}>
-          <Text style={styles.introDescBoxName}>홍길동님,</Text>
+          <Text style={styles.introDescBoxName}>{memberName}님,</Text>
           <Text style={[styles.introDescBoxText, styles.mgt15]}>피지컬 매치 회원으로</Text>
           <Text style={styles.introDescBoxText}>가입해주셔서 감사드립니다.</Text>
           <Text style={[styles.introDescBoxText, styles.mgt15]}>회원님이 소중한 서류를 검토중입니다.</Text>
@@ -191,7 +210,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
 		elevation: 5,
 	},
-	introBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,fontWeight:'600',color:'#fff'},
+	introBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,fontWeight:'600',color:'#fff'},
 	introArr: {position:'relative',top:-0.5,marginLeft:7},
 
   bold: {fontFamily:Font.NotoSansBold,},

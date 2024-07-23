@@ -734,8 +734,8 @@ const styles = StyleSheet.create({
   cmDescBox: {marginTop:8,},
   cmDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},	
 
-	input: {},
-	textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,paddingTop:paddTop,},
+	input: {color:'#1e1e1e'},
+	textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color: '#1e1e1e',paddingTop:paddTop,},
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
@@ -815,10 +815,10 @@ const styles = StyleSheet.create({
 	},
 
 	ingBox: {flexDirection:'row',alignItems:'center',borderBottomWidth:1,borderColor:'#DBDBDB',marginBottom:10,},
-	input2: {width:innerWidth-40,paddingVertical:4,backgroundColor:'#fff',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:20},
+	input2: {width:innerWidth-40,paddingVertical:4,backgroundColor:'#fff',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:20,color:'#1e1e1e'},
 	inputChg: {flexDirection:'row',alignItems:'center',width:40,height:37,backgroundColor:'#fff'},
 	inputChgText: {fontFamily:Font.NotoSansRegular,fontSize:13,color:'#b8b8b8',marginLeft:3,},
-	textarea2: {height:180,borderWidth:0,borderRadius:0,paddingHorizontal:0},
+	textarea2: {height:180,borderWidth:0,borderRadius:0,paddingHorizontal:0,color:'#1e1e1e'},
 
 	guidePopContBox: {marginTop:20,},
 	guidePopContBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',position:'relative',paddingBottom:20,borderBottomWidth:1,borderBottomColor:'#DBDBDB'},

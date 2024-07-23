@@ -65,6 +65,7 @@ const ProfieModify = (props) => {
   const [mbExe, setMbExe] = useState('-');
   const [mbInterview, setMbInterview] = useState([]);
   const [rejectMemo, setRejectMemo] = useState('');
+  const [lovePoint, setLovePoint] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -116,12 +117,17 @@ const ProfieModify = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-    //console.log(response);
+    console.log(response);
 		if(response.code == 200){
+      setLovePoint(response.love_point);
 			setMemberInfo(response.data);
       setBadgeReject(response.data.is_badge_reject);
       setAuthReject(response.data.is_auth_reject);
-      setRejectMemo(response.data.info.reject_memo);
+      if(response.data.reject_memo){
+				setRejectMemo(response.data.reject_memo);
+			}else{
+				setRejectMemo('');
+			}
       
       //피지컬
       let physicalString = '';
@@ -555,7 +561,7 @@ const ProfieModify = (props) => {
                   {memberInfo.info?.love_cnt > 0 ? (
                     <Text style={styles.modiBtnTopRightViewText}>작성 완료</Text>
                   ) : (
-                    <Text style={styles.modiBtnTopRightViewText}>프로틴 30개 혜택</Text>
+                    <Text style={styles.modiBtnTopRightViewText}>프로틴 {lovePoint}개 혜택</Text>
                   )}                  
                 </View>
                 <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>

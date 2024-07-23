@@ -55,7 +55,7 @@ const FindPw = (props) => {
       pass_type: 2,
       member_phone: '010-0000-0000',
       member_id: id,
-      test_yn: 'n'
+      test_yn: 'y'
     }
     const response = await APIs.send(sData);    
     if(response.code == 200){

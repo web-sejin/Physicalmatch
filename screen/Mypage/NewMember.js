@@ -15,6 +15,7 @@ import ImgDomain from '../../assets/common/ImgDomain';
 import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
+const paddTop = Platform.OS === 'ios' ? 0 : 15;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
@@ -993,7 +994,7 @@ const styles = StyleSheet.create({
 
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
 	input2: {width: innerWidth},
-  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e'},
+  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e',paddingTop:paddTop,},
 
   modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},

@@ -108,12 +108,16 @@ const Mypage = (props) => {
 		};
 
 		const response = await APIs.send(sData);    
-		console.log(response);
+		//console.log(response);
 		if(response.code == 200){
 			setMemberType(response.data.member_type);
 			setEva(response.e_yn);
 			setEvaPoint(response.e_point);
-			setRejectMemo(response.data.reject_memo);
+			if(response.data.reject_memo){
+				setRejectMemo(response.data.reject_memo);
+			}else{
+				setRejectMemo('');
+			}
 		}
 	}
 

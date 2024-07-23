@@ -20,6 +20,7 @@ import ImgDomain2 from '../../components/ImgDomain2';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 20;
+const paddTop = Platform.OS === 'ios' ? 0 : 15;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
@@ -852,7 +853,7 @@ const styles = StyleSheet.create({
 	regiStateTexOn: {color:'#243B55'},
 
 	input: {color:'#1e1e1e'},
-	textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,paddingTop:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e'},
+	textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,paddingTop:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e',paddingTop:paddTop,},
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },

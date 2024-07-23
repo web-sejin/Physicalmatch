@@ -18,6 +18,7 @@ import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
+const paddTop = Platform.OS === 'ios' ? 0 : 15;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
@@ -501,7 +502,7 @@ const styles = StyleSheet.create({
   input4: {width:innerWidth-25,},
   inputLine0 : {borderBottomWidth:0,},
   inputText: {fontFamily:Font.NotoSansRegular,fontSize: 16, lineHeight:21, color: '#1e1e1e',},
-  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:0,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:16,},
+  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:0,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:16, color: '#1e1e1e', paddingTop:paddTop,},
   selectView: {position:'relative',justifyContent:'center',marginTop:20,},
 	select: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
 	selectCont: {},

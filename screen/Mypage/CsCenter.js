@@ -37,6 +37,7 @@ const CsCenter = (props) => {
   const [noticeList, setNoticeList] = useState([]);  
 	const [openIdx, setOpenIdx] = useState();
   const [memberIdx, setMemberIdx] = useState();
+  const [memberInfo, setMemberInfo] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -86,8 +87,22 @@ const CsCenter = (props) => {
   useEffect(() => {
 		if(memberIdx){
 			getInquery();
+      getMemInfo();
 		}
 	}, [memberIdx]);
+
+  const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);    
+		if(response.code == 200){
+			setMemberInfo(response.data);		
+		}
+	}
 
   const getInquery = async () => {
     let sData = {      
@@ -231,7 +246,13 @@ const CsCenter = (props) => {
         <TouchableOpacity 
 					style={[styles.nextBtn]}
 					activeOpacity={opacityVal}
-					onPress={() => navigation.navigate('CsCenterWrite')}
+					onPress={() => {            
+            if(memberInfo?.member_type != 1){
+              ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+            }else{
+              navigation.navigate('CsCenterWrite');
+            }
+          }}
 				>
 					<Text style={styles.nextBtnText}>1:1 문의 남기기</Text>
 				</TouchableOpacity>

@@ -49,6 +49,7 @@ const Community = (props) => {
 	
 	const [commList, setCommList] = useState([]);
 	const [swiperList, setSwiperList] = useState([]);
+	const [resetState, setResetState] = useState(false);
 	const [guideModal, setGuideModal] = useState(false);
 	const [guideModal2, setGuideModal2] = useState(false);
 
@@ -125,9 +126,19 @@ const Community = (props) => {
 		if(memberIdx){
 			setLoading(true);
 			getMemInfo();
-			getCommList();
+			setNowPage(1);
+			getCommList(1);
 		}
 	}, [memberIdx, tabState]);
+
+	useEffect(() => {
+		if(resetState){
+			setLoading(true);
+			setNowPage(1);
+			getCommList(1);			
+			setResetState(false);			
+		}
+	}, [resetState]);
 
 	const getMemInfo = async () => {
 		let sData = {
@@ -158,16 +169,24 @@ const Community = (props) => {
 			page:curr_page,
 		};
 
-		const response = await APIs.send(sData);
+		const response = await APIs.send(sData);		
+		//console.log('curr_page::: ', curr_page);
 		//console.log(response);
-		if(response.code == 200){						
-			if(response.data){
-				setTotalPage(Math.ceil(response.data.length/10));
-				setCommList(response.data);
-			}else if(response.msg == 'EMPTY'){
-				setTotalPage(1);
-				setCommList([]);
-			}			
+		if(response.code == 200){		
+
+			//setTotalPage(Math.ceil(response.data.length/10));								
+			if(curr_page == 1){					
+				if(response.msg == 'EMPTY'){
+					setNowPage(1);
+					setCommList([]);
+				}else{
+					setCommList(response.data);
+				}
+			}else if(curr_page > 1 && response.msg != 'EMPTY'){					
+				const addList = [...socialList, ...response.data];
+				setCommList(addList);
+			}
+				
 		}
 		setTimeout(function(){
 			setLoading(false);
@@ -248,12 +267,10 @@ const Community = (props) => {
 	};
 
 	//리스트 무한 스크롤
-	const moreData = async () => {
-		if(totalPage > nowPage){
-			console.log('moreData nowPage ::::', nowPage);
-			getCommList(nowPage+1);
-			setNowPage(nowPage+1);			
-		}
+	const moreData = async () => {		
+		console.log('moreData nowPage ::::', nowPage);
+		getCommList(nowPage+1);
+		setNowPage(nowPage+1);					
 	}
 
 	const onRefresh = () => {
@@ -448,6 +465,16 @@ const Community = (props) => {
 								onSubmitEditing={Search}
 							/>
 						</View>
+						<TouchableOpacity
+							style={styles.socialSchFilterBtn}
+							activeOpacity={opacityVal}
+							onPress={()=>{
+								setCommSch('');
+								setResetState(true);
+							}}
+						>
+							<ImgDomain fileWidth={22} fileName={'icon_refresh.png'}/>
+						</TouchableOpacity>
 					</View>
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 						<View style={styles.flatListPad}></View>
@@ -568,7 +595,8 @@ const styles = StyleSheet.create({
 	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
 	socialSchBoxWrap: {flexDirection:'row',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
 	socialSchBoxWrapBtn: {alignItems:'center',justifyContent:'center',width:38,height:40,backgroundColor:'#F9FAFB',},
-	socialSchBoxWrapInput: {width:innerWidth-38,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},	
+	socialSchBoxWrapInput: {width:innerWidth-78,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},	
+	socialSchFilterBtn: {justifyContent:'center',width:28,height:40,},
 	flatListPad: {height:20,},
 
 	swiperView: {height: widnowWidth/4.9,backgroundColor:'#fff'},

@@ -45,9 +45,10 @@ const FindId = ({navigation, route}) => {
       type: 'IsPass',
       pass_type: 1,
       member_phone: '010-0000-0000',
-      test_yn: 'n'
+      test_yn: 'y'
     }
     const response = await APIs.send(sData);    
+    console.log(response);
     if(response.code == 200){
       setCertId(response.id);
       setCertnumber('010-0000-0000');

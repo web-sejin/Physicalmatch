@@ -27,18 +27,9 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const Alim = (props) => {
-  const data = [
-    {idx:1, cate:'유형', date:'2024.00.00', yoil:'MON', time:'00:00', subject:'디바이스 알림창에 노출되는 문구는 20자까지 입력 가능합니다.', content:'서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다.'},
-    {idx:2, cate:'유형', date:'2024.00.00', yoil:'MON', time:'00:00', subject:'디바이스 알림창에 노출되는 문구는 20자까지 입력 가능합니다.', content:'서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다.'},
-    {idx:3, cate:'유형', date:'2024.00.00', yoil:'MON', time:'00:00', subject:'디바이스 알림창에 노출되는 문구는 20자까지 입력 가능합니다.', content:'서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다.'},
-    {idx:4, cate:'유형', date:'2024.00.00', yoil:'MON', time:'00:00', subject:'디바이스 알림창에 노출되는 문구는 20자까지 입력 가능합니다.', content:'서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다.'},
-    {idx:5, cate:'유형', date:'2024.00.00', yoil:'MON', time:'00:00', subject:'디바이스 알림창에 노출되는 문구는 20자까지 입력 가능합니다.', content:'서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다.'},
-    {idx:6, cate:'유형', date:'2024.00.00', yoil:'MON', time:'00:00', subject:'디바이스 알림창에 노출되는 문구는 20자까지 입력 가능합니다.', content:'서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다. 서브 설명은 3줄까지 입력 가능합니다.'},
-  ]
-
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, route} = props;
-	const {params} = route
+	const {navigation, userInfo, member_info, route} = props;
+	const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
@@ -46,9 +37,12 @@ const Alim = (props) => {
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [tabSt, setTabSt] = useState(0);
+  const [otherTabNew, setOtherTabNew] = useState(false);
   const [alimList, setAlimList] = useState([]);
   const [memberIdx, setMemberIdx] = useState(userInfo?.data.member_idx);
   const [memberInfo, setMemberInfo] = useState();
+  const [nowPage, setNowPage] = useState(1);
+	const [totalPage, setTotalPage] = useState(1);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -97,7 +91,8 @@ const Alim = (props) => {
     if(memberIdx){     
       setLoading(true);
       getMemInfo();
-      getAlimList(tabSt);
+      getAlimList(tabSt, 1);
+      setNowPage(1);
     }
   }, [memberIdx]);
 
@@ -114,21 +109,34 @@ const Alim = (props) => {
 		}
 	}
 
-  const getAlimList = async (type) => {    
+  const getAlimList = async (type, viewPage) => {    
+    let curr_page = nowPage;
+		if(viewPage){
+			curr_page = viewPage;
+		}
+
     let sData = {      
-      basePath: "/api/member/",
+      basePath: "/api/etc/",
 			type: "GetAlarmList",
       member_idx: memberIdx,
       alarm_type: type,
 		}
 		const response = await APIs.send(sData);
-    console.log(response);
-		if(response.code == 200){
-      if(response.msg == 'EMPTY'){
-        setAlimList([]);
-      }else{
-        setAlimList(response.data);
-      }
+    //console.log(response);
+		if(response.code == 200){      
+      console.log(memberInfo);
+      setOtherTabNew(response.is_new);
+      if(curr_page == 1){
+				if(response.msg == 'EMPTY'){
+					setNowPage(1);
+					setAlimList([]);
+				}else{
+					setAlimList(response.data);
+				}
+			}else if(curr_page > 1 && response.msg != 'EMPTY'){					
+				const addList = [...socialList, ...response.data];
+				setAlimList(addList);
+			}
     }else{
       setAlimList([]);
     }
@@ -136,27 +144,60 @@ const Alim = (props) => {
     setLoading(false);
   }
 
+  const moveScreen = async (v, alarm_idx, sceenName) => {
+    //console.log(alarm_idx);
+    //console.log('sceenName ::: ', sceenName);
+    let moveState = 0;
+    if((sceenName == 'Home' || sceenName == 'MatchDetail') && memberInfo?.is_match_ban == 'y'){
+      moveState = 1;
+    }else if(sceenName == 'SocialView' && memberInfo?.is_social_ban == 'y'){
+      moveState = 2;
+    }else if(sceenName == 'CommunityView' && memberInfo?.is_comm_ban == 'y'){
+      moveState = 3;
+    }
+
+    if(moveState == 0){    
+      if(v){
+        const itemParams = v;
+        const itemParamsObj = JSON.parse(itemParams);      
+        navigation.navigate(sceenName, itemParamsObj)
+      }else{
+        navigation.navigate(sceenName);
+      }
+    }else{
+      if(moveState == 1){
+        ToastMessage('앗! 매칭을 이용할 수 없어요🥲');
+      }else if(moveState == 2){
+        ToastMessage('앗! 소셜을 이용할 수 없어요🥲');
+      }else if(moveState == 3){
+        ToastMessage('앗! 커뮤니티를 이용할 수 없어요🥲');
+      }
+    }
+  }
+
   const getList = ({item, index}) => {
+    // const itemParams = item.params;
+    // const itemParamsObj = JSON.parse(itemParams);
+    // if(itemParams){      
+    //   console.log(item.alarm_idx+':::::'+itemParamsObj);
+    //  }
 		return (
       <TouchableOpacity
         style={[styles.alimLi, index != 0 ? styles.alimLiBo : null]}
-        activeOpacity={1}            
+        activeOpacity={opacityVal}
+        onPress={()=>{
+          moveScreen(item.params, item.alarm_idx, item.push_screen);
+        }}
       >
         <View style={styles.alimInfo}>
-          {item.alarm_category_text ? (
+          {item.alarm_category ? (
           <View style={styles.alimType}>
-            <Text style={styles.alimTypeText}>{item.alarm_category_text}</Text>
+            <Text style={styles.alimTypeText}>{item.alarm_category}</Text>
           </View>
           ) : null}
           <View style={styles.alimDate}>
             <Text style={styles.alimDateText}>{item.created_at_text}</Text>
           </View>
-          {/* <View style={styles.alimDate}>
-            <Text style={styles.alimDateText}>MON</Text>
-          </View>
-          <View style={styles.alimDate}>
-            <Text style={styles.alimDateText}>00:00</Text>
-          </View> */}
         </View>
         <View style={styles.alimSubject}>
           <Text style={styles.alimSubjectText} numberOfLines={1} ellipsizeMode='tail'>{item.alarm_subject}</Text>
@@ -178,13 +219,19 @@ const Alim = (props) => {
 
 	//리스트 무한 스크롤
 	const moreData = async () => {
-
+		if(totalPage > nowPage){
+			//console.log('moreData nowPage ::::', nowPage);
+			getAlimList(tabSt, nowPage+1);
+			setNowPage(nowPage+1);	
+		}
 	}
 
 	const onRefresh = () => {
 		if(!refreshing) {
 			setRefreshing(true);
-			//getItemList();
+			getAlimList(tabSt, 1);
+			setNowPage(1);
+			//console.log('refresh!!!');
 			setTimeout(() => {
 				setRefreshing(false);
 			}, 2000);
@@ -211,7 +258,10 @@ const Alim = (props) => {
           activeOpacity={opacityVal}
           onPress={()=>change(0)}
         >
-          <Text style={[styles.viewTabBtnText, tabSt == 0 ? styles.viewTabBtnTextOn : null]}>일반 알림</Text>
+          <View style={styles.newChk}>
+            <Text style={[styles.viewTabBtnText, tabSt == 0 ? styles.viewTabBtnTextOn : null]}>일반 알림</Text>
+            {tabSt == 1 && otherTabNew == 'y' ? (<View style={styles.newChkCircle}></View>) : null}
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.viewTabBtn, tabSt == 1 ? styles.viewTabBtnOn : null]}
@@ -224,7 +274,10 @@ const Alim = (props) => {
             }            
           }}
         >
-          <Text style={[styles.viewTabBtnText, tabSt == 1 ? styles.viewTabBtnTextOn : null]}>댓글 알림</Text>
+          <View style={styles.newChk}>
+            <Text style={[styles.viewTabBtnText, tabSt == 1 ? styles.viewTabBtnTextOn : null]}>댓글 알림</Text>
+            {tabSt == 0 && otherTabNew == 'y' ? (<View style={styles.newChkCircle}></View>) : null}
+          </View>          
         </TouchableOpacity>
       </View>
 
@@ -272,6 +325,8 @@ const styles = StyleSheet.create({
   viewTab: {flexDirection:'row',borderBottomWidth:1,borderBottomColor:'#F2F4F6'},
   viewTabBtn: {alignItems:'center',justifyContent:'center',width:widnowWidth/2,height:60,paddingTop:12,borderBottomWidth:2,borderBottomColor:'#fff'},
   viewTabBtnOn: {borderBottomColor:'#141E30'},
+  newChk: {position:'relative'},
+  newChkCircle: {width:5,height:5,backgroundColor:'#EE4245',borderRadius:50,position:'absolute',top:-2,right:-7,},
   viewTabBtnText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:18,color:'#141E30',},
   viewTabBtnTextOn: {fontFamily:Font.NotoSansSemiBold},
   viewTab2: {flexDirection:'row',alignItems:'center',justifyContent:'center',borderBottomWidth:1,borderBottomColor:'#F2F4F6'},
@@ -283,7 +338,7 @@ const styles = StyleSheet.create({
   alimLiBo: {borderTopWidth:1,borderTopColor:'#DBDBDB'},
   alimInfo: {flexDirection:'row',alignItems:'center'},
   alimType: {alignItems:'center',justifyContent:'center',height:18,paddingHorizontal:6,backgroundColor:'#243B55',borderRadius:10,marginRight:5,},
-  alimTypeText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#fff'},
+  alimTypeText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:16,color:'#fff'},
   alimDate: {},
   alimDateText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:15,color:'#888',},
   alimSubject: {marginTop:10,},

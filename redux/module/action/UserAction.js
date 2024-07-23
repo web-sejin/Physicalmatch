@@ -80,6 +80,7 @@ export const actionCreators = {
           'member_main_local_detail': response.data.member_main_local_detail,
           'member_sub_local': response.data.member_sub_local,
           'member_sub_local_detail': response.data.member_sub_local_detail,
+          'is_new': response.is_new,
 				};
       } else {
         await dispatch({

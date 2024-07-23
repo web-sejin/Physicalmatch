@@ -88,6 +88,7 @@ const Social = (props) => {
 	const [filterGender, setFilterGender] = useState();
 	const [filterPickDate, setFilterPickDate] = useState([]);
 	const [swiperList, setSwiperList] = useState([]);	
+	const [resetState, setResetState] = useState(false);
 
 	//필터 임시 저장
 	const [tempSocialSch, setTempSocialSch] = useState('');
@@ -172,13 +173,23 @@ const Social = (props) => {
 		if(memberIdx){
 			setLoading(true);
 			getMemInfo();
-			getSocialList();			
+			setNowPage(1);
+			getSocialList(1);			
 		}
 	}, [memberIdx, tabState]);	
 
 	useEffect(() => {
 		//console.log(nonCollidingMultiSliderValue);
 	}, [nonCollidingMultiSliderValue]);
+
+	useEffect(() => {
+		if(resetState){
+			setLoading(true);
+			setNowPage(1);
+			getSocialList(1);			
+			setResetState(false);			
+		}
+	}, [resetState]);
 
 	const getMemInfo = async () => {
 		let sData = {
@@ -270,6 +281,7 @@ const Social = (props) => {
 	}
 
 	const getSocialList = async (viewPage) => {
+		//console.log('viewPage ::: ', viewPage);
 		let socialDate = [];		
 		filterPickDate.map((item, index) => {
 			socialDate.push(item.fullDate);
@@ -295,13 +307,21 @@ const Social = (props) => {
 		const response = await APIs.send(sData);
 		//console.log(response);
 		if(response.code == 200){						
-			if(response.data){
-				setTotalPage(Math.ceil(response.data.length/10));
-				setSocialList(response.data);
-			}else if(response.msg == 'EMPTY'){
-				setTotalPage(1);
-				setSocialList([]);
-			}			
+
+			//setTotalPage(Math.ceil(response.data.length/10));
+			//console.log('curr_page::: ', curr_page);
+			if(curr_page == 1){
+				if(response.msg == 'EMPTY'){
+					setNowPage(1);
+					setSocialList([]);
+				}else{
+					setSocialList(response.data);
+				}
+			}else if(curr_page > 1 && response.msg != 'EMPTY'){					
+				const addList = [...socialList, ...response.data];
+				setSocialList(addList);
+			}
+				
 		}
 		setTimeout(function(){
 			setLoading(false);
@@ -396,12 +416,10 @@ const Social = (props) => {
 	};
 
 	//리스트 무한 스크롤
-	const moreData = async () => {
-		if(totalPage > nowPage){
-			console.log('moreData nowPage ::::', nowPage);
-			getSocialList(nowPage+1);
-			setNowPage(nowPage+1);			
-		}
+	const moreData = async () => {		
+		//console.log('moreData nowPage ::::', nowPage);
+		getSocialList(nowPage+1);
+		setNowPage(nowPage+1);		
 	}
 
 	const onRefresh = () => {
@@ -534,7 +552,7 @@ const Social = (props) => {
 	}
 
 	const filterSubmitList = () => {
-		console.log('filterSubmitList!!!');
+		//console.log('filterSubmitList!!!');
 		setFilterPop(false);
 		setLoading(true);
 		getSocialList(1);
@@ -693,6 +711,16 @@ const Social = (props) => {
 							style={styles.socialSchFilterBtn}
 							activeOpacity={opacityVal}
 							onPress={()=>{
+								setSocialSch('');
+								setResetState(true);
+							}}
+						>
+							<ImgDomain fileWidth={22} fileName={'icon_refresh.png'}/>
+						</TouchableOpacity>
+						<TouchableOpacity
+							style={styles.socialSchFilterBtn}
+							activeOpacity={opacityVal}
+							onPress={()=>{
 								setTempSocialSch(socialSch);
 								setTempAgeMin(ageMin);
 								setTempAgeMax(ageMax);
@@ -845,7 +873,10 @@ const Social = (props) => {
 									setAgeMin(yearString);
 									setAgeMax(yearString2);
 
-									nonCollidingMultiSliderValuesChange(yearString, yearString2);
+									let findeIndex = ageAry.indexOf(first);
+									let findeIndex2 = ageAry.indexOf(last);
+
+									nonCollidingMultiSliderValuesChange(findeIndex, findeIndex2);
 								}}
 							/>
 						</View>
@@ -1077,7 +1108,7 @@ const styles = StyleSheet.create({
 	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
 	socialSchBoxWrap: {flexDirection:'row',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
 	socialSchBoxWrapBtn: {alignItems:'center',justifyContent:'center',width:38,height:40,backgroundColor:'#F9FAFB',},
-	socialSchBoxWrapInput: {width:innerWidth-78,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},
+	socialSchBoxWrapInput: {width:innerWidth-116,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},
 	socialSchFilterBtn: {justifyContent:'center',width:28,height:40,},
 	flatListPad: {height:20,},
 

@@ -163,6 +163,8 @@ PODS:
   - hermes-engine (0.71.18):
     - hermes-engine/Pre-built (= 0.71.18)
   - hermes-engine/Pre-built (0.71.18)
+  - iamport-react-native (2.0.12):
+    - React-Core
   - KakaoSDKCommon (2.11.1):
     - KakaoSDKCommon/Common (= 2.11.1)
     - KakaoSDKCommon/Network (= 2.11.1)
@@ -673,6 +675,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - GoogleUtilities
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - iamport-react-native (from `../node_modules/iamport-react-native`)
   - libevent (~> 2.1.12)
   - OpenSSL-Universal (= 1.1.1100)
   - Permission-AppTrackingTransparency (from `../node_modules/react-native-permissions/ios/AppTrackingTransparency`)
@@ -800,6 +803,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
+  iamport-react-native:
+    :path: "../node_modules/iamport-react-native"
   Permission-AppTrackingTransparency:
     :path: "../node_modules/react-native-permissions/ios/AppTrackingTransparency"
   Permission-BluetoothPeripheral:
@@ -975,6 +980,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   GTMSessionFetcher: 8000756fc1c19d2e5697b90311f7832d2e33f6cd
   hermes-engine: 251dcc3511fc68678e2ee96dd7d175d9489b781e
+  iamport-react-native: 6bf55d1aa1e932658da5e6ddd502dfed42940a6f
   KakaoSDKCommon: 555e1bb46595b842ded01cf7888cc17bbae4e113
   KakaoSDKShare: 9752730ce3339536f9d7812eb70eccb87643e9a6
   KakaoSDKTemplate: f8ee0b33f649e436c1aaf2a3a6bd6aa3dcae2451

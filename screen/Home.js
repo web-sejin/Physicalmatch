@@ -80,17 +80,17 @@ const Home = (props) => {
 	const [ageAryIdx, setAgeAryIdx] = useState([]);
 	const [ageMinInt, setAgeMinInt] = useState();
 	const [ageMaxInt, setAgeMaxInt] = useState();
-	const [ageMin, setAgeMin] = useState('');
-	const [ageMax, setAgeMax] = useState('');
-	const [ageMin2, setAgeMin2] = useState('');
-	const [ageMax2, setAgeMax2] = useState('');
-	const [realAgeMin, setRealAgeMin] = useState('');
-	const [realAgeMax, setRealAgeMax] = useState('');
-	const [realAgeMin2, setRealAgeMin2] = useState('');
-	const [realAgeMax2, setRealAgeMax2] = useState('');
-	const [distanceStandard, setDistanceStandard] = useState();
-	const [distance, setDistance] = useState();
-	const [distance2, setDistance2] = useState();
+	// const [ageMin, setAgeMin] = useState('');
+	// const [ageMax, setAgeMax] = useState('');
+	// const [ageMin2, setAgeMin2] = useState('');
+	// const [ageMax2, setAgeMax2] = useState('');
+	// const [realAgeMin, setRealAgeMin] = useState('');
+	// const [realAgeMax, setRealAgeMax] = useState('');
+	// const [realAgeMin2, setRealAgeMin2] = useState('');
+	// const [realAgeMax2, setRealAgeMax2] = useState('');
+	// const [distanceStandard, setDistanceStandard] = useState();
+	// const [distance, setDistance] = useState();
+	// const [distance2, setDistance2] = useState();
 	const [recentAccess, setRecentAccess] = useState();
 	const [prdIdx, setPrdIdx] = useState(1);
 	const [skuCode, setSkuCode] = useState();
@@ -113,7 +113,36 @@ const Home = (props) => {
 	const [tempDistanceStandard, setTempDistanceStandard] = useState();
 	const [tempDistance, setTempDistance] = useState();
 	const [tempDistance2, setTempDistance2] = useState();
-	const [tempRecentAccess, setTempRecentAccess] = useState();	
+	const [tempRecentAccess, setTempRecentAccess] = useState();
+	const [tempData, setTempData] = useState({
+		tempAgeMins: '',
+		tempAgeMaxs: '',
+		tempAgeMin2s: '',
+		tempAgeMax2s: '',
+		tempRealAgeMins: '',
+		tempRealAgeMaxs: '',
+		tempRealAgeMin2s: '',
+		tempRealAgeMax2s: '',
+		tempDistanceStandards: '',
+		tempDistances: '',
+		tempDistance2s: '',
+		tempRecentAccesss: '',
+	});
+
+	const [realData, setRealData] = useState({
+		tempAgeMins: '',
+		tempAgeMaxs: '',
+		tempAgeMin2s: '',
+		tempAgeMax2s: '',
+		tempRealAgeMins: '',
+		tempRealAgeMaxs: '',
+		tempRealAgeMin2s: '',
+		tempRealAgeMax2s: '',
+		tempDistanceStandards: '',
+		tempDistances: '',
+		tempDistance2s: '',
+		tempRecentAccesss: '',
+	});
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -376,7 +405,8 @@ const Home = (props) => {
 			member_idx: memberIdx,
 		};
 
-		const response = await APIs.send(sData);
+		const response = await APIs.send(sData);		
+		//console.log(response);
     if(response.code == 200){
 			const memberBirth = memberInfo?.member_age;
 
@@ -397,14 +427,14 @@ const Home = (props) => {
 				findeIndex2 = 0;
 			}
 
-			setRealAgeMax(startAge.toString());
-			setRealAgeMin(endAge.toString());
+			//setRealAgeMax(startAge.toString());
+			//setRealAgeMin(endAge.toString());
 
 			let yearString = startAge.toString().substr(2,2);
 			let yearString2 = endAge.toString().substr(2,2);
 
-			setAgeMin(yearString2.toString());
-			setAgeMax(yearString.toString());			
+			//setAgeMin(yearString2.toString());
+			//setAgeMax(yearString.toString());			
 
 			setNonCollidingMultiSliderValue([findeIndex2, findeIndex]);
 			//선호 카드 설정 끝
@@ -426,22 +456,53 @@ const Home = (props) => {
 				findeIndex4 = 0;
 			}
 
-			setRealAgeMax2(startAge2.toString());
-			setRealAgeMin2(endAge2.toString());
+			// setRealAgeMax2(startAge2.toString());
+			// setRealAgeMin2(endAge2.toString());
 
 			let yearString3 = startAge2.toString().substr(2,2);
 			let yearString4 = endAge2.toString().substr(2,2);
 
-			setAgeMin2(yearString4.toString());
-			setAgeMax2(yearString3.toString());			
+			// setAgeMin2(yearString4.toString());
+			// setAgeMax2(yearString3.toString());			
 
 			setNonCollidingMultiSliderValue2([findeIndex4, findeIndex3]);
 			//내 카드 설정 끝
 
-			setDistanceStandard(response.data.ms_distance_type);
-			setDistance(parseInt(response.data.ms_distance));
-			setDistance2(parseInt(response.data.ms_sub_distance));
-			setRecentAccess(parseInt(response.data.ms_logined_at));
+			// setDistanceStandard(response.data.ms_distance_type);
+			// setDistance(parseInt(response.data.ms_distance));
+			// setDistance2(parseInt(response.data.ms_sub_distance));
+			let distance = 20;
+			if(response.data.ms_distance){
+				//setRecentAccess(parseInt(response.data.ms_logined_at));
+				distance = parseInt(response.data.ms_distance);
+			}
+
+			let distance2 = 20;
+			if(response.data.ms_sub_distance){
+				//setRecentAccess(parseInt(response.data.ms_logined_at));
+				distance2 = parseInt(response.data.ms_sub_distance);
+			}
+			
+			let loginedAt = 7;
+			if(response.data.ms_logined_at){
+				//setRecentAccess(parseInt(response.data.ms_logined_at));
+				loginedAt = parseInt(response.data.ms_logined_at);
+			}
+			
+			setRealData({
+				tempAgeMins: yearString2.toString(),
+				tempAgeMaxs: yearString.toString(),
+				tempAgeMin2s: yearString4.toString(),
+				tempAgeMax2s: yearString3.toString(),
+				tempRealAgeMins: endAge.toString(),
+				tempRealAgeMaxs: startAge.toString(),
+				tempRealAgeMin2s: endAge2.toString(),
+				tempRealAgeMax2s: startAge2.toString(),
+				tempDistanceStandards: response.data.ms_distance_type,
+				tempDistances: distance,
+				tempDistance2s: distance2,
+				tempRecentAccesss: loginedAt
+			});
 		}
 	}
 
@@ -477,28 +538,8 @@ const Home = (props) => {
 		}		
 		setAgeAry(yaerAry);
 		setAgeAryIdx(yaerAryIdx);
-
-		// const yearVal = year+4;
-		// const yearVal2 = year2-5;
-		
-		// let yearString = yearVal.toString();
-		// setRealAgeMax(yearString);
-		// setRealAgeMax2(yearString);
-		// yearString = yearString.substr(2,2);		
-
-		// let yearString2 = yearVal2.toString();
-		// setRealAgeMin(yearString2);
-		// setRealAgeMin2(yearString2);
-		// yearString2 = yearString2.substr(2,2);
-		
-		// setAgeMin((yearString2).toString());
-		// setAgeMax((yearString).toString());
-		// setAgeMin2((yearString2).toString());
-		// setAgeMax2((yearString).toString());
 		setAgeMinInt(5);
 		setAgeMaxInt(cnt-5);
-		// setNonCollidingMultiSliderValue([5, cnt-5]);
-		// setNonCollidingMultiSliderValue2([5, cnt-5]);
 	}	
 
 	const getInterList = async () => {
@@ -582,15 +623,19 @@ const Home = (props) => {
 		// console.log('b ::: ',realAgeMin2-realAgeMax2);
 		// console.log('realAgeMin ::: ',realAgeMin2);
 		// console.log('realAgeMax ::: ',realAgeMax2);
-		if(realAgeMin-realAgeMax < 5 || realAgeMin2-realAgeMax2 < 5){
+		// if(realAgeMin-realAgeMax < 5 || realAgeMin2-realAgeMax2 < 5){
+		// 	ToastMessage('나이는 5살 이상으로만 설정이 가능합니다.');
+		// 	return false;
+		// }
+		if(realData.tempRealAgeMins-realData.tempRealAgeMaxs < 5 || realData.tempRealAgeMin2s-realData.tempRealAgeMax2s < 5){
 			ToastMessage('나이는 5살 이상으로만 설정이 가능합니다.');
 			return false;
 		}
 
-		const msMinAge = realAgeMin-(memberInfo?.member_age);
-		const msMaxAge = (memberInfo?.member_age)-realAgeMax;
-		const msMinOpenAge = realAgeMin2-(memberInfo?.member_age);
-		const msMaxOpenAge = (memberInfo?.member_age)-realAgeMax2;
+		const msMinAge = realData.tempRealAgeMins-(memberInfo?.member_age);
+		const msMaxAge = (memberInfo?.member_age)-realData.tempRealAgeMaxs;
+		const msMinOpenAge = realData.tempRealAgeMin2s-(memberInfo?.member_age);
+		const msMaxOpenAge = (memberInfo?.member_age)-realData.tempRealAgeMax2s;
 
 		let sData = {
 			basePath: "/api/match/",
@@ -598,17 +643,17 @@ const Home = (props) => {
 			member_idx: memberIdx,
 			ms_min_age: msMaxAge,
 			ms_max_age: msMinAge,
-			ms_distance_type: tempDistanceStandard,
-			ms_distance: distance,
-			ms_sub_distance: distance2,
-			ms_logined_at: tempRecentAccess,
+			ms_distance_type: realData.tempDistanceStandards,
+			ms_distance: realData.tempDistances,
+			ms_sub_distance: realData.tempDistance2s,
+			ms_logined_at: realData.tempRecentAccesss,
 			ms_min_open_age: msMaxOpenAge,
 			ms_max_open_age: msMinOpenAge,
 		};
 
 		let msg = '';
 		const response = await APIs.send(sData);
-		//console.log(response);
+		console.log(response);
 		if(response.code == 200){
 			msg = '필터가 수정되었습니다.';
 			setFilterSave(true);
@@ -767,6 +812,7 @@ const Home = (props) => {
 		};
 
 		const response = await APIs.send(sData);
+		//console.log('resetFilter ::: ', response);
     if(response.code == 200){
 			const memberBirth = memberInfo?.member_age;
 
@@ -787,14 +833,14 @@ const Home = (props) => {
 				findeIndex2 = 0;
 			}
 
-			setRealAgeMax(startAge.toString());
-			setRealAgeMin(endAge.toString());
+			//setRealAgeMax(startAge.toString());
+			//setRealAgeMin(endAge.toString());
 
 			let yearString = startAge.toString().substr(2,2);
 			let yearString2 = endAge.toString().substr(2,2);
 
-			setAgeMin(yearString2.toString());
-			setAgeMax(yearString.toString());			
+			//setAgeMin(yearString2.toString());
+			//setAgeMax(yearString.toString());								
 
 			setNonCollidingMultiSliderValue([findeIndex2, findeIndex]);
 			//선호 카드 설정 끝
@@ -816,40 +862,73 @@ const Home = (props) => {
 				findeIndex4 = 0;
 			}
 
-			setRealAgeMax2(startAge2.toString());
-			setRealAgeMin2(endAge2.toString());
+			//setRealAgeMax2(startAge2.toString());
+			//setRealAgeMin2(endAge2.toString());
 
 			let yearString3 = startAge2.toString().substr(2,2);
 			let yearString4 = endAge2.toString().substr(2,2);
 
-			setAgeMin2(yearString4.toString());
-			setAgeMax2(yearString3.toString());			
+			//setAgeMin2(yearString4.toString());
+			//setAgeMax2(yearString3.toString());					
 
 			setNonCollidingMultiSliderValue2([findeIndex4, findeIndex3]);
 			//내 카드 설정 끝
 
-			setDistanceStandard(response.data.ms_distance_type);
-			setDistance(parseInt(response.data.ms_distance));
-			setDistance2(parseInt(response.data.ms_sub_distance));
-			setRecentAccess(parseInt(response.data.ms_logined_at));
+			//setDistanceStandard(response.data.ms_distance_type);
+			//setDistance(parseInt(response.data.ms_distance));
+			//setDistance2(parseInt(response.data.ms_sub_distance));
+			//setRecentAccess(parseInt(response.data.ms_logined_at));
+
+			let distance = 20;
+			if(response.data.ms_distance){
+				//setRecentAccess(parseInt(response.data.ms_logined_at));
+				distance = parseInt(response.data.ms_distance);
+			}
+
+			let distance2 = 20;
+			if(response.data.ms_sub_distance){
+				//setRecentAccess(parseInt(response.data.ms_logined_at));
+				distance2 = parseInt(response.data.ms_sub_distance);
+			}
+			
+			let loginedAt = 7;
+			if(response.data.ms_logined_at){
+				//setRecentAccess(parseInt(response.data.ms_logined_at));
+				loginedAt = parseInt(response.data.ms_logined_at);
+			}
+			
+			setRealData({
+				tempAgeMins: yearString2.toString(),
+				tempAgeMaxs: yearString.toString(),
+				tempAgeMin2s: yearString4.toString(),
+				tempAgeMax2s: yearString3.toString(),
+				tempRealAgeMins: endAge.toString(),
+				tempRealAgeMaxs: startAge.toString(),
+				tempRealAgeMin2s: endAge2.toString(),
+				tempRealAgeMax2s: startAge2.toString(),
+				tempDistanceStandards: response.data.ms_distance_type,
+				tempDistances: distance,
+				tempDistance2s: distance2,
+				tempRecentAccesss: loginedAt
+			});
 		}
 	}
 
 	const offFilterPop = () => {
-		setAgeMin(tempAgeMin);
-		setAgeMax(tempAgeMax);
-		setAgeMin2(tempAgeMin2);
-		setAgeMax2(tempAgeMax2);
-		setNonCollidingMultiSliderValue(tempNonCollidingMultiSliderValue);
-		setNonCollidingMultiSliderValue2(tempNonCollidingMultiSliderValue2);
-		setRealAgeMin(tempRealAgeMin);
-		setRealAgeMax(tempRealAgeMax);
-		setRealAgeMin2(tempRealAgeMin2);
-		setRealAgeMax2(tempRealAgeMax2);
-		setDistanceStandard(tempDistanceStandard);
-		setDistance(tempDistance);
-		setDistance2(tempDistance2);
-		setRecentAccess(tempRecentAccess);
+		// setAgeMin(tempAgeMin);
+		// setAgeMax(tempAgeMax);
+		// setAgeMin2(tempAgeMin2);
+		// setAgeMax2(tempAgeMax2);
+		// setNonCollidingMultiSliderValue(tempNonCollidingMultiSliderValue);
+		// setNonCollidingMultiSliderValue2(tempNonCollidingMultiSliderValue2);
+		// setRealAgeMin(tempRealAgeMin);
+		// setRealAgeMax(tempRealAgeMax);
+		// setRealAgeMin2(tempRealAgeMin2);
+		// setRealAgeMax2(tempRealAgeMax2);
+		// setDistanceStandard(tempDistanceStandard);
+		// setDistance(tempDistance);
+		// setDistance2(tempDistance2);
+		// setRecentAccess(tempRecentAccess);
 
 		setFilterPop(false);
 	}
@@ -944,6 +1023,10 @@ const Home = (props) => {
 		),
   };	
 
+	const moveAlimPage = async () => {
+		navigation.navigate('Alim');
+	}
+
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
 	const behavior = Platform.OS === "ios" ? "padding" : "height";
@@ -961,20 +1044,20 @@ const Home = (props) => {
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
 							onPress={() => {
-								setTempAgeMin(ageMin);
-								setTempAgeMax(ageMax);
-								setTempAgeMin2(ageMin2);
-								setTempAgeMax2(ageMax2);
-								setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
-								setTempNonCollidingMultiSliderValue2(nonCollidingMultiSliderValue2);
-								setTempRealAgeMin(realAgeMin);
-								setTempRealAgeMax(realAgeMax);
-								setTempRealAgeMin2(realAgeMin2);
-								setTempRealAgeMax2(realAgeMax2);
-								setTempDistanceStandard(distanceStandard);
-								setTempDistance(distance);
-								setTempDistance2(distance2);
-								setTempRecentAccess(recentAccess);	
+								// setTempAgeMin(ageMin);
+								// setTempAgeMax(ageMax);
+								// setTempAgeMin2(ageMin2);
+								// setTempAgeMax2(ageMax2);
+								// setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
+								// setTempNonCollidingMultiSliderValue2(nonCollidingMultiSliderValue2);
+								// setTempRealAgeMin(realAgeMin);
+								// setTempRealAgeMax(realAgeMax);
+								// setTempRealAgeMin2(realAgeMin2);
+								// setTempRealAgeMax2(realAgeMax2);
+								// setTempDistanceStandard(distanceStandard);
+								// setTempDistance(distance);
+								// setTempDistance2(distance2);
+								// setTempRecentAccess(recentAccess);	
 								setFilterPop(true);
 							}}
 						>
@@ -990,7 +1073,7 @@ const Home = (props) => {
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {navigation.navigate('Alim')}}
+							onPress={() => moveAlimPage()}
 						>
 							{userInfo?.is_new == 'y' ? (
 								<ImgDomain fileWidth={24} fileName={'icon_alim_on.png'} />
@@ -1066,6 +1149,7 @@ const Home = (props) => {
 												// 	ToastMessage('이미 모두 사용했습니다.');
 												// 	return false;
 												// }
+												addCardList();
 												setTodayFree(todayFree - 1);
 											}}
 										>
@@ -1100,7 +1184,7 @@ const Home = (props) => {
 							</View>
 						</View>
 
-						<View style={[styles.newCardSection]}>
+						<View style={[styles.newCardSection]}>							
 							{cardList.map((item, index) => {
 								return (
 									<View key={index} style={[styles.cardView, styles.cardView2]}>		
@@ -1156,35 +1240,13 @@ const Home = (props) => {
 									</View>									
 								)														
 							})}
-						</View>			
-
-						{/* D-7 */}
-						{/* <View style={styles.cardView}>
-							<View style={styles.dday}>
-								<View style={styles.ddayLine}></View>
-								<Text style={styles.ddayText}>D-7</Text>
-							</View>
-							{cardList[0].map((item, index) => {
-								return (	
-									<Card 
-										navigation={navigation}
-										key={index}											
-										propsMemberIdx={item.memberIdx}
-										propsJob={job}
-										propsAge={item.member_age}
-										propsArea={item.member_main_local}
-										propsHeight={item.member_height}
-										propsWeight={item.member_weight}											
-										propsFlip={flipState}
-										propsOpen={item.open_yn}
-										propsNick={'나중에 제거'}
-										propsBadgeCnt={0}
-									/>			
-								)
-							})}
-						</View> */}
-
+						</View>	
 					</View>
+					) : null}
+					{tabState == 1 && cardList.length < 1 ? (
+						<View style={styles.notData}>
+							<Text style={styles.notDataText}>내역이 없습니다.</Text>
+						</View>
 					) : null}
 
 					{tabState == 2 ? (
@@ -1713,7 +1775,7 @@ const Home = (props) => {
 						<View style={[styles.msBox, styles.mgt30]}>
 							<View style={[styles.msTitleBox, styles.mgb10]}>
 								<Text style={styles.msTitleBoxText1}>나이</Text>
-								<Text style={styles.msTitleBoxText2}>{ageMin}년생~{ageMax}년생+</Text>
+								<Text style={styles.msTitleBoxText2}>{realData.tempAgeMins}년생~{realData.tempAgeMaxs}년생+</Text>
 							</View>
 							<MultiSlider								
 								selectedStyle={{
@@ -1745,27 +1807,39 @@ const Home = (props) => {
 									//console.log(e);
 									const first = ageAry[e[0]];
 									const last = ageAry[e[1]];
-									
+																		
 									let yearString = first.toString();
 									let yearString2 = last.toString();
 
-									setRealAgeMin(yearString);																		
-									setRealAgeMax(yearString2);
+									//setRealAgeMin(yearString);																		
+									//setRealAgeMax(yearString2);
 
-									yearString = yearString.substr(2,2);
-									yearString2 = yearString2.substr(2,2);
+									// yearString = yearString.substr(2,2);
+									// yearString2 = yearString2.substr(2,2);
 									
-									setAgeMin(yearString);
-									setAgeMax(yearString2);
-									//setNonCollidingMultiSliderValue(e);									
+									//setAgeMin(yearString);
+									//setAgeMax(yearString2);
+
+									let yearString3 = yearString.substr(2,2);
+									let yearString4 = yearString2.substr(2,2);
 									
 									let findeIndex = ageAry.indexOf(first);
 									let findeIndex2 = ageAry.indexOf(last);
 
+
+									setRealData(prevData => ({
+										...prevData,
+										tempAgeMins: yearString3,
+										tempAgeMaxs: yearString4,
+										tempRealAgeMins: yearString,
+										tempRealAgeMaxs: yearString2,
+									}));
+
 									nonCollidingMultiSliderValuesChange(findeIndex, findeIndex2);
 								}}
 							/>
-						</View>
+						</View>						
+
 						<View style={[styles.msBox, styles.mgt50]}>
 							<View style={[styles.msTitleBox, styles.mgb25]}>
 								<Text style={styles.msTitleBoxText1}>거리</Text>
@@ -1774,9 +1848,15 @@ const Home = (props) => {
 								<TouchableOpacity 
 									style={styles.msCheckBox}
 									activeOpacity={opacityVal}
-									onPress={()=>{setDistanceStandard(0)}}
+									onPress={()=>{
+										//setDistanceStandard(0)
+										setRealData(prevData => ({
+											...prevData,
+											tempDistanceStandards: 0,
+										}));
+									}}
 								>
-									{distanceStandard == 0 ? (
+									{realData.tempDistanceStandards == 0 ? (
 										<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
 											<View style={styles.msCheckBoxCircleIn}></View>
 										</View>
@@ -1786,7 +1866,7 @@ const Home = (props) => {
 									
 									<Text style={styles.msCheckBoxText}>주활동 지역 기준</Text>
 								</TouchableOpacity>
-								<Text style={styles.msTitleBoxText2}>{distance}km 이내</Text>
+								<Text style={styles.msTitleBoxText2}>{realData.tempDistances}km 이내</Text>
 							</View>
 							<MultiSlider								
 								selectedStyle={{
@@ -1798,7 +1878,7 @@ const Home = (props) => {
 									backgroundColor: '#DBDBDB',
 								}}
 								optionsArray={[10, 15, 20, 25, 30, 50, 70, 100, 150, 200, 300, 500]}
-								values={[distance]}
+								values={[parseInt(realData.tempDistances)]}
 								markerOffsetY={1}
 								sliderLength={innerWidth}
 								value={[0]}
@@ -1815,7 +1895,11 @@ const Home = (props) => {
 								)}
 								onValuesChange={(e) => {
 									//console.log(e);
-									setDistance(e[0]);
+									//setDistance(e[0]);
+									setRealData(prevData => ({
+										...prevData,
+										tempDistances: e[0],
+									}));
 								}}
 							/>
 						</View>
@@ -1824,9 +1908,15 @@ const Home = (props) => {
 								<TouchableOpacity 
 									style={styles.msCheckBox}
 									activeOpacity={opacityVal}
-									onPress={()=>{setDistanceStandard(1)}}
+									onPress={()=>{
+										//setDistanceStandard(1)
+										setRealData(prevData => ({
+											...prevData,
+											tempDistanceStandards: 1,
+										}));
+									}}
 								>
-									{distanceStandard == 1 ? (
+									{realData.tempDistanceStandards == 1 ? (
 										<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
 											<View style={styles.msCheckBoxCircleIn}></View>
 										</View>
@@ -1836,7 +1926,7 @@ const Home = (props) => {
 									
 									<Text style={styles.msCheckBoxText}>부활동 지역 기준</Text>
 								</TouchableOpacity>
-								<Text style={styles.msTitleBoxText2}>{distance2}km 이내</Text>
+								<Text style={styles.msTitleBoxText2}>{realData.tempDistance2s}km 이내</Text>
 							</View>
 							<MultiSlider								
 								selectedStyle={{
@@ -1848,7 +1938,7 @@ const Home = (props) => {
 									backgroundColor: '#DBDBDB',
 								}}
 								optionsArray={[10, 15, 20, 25, 30, 50, 70, 100, 150, 200, 300, 500]}
-								values={[distance2]}
+								values={[parseInt(realData.tempDistance2s)]}
 								markerOffsetY={1}
 								sliderLength={innerWidth}
 								value={[0]}
@@ -1865,41 +1955,70 @@ const Home = (props) => {
 								)}
 								onValuesChange={(e) => {
 									//console.log(e);
-									setDistance2(e[0]);
+									//setDistance2(e[0]);
+									setRealData(prevData => ({
+										...prevData,
+										tempDistance2s: e[0],
+									}));
 								}}
 							/>
 						</View>
+			
 						<View style={[styles.msBox, styles.mgt50]}>
 							<View style={[styles.msTitleBox, styles.mgb25]}>
 								<Text style={styles.msTitleBoxText1}>최근 접속일 수</Text>
-								<Text style={styles.msTitleBoxText2}>{recentAccess}일 이내 접속자</Text>
+								<Text style={styles.msTitleBoxText2}>{realData.tempRecentAccesss}일 이내 접속자</Text>
 							</View>
 							<View style={styles.multiSliderCustom}>
 								<View style={styles.multiSliderDotBack}>
-									<View style={[styles.multiSliderDotBackOn, recentAccess == 14 ? styles.w33p : null, recentAccess == 21 ? styles.w66p : null, recentAccess == 28 ? styles.w100p : null]}></View>
+									<View style={[styles.multiSliderDotBackOn, realData.tempRecentAccesss == 14 ? styles.w33p : null, realData.tempRecentAccesss == 21 ? styles.w66p : null, recentAccess == 28 ? styles.w100p : null]}></View>
 								</View>
 								<TouchableOpacity 
 									style={[styles.multiSliderDot, styles.boxShadow]}
 									activeOpacity={1}
-									onPress={()=>{setRecentAccess(7)}}
+									onPress={()=>{
+										//setRecentAccess(7)
+										setRealData(prevData => ({
+											...prevData,
+											tempRecentAccesss: 7,
+										}));
+									}}
 								>
 								</TouchableOpacity>
 								<TouchableOpacity 
-									style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 14 ? styles.multiSliderDotOff : null]}
+									style={[styles.multiSliderDot, styles.boxShadow, realData.tempRecentAccesss < 14 ? styles.multiSliderDotOff : null]}
 									activeOpacity={1}
-									onPress={()=>{setRecentAccess(14)}}
+									onPress={()=>{
+										//setRecentAccess(14)
+										setRealData(prevData => ({
+											...prevData,
+											tempRecentAccesss: 14,
+										}));
+									}}
 								>									
 								</TouchableOpacity>
 								<TouchableOpacity 
-									style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 21 ? styles.multiSliderDotOff : null]}
+									style={[styles.multiSliderDot, styles.boxShadow, realData.tempRecentAccesss < 21 ? styles.multiSliderDotOff : null]}
 									activeOpacity={1}
-									onPress={()=>{setRecentAccess(21)}}
+									onPress={()=>{
+										//setRecentAccess(21)
+										setRealData(prevData => ({
+											...prevData,
+											tempRecentAccesss: 21,
+										}));
+									}}
 								>									
 								</TouchableOpacity>
 								<TouchableOpacity 
-									style={[styles.multiSliderDot, styles.boxShadow, recentAccess < 28 ? styles.multiSliderDotOff : null]}
+									style={[styles.multiSliderDot, styles.boxShadow, realData.tempRecentAccesss < 28 ? styles.multiSliderDotOff : null]}
 									activeOpacity={1}
-									onPress={()=>{setRecentAccess(28)}}
+									onPress={()=>{
+										//setRecentAccess(28)
+										setRealData(prevData => ({
+											...prevData,
+											tempRecentAccesss: 28,
+										}));
+									}}
 								>									
 								</TouchableOpacity>
 							</View>
@@ -1913,8 +2032,8 @@ const Home = (props) => {
 							</View>
 							<View style={[styles.msBox, styles.mgt30]}>
 								<View style={[styles.msTitleBox, styles.mgb10]}>
-									<Text style={styles.msTitleBoxText1}>나이</Text>
-									<Text style={styles.msTitleBoxText2}>{ageMin2}년생~{ageMax2}년생+</Text>
+									<Text style={styles.msTitleBoxText1}>나이</Text>									
+									<Text style={styles.msTitleBoxText2}>{realData.tempAgeMin2s}년생~{realData.tempAgeMax2s}년생+</Text>
 								</View>
 
 								<MultiSlider								
@@ -1948,19 +2067,30 @@ const Home = (props) => {
 										const last = ageAry[e[1]];
 										
 										let yearString = first.toString();
-										setRealAgeMin2(yearString);
-										yearString = yearString.substr(2,2);
+										let yearString2 = last.toString();																
 
-										let yearString2 = last.toString();
-										setRealAgeMax2(yearString2);
-										yearString2 = yearString2.substr(2,2);
+										// setRealAgeMin2(yearString);
+										// setRealAgeMax2(yearString2);
+
+										// yearString = yearString.substr(2,2);
+										// yearString2 = yearString2.substr(2,2);
 										
-										setAgeMin2(yearString);
-										setAgeMax2(yearString2);
-										//setNonCollidingMultiSliderValue2(e);
+										// setAgeMin2(yearString);
+										// setAgeMax2(yearString2);
+
+										let yearString3 = yearString.substr(2,2);
+										let yearString4 = yearString2.substr(2,2);
 
 										let findeIndex = ageAry.indexOf(first);
 										let findeIndex2 = ageAry.indexOf(last);
+
+										setRealData(prevData => ({
+											...prevData,
+											tempAgeMin2s: yearString3,
+											tempAgeMax2s: yearString4,
+											tempRealAgeMin2s: yearString,
+											tempRealAgeMax2s: yearString2,
+										}));
 
 										nonCollidingMultiSliderValuesChange2(findeIndex, findeIndex2);
 									}}
@@ -2219,21 +2349,21 @@ const Home = (props) => {
 								style={[styles.popBtn]}
 								activeOpacity={opacityVal}
 								onPress={() => {
-									setTempAgeMin(ageMin);
-									setTempAgeMax(ageMax);
-									setTempAgeMin2(ageMin2);
-									setTempAgeMax2(ageMax2);
-									setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
-									setTempNonCollidingMultiSliderValue2(nonCollidingMultiSliderValue2);
-									setTempRealAgeMin(realAgeMin);
-									setTempRealAgeMax(realAgeMax);
-									setTempRealAgeMin2(realAgeMin2);
-									setTempRealAgeMax2(realAgeMax2);
-									setTempDistanceStandard(distanceStandard);
-									setTempDistance(distance);
-									setTempDistance2(distance2);
-									setTempRecentAccess(recentAccess);									
-									setUnAddIntroPop2(false);
+									// setTempAgeMin(ageMin);
+									// setTempAgeMax(ageMax);
+									// setTempAgeMin2(ageMin2);
+									// setTempAgeMax2(ageMax2);
+									// setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
+									// setTempNonCollidingMultiSliderValue2(nonCollidingMultiSliderValue2);
+									// setTempRealAgeMin(realAgeMin);
+									// setTempRealAgeMax(realAgeMax);
+									// setTempRealAgeMin2(realAgeMin2);
+									// setTempRealAgeMax2(realAgeMax2);
+									// setTempDistanceStandard(distanceStandard);
+									// setTempDistance(distance);
+									// setTempDistance2(distance2);
+									// setTempRecentAccess(recentAccess);									
+									// setUnAddIntroPop2(false);
 									setFilterPop(true);
 								}}
 							>
@@ -2270,7 +2400,7 @@ const Home = (props) => {
 								<View style={[styles.prvPopBot2View, styles.prvPopBot2View2]}>
 									<ImgDomain fileWidth={24} fileName={'coin2.png'} />
 									<View style={styles.prvPopBot2ViewIn}>
-										<Text style={[styles.prvPopBot2ViewText, styles.prvPopBot2ViewText2]}>00개</Text>
+										<Text style={[styles.prvPopBot2ViewText, styles.prvPopBot2ViewText2]}>{welcomePoint}개</Text>
 									</View>
 								</View>
 								<View style={styles.prvPopBot2View}>
@@ -2322,7 +2452,7 @@ const styles = StyleSheet.create({
 	headerSubmitBtnText: {fontFamily:Font.NotoSansMedium,fontSize:16,color:'#b8b8b8',},
 	headerSubmitBtnTextOn: {color:'#243B55'},
 	filterResetBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',paddingHorizontal:20,height:48,backgroundColor:'#fff',position:'absolute',top:0,right:0,zIndex:10,},
-	filterResetText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#1E1E1E',marginLeft:6,},
+	filterResetText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1E1E1E',marginLeft:6,},
 
 	filterTitle: {},
 	filterTitleText: {fontFamily:Font.NotoSansSemiBold,fontSize:16,lineHeight:18,color:'#1e1e1e'},
@@ -2430,7 +2560,7 @@ const styles = StyleSheet.create({
 	popBtn2: {width:(innerWidth/2)-25,},
 	popBtnOff: {backgroundColor:'#EDEDED',},
 	popBtnOff2: {backgroundColor:'#fff',marginTop:10,},
-	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},
+	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},
 	popBtnOffText: {color:'#1e1e1e'},
 
 	prvPopBot: {width:widnowWidth,paddingTop:40,paddingBottom:10,paddingHorizontal:20,backgroundColor:'#fff',borderTopLeftRadius:20,borderTopRightRadius:20,position:'absolute',bottom:0,},

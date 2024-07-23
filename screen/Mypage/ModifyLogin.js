@@ -188,8 +188,22 @@ const ModifyLogin = (props) => {
 			sData.member_phone = phone;
 			sData.member_new_phone = newPhone;
 		}
-		const response = await APIs.send(sData);
+		const response = await APIs.send(sData);		
 		console.log(response);
+		if(response.code == 200){
+			ToastMessage('정보수정이 완료되었습니다.');
+			setPw('');
+			setPw2('');
+			setPw3('');
+			setNewPhone();
+			setPhone(response.data.member_phone);
+		}else{
+			if(response.msg == 'INCORRECT PW'){
+				ToastMessage('현재 비밀번호가 일치하지 않습니다.');
+				Keyboard.dismiss();		
+				return false;
+			}
+		}
 	}
 
 	const headerHeight = 48;

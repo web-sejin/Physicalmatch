@@ -67,6 +67,7 @@ import Alim from './Mypage/Alim';
 import Shop from './Shop';
 import CompanyInfo from './Mypage/CompanyInfo';
 import Disable from './Disable';
+import Certification from './Certification';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -155,6 +156,7 @@ const WholeStack = () => {
       <Stack.Screen name="Shop" component={Shop} />
       <Stack.Screen name="CompanyInfo" component={CompanyInfo} />
       <Stack.Screen name="Disable" component={Disable} />
+      <Stack.Screen name="Certification" component={Certification} />
     </Stack.Navigator>
   );
 };

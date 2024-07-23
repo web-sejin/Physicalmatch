@@ -1,12 +1,10 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
 import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import { WebView } from 'react-native-webview';
 
 import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
@@ -29,7 +27,9 @@ const Privacy = (props) => {
   ]
 
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+  const webViews = useRef();
+  const webViews2 = useRef();
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -111,7 +111,7 @@ const Privacy = (props) => {
 			terms_num: 2,
 		};
 
-		const response = await APIs.send(sData);
+		const response = await APIs.send(sData);    
     setPrivacy(response.data);
   }
 
@@ -123,6 +123,7 @@ const Privacy = (props) => {
 		};
 
 		const response = await APIs.send(sData);
+    console.log(response);
     setProvision(response.data);
   }
 
@@ -132,84 +133,116 @@ const Privacy = (props) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			<Header navigation={navigation} headertitle={'약관'}/>
-
-      <ScrollView>
-        <View style={[styles.cmWrap, styles.pdt10]}>
-          <View style={[styles.guidePopContBox]}>
-            <TouchableOpacity
-              style={[styles.guidePopContBtn, st1 ? styles.guidePopContBtn2 : null]}
-              activeOpacity={opacityVal}
-              onPress={()=>{setSt1(!st1)}}
-            >
-              <View style={{width:innerWidth-20}}>
-                <View style={styles.guidePopContBtnTitle}>
-                  <Text style={styles.guidePopContBtnText}>개인정보 처리방침</Text>
-                </View>
-              </View>
-              {st1 ? (
-                <ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
-              ) : (
-                <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-              )}
-            </TouchableOpacity>
-            {st1 ? (
-            <View style={styles.guidePopCont2}>
-              <Text style={styles.guidePopCont2Text}>{privacy}</Text>
-            </View>
-            ) : null}
-          </View>
-          <View style={[styles.guidePopContBox]}>
-            <TouchableOpacity
-              style={[styles.guidePopContBtn, st2 ? styles.guidePopContBtn2 : null]}
-              activeOpacity={opacityVal}
-              onPress={()=>{setSt2(!st2)}}
-            >
-              <View style={{width:innerWidth-20}}>
-                <View style={styles.guidePopContBtnTitle}>
-                  <Text style={styles.guidePopContBtnText}>서비스 이용약관</Text>
-                </View>
-              </View>
-              {st2 ? (
-                <ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
-              ) : (
-                <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-              )}
-            </TouchableOpacity>
-            {st2 ? (
-            <View style={styles.guidePopCont2}>
-              <Text style={styles.guidePopCont2Text}>{provision}</Text>
-            </View>
-            ) : null}
-          </View>
-        </View>
-
-        <View style={styles.lineView}></View>
-
-        <View style={[styles.cmWrap, styles.onOff]}>
-          <View style={styles.onOffInfo}>
-            <Text style={styles.onOffInfoTitle}>개인정보 수집 및 이용 동의</Text>
-            <Text style={styles.onOffInfoDesc}>홍보 및 마케팅 목적</Text>
-          </View>
-          <TouchableOpacity 
-            style={[styles.onOffBtn, !onOff ? styles.onOffBtn2 : null]}
+			<Header navigation={navigation} headertitle={'약관'}/>      
+      <View style={[styles.cmWrap, styles.pdt10]}>
+        <View style={[styles.guidePopContBox]}>
+          <TouchableOpacity
+            style={[styles.guidePopContBtn, st1 ? styles.guidePopContBtn2 : null]}
             activeOpacity={opacityVal}
-            onPress={()=>{
-              //chgOnOff();
-              ToastMessage('개인정보 및 이용약관 동의는 피지컬매치 이용기간 동안 필수항목으로 해제할 수 없습니다.');
-            }}
+            onPress={()=>{setSt1(!st1)}}
           >
-            <Animated.View 
-              style={{
-                ...styles.onOffCircle,
-                ...styles.boxShadow,
-                backgroundColor:onOffBg,
-                left:onOffEvent,
-              }}
-            ></Animated.View>
+            <View style={{width:innerWidth-20}}>
+              <View style={styles.guidePopContBtnTitle}>
+                <Text style={styles.guidePopContBtnText}>개인정보 처리방침</Text>
+              </View>
+            </View>
+            {st1 ? (
+              <ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
+            ) : (
+              <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+            )}
           </TouchableOpacity>
+          {st1 ? (
+          <ScrollView>
+            <View style={styles.guidePopCont2}>
+              <WebView
+                ref={webViews}
+                source={{uri: provision}}
+                useWebKit={false}						
+                javaScriptEnabledAndroid={true}
+                allowFileAccess={true}
+                renderLoading={true}
+                mediaPlaybackRequiresUserAction={false}
+                setJavaScriptEnabled = {false}
+                scalesPageToFit={true}
+                allowsFullscreenVideo={true}
+                allowsInlineMediaPlayback={true}						
+                originWhitelist={['*']}
+                javaScriptEnabled={true}
+                textZoom = {100}
+              />              
+            </View>
+          </ScrollView>
+          ) : null}
         </View>
-      </ScrollView>
+        <View style={[styles.guidePopContBox]}>
+          <TouchableOpacity
+            style={[styles.guidePopContBtn, st2 ? styles.guidePopContBtn2 : null]}
+            activeOpacity={opacityVal}
+            onPress={()=>{setSt2(!st2)}}
+          >
+            <View style={{width:innerWidth-20}}>
+              <View style={styles.guidePopContBtnTitle}>
+                <Text style={styles.guidePopContBtnText}>서비스 이용약관</Text>
+              </View>
+            </View>
+            {st2 ? (
+              <ImgDomain fileWidth={10} fileName={'icon_arr4.png'}/>
+            ) : (
+              <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+            )}
+          </TouchableOpacity>
+          {st2 ? (
+          <ScrollView>
+            <View style={styles.guidePopCont2}>
+              <WebView
+                ref={webViews2}
+                source={{uri: privacy}}
+                useWebKit={false}						
+                javaScriptEnabledAndroid={true}
+                allowFileAccess={true}
+                renderLoading={true}
+                mediaPlaybackRequiresUserAction={false}
+                setJavaScriptEnabled = {false}
+                scalesPageToFit={true}
+                allowsFullscreenVideo={true}
+                allowsInlineMediaPlayback={true}						
+                originWhitelist={['*']}
+                javaScriptEnabled={true}
+                textZoom = {100}
+              />  
+            </View>
+          </ScrollView>
+          ) : null}
+        </View>
+      </View>
+
+      <View style={styles.lineView}></View>
+
+      <View style={[styles.cmWrap, styles.onOff]}>
+        <View style={styles.onOffInfo}>
+          <Text style={styles.onOffInfoTitle}>개인정보 수집 및 이용 동의</Text>
+          <Text style={styles.onOffInfoDesc}>홍보 및 마케팅 목적</Text>
+        </View>
+        <TouchableOpacity 
+          style={[styles.onOffBtn, !onOff ? styles.onOffBtn2 : null]}
+          activeOpacity={opacityVal}
+          onPress={()=>{
+            //chgOnOff();
+            ToastMessage('개인정보 및 이용약관 동의는 피지컬매치 이용기간 동안 필수항목으로 해제할 수 없습니다.');
+          }}
+        >
+          <Animated.View 
+            style={{
+              ...styles.onOffCircle,
+              ...styles.boxShadow,
+              backgroundColor:onOffBg,
+              left:onOffEvent,
+            }}
+          ></Animated.View>
+        </TouchableOpacity>
+      </View>
+     
 
 			{loading ? (
       <View style={[styles.indicator]}>
@@ -231,7 +264,7 @@ const styles = StyleSheet.create({
 	guidePopContBtn2: {borderBottomWidth:0,paddingBottom:11,},
 	guidePopContBtnTitle: {flexDirection:'row',alignItems:'center',},
 	guidePopContBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:18,color:'#1e1e1e',marginLeft:2,},
-	guidePopCont2: {paddingVertical:10,paddingHorizontal:15,backgroundColor:'#F9FAFB',borderBottomWidth:1,borderBottomColor:'#DBDBDB'},
+	guidePopCont2: {/*paddingVertical:10,paddingHorizontal:15,*/backgroundColor:'#F9FAFB',borderBottomWidth:1,borderBottomColor:'#DBDBDB',height:innerHeight,},
 	guidePopCont2Text: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e',},
 
   onOff: {flexDirection:'row',alignItems:'center',justifyContent:'space-between'},

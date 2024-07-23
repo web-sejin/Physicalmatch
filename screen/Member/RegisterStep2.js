@@ -1,13 +1,12 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
+import IMP from 'iamport-react-native';
+import { WebView } from 'react-native-webview';
 
+import Loading from '../Loading';
 import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import Header from '../../components/Header';
@@ -18,29 +17,17 @@ const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
-const RegisterStep2 = ({ navigation, route }) => {
-  const radioList = [
-    { 'val': 1, 'txt': '인터넷 검색' },    
-    { 'val': 2, 'txt': '앱스토어 검색' },
-    { 'val': 3, 'txt': '지인 소개' },
-    { 'val': 4, 'txt': '커뮤니티' },    
-    { 'val': 5, 'txt': '인스타그램' },
-    { 'val': 6, 'txt': '페이스북' },
-    { 'val': 7, 'txt': '유튜브' },
-    { 'val': 8, 'txt': '네이버' }, 
-    
-  ];
-  
+const RegisterStep2 = ({ navigation, route }) => {  
   const prvChk4 = route['params']['prvChk4'];
-
+  const [isModalVisible, setIsModalVisible] = useState(false);
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
   const [active, setActive] = useState(false);
   const [routeList, setRouteList] = useState([]);
   const [accessRoute, setAccessRoute] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [phonenumber, setPhonenumber] = useState('');
-  const [age, setAge] = useState('');
+  const [phonenumber, setPhonenumber] = useState(route['params']['hp'] ? route['params']['hp'] : '');
+  const [age, setAge] = useState(route['params']['age'] ? route['params']['age'] : '');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -78,13 +65,14 @@ const RegisterStep2 = ({ navigation, route }) => {
     if (accessRoute == 0) {
       ToastMessage('접속 경로를 선택해 주세요.');
 			return false;
-    }
+    }    
 
-    //본인 인증 작업
+    //본인 인증 작업    
+    //navigation.navigate('Certification', {type:'Join'});
 
-    //현재는 본인인증을 하지 못해 번호와 나이를 얻을 수 없기 때문에 테스트 모드(test_yn='y')를 통해서 번호와 나이를 얻는다.
-    //본인인증을 이용할 때는 테스트 모드를 해제(test_yn='n')하고 번호를 넣어 중복가입인지 1년 이상 이용할 수 없는 회원인지 조회한다
-    //로그인 정보 변경(ModifyLogin.js) 파일도 함께 수정한다.
+    // 현재는 본인인증을 하지 못해 번호와 나이를 얻을 수 없기 때문에 테스트 모드(test_yn='y')를 통해서 번호와 나이를 얻는다.
+    // 본인인증을 이용할 때는 테스트 모드를 해제(test_yn='n')하고 번호를 넣어 중복가입인지 1년 이상 이용할 수 없는 회원인지 조회한다
+    // 로그인 정보 변경(ModifyLogin.js) 파일도 함께 수정한다.
     let apiNumber = '';
     let apiAge = '';
     let sData = {
@@ -117,8 +105,6 @@ const RegisterStep2 = ({ navigation, route }) => {
         return false;
       }
     }
-
-    
   }
   
   const headerHeight = 48;

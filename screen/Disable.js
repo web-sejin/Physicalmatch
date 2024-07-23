@@ -114,7 +114,7 @@ const Disable = (props) => {
       push_yn: 'y' 
 		};
     const response = await APIs.send(sData);
-    console.log(response);
+    //console.log(response);
 		setLoading(false);
 		if(response.code == 200){
     	navigation.navigate('TabNavigation');
@@ -122,6 +122,7 @@ const Disable = (props) => {
 	}
 
 	const logout = async () => {        
+		setLoading(true);
     let sData = {
 			basePath: "/api/member/",
 			type: "SetLogout",
@@ -129,13 +130,16 @@ const Disable = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-		console.log(response);
+		//console.log(response);
     if(response.code == 200){
       AsyncStorage.removeItem('member_id');
       AsyncStorage.removeItem('member_idx');
 
       setModal(false);
-      navigation.navigate('Intro2');
+			setTimeout(function(){
+        setLoading(false); 
+        navigation.navigate('Intro2');
+      }, 300);
     }
   }
 

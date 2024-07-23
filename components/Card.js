@@ -73,7 +73,7 @@ const Card = (props) => {
   };
 
   const ViewDetail = () => {
-		//포인트 있는지 체크 후 결제 유도 or 상세페이지 이동		
+		//포인트 있는지 체크 후 결제 유도 or 상세페이지 이동
 		navigation.navigate(
       'MatchDetail', 
       {

@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
 
 	blockUl: {marginTop:10,},
 	blockLi: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:10,paddingVertical:7,marginTop:10,},
-	blockLiText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:15,},
+	blockLiText: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:15,color:'#1e1e1e'},
 	blockRemove: {},
   
   mgt0: { marginTop: 0, },

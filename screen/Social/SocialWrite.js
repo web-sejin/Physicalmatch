@@ -48,7 +48,7 @@ const SocialWrite = (props) => {
   const [ImagePop, setImagePop] = useState(false);
 
   const [state, setState] = useState(false);
-  const [cate, setCate] = useState(); //0=>1:1 // 1=>미팅 // 2=>모임
+  const [cate, setCate] = useState(route['params']['wrtType']); //0=>1:1 // 1=>미팅 // 2=>모임
   const [subject, setSubject] = useState('');
   const [today, setToday] = useState('');
   const [calendarState, setCalendarState] = useState(false);
@@ -77,7 +77,7 @@ const SocialWrite = (props) => {
 		if(!isFocused){
 		}else{
 			//console.log("isFocused");
-      setCate(route['params']['wrtType']);
+      //setCate();
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 
@@ -120,13 +120,13 @@ const SocialWrite = (props) => {
     if(subject != '' && subject.length >= 5 && subject.length <= 20){ currReq++; }
     if(meetDate != ''){ currReq++; }
     if(meetLocal != ''){ currReq++; }
-    if(imageType != 0){ currReq++; }
+    //if(imageType != 0){ currReq++; }
     if(appImage){ currReq++; }
     if(content != '' && content.length >= 10  && content.length <= 300){ currReq++; }
     if(hostFriend != ''){ currReq++; }
     if(guestFriend != ''){ currReq++; }
 
-    //console.log(cate+'/'+currReq+'/'+totalReq);
+    console.log(cate+'/'+currReq+'/'+totalReq);
     if(currReq == totalReq){
       setState(true);
     }else{
@@ -331,7 +331,7 @@ const SocialWrite = (props) => {
       setTimeout(function(){
         setLoading(false);
         navigation.navigate('TabNavigation', {screen:'Social', params : {reload:true}});
-      }, 500)
+      }, 200)
     }
   }
 
@@ -798,7 +798,7 @@ const styles = StyleSheet.create({
   input4: {width:innerWidth-25,},
   inputLine0 : {borderBottomWidth:0,},
   inputText: {fontFamily:Font.NotoSansRegular,fontSize: 16, lineHeight:21, color: '#1e1e1e',},
-  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,marginTop:30,paddingTop:15,color:'#1e1e1e'},
+  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,marginTop:30,paddingTop:15,color:'#1e1e1e',paddingTop:paddTop,},
 
   help_box: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:5,},
 	alertText2: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#B8B8B8',},

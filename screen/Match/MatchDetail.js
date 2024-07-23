@@ -28,6 +28,7 @@ import ProfieModify from '../Mypage/ProfieModify';
 import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
+const paddTop = Platform.OS === 'ios' ? 0 : 15;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
@@ -77,10 +78,14 @@ const MatchDetail = (props) => {
   const [profileDateQna, setProfileDateQna] = useState([]);
   const [profileInterview, setProfileInterview] = useState([]);
   const [profileHobby, setProfileHobby] = useState([]);
+  const [profileImg, setProfileImg] = useState([]);
   const [likeDate, setLikeDate] = useState('');
   const [likeTime, setLikeTime] = useState('');
 
   const swiperRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState('');
+  const lastOffset = useRef(0);
   const etcRef = useRef(null);
 
   const [activeDot, setActiveDot] = useState(0);
@@ -122,6 +127,7 @@ const MatchDetail = (props) => {
   const [swiperList, setSwiperList] = useState([]);
   const [warterList, setWarterList] = useState([]);
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [registPoint, setRegistPoint] = useState();
 
   const [reportList, setReportList] = useState([]);
   const [productApiList, setProductApiList] = useState([]);
@@ -216,8 +222,7 @@ const MatchDetail = (props) => {
     }
   }, [memberIdx])
 
-  useEffect(() => {
-    setPhoneNumber('01000000000');
+  useEffect(() => {    
     let warterAry = [];
     for(let i=0; i<100; i++){
       warterAry = [...warterAry, {order:i}];
@@ -363,9 +368,11 @@ const MatchDetail = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-		if(response.code == 200){
+		if(response.code == 200){      
       setMemberInfo(response.data);
       setMemberPoint(response.data.member_point);
+      setPhoneNumber(response.data.member_phone);
+      setRegistPoint(response.regist_point);
     }
   }
 
@@ -377,7 +384,7 @@ const MatchDetail = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-    console.log(response);
+    //console.log(response);
 		if(response.code == 200){      
       setMemberPoint(response.data);
     }
@@ -408,16 +415,19 @@ const MatchDetail = (props) => {
       
       if(response.data.img.length > 0){
         setSwiperList(response.data.img);
+        setProfileImg(response.data.img[0].mpi_img);
       }
 
       if(response.data.info.is_bookmark == 'y'){ setZzim(true); }else{ setZzim(false); }
-
-      const physicalArray = [];
-      const memberPhysical = response.data.info.member_physical.split('|');
-      memberPhysical.map((item) => {
-        physicalArray.push(item);
-      });
-      setProfilePhysical(physicalArray);
+       
+      if(response.data.info.member_physical){
+        const physicalArray = [];
+        const memberPhysical = response.data.info.member_physical.split('|');
+        memberPhysical.map((item) => {
+          physicalArray.push(item);
+        });
+        setProfilePhysical(physicalArray);
+      }
 
       if(response.data.auth.length > 0){
         response.data.auth.map((item, index) => {
@@ -700,13 +710,17 @@ const MatchDetail = (props) => {
   }
 
   const submitSotong = async () => {
-    let sData = {};
-    if(sotongType == 'feel'){
+    let sData = {};    
+    console.log(mb_member_idx);
+    const paramsString = JSON.stringify({accessType:'match', mb_member_idx:mb_member_idx});
+    if(sotongType == 'feel'){      
       sData = {
         basePath: "/api/match/",
         type: "SetMemberFeel",		
         member_idx: memberIdx,        	
         receive_member_idx: mb_member_idx,
+        push_idx: 1,
+        params: paramsString,
       };
     }else if(sotongType == 'like'){
       sData = {
@@ -715,11 +729,13 @@ const MatchDetail = (props) => {
         member_idx: memberIdx,        	
         receive_member_idx: mb_member_idx,
         ml_type: 0,
+        push_idx: 3,
+        params: paramsString,
       };
     }
 
     const response = await APIs.send(sData);
-    //console.log(response);
+    console.log(response);
     if(response.code == 200){      
       getProfileInfo();
       ToastMessage(sotongTypeText+' 보냈습니다.');
@@ -738,7 +754,7 @@ const MatchDetail = (props) => {
       ToastMessage('메세지를 2글자 이상 작성해 주세요.');
       return false;
     }
-    
+    const paramsString = JSON.stringify({accessType:'match', mb_member_idx:mb_member_idx});
     let sData = {
       basePath: "/api/match/",
       type: "SetMemberLike",		
@@ -746,9 +762,11 @@ const MatchDetail = (props) => {
       receive_member_idx: mb_member_idx,
       ml_type: 1,
       ml_memo: preLikeCont,
+      push_idx: 4,
+      params:paramsString,
     };
     const response = await APIs.send(sData);
-    console.log(response);
+    //console.log(response);
     if(response.code == 200){      
       ToastMessage('프리미엄 좋아요를 보냈습니다.');
       preLikePopClose();
@@ -781,7 +799,7 @@ const MatchDetail = (props) => {
   const shareApp = () => {
     setMatchPop(false);
     setPreventBack(false);
-    navigation.navigate('MyInvite')
+    navigation.navigate('MyInvite');
   }
 
   const copyToClipboard = async (v) => {
@@ -1006,7 +1024,8 @@ const MatchDetail = (props) => {
     //console.log(socialType);
     let socialMsg = '';
     let socialState = '';
-    if(socialType == 1){
+    const paramsString = JSON.stringify({social_idx:comm_idx, social_host_sex:params?.social_host_sex});
+    if(socialType == 1){      
       socialMsg = '최종 참여를 신청했습니다.'
       socialState = 3;
     }else if(socialType == 2){
@@ -1021,7 +1040,14 @@ const MatchDetail = (props) => {
       sj_status: socialState,
       member_idx: memberIdx,
       social_idx: comm_idx,
+      params:paramsString,
     };
+
+    if(socialType == 1){      
+      sData.push_idx = 8;
+    }else if(socialType == 2){
+      sData.push_idx = 9;
+    }
 
     const response = await APIs.send(sData);
     //console.log(response);
@@ -1036,6 +1062,8 @@ const MatchDetail = (props) => {
 
   const lastPermitSocial = async () => {
     //console.log(socialType);    
+    const paramsString = JSON.stringify({social_idx:comm_idx, social_host_sex:params?.social_host_sex});
+
     let sData = {
       basePath: "/api/social/",
       type: "SetSocialState",		
@@ -1043,7 +1071,13 @@ const MatchDetail = (props) => {
       sj_status: 4,
       member_idx: memberIdx,
       social_idx: comm_idx,
+      params: paramsString,
     };
+    if(socialType == 1){
+      sData.push_idx = 10;
+    }else{
+      sData.push_idx = 11;
+    }
     const response = await APIs.send(sData);
     //console.log(response);
     if(response.code == 200){
@@ -1055,7 +1089,15 @@ const MatchDetail = (props) => {
     setSocialPop2(false);
   }
 
-  const changeTradeProfile = async () => {
+  const changeTradeProfile = async () => {    
+    const paramsString = JSON.stringify({
+      accessType:'community', 
+      mb_member_idx:mb_member_idx, 
+      commIdx:comm_idx, 
+      currState:curr_state,
+      reqMbIdx:curr_req_mb_idx,
+      recMbIdx:curr_rec_mb_idx,   
+    });    
     let sData = {
       basePath: "/api/community/",
       type: "SetNumberChange",		
@@ -1063,6 +1105,8 @@ const MatchDetail = (props) => {
       cpc_type: 2,
       request_member_idx: memberIdx,
       permit_member_idx: mb_member_idx,
+      params: paramsString,
+      push_idx: 16,
     };
 
     const response = await APIs.send(sData);
@@ -1083,6 +1127,14 @@ const MatchDetail = (props) => {
   }
 
   const permitTradeProfile = async () => {
+    const paramsString = JSON.stringify({
+      accessType:'community', 
+      mb_member_idx:mb_member_idx, 
+      commIdx:comm_idx, 
+      currState:curr_state,
+      reqMbIdx:curr_req_mb_idx,
+      recMbIdx:curr_rec_mb_idx,   
+    }); 
     let sData = {
       basePath: "/api/community/",
       type: "SetNumberChange",		
@@ -1090,6 +1142,8 @@ const MatchDetail = (props) => {
       cpc_type: 3,
       request_member_idx: mb_member_idx,
       permit_member_idx: memberIdx,
+      params: paramsString,
+      push_idx: 17,
     };
 
     const response = await APIs.send(sData);
@@ -1119,6 +1173,46 @@ const MatchDetail = (props) => {
       setValuesPop(true);
     }    
   }
+
+  const handleScroll = (event) => {
+    const { contentOffset, layoutMeasurement } = event.nativeEvent;
+    const currentOffset = contentOffset.x;
+    const itemWidth = layoutMeasurement.width;
+
+    // 방향 계산
+    if (currentOffset > lastOffset.current) {
+      setDirection('right');
+    } else if (currentOffset < lastOffset.current) {
+      setDirection('left');
+    }
+    lastOffset.current = currentOffset;
+
+    // 현재 인덱스 계산
+    const newIndex = Math.round(currentOffset / itemWidth);
+    if (newIndex !== currentIndex) {
+      setCurrentIndex(newIndex);
+    }
+
+    //console.log(`Direction: ${direction}, Current Index: ${newIndex}`);
+    setActiveDot(newIndex);
+  };
+
+  const CustomPagination = ({ size, activeIndex }) => {
+    const pageWidth = ((size-1)*10)+((size-1)*5)+20;
+    return (
+    <View style={{...styles.paginationContainer, width:pageWidth}}>
+      {Array.from({ length: size }).map((_, index) => (
+        <View
+          key={index}
+          style={[
+            styles.paginationDot,
+            index === activeIndex ? styles.paginationDotActive : null
+          ]}
+        />
+      ))}
+    </View>
+    )
+  };
  
   const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -1161,6 +1255,8 @@ const MatchDetail = (props) => {
               paginationStyleItemActive={{width:20,opacity:1,}}
               paginationStyleItemInactive={{backgroundColor:'#fff',opacity:0.3,}}
               data={swiperList}
+              //onScroll={handleScroll}
+              scrollEventThrottle={16}
               onChangeIndex={(obj) => {
                 setActiveDot(obj.index);
               }}
@@ -1179,6 +1275,7 @@ const MatchDetail = (props) => {
                 </View>
               )}
             />
+            {/* <CustomPagination size={swiperList.length} activeIndex={activeDot} /> */}
           </View>
           <View style={styles.pagination}>
             {swiperList.map((item, index) => {
@@ -1188,6 +1285,7 @@ const MatchDetail = (props) => {
                   style={[styles.paginationBtn, activeDot == index ? styles.paginationActive : null]}
                   activeOpacity={opacityVal}
                   onPress={() => {
+                    setActiveDot(index);
                     swiperRef.current.scrollToIndex({index:index})
                   }}
                 >                
@@ -1360,8 +1458,7 @@ const MatchDetail = (props) => {
                     <TouchableOpacity 
                       style={[styles.popBtn, styles.popBtn3]}
                       activeOpacity={opacityVal}
-                      onPress={() => {
-                        console.log(memberPoint);                        
+                      onPress={() => {                                          
                         if(memberPoint < 5){
                           setCashType(6);
                           setCashPop(true);
@@ -2171,7 +2268,7 @@ const MatchDetail = (props) => {
                 style={[styles.sotongBtn]}
                 activeOpacity={opacityVal}
                 onPress={()=>{
-                  if(memberPoint < 1){
+                  if(memberPoint < 10000000){
                     setCashType(1);
                     setCashPop(true);
                     setSotongPop(false);
@@ -2366,7 +2463,7 @@ const MatchDetail = (props) => {
 				<View style={[styles.prvPopBot, styles.prvPopBot3]}>
           <View style={styles.popInImageView}>
             <View style={styles.popInImageViewBox}>              
-              <ImgDomain fileWidth={100} fileName={'sample2.jpg'} />
+              <ImgDomain2 fileWidth={100} fileName={profileImg} />
             </View>
           </View>
           <View style={[styles.popTitle, styles.pdl20, styles.pdr20]}>
@@ -2487,18 +2584,17 @@ const MatchDetail = (props) => {
         </TouchableOpacity>
         <View style={styles.prvPopBot}>
           <View style={[styles.popTitle, styles.popTitleFlex]}>
-            <ImgDomain fileWidth={20} fileName={'icon_match_success.png'} />
-            <ImgDomain fileWidth={20} fileName={'sample2.jpg'} />
+            <ImgDomain fileWidth={20} fileName={'icon_match_success.png'} />            
             <View style={styles.popTitleFlexWrap}>
               <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>매칭을 축하합니다!</Text>
             </View>            
           </View>
           <View style={styles.popInImageView}>
             <View style={styles.popInImageViewBox}>
-              <ImgDomain fileWidth={100} fileName={'sample.jpg'} />
+              <ImgDomain2 fileWidth={100} fileName={profileImg} />
             </View>
             <View style={styles.popInImageNick}>
-              <Text style={styles.popInImageNickText}>닉네임최대여덟자</Text>
+              <Text style={styles.popInImageNickText}>{profileInfo?.info.member_nick}</Text>
             </View>
           </View>
           <View style={styles.popSubTitle}>
@@ -2521,7 +2617,7 @@ const MatchDetail = (props) => {
           </ScrollView>
           <View style={styles.newProteinCnt}>
             <View style={styles.newProteinCntWrap}>
-              <Text style={styles.newProteinCntText}>신규 회원에게 프로틴 <Text style={styles.bold}>00</Text>개 증정</Text>
+              <Text style={styles.newProteinCntText}>신규 회원에게 프로틴 <Text style={styles.bold}>{registPoint}</Text>개 증정</Text>
             </View>
             <ImgDomain fileWidth={12} fileName={'icon_heart.png'} />
           </View>
@@ -2681,8 +2777,11 @@ const MatchDetail = (props) => {
               <TouchableOpacity 
                 style={[styles.popBtn]}
                 activeOpacity={opacityVal}
-                onPress={() => {
-                  console.log('작업해야 함');
+                onPress={() => {                  
+                  setValuesDisable(false);                  
+                  setTimeout(function(){
+                    navigation.navigate('MyDate');
+                  }, 100);                  
                 }}
               >
                 <Text style={styles.popBtnText}>프로필 수정하러 가기</Text>
@@ -2997,7 +3096,7 @@ const styles = StyleSheet.create({
   DetailBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   DetailDotBtn: {width:54,height:48,position:'absolute',right:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   
-	swiperView: {height:widnowWidth*1.25,},
+	swiperView: {height:widnowWidth*1.25,position:'relative'},
 	swiperWrap: {position:'relative',overflow:'hidden'},
   warterMark: {width:widnowWidth,height:widnowWidth*1.25,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   warterMarkWrap: {width:widnowWidth*1.5,flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'center',transform: [{rotate: '-45deg'}],gap:60},
@@ -3091,7 +3190,7 @@ const styles = StyleSheet.create({
 
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
 	input2: {width: innerWidth},
-  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e'},
+  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e',paddingTop:paddTop,},
 
   modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},
@@ -3181,6 +3280,10 @@ const styles = StyleSheet.create({
   valueAnswerBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#fff',marginTop:12,},
   valueAnswerBtnText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:17,color:'#666'},
   valueAnswerBtnTextOn: {fontFamily:Font.NotoSansMedium,color:'#D1913C'},
+
+  paginationContainer: {width:widnowWidth,flexDirection:'row',alignItems:'center',justifyContent:'center',gap:5,position:'absolute',left:0,bottom:20,zIndex:10,},
+  paginationDot: {width:10,height:4,backgroundColor:'#fff',borderRadius:50,opacity:0.3,margin:0,marginHorizontal:0},
+  paginationDotActive: {width:20,opacity:1},
 
   nextBtn: { width:innerWidth, height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
   nextBtnOff: {backgroundColor:'#DBDBDB'},

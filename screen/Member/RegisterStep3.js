@@ -1,11 +1,7 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {connect} from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 
 import APIs from "../../assets/APIs"
@@ -57,7 +53,7 @@ const RegisterStep3 = ({navigation, route}) => {
 			return false;
 		}
 
-    if(id.length < 3 || id.length > 30){
+    if(id.length < 6 || id.length > 30){
       ToastMessage('아이디를 6~30자 내로 입력해 주세요.');
 			return false;
     }
@@ -101,7 +97,7 @@ const RegisterStep3 = ({navigation, route}) => {
 			return false;
 		}
 
-    if(id.length < 3 || id.length > 30){
+    if(id.length < 6 || id.length > 30){
       ToastMessage('아이디를 6~30자 내로 입력해 주세요.');
 			return false;
     }
@@ -230,7 +226,7 @@ const styles = StyleSheet.create({
   iptTit: {marginTop:40,},
   iptTitText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:16,color:'#1e1e1e'},
   loginIptBox: {marginTop:10,position:'relative',},
-	input: { fontFamily: Font.NotoSansRegular, width: innerWidth, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
+	input: { fontFamily: Font.NotoSansRegular, width: innerWidth, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 15, color: '#1e1e1e', },
   inputWithBtn: { paddingRight: 70 },
   infoChkBtn: { alignItems:'center',justifyContent:'center',width:60, height:30, backgroundColor:'#243B55',borderRadius:5, position: 'absolute', right:0, bottom:5,},
   infoChkBtnText: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:15,color:'#fff', },

@@ -465,7 +465,7 @@ const RegisterStep8 = ({navigation, route}) => {
 	}
 
 	const nextStep = async () => {
-		//setLoading(true);
+		setLoading(true);
 		let prv_chk = 0;
 		if(route['params']['prvChk4']){
 			prv_chk = 1;
@@ -769,7 +769,7 @@ const RegisterStep8 = ({navigation, route}) => {
 											})}
 										</View>
 									) : (
-										<View style={[styles.badgeBtnBox, styles.boxShadow, styles.overHidden]}>
+										<View style={[styles.badgeBtnBox, styles.boxShadow, Platform.OS !== 'ios' ? styles.overHidden : null]}>
 											{(item.lists).map((item2, index2) => {
 												return (
 													<View key={index2}>
@@ -1938,7 +1938,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2.5,
 		elevation: 4,
 	},
-	overHidden: {overflow:'hidden'},
+	badgeBox: {backgroundColor:'#fff'},
+	overHidden: {/*overflow:'hidden'*/},
 	badgeBtnBox: {backgroundColor:'#fff',marginTop:15,},
 	badgeBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'#fff',paddingVertical:18,paddingHorizontal:20,borderWidth:1,borderColor:'rgba(209,145,60,0)'},
 	badgeBtnOff: {},

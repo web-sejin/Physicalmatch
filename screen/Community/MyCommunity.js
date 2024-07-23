@@ -24,17 +24,6 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const MyCommunity = (props) => {
-	const socialData = [
-		{idx:1, cate:'자유', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
-		{idx:2, cate:'운동', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
-		{idx:3, cate:'프교', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
-		{idx:4, cate:'셀소', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
-		{idx:5, cate:'자유', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
-		{idx:6, cate:'운동', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
-		{idx:7, cate:'프교', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:false},
-		{idx:8, cate:'셀소', date:'12.24 (수)', subject:'제목이 입력됩니다.', viewCnt:'152', reviewCnt:'3', image:'', profile:'', blur:true},
-	];
-
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
 	const {params} = route	
@@ -47,11 +36,11 @@ const MyCommunity = (props) => {
 	const [memberIdx, setMemberIdx] = useState();
 	const [nowPage, setNowPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
-	const [socialList, setSocaiList] = useState(socialData);
 	
 	const [commList, setCommList] = useState([]);  
 	const [tabState, setTabState] = useState(0); //자유, 운동, 프교, 셀소
 	const [commSch, setCommSch] = useState('');	
+	const [resetState, setResetState] = useState(false);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -66,6 +55,11 @@ const MyCommunity = (props) => {
 			AsyncStorage.getItem('member_idx', (err, result) => {		
 				setMemberIdx(result);
 			});
+
+			if(memberIdx){
+				setNowPage(1);
+				getCommList(1);
+			}
 		}
 
 		Keyboard.dismiss();
@@ -110,9 +104,19 @@ const MyCommunity = (props) => {
 	useEffect(() => {
 		if(memberIdx){
 			setLoading(true);
-			getCommList();
+			setNowPage(1);
+			getCommList(1);
 		}
 	}, [memberIdx, tabState]);
+
+	useEffect(() => {
+		if(resetState){
+			setLoading(true);
+			setNowPage(1);
+			getCommList(1);			
+			setResetState(false);			
+		}
+	}, [resetState]);
 
   const getCommList = async (viewPage) => {
 		let curr_page = nowPage;
@@ -129,16 +133,22 @@ const MyCommunity = (props) => {
 			page:curr_page,
 		};
 
-		const response = await APIs.send(sData);
-		console.log(tabState);
-		if(response.code == 200){						
-			if(response.data){
-				setTotalPage(Math.ceil(response.data.length/10));
-				setCommList(response.data);
-			}else if(response.msg == 'EMPTY'){
-				setTotalPage(1);
-				setCommList([]);
-			}			
+		const response = await APIs.send(sData);		
+		if(response.code == 200){			
+
+			//setTotalPage(Math.ceil(response.data.length/10));								
+			if(curr_page == 1){					
+				if(response.msg == 'EMPTY'){
+					setNowPage(1);
+					setCommList([]);
+				}else{
+					setCommList(response.data);
+				}
+			}else if(curr_page > 1 && response.msg != 'EMPTY'){					
+				const addList = [...commList, ...response.data];
+				setCommList(addList);
+			}
+
 		}
 		setTimeout(function(){
 			setLoading(false);
@@ -234,11 +244,9 @@ const MyCommunity = (props) => {
 
 	//리스트 무한 스크롤
 	const moreData = async () => {
-		if(totalPage > nowPage){
-			console.log('moreData nowPage ::::', nowPage);
-			getCommList(nowPage+1);
-			setNowPage(nowPage+1);
-		}
+		console.log('moreData nowPage ::::', nowPage);
+		getCommList(nowPage+1);
+		setNowPage(nowPage+1);
 	}
 
 	const onRefresh = () => {
@@ -313,9 +321,20 @@ const MyCommunity = (props) => {
 						value={commSch}
 						onChangeText={(v) => setCommSch(v)}
 						style={[styles.socialSchBoxWrapInput]}
-						returnKyeType='done'                      
+						returnKyeType='done'               
+						onSubmitEditing={Search}      
 					/>
 				</View>
+				<TouchableOpacity
+					style={styles.socialSchFilterBtn}
+					activeOpacity={opacityVal}
+					onPress={()=>{
+						setCommSch('');
+						setResetState(true);
+					}}
+				>
+					<ImgDomain fileWidth={22} fileName={'icon_refresh.png'}/>
+				</TouchableOpacity>
 			</View>
 			<FlatList 				
 				data={commList}
@@ -366,7 +385,8 @@ const styles = StyleSheet.create({
 	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},
 	socialSchBoxWrap: {flexDirection:'row',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
 	socialSchBoxWrapBtn: {alignItems:'center',justifyContent:'center',width:38,height:40,backgroundColor:'#F9FAFB',},
-	socialSchBoxWrapInput: {width:innerWidth-38,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},	
+	socialSchBoxWrapInput: {width:innerWidth-78,height:40,backgroundColor:'#F9FAFB',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},	
+	socialSchFilterBtn: {justifyContent:'center',width:28,height:40,},
 	flatListPad: {height:20,},	
 
 	cmWrap: {paddingBottom:40,paddingHorizontal:20,},

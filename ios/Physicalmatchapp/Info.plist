@@ -30,6 +30,14 @@
 				<string>kakao16eb0d369336f60af043d6bf5bd08bba</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>myauthapp</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
@@ -44,6 +52,10 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>localhost</key>
@@ -63,8 +75,6 @@
 	<string>일정을 확인하기 위해 필요합니다.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>카메라 기능으로 사진 등 파일 첨부를 이용하기 위해서는 해당 권한을 승인해 주세요.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>이용자에게 접근하기 위해 필요합니다.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>이용자가 Face ID를 사용하기 위해 필요합니다.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
