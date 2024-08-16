@@ -108,6 +108,10 @@ const MySocial = (props) => {
 			curr_page = viewPage;
 		}
 
+		if (socialList.length < 1) {
+			curr_page = 1;
+		}
+
 		let tabState = tabSt;
 		if(tabSt == 1){
 			//참여한 소셜
@@ -122,7 +126,7 @@ const MySocial = (props) => {
 			page:curr_page,
 		};
 		const response = await APIs.send(sData);
-		//console.log(response);
+		console.log(response);
 		if(response.code == 200){				
 
 			if(curr_page == 1){
@@ -248,9 +252,11 @@ const MySocial = (props) => {
 	//리스트 무한 스크롤
 	const moreData = async () => {
 		if(totalPage > nowPage){
-			console.log('moreData nowPage ::::', nowPage);
-			getSocialList(nowPage+1);
-			setNowPage(nowPage+1);			
+			//console.log('moreData nowPage ::::', nowPage);			
+			if (socialList.length > 0) {
+				getSocialList(nowPage+1);
+				setNowPage(nowPage+1);
+			}
 		}
 	}
 

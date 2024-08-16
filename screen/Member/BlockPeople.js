@@ -423,13 +423,19 @@ const BlockPeople = ({navigation, route}) => {
 									})}												
 								</View>
 							</ScrollView>												
-							<View style={styles.popBtnBox}>
+							<View style={[styles.popBtnBox]}>
 								<TouchableOpacity 
-									style={[styles.popBtn]}
+									style={[styles.popBtn, blockNumberList.length < 1 ? styles.popBtnOff : null]}
 									activeOpacity={opacityVal}
-									onPress={() => saveBlock('phone')}
+									onPress={() => {
+										if(blockNumberList.length > 0){
+											saveBlock('phone');
+										}else{
+											ToastMessage('1명 이상을 등록해 주세요.');
+										}
+									}}
 								>
-									<Text style={styles.popBtnText}>저장하기</Text>
+									<Text style={[styles.popBtnText, blockNumberList.length < 1 ? styles.popBtnOffText : null]}>저장하기</Text>
 								</TouchableOpacity>
 							</View>
 						</View>
@@ -520,11 +526,17 @@ const BlockPeople = ({navigation, route}) => {
 							</ScrollView>												
 							<View style={styles.popBtnBox}>
 								<TouchableOpacity 
-									style={[styles.popBtn]}
+									style={[styles.popBtn, blockNameList.length < 1 ? styles.popBtnOff : null]}
 									activeOpacity={opacityVal}
-									onPress={() => saveBlock('name')}
+									onPress={() => {
+										if(blockNameList.length > 0){
+											saveBlock('name');
+										}else{
+											ToastMessage('1명 이상을 등록해 주세요.');
+										}
+									}}
 								>
-									<Text style={styles.popBtnText}>저장하기</Text>
+									<Text style={[styles.popBtnText, blockNameList.length < 1 ? styles.popBtnOffText : null]}>저장하기</Text>
 								</TouchableOpacity>
 							</View>
 						</View>
@@ -584,7 +596,10 @@ const styles = StyleSheet.create({
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
 	popBtnBox: {marginTop:30,},
 	popBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#243B55',borderRadius:5,},
-	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},
+	popBtnOff: {backgroundColor:'#EDEDED',},
+	popBtnOff2: {backgroundColor:'#fff',marginTop:10,},
+	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},	
+	popBtnOffText: {color:'#999'},
 
 	blockUl: {marginTop:10,},
 	blockLi: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:10,paddingVertical:7,marginTop:10,},

@@ -42,6 +42,8 @@ const RegisterStep7 = ({navigation, route}) => {
 		accessRoute:route['params']['accessRoute'],
 		phonenumber:route['params']['phonenumber'],
 		age:route['params']['age'],
+		gender:route['params']['gender'],
+		name:route['params']['name'],
 		member_id:route['params']['member_id'],
 		member_pw:route['params']['member_pw'],
 		member_nick:route['params']['member_nick'],
@@ -109,11 +111,15 @@ const RegisterStep7 = ({navigation, route}) => {
 	const [ingIdx, setIngIdx] = useState(0);
 	const [ingSubject, setIngSubject] = useState('');
 	const [ingContent, setIngContent] = useState('');
+	const [ingPlaceholder, setIngPlaceholder] = useState('');
 
 	const [intro, setIntro] = useState('');
 	const [nextOpen, setNextOpen] = useState(false);
 
 	const [guideOpen, setGuideOpen] = useState();
+
+	const writeModalRef = useRef(writeModal);
+  const subjectRef = useRef(ingSubject);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -128,7 +134,7 @@ const RegisterStep7 = ({navigation, route}) => {
 			setPageSt(!pageSt);
 
 			if(route['params']['qnaList']){ setQnaList(route['params']['qnaList']); }
-			if(route['params']['member_intro']){ setIntro(route['params']['member_intro']); console.log('!!!!!!');}
+			if(route['params']['member_intro']){ setIntro(route['params']['member_intro']); }
 			//if(route['params']['qnaListData']){ setapiQnaListData(route['params']['qnaListData']); }			
 			if(route['params']['qnaListChk']){ setQnaListChk(route['params']['qnaListChk']); }
 		}
@@ -144,9 +150,28 @@ const RegisterStep7 = ({navigation, route}) => {
       // e.preventDefault();를 사용하면 뒤로 가기를 막을 수 있습니다.
       //console.log('preventBack22 ::: ',preventBack);
       if (preventBack) {        
-				setQnaModal(false);
-				setWriteModal(false);
-				setPreventBack(false);
+				if(writeModalRef.current){					
+					let selectCon = [];
+					//console.log('qnaListChk back ::: ',qnaListChk);
+					qnaListChk.map((item, index) => {
+						//console.log(item+'/////'+subjectRef.current);								
+						if(item != subjectRef.current){
+							let ary = item;
+							selectCon = [...selectCon, ary];
+						}
+					});			
+					//console.log('selectCon ::: ',selectCon);		
+					setQnaListChk(selectCon);					
+					
+					setWriteModal(false);
+					setIngIdx(0);
+					setIngSubject('');
+					setIngContent('');
+					setIngPlaceholder('');
+				}else{
+					setQnaModal(false);
+					setPreventBack(false);
+				}							
 				e.preventDefault();
       } else {
         //console.log('뒤로 가기 이벤트 발생!');								
@@ -155,6 +180,18 @@ const RegisterStep7 = ({navigation, route}) => {
 
     return unsubscribe;
   }, [navigationUse, preventBack]);
+
+	useEffect(() => {
+    writeModalRef.current = writeModal;
+  }, [writeModal]);
+
+	useEffect(() => {
+		//console.log('qnaListChk ::: ',qnaListChk);
+	}, [qnaListChk]);
+
+	useEffect(() => {
+		subjectRef.current = ingSubject;
+	}, [ingSubject]);
 	
 	useEffect(() => {
 		let cnt = 0;
@@ -179,19 +216,26 @@ const RegisterStep7 = ({navigation, route}) => {
 
 	const getQnaTabData = async () => {
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetInterviewList",
+			interview_category: 10
 		}
 		const response = await APIs.send(sData);
 		if(response.code == 200){
 			//console.log(response.data.category);
 			setApiQnaTab(response.data.category);
+			setActiveTab(10);
+			if(response.data.list == false){
+				setapiQnaListData([]);
+			}else{
+				setapiQnaListData(response.data.list);				
+			}
 		}
 	}
 
 	const getGuideIntro = async () => {
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetIntroduceList",
 		}
 		const response = await APIs.send(sData);
@@ -205,7 +249,7 @@ const RegisterStep7 = ({navigation, route}) => {
 		setActiveTab(idx);
 
 		let sData = {      
-      basePath: "/api/member/index.php",
+      basePath: "/api/member/",
 			type: "GetInterviewList",
 			interview_category: idx
 		}
@@ -256,7 +300,7 @@ const RegisterStep7 = ({navigation, route}) => {
 			let selectCon = [];
 			qnaListChk.map((item, index) => {
 				//console.log(item+'/////'+ingIdx);								
-				if(item != ingIdx){
+				if(item != ingSubject){
 					let ary = item;
 					selectCon = [...selectCon, ary];
 				}
@@ -269,6 +313,7 @@ const RegisterStep7 = ({navigation, route}) => {
 		setIngIdx(0);
 		setIngSubject('');
 		setIngContent('');
+		setIngPlaceholder('');
 	}
 
 	const qnaSuccess = () => {
@@ -507,7 +552,11 @@ const RegisterStep7 = ({navigation, route}) => {
 									maxLength={1000}
 								/>
 								<View style={styles.help_box}>
-									<Text style={styles.alertText}>최소 50자 이상 입력해 주세요.</Text>
+									<View style={styles.alertTextView}>
+										{intro.length < 50 ? (
+											<Text style={styles.alertText}>최소 50자 이상 입력해 주세요.</Text>
+										) : null}
+									</View>
 									<Text style={styles.txtCntText}>{intro.length}/1,000</Text>
 								</View>
 							</View>
@@ -701,7 +750,7 @@ const RegisterStep7 = ({navigation, route}) => {
 								{apiQnaListData.length > 0 ? (
 									apiQnaListData.map((item, index) => {
 										let checked = false;
-										const result = qnaListChk.filter((v) => v == item.interview_idx);
+										const result = qnaListChk.filter((v) => v == item.interview_question);
 										return (
 											<TouchableOpacity
 												key={item.interview_idx}
@@ -713,11 +762,19 @@ const RegisterStep7 = ({navigation, route}) => {
 												]}
 												activeOpacity={result.length > 0 ? 1 : opacityVal}
 												onPress={() => {
-													result.length > 0 ? null : setIngIdx(item.interview_idx);
-													result.length > 0 ? null : setIngSubject(item.interview_question);
-													result.length > 0 ? null : setWriteModal(true);
-													result.length > 0 ? null : setPreventBack(true);
-													listAryChk(item.interview_idx);													
+													if(result.length < 1){
+														setIngIdx(item.interview_idx);
+														setIngSubject(item.interview_question);
+														setIngPlaceholder(item.interview_answer);
+														setWriteModal(true);
+														setPreventBack(true);
+													}
+													// result.length > 0 ? null : setIngIdx(item.interview_idx);
+													// result.length > 0 ? null : setIngSubject(item.interview_question);
+													// result.length > 0 ? null : setIngPlaceholder(item.interview_answer);
+													// result.length > 0 ? null : setWriteModal(true);
+													// result.length > 0 ? null : setPreventBack(true);
+													listAryChk(item.interview_question);													
 												}}
 											>
 												<Text style={[
@@ -802,14 +859,19 @@ const RegisterStep7 = ({navigation, route}) => {
 										}        
 									}}
 									style={[styles.textarea, styles.textarea2]}
-									placeholder="답변을 입력해 주세요."
+									//placeholder="답변을 입력해 주세요."
+									placeholder={ingPlaceholder}
 									placeholderTextColor="#DBDBDB"
 									multiline={true}
 									returnKyeType='done'
 									maxLength={300}
 								/>
 								<View style={styles.help_box}>
-									<Text style={styles.alertText}>최소 5자 이상 입력해 주세요.</Text>
+									<View style={styles.alertTextView}>
+										{ingContent.length < 5 ? (
+											<Text style={styles.alertText}>최소 5자 이상 입력해 주세요.</Text>
+										) : null}
+									</View>									
 									<Text style={styles.txtCntText}>{ingContent.length}/300</Text>
 								</View>
 							</View>
@@ -853,7 +915,7 @@ const styles = StyleSheet.create({
 	regiStateTexOn: {color:'#243B55'},
 
 	input: {color:'#1e1e1e'},
-	textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,paddingTop:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e',paddingTop:paddTop,},
+	textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,paddingTop:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e',paddingTop:15,},
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
@@ -870,6 +932,7 @@ const styles = StyleSheet.create({
 	popTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:20,},
 	popIptBox: {paddingTop:10,},
 	help_box: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:5,},
+	alertTextView: {minWidth:1,},
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#EE4245',},
 	txtCntText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#b8b8b8'},
 	popBtnBox: {marginTop:30,},
@@ -946,7 +1009,7 @@ const styles = StyleSheet.create({
 	guidePopContBtn2: {borderBottomWidth:0,paddingBottom:14,},
 	guidePopContBtnTitle: {flexDirection:'row',alignItems:'center',},
 	guidePopContBtnText: {fontFamily:Font.NotoSansSemiBold,fontSize:14,lineHeight:17,color:'#1e1e1e',marginLeft:2,},
-	guidePopCont2: {paddingVertical:10,paddingHorizontal:15,backgroundColor:'#F9FAFB',borderRadius:5,},
+	guidePopCont2: {paddingTop:10,paddingBottom:15,paddingHorizontal:15,backgroundColor:'#F9FAFB',borderRadius:5,},
 	guidePopCont2Text: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e',},
 
 	red: {color:'#EE4245'},

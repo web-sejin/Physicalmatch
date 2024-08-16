@@ -124,6 +124,10 @@ const MyCommunity = (props) => {
 			curr_page = viewPage;
 		}
 
+		if (commList.length < 1) {
+			curr_page = 1;
+		}
+
     let sData = {
 			basePath: "/api/community/",
 			type: "GetMyCommList",
@@ -224,7 +228,7 @@ const MyCommunity = (props) => {
 				{item.ci_img ? (
 				<ImageBackground
 					style={styles.commLiThumb}						
-					source={{uri:`https://cnj02.cafe24.com/${item.ci_img}`}}
+					source={{uri:`https://physicalmatch.co.kr/${item.ci_img}`}}
 					resizeMode='cover'
 					blurRadius={item.comm_care == 1 ? 6 : 0}
 				>					
@@ -244,9 +248,11 @@ const MyCommunity = (props) => {
 
 	//리스트 무한 스크롤
 	const moreData = async () => {
-		console.log('moreData nowPage ::::', nowPage);
-		getCommList(nowPage+1);
-		setNowPage(nowPage+1);
+		//console.log('moreData nowPage ::::', nowPage);
+		if (commList.length > 0) {
+			getCommList(nowPage + 1);
+			setNowPage(nowPage + 1);
+		}
 	}
 
 	const onRefresh = () => {

@@ -117,7 +117,11 @@ const Disable = (props) => {
     //console.log(response);
 		setLoading(false);
 		if(response.code == 200){
-    	navigation.navigate('TabNavigation');
+    	//navigation.navigate('TabNavigation');
+			navigation.reset({
+				index: 0,
+				routes: [{ name: 'TabNavigation' }],
+			});
 		}
 	}
 

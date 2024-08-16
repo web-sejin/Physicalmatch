@@ -9,7 +9,7 @@ class Api {
 
 		this.state = {
 			isLoading   : false,
-			url         : 'https://cnj02.cafe24.com',
+			url         : 'https://physicalmatch.co.kr',
 			path        : '/api/index.php',
 			option  : {
 				method: 'POST',

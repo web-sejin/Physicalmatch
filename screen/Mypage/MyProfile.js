@@ -181,6 +181,10 @@ const MyProfile = (props) => {
 				setFile7Base(1);
 				setFile7St(1);
 				setFile7Idx(response.data.mimg.mti_idx);
+				if(response.data.mimg.agree_yn == 'n'){
+					setReject(true);
+					setRejectMemo(response.data.info.reject_memo2);
+				}
 			}
 
 			setTimeout(function(){
@@ -309,7 +313,7 @@ const MyProfile = (props) => {
 
 		const formData = APIs.makeFormData(sData)		
 		const response = await APIs.multipartRequest(formData);    
-		//console.log(response);
+		console.log(response);
 		if(response.code == 200){
 			ToastMessage('심사 등록이 완료되었습니다.');
 

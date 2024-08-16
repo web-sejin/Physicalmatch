@@ -318,6 +318,10 @@ const MyInfo = (props) => {
 		if(realClass != "" && realClass2 != ""){
 			setPopClass(false);
 			setPreventBack(false);
+
+			// setTimeout(function(){
+			// 	setPopJob(true);
+			// }, 100);
 		}
 		chkTotalVal();
 	}, [realClass, realClass2]);  
@@ -327,10 +331,18 @@ const MyInfo = (props) => {
 			if(realSmoke == 0){
 				setPopDrink(false);
 				setPreventBack(false);
+
+				// setTimeout(function(){
+				// 	setPopMbti(true);
+				// }, 100);
 			}else{
-				if(realSmokeSort != undefined){
+				if(realSmokeSort != undefined && realSmokeSort != 0){					
 					setPopDrink(false);
 					setPreventBack(false);
+
+					// setTimeout(function(){
+					// 	setPopMbti(true);
+					// }, 100);
 				}
 			}
 		}
@@ -929,6 +941,10 @@ const MyInfo = (props) => {
 			setRealJobDetail(jobDetail);
 			setPreventBack(false);
 
+			// setTimeout(function(){
+			// 	setPopPhysical2(true);
+			// }, 100);
+
 		}else if(v == 'physical'){
 			if(phyAryCnt < 2 || phyAryCnt > 5){
 				ToastMessage('체형은 2개 이상 5개 이하로 선택해 주세요.');
@@ -939,6 +955,10 @@ const MyInfo = (props) => {
 			setRealPhyAryCnt(phyAryCnt);
 			setPopPhysical(false);
 			setPreventBack(false);
+
+			// setTimeout(function(){
+			// 	setPopDrink(true);
+			// }, 100);
 		}else if(v == 'mbti'){
 			if(mbtiRes1 == '' || mbtiRes2 == '' || mbtiRes3 == '' || mbtiRes4 == ''){
 				ToastMessage('MBTI를 완성해 주세요.');
@@ -959,6 +979,10 @@ const MyInfo = (props) => {
 			setMbti7_2(mbti7);
 			setMbti8_2(mbti8);
 			setPreventBack(false);
+
+			// setTimeout(function(){
+			// 	setPopRel(true);
+			// }, 100);
 		}else if(v == 'physical2'){
 			setRealHeight(height);
 			if(!noWeight){
@@ -992,6 +1016,10 @@ const MyInfo = (props) => {
 
 			//console.log(physicalString);
 			setMbPhysical(physicalString);
+
+			// setTimeout(function(){
+			// 	setPopExe(true);
+			// }, 100);
 			
 		}else if(v == 'exe'){
 
@@ -1048,6 +1076,10 @@ const MyInfo = (props) => {
 			setExeDay('0');
 			setExeSportIdx();
 			setExeSport('');
+
+			// setTimeout(function(){
+			// 	setPopPhysical(true);
+			// }, 100);
 		}
 	}
 
@@ -1686,7 +1718,7 @@ const MyInfo = (props) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -1757,8 +1789,8 @@ const MyInfo = (props) => {
 						setPreventBack(false);
 					}}
 				></TouchableOpacity>
-				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-					<View style={{...styles.prvPop, top:keyboardHeight}}>
+				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>					
+					<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 						<TouchableOpacity
 							style={styles.pop_x}					
 							onPress={() => {
@@ -1900,7 +1932,7 @@ const MyInfo = (props) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -1959,7 +1991,8 @@ const MyInfo = (props) => {
 									{noWeight ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
 									) : (
-										<ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
+										// <ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
+										<View style={styles.noCheckbox}></View>
 									)}
 									<Text style={styles.notPickBtnText}>선택안함</Text>
 								</TouchableOpacity>
@@ -2001,7 +2034,8 @@ const MyInfo = (props) => {
 									{noMuscle ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
 									) : (
-										<ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
+										// <ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
+										<View style={styles.noCheckbox}></View>
 									)}
 									<Text style={styles.notPickBtnText}>선택안함</Text>
 								</TouchableOpacity>
@@ -2043,7 +2077,8 @@ const MyInfo = (props) => {
 									{noFat ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
 									) : (
-										<ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
+										// <ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
+										<View style={styles.noCheckbox}></View>
 									)}
 									<Text style={styles.notPickBtnText}>선택안함</Text>
 								</TouchableOpacity>
@@ -2098,7 +2133,7 @@ const MyInfo = (props) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -2288,7 +2323,7 @@ const MyInfo = (props) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -2351,7 +2386,7 @@ const MyInfo = (props) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -2459,7 +2494,7 @@ const MyInfo = (props) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -2753,7 +2788,7 @@ const MyInfo = (props) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={styles.prvPop}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -2821,9 +2856,9 @@ const styles = StyleSheet.create({
 	regiStep5BtnRightText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#888',marginRight:15,},
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
-  nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
+  nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, alignItems: 'center', justifyContent: 'center', },
   nextBtnOff: {backgroundColor:'#DBDBDB'},
-	nextBtnText: { fontFamily: Font.NotoSansMedium, fontSize: 14, lineHeight: 52, color: '#fff' },
+	nextBtnText: { fontFamily: Font.NotoSansMedium, fontSize: 14, lineHeight: 19, color: '#fff' },
   
 	input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
 	input2: {width: innerWidth},
@@ -2841,7 +2876,7 @@ const styles = StyleSheet.create({
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
 	popBtnBox: {marginTop:30,},
 	popBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#243B55',borderRadius:5,},
-	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},
+	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#fff'},
 
 	popRadioBox: {paddingBottom:10,},
 	popRadioTitle: {},
@@ -2850,12 +2885,12 @@ const styles = StyleSheet.create({
 	span: {fontFamily:Font.NotoSansRegular,color:'#B8B8B8'},
 	popRadioFlex: {flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between'},
 	popRadioBoxBtn: {height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,marginTop:10,paddingHorizontal:15,justifyContent:'center'},
-	popRadioBoxBtnText: {fontFamily:Font.NotoSansMedium,fontSize:15,color:'#666'},
+	popRadioBoxBtnText: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:21,color:'#666'},
 	
 	popRadioType2: {flexDirection:'row',flexWrap:'wrap',},
-	popRadioBoxBtn2: {justifyContent:'center',height:38,borderWidth:1,borderColor:'#ededed',borderRadius:50,paddingHorizontal:16,marginTop:8,marginRight:8,},
+	popRadioBoxBtn2: {alignItems:'center',justifyContent:'center',height:38,borderWidth:1,borderColor:'#ededed',borderRadius:50,paddingHorizontal:16,marginTop:8,marginRight:8,},
 	popRadioBoxBtn2On: {backgroundColor:'rgba(209,145,60, 0.15)',borderColor:'#D1913C'},
-	popRadioBoxBtn2Text: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:38,color:'#666',},
+	popRadioBoxBtn2Text: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:21,color:'#666',},
 	popRadioBoxBtn2TextOn: {color:'#D1913C'},
 
 	popRadioBoxBtn3: {width:(innerWidth/2)-25},
@@ -2955,7 +2990,8 @@ const styles = StyleSheet.create({
 	restBtnText : {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:18,color:'#1e1e1e',marginLeft:8,},
 
 	notPickBtn: {flexDirection:'row',alignItems:'center'},
-	notPickBtnText: {fontFamily:Font.NotoSansMedium,fontSize:12,color:'#243B55',marginLeft:5,},
+	notPickBtnText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:20,color:'#243B55',marginLeft:5,},
+	noCheckbox: {width:20,height:20,backgroundColor:'#fff',borderWidth:1,borderColor:'#243B55',borderRadius:2,},
 
 	red: {color:'#EE4245'},
 	gray: {color:'#B8B8B8'},

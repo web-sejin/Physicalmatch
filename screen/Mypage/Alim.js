@@ -63,6 +63,10 @@ const Alim = (props) => {
           setMemberIdx(result);
         });
       }
+
+      if(params?.alarm_type){
+        setTabSt(params?.alarm_type);
+      }
 		}
 
     Keyboard.dismiss();
@@ -93,8 +97,18 @@ const Alim = (props) => {
       getMemInfo();
       getAlimList(tabSt, 1);
       setNowPage(1);
+      memberHandler();
     }
-  }, [memberIdx]);
+  }, [memberIdx, tabSt]);
+
+  const memberHandler = async () => {
+    const formData = new FormData();
+    formData.append('type', 'GetMyInfo');
+    formData.append('member_idx', memberIdx);
+    //console.log(formData);
+    const mem_info = await member_info(formData);
+    //console.log('alim mem_info ::: ', mem_info);
+  }
 
   const getMemInfo = async () => {
 		let sData = {
@@ -115,6 +129,10 @@ const Alim = (props) => {
 			curr_page = viewPage;
 		}
 
+    if (alimList.length < 0) {
+      curr_page = 1;
+    }
+
     let sData = {      
       basePath: "/api/etc/",
 			type: "GetAlarmList",
@@ -124,7 +142,7 @@ const Alim = (props) => {
 		const response = await APIs.send(sData);
     //console.log(response);
 		if(response.code == 200){      
-      console.log(memberInfo);
+      //console.log(memberInfo);
       setOtherTabNew(response.is_new);
       if(curr_page == 1){
 				if(response.msg == 'EMPTY'){
@@ -156,10 +174,11 @@ const Alim = (props) => {
       moveState = 3;
     }
 
-    if(moveState == 0){    
+    if(moveState == 0){          
       if(v){
         const itemParams = v;
         const itemParamsObj = JSON.parse(itemParams);      
+        //console.log(itemParamsObj);
         navigation.navigate(sceenName, itemParamsObj)
       }else{
         navigation.navigate(sceenName);
@@ -221,8 +240,11 @@ const Alim = (props) => {
 	const moreData = async () => {
 		if(totalPage > nowPage){
 			//console.log('moreData nowPage ::::', nowPage);
-			getAlimList(tabSt, nowPage+1);
-			setNowPage(nowPage+1);	
+      if (alimList.length > 0) {
+        getAlimList(tabSt, nowPage+1);
+			  setNowPage(nowPage+1);	
+      }
+			
 		}
 	}
 

@@ -1,9 +1,12 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
-import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
+import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, PermissionsAndroid, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
+import Contacts from 'react-native-contacts';
+import messaging from '@react-native-firebase/messaging';
+import PushNotification from 'react-native-push-notification';
 
 import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
@@ -25,8 +28,10 @@ const Login = (props) => {
 	const [loading, setLoading] = useState(false);
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
+	const [appToken, setAppToken] = useState();
 	const [deviceToken, setDeviceToken] = useState('');
 	const [firebaseToken, setFirebaseToken] = useState('');
+	const [contacts, setContacts] = useState([]);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -41,8 +46,12 @@ const Login = (props) => {
 			setPageSt(!pageSt);
 
 			AsyncStorage.getItem('appToken', (err, result) => {
-				//console.log('appToken :::: ', result);
-				setFirebaseToken(result);
+				console.log('login appToken :::: ', result);
+				if(result){
+					setFirebaseToken(result);
+				}else{
+					requestUserPermission();
+				}
 			});
 	
 			AsyncStorage.getItem('deviceId', (err, result) => {		
@@ -54,6 +63,74 @@ const Login = (props) => {
 		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
+
+	useEffect(() => {		
+		if(contacts.length > 0){
+			//saveMyContacts();
+		}
+	}, [contacts]);
+
+	useEffect(() => {
+    const fetchContacts = async () => {
+      if (Platform.OS === 'android') {
+        const permission = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_CONTACTS
+        );
+        if (permission !== PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Permission to access contacts was denied');
+          return;
+        }
+      }
+			
+			let numberAry = [];
+
+      Contacts.getAll()
+			.then(contacts => {
+				//console.log('contacts :::: ',contacts);
+				contacts.forEach((contactList, index) => {					
+					//console.log(contactList.phoneNumbers[0]?.number);
+					numberAry.push(contactList.phoneNumbers[0]?.number);					
+				});		
+				
+				const set = new Set(numberAry);
+				setContacts([...set]);
+			})
+			.catch(error => {
+				console.log('Error fetching contacts: ', error);
+			});
+    };
+
+    fetchContacts();
+  }, []);
+
+	async function requestUserPermission() {
+		const authStatus = await messaging().requestPermission();
+		const enabled =
+			authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+			authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+			console.log('login Authorization status1:', authStatus);
+		if (enabled) {
+			console.log('login Authorization status2:', authStatus);
+			await get_token();
+		}
+	}
+
+	//기기토큰 가져오기
+	async function get_token() {
+		await messaging()
+		.getToken()
+		.then(token => {
+			console.log("login appToken", token);
+			if(token) {
+				AsyncStorage.setItem('appToken', token);
+				setFirebaseToken(token);
+				return true;
+			} else {
+				return false;
+			}
+		});
+	}
   
   const sendLogin = async () => {
 		let appToken = '';
@@ -78,14 +155,16 @@ const Login = (props) => {
 			member_pw: pw,
 			device_id: deviceToken,
 			firebase_token: firebaseToken,
+			member_pbook: contacts,
 		}
-		const response = await APIs.send(sData);
+		console.log('login sData :::: ',sData);
+		const response = await APIs.send(sData);				
 		//console.log(response);
 		if(response.code == 200){
-			setLoading(false);
+			setLoading(false);			
 			AsyncStorage.setItem('member_id', id);
 			AsyncStorage.setItem('member_idx', response.data.member_idx);
-			console.log(response.data);
+			//console.log(response.data);
 			saveRedux(
 				response.data.member_idx, 
 				response.data.member_type, 
@@ -93,6 +172,7 @@ const Login = (props) => {
 				response.data.is_social_ban, 
 				response.data.is_comm_ban,
 				response.data.available_yn,
+				response.data.member_nick,
 			);						
 
 		}else{
@@ -107,7 +187,7 @@ const Login = (props) => {
 		}
   }
 
-	const saveRedux = async (idx, type, is_match_ban, is_social_ban, is_comm_ban, available_yn,) => {
+	const saveRedux = async (idx, type, is_match_ban, is_social_ban, is_comm_ban, available_yn, nick) => {
 		const formData = new FormData();
 		formData.append('type', 'GetMyInfo');
 		formData.append('member_idx', idx);
@@ -122,17 +202,43 @@ const Login = (props) => {
 		//const mem_login = await member_login(formData2);
 		
 		//console.log('mem_info', mem_info);
+		// console.log('type ::: ', type);
+		// console.log('is_match_ban ::: ', is_match_ban);
+		// console.log('is_social_ban ::: ', is_social_ban);
+		// console.log('is_comm_ban ::: ', is_comm_ban);
+		// console.log('available_yn ::: ', available_yn);
+		// return false;
+
 		if(type == 0){
-			navigation.navigate('RegisterResult');
+			navigation.reset({
+				index: 0,
+				routes: [{ name: 'RegisterResult', params: { newMemberNick: 'nick' } }],
+			});	
 		}else if(type == 2 && is_match_ban == 'y' && is_social_ban == 'y' && is_comm_ban == 'y'){
-			navigation.replace('TabNavigation', {screen: 'Mypage'});
+			//navigation.replace('TabNavigation', {screen: 'Mypage'});
+			navigation.reset({
+				index: 0,
+				routes: [{ name: 'TabNavigation', params: { screen: 'Mypage' } }],
+			});	
 		}else{
 			if(available_yn == 'n'){
-				navigation.replace('Disable');
+				//navigation.replace('Disable');
+				navigation.reset({
+					index: 0,
+					routes: [{ name: 'Disable' }],
+				});
 			}else{
-				navigation.replace('TabNavigation');
+				//navigation.replace('TabNavigation');
+				navigation.reset({
+					index: 0,
+					routes: [{ name: 'TabNavigation' }],
+				});				
 			}
 		}	
+	}
+
+	const saveMyContacts = async () => {
+		console.log(contacts);
 	}
 
 	const headerHeight = 48;

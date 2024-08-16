@@ -16,7 +16,9 @@ const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
 
-const FindId = ({navigation, route}) => {	
+const FindId = (props) => {	
+  const {navigation, route} = props;
+  const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
   const [certnumber, setCertnumber] = useState('');
@@ -34,29 +36,36 @@ const FindId = ({navigation, route}) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+
+      if(params?.id){
+        setCertId(params?.id);
+        setCertSt(true);
+      }
 		}
 		Toast.hide();
 		return () => isSubscribed = false;
 	}, [isFocused]);
   
   const fnCert = async () => {				
-    let sData = {
-      basePath: "/api/member/",
-      type: 'IsPass',
-      pass_type: 1,
-      member_phone: '010-0000-0000',
-      test_yn: 'y'
-    }
-    const response = await APIs.send(sData);    
-    console.log(response);
-    if(response.code == 200){
-      setCertId(response.id);
-      setCertnumber('010-0000-0000');
-      setCertSt(true);
-    }else{
-      ToastMessage('일치하는 정보가 없습니다.');
-      setCertSt(false);
-    }
+    navigation.navigate('Certification', {type:'Id_find'});
+
+    // let sData = {
+    //   basePath: "/api/member/",
+    //   type: 'IsPass',
+    //   pass_type: 1,
+    //   member_phone: '010-0000-0000',
+    //   test_yn: 'y'
+    // }
+    // const response = await APIs.send(sData);    
+    // console.log(response);
+    // if(response.code == 200){
+    //   setCertId(response.id);
+    //   setCertnumber('010-0000-0000');
+    //   setCertSt(true);
+    // }else{
+    //   ToastMessage('일치하는 정보가 없습니다.');
+    //   setCertSt(false);
+    // }
   }
 
   const result_id = async () => {

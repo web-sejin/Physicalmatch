@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
+import {ActivityIndicator, Platform, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -37,7 +37,7 @@ LocaleConfig.defaultLocale = 'fr';
 
 const SocialWrite = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -114,7 +114,8 @@ const SocialWrite = (props) => {
     let totalReq = 7;
     let currReq = 0;
     if(cate == 1 || cate == 2){
-      totalReq = 8;
+      //totalReq = 8;
+      totalReq = 7;
     }
 
     if(subject != '' && subject.length >= 5 && subject.length <= 20){ currReq++; }
@@ -187,6 +188,29 @@ const SocialWrite = (props) => {
       case 5 : yoilResult = '금'; break;
       case 6 : yoilResult = '토'; break;
     }    
+    setMeetYoil(yoilResult);
+    setCalendarState(false);
+  }
+
+  const pickedDateSet2 = (date) => {
+    const splt = date.split('-');
+    const spltRes = splt[1]+'.'+splt[2];
+    setMeetDate(spltRes);
+
+    //0:일, 1:월, 2:화, 3:수, 4:목, 5:금, 6:토
+    let yoilResult = '';
+    const dayOfWeek = new Date(date).getDay();    
+    switch(dayOfWeek){
+      case 0 : yoilResult = '일'; break;
+      case 1 : yoilResult = '월'; break;
+      case 2 : yoilResult = '화'; break;
+      case 3 : yoilResult = '수'; break;
+      case 4 : yoilResult = '목'; break;
+      case 5 : yoilResult = '금'; break;
+      case 6 : yoilResult = '토'; break;
+    }    
+
+    //console.log(yoilResult);
     setMeetYoil(yoilResult);
     setCalendarState(false);
   }
@@ -330,7 +354,7 @@ const SocialWrite = (props) => {
       setPreventBack(false);
       setTimeout(function(){
         setLoading(false);
-        navigation.navigate('TabNavigation', {screen:'Social', params : {reload:true}});
+        navigation.navigate('TabNavigation', {screen:'Social', params : {reload:true, writeType:cate}});
       }, 200)
     }
   }
@@ -384,7 +408,7 @@ const SocialWrite = (props) => {
                   </View>
                   <View style={[styles.loginIptBox, styles.loginIptBoxFlex]}>
                     <TouchableOpacity                    
-                      style={[styles.input, styles.input3, styles.inputLine0]}
+                      style={[styles.input, /*styles.input3,*/ styles.inputLine0]}
                       activeOpacity={opacityVal}
                       onPress={()=>setCalendarState(true)}
                     >
@@ -394,13 +418,13 @@ const SocialWrite = (props) => {
                         <Text style={[styles.inputText, styles.gray2]}>날짜를 선택해 주세요</Text>
                       )}
                     </TouchableOpacity>
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       style={styles.infoChkBtn}
                       activeOpacity={opacityVal}
                       onPress={() => pickedDateSet()}       
                     >
                       <Text style={styles.infoChkBtnText}>확인</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                   </View>     
                         
                 </View>                            
@@ -431,6 +455,7 @@ const SocialWrite = (props) => {
                 onDayPress={(day) => {
                   //console.log(day);
                   setPickDate(day.dateString);
+                  pickedDateSet2(day.dateString);
                 }} // 날짜 클릭 시 그 날짜 출력                    
                 hideExtraDays={false} // 이전 달, 다음 달 날짜 숨기기                    
                 monthFormat={'yyyy년 M월'} // 달 포맷 지정                    
@@ -528,7 +553,11 @@ const SocialWrite = (props) => {
                     maxLength={300}
                   />
                   <View style={styles.help_box}>
-                    <Text style={styles.alertText2}>최소 10자 이상 입력해 주세요.</Text>
+                    <View style={styles.alertTextView}>
+                      {content.length < 10 ? (
+                      <Text style={[styles.alertText2, styles.alertText3]}>최소 10자 이상 입력해 주세요.</Text>
+                      ) : null}
+                    </View>
                     <Text style={styles.txtCntText}>{content.length}/300</Text>
                   </View>
                 </View>
@@ -641,7 +670,8 @@ const SocialWrite = (props) => {
             //console.log(JSON.stringify(data))
             const kakaoAddr = data;
             //console.log(kakaoAddr);	
-            setMeetLocal(kakaoAddr.sido+' '+kakaoAddr.sigungu+' '+kakaoAddr.buildingName);
+            //setMeetLocal(kakaoAddr.sido+' '+kakaoAddr.sigungu+' '+kakaoAddr.buildingName);
+            setMeetLocal(kakaoAddr.sido+' '+kakaoAddr.sigungu);
             setMeetLocalDetail(kakaoAddr.address);
             setLocPop(false);
           }}
@@ -798,10 +828,12 @@ const styles = StyleSheet.create({
   input4: {width:innerWidth-25,},
   inputLine0 : {borderBottomWidth:0,},
   inputText: {fontFamily:Font.NotoSansRegular,fontSize: 16, lineHeight:21, color: '#1e1e1e',},
-  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,marginTop:30,paddingTop:15,color:'#1e1e1e',paddingTop:paddTop,},
+  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,marginTop:30,paddingTop:15,color:'#1e1e1e',paddingTop:15,},
 
   help_box: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:5,},
+  alertTextView: {minWidth:1,},
 	alertText2: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#B8B8B8',},
+  alertText3: {color:'#EE4245',},
 	txtCntText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#b8b8b8'},
 
   locIcon: {justifyContent:'center',width:17,height:36,},

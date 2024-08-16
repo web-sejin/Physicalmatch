@@ -1,14 +1,12 @@
 import React, {useState, useEffect, useRef, useCallback, Component} from 'react';
 import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
+import { WebView } from 'react-native-webview';
 
 import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
@@ -32,9 +30,11 @@ const Mypage = (props) => {
     {idx:2, imgUrl:'', type:'social_guide'},
     {idx:3, imgUrl:'', type:'shop_free'},
   ]
+	const webViews = useRef();
+  const webViews2 = useRef();
 
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -52,6 +52,8 @@ const Mypage = (props) => {
 	const [eva, setEva] = useState();
 	const [evaPoint, setEvaPoint] = useState();
 	const [rejectMemo, setRejectMemo] = useState('');
+	const [guideComm, setGuideComm] = useState('');
+  const [guideSocial, setGuideSocial] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -69,6 +71,11 @@ const Mypage = (props) => {
 				//console.log('member_idx :::: ', result);		
 				setMemberIdx(result);
 			});
+
+			if(memberIdx){
+				getMemInfo();
+				getMemInfo2();
+			}
 		}
 
 		Keyboard.dismiss();
@@ -78,6 +85,8 @@ const Mypage = (props) => {
 
 	useEffect(() => {
 		setSwiperList(swp);
+		getGuide1();
+		getGuide2();
 	}, [])
 
 	useEffect(() => {		
@@ -121,6 +130,28 @@ const Mypage = (props) => {
 		}
 	}
 
+	const getGuide1 = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetGuide",
+			tab: 1,
+		};
+
+		const response = await APIs.send(sData);    		
+    setGuideSocial(response.data);
+  }
+
+  const getGuide2 = async () => {
+    let sData = {      
+      basePath: "/api/etc/",
+			type: "GetGuide",
+      tab: 2,
+		}
+
+		const response = await APIs.send(sData);
+    setGuideComm(response.data);
+  }
+
 	const notMember = () => {
 		ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
 	}
@@ -153,40 +184,41 @@ const Mypage = (props) => {
 
 			<ScrollView>
 				<View style={styles.myProfInfo}>
-					<TouchableOpacity
-						style={styles.myProfInfoBtn}
-						activeOpacity={opacityVal}
-						onPress={()=>{
-							navigation.navigate(
-								'MatchDetail', 
-								{
-									accessType:'myProfile', 
-									mb_member_idx:memberIdx,
-								}
-							)
-						}}
-					>
-						<ImgDomain fileWidth={36} fileName={'icon_my_sch.png'}/>
-					</TouchableOpacity>
-					<View style={styles.myProfInfoThumb}>												
-						{memberProfile != '' ? (
-							<ImgDomain2 fileWidth={104} fileName={memberProfile} />
-						) : (
-							<ImgDomain fileWidth={104} fileName={'my_basic_prof.jpg'} />
-						)}
-					</View>				
-					<TouchableOpacity
-						style={styles.myProfInfoBtn}
-						activeOpacity={opacityVal}
-						onPress={()=>{navigation.navigate('ProfieModify')}}						
-					>
-						{!memberType || memberType == 1 ? (
-							<ImgDomain fileWidth={36} fileName={'icon_my_pencel.png'}/>
-						) : (
-							<ImgDomain fileWidth={36} fileName={'icon_eraser.png'}/>
-						)}
-					</TouchableOpacity>
-
+					<View style={styles.myProfInfo2}>
+						<TouchableOpacity
+							style={styles.myProfInfoBtn}
+							activeOpacity={opacityVal}
+							onPress={()=>{
+								navigation.navigate(
+									'MatchDetail', 
+									{
+										accessType:'myProfile', 
+										mb_member_idx:memberIdx,
+									}
+								)
+							}}
+						>
+							<ImgDomain fileWidth={36} fileName={'icon_my_sch.png'}/>
+						</TouchableOpacity>
+						<View style={styles.myProfInfoThumb}>												
+							{memberProfile != '' ? (
+								<ImgDomain2 fileWidth={104} fileName={memberProfile} />
+							) : (
+								<ImgDomain fileWidth={104} fileName={'my_basic_prof.jpg'} />
+							)}
+						</View>				
+						<TouchableOpacity
+							style={styles.myProfInfoBtn}
+							activeOpacity={opacityVal}
+							onPress={()=>{navigation.navigate('ProfieModify')}}						
+						>
+							{!memberType || memberType == 1 ? (
+								<ImgDomain fileWidth={36} fileName={'icon_my_pencel.png'}/>
+							) : (
+								<ImgDomain fileWidth={36} fileName={'icon_eraser.png'}/>
+							)}
+						</TouchableOpacity>
+					</View>
 					<View style={styles.myProfInfoNick}>
 						<Text style={styles.myProfInfoNickText}>{memberNick}</Text>
 					</View>
@@ -293,12 +325,12 @@ const Mypage = (props) => {
 								<Text style={styles.mypageMenuBtnNameText}>지인 초대하기</Text>
 							</View>
 						</View>
-						{/* <View style={styles.mypageMenuBtnRight}>
-							<View style={styles.mypageMenuBtnRightView}>
+						<View style={styles.mypageMenuBtnRight}>
+							{/* <View style={styles.mypageMenuBtnRightView}>
 								<Text style={styles.mypageMenuBtnRightViewText}>프로틴 00개 혜택</Text>
-							</View>
+							</View> */}
 							<ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
-						</View> */}
+						</View>
 					</TouchableOpacity>
 					<View style={styles.mypageMenuLine}></View>
 					<TouchableOpacity
@@ -407,11 +439,24 @@ const Mypage = (props) => {
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
-				<ScrollView>
-					<View style={styles.guidePopCont}>
-						<Text style={styles.guidePopContText}>커뮤니티 가이드입니다.</Text>
-					</View>
-				</ScrollView>
+				<View style={styles.guidePopCont}>
+					<WebView
+						ref={webViews}
+						source={{uri: guideComm}}
+						useWebKit={false}						
+						javaScriptEnabledAndroid={true}
+						allowFileAccess={true}
+						renderLoading={true}
+						mediaPlaybackRequiresUserAction={false}
+						setJavaScriptEnabled = {false}
+						scalesPageToFit={true}
+						allowsFullscreenVideo={true}
+						allowsInlineMediaPlayback={true}						
+						originWhitelist={['*']}
+						javaScriptEnabled={true}
+						textZoom = {100}
+					/>
+				</View>
 			</Modal>
 
 			{/* 소셜 가이드 */}
@@ -431,11 +476,24 @@ const Mypage = (props) => {
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
-				<ScrollView>
-					<View style={styles.guidePopCont}>
-						<Text style={styles.guidePopContText}>소셜 가이드입니다.</Text>
-					</View>
-				</ScrollView>
+				<View style={styles.guidePopCont}>
+					<WebView
+						ref={webViews2}
+						source={{uri: guideSocial}}
+						useWebKit={false}						
+						javaScriptEnabledAndroid={true}
+						allowFileAccess={true}
+						renderLoading={true}
+						mediaPlaybackRequiresUserAction={false}
+						setJavaScriptEnabled = {false}
+						scalesPageToFit={true}
+						allowsFullscreenVideo={true}
+						allowsInlineMediaPlayback={true}						
+						originWhitelist={['*']}
+						javaScriptEnabled={true}
+						textZoom = {100}
+					/>
+				</View>
 			</Modal>
 
 			{loading ? (
@@ -474,13 +532,14 @@ const styles = StyleSheet.create({
 	filterResetBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',paddingHorizontal:20,height:48,backgroundColor:'#fff',position:'absolute',top:0,right:0,zIndex:10,},
 	filterResetText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#1E1E1E',marginLeft:6,},
 
-	guidePopCont: {padding:20,},
+	guidePopCont: {flex:1},
 	guidePopContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e'},
 
-	myProfInfo: {flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'center',paddingTop:40,paddingBottom:50},
+	myProfInfo: {paddingTop:40,paddingBottom:50},
+	myProfInfo2: {flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'center'},
 	myProfInfoBtn: {},
 	myProfInfoThumb: {alignItems:'center',justifyContent:'center',width:102,height:102,backgroundColor:'#fff',borderWidth:2,borderColor:'#EDEDED',borderRadius:50,overflow:'hidden',marginHorizontal:15,},
-	myProfInfoNick: {width:innerWidth,paddingTop:20,},
+	myProfInfoNick: {textAlign:'center',paddingTop:20,},
 	myProfInfoNickText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,lineHeight:23,color:'#1e1e1e'},
 
 	mypageMenu: {},

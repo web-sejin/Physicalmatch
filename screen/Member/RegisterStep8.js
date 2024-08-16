@@ -33,6 +33,8 @@ const RegisterStep8 = ({navigation, route}) => {
 		accessRoute:route['params']['accessRoute'],
 		phonenumber:route['params']['phonenumber'],
 		age:route['params']['age'],
+		gender:route['params']['gender'],
+		name:route['params']['name'],
 		member_id:route['params']['member_id'],
 		member_pw:route['params']['member_pw'],
 		member_nick:route['params']['member_nick'],
@@ -87,15 +89,17 @@ const RegisterStep8 = ({navigation, route}) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [file, setFile] = useState({});
+	const [badgePoint, setBadgePoint] = useState();
+	const [authPoint, setAuthPoint] = useState();
 	
-	const [realFile1, setRealFile1] = useState({});
-	const [realFile2, setRealFile2] = useState({});
-	const [realFile3, setRealFile3] = useState({});
-	const [realFile4, setRealFile4] = useState({});
-	const [realFile5, setRealFile5] = useState({});
-	const [realFile6, setRealFile6] = useState({});
-	const [realFile7, setRealFile7] = useState({});
-	const [realFile8, setRealFile8] = useState({});
+	const [realFile1, setRealFile1] = useState([]);
+	const [realFile2, setRealFile2] = useState([]);
+	const [realFile3, setRealFile3] = useState([]);
+	const [realFile4, setRealFile4] = useState([]);
+	const [realFile5, setRealFile5] = useState([]);
+	const [realFile6, setRealFile6] = useState([]);
+	const [realFile7, setRealFile7] = useState([]);
+	const [realFile8, setRealFile8] = useState([]);
 
 	const [realFile1Grade, setRealFile1Grade] = useState('');
 	const [realFile2Grade, setRealFile2Grade] = useState('');
@@ -151,6 +155,10 @@ const RegisterStep8 = ({navigation, route}) => {
 
 	const [deviceToken, setDeviceToken] = useState('');
 	const [firebaseToken, setFirebaseToken] = useState('');
+
+	const [fileCert, setFileCert] = useState(false);
+	const [fileAry, setFileAry] = useState([]);
+	const [fileType, setFileType] = useState(); //0:필수, 1:택1
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -225,6 +233,7 @@ const RegisterStep8 = ({navigation, route}) => {
 				setMarryModal(false);
 				setConfirm(false);
 				setPreventBack(false);
+				offBadgeModal();
 				e.preventDefault();
       } else {
         //console.log('뒤로 가기 이벤트 발생!');								
@@ -236,7 +245,32 @@ const RegisterStep8 = ({navigation, route}) => {
 
 	useEffect(() => {
 		getBadgeList();		
+		setLoading(false);
+		setFileAry([]);
+		getPointInfo();
 	}, [])
+
+	useEffect(() => {
+		//console.log('fileAry change ::: ', fileAry);		
+		setFileCert(false);
+		for(let i=0; i<fileAry.length; i++){
+			if(fileAry[i].path){				
+				setFileCert(true);				
+			}
+		}
+	}, [fileAry]);
+
+	const getPointInfo = async () => {		
+		let sData = {      
+      basePath: "/api/etc/",
+			type: "freePointBenefit",
+		}
+		const response = await APIs.send(sData);		
+		if(response.code == 200){			
+			setBadgePoint(response.data[0].badge_point);
+			setAuthPoint(response.data[0].auth_point);
+		}
+	}
 
 	const getBadgeList = async () => {
 		let sData = {      
@@ -249,7 +283,7 @@ const RegisterStep8 = ({navigation, route}) => {
 		}
 	}
 
-	const chooseImage = () => {
+	const chooseImage = (n) => {
     ImagePicker.openPicker({
       //width: 300,
       //height: 400,
@@ -257,14 +291,29 @@ const RegisterStep8 = ({navigation, route}) => {
     })
 		.then(image => {
 			let megabytes = parseInt(Math.floor(Math.log(image.size) / Math.log(1024)));
-			let selectObj = {path: image.path, mime: image.mime, name:'auth_badge.png', size:megabytes}
+			let fileName = image.filename ? image.filename : '인증자료.png';
+			let selectObj = {path: image.path, mime: image.mime, name:fileName, size:megabytes}
+
+			setFileAry(prevFileAry => {
+				const newFileAry = [...prevFileAry];
+				newFileAry[n] = selectObj;
+				return newFileAry;
+			});
 			//console.log(selectObj);
-			setFile(selectObj);
+			//setFile(selectObj);
 		})
 		.finally(() => {
 
 		});
   };
+
+	const deleteFileAry = (index) => {
+		setFileAry(prevFileAry => {
+			const newFileAry = [...prevFileAry];
+			newFileAry[index] = {path: '', mime: '', name: '', size: ''};
+			return newFileAry;
+		});
+	}
 
 	const offBadgeModal = () => {
 		setBadgeModal(false);
@@ -277,59 +326,90 @@ const RegisterStep8 = ({navigation, route}) => {
 
 	const saveBadgeFileInfo = async () => {		
 		const fileData = [];
-		if(!file.path){
-			ToastMessage('인증 자료를 첨부해 주세요.');
+		// if(!file.path){
+		// 	ToastMessage('인증 자료를 첨부해 주세요.');
+		// 	return false;
+		// }
+		
+		if(!fileCert){
+			ToastMessage('인증 자료를 1개 이상 첨부해 주세요.');
 			return false;
 		}
 
 		setLoading(true);
-		fileData[0] = {uri: file.path, name: 'badge.png', type: file.mime};
+		//fileData[0] = {uri: file.path, name: 'badge.png', type: file.mime};
+
 		let sData = {      
 			basePath: "/api/member/",
 			type: "SetTempImage",
 			dir:'badge',
-			files: fileData,			
+			//files: fileData,			
 		}
+
+		const ary = [];
+		if(fileAry[0] && fileAry[0].path){ ary[0] = {uri: fileAry[0].path, name: fileAry[0].name, type: fileAry[0].mime}; }
+		if(fileAry[1] && fileAry[1].path){ ary[ary.length] = {uri: fileAry[1].path, name: fileAry[1].name, type: fileAry[1].mime}; }
+		if(fileAry[2] && fileAry[2].path){ ary[ary.length] = {uri: fileAry[2].path, name: fileAry[2].name, type: fileAry[2].mime}; }
+		if(fileAry[3] && fileAry[3].path){ ary[ary.length] = {uri: fileAry[3].path, name: fileAry[3].name, type: fileAry[3].mime}; }
+		if(fileAry[4] && fileAry[4].path){ ary[ary.length] = {uri: fileAry[4].path, name: fileAry[4].name, type: fileAry[4].mime}; }
+		if(fileAry[5] && fileAry[5].path){ ary[ary.length] = {uri: fileAry[5].path, name: fileAry[5].name, type: fileAry[5].mime}; }
+		if(fileAry[6] && fileAry[6].path){ ary[ary.length] = {uri: fileAry[6].path, name: fileAry[6].name, type: fileAry[6].mime}; }
+		if(fileAry[7] && fileAry[7].path){ ary[ary.length] = {uri: fileAry[7].path, name: fileAry[7].name, type: fileAry[7].mime}; }
+		if(fileAry[8] && fileAry[8].path){ ary[ary.length] = {uri: fileAry[8].path, name: fileAry[8].name, type: fileAry[8].mime}; }
+		if(fileAry[9] && fileAry[9].path){ ary[ary.length] = {uri: fileAry[9].path, name: fileAry[9].name, type: fileAry[9].mime}; }	
+		sData.files = ary;
+
 		const formData = APIs.makeFormData(sData)
 		const response = await APIs.multipartRequest(formData);	
-		//console.log('badgeType :::: ', badgeType);
+		// console.log('badgeType :::: ', badgeType);
 		//console.log('SetTempImage :::: ', response);
 
 		if(badgeType == 1){
-			setRealFile1(file);
-			setRealFile1Grade(badgeGrade);						
-			setFile1Url(response.data[0]);
+			setRealFile1(fileAry);
+			setRealFile1Grade(badgeGrade);									
+			//setFile1Url(response.data[0]);
+			setFile1Url(response.data);
 		}else if(badgeType == 2){
-			setRealFile2(file);
+			setRealFile2(fileAry);
 			setRealFile2Grade(badgeGrade);
-			setFile2Url(response.data[0]);
-		}else if(badgeType == 3){
-			setRealFile3(file);
+			//setFile2Url(response.data[0]);
+			setFile2Url(response.data);
+		}else if(badgeType == 3){			
+			setRealFile3(fileAry);
 			setRealFile3Grade(badgeGrade);
-			setFile3Url(response.data[0]);
+			//setFile3Url(response.data[0]);
+			setFile3Url(response.data);
 		}else if(badgeType == 4){
-			setRealFile4(file);
+			setRealFile4(fileAry);
 			setRealFile4Grade(badgeGrade);
-			setFile4Url(response.data[0]);
+			//setFile4Url(response.data[0]);
+			setFile4Url(response.data);
 		}else if(badgeType == 5){
-			setRealFile5(file);
+			setRealFile5(fileAry);
 			setRealFile5Grade(badgeGrade);
-			setFile5Url(response.data[0]);
+			//setFile5Url(response.data[0]);
+			setFile5Url(response.data);
 		}else if(badgeType == 6){
-			setRealFile6(file);
+			setRealFile6(fileAry);
 			setRealFile6Grade(badgeGrade);
-			setFile6Url(response.data[0]);
+			//setFile6Url(response.data[0]);
+			setFile6Url(response.data);
 		}else if(badgeType == 7){
-			setRealFile7(file);
+			setRealFile7(fileAry);
 			setRealFile7Grade(badgeGrade);
-			setFile7Url(response.data[0]);
+			//setFile7Url(response.data[0]);
+			setFile7Url(response.data);
 		}else if(badgeType == 8){
-			setRealFile8(file);
+			setRealFile8(fileAry);
 			setRealFile8Grade(badgeGrade);
-			setFile8Url(response.data[0]);
+			//setFile8Url(response.data[0]);
+			setFile8Url(response.data);
 		}
 
 		setLoading(false);
+		setFileType();
+		setFileCert(false);
+		setFileAry([]);
 		offBadgeModal();
 	}
 
@@ -478,7 +558,7 @@ const RegisterStep8 = ({navigation, route}) => {
 			accessRoute:route['params']['accessRoute'],						
 			member_id:route['params']['member_id'],			
 			member_pw:route['params']['member_pw'],
-			member_name:route['params']['member_nick'],
+			member_name:route['params']['name'],
 			member_nick:route['params']['member_nick'],			
 			member_phone:route['params']['phonenumber'],
 			member_age:route['params']['age'],
@@ -491,10 +571,10 @@ const RegisterStep8 = ({navigation, route}) => {
 			member_education_status:route['params']['member_education_status'],
 			member_job:route['params']['member_job'],
 			member_job_detail:route['params']['member_job_detail'],
-			member_height:route['params']['member_height'],
-			member_weight:route['params']['member_weight'],
-			member_muscle:route['params']['member_muscle'],
-			member_fat:route['params']['member_fat'],
+			member_height:route['params']['member_height'].replace('cm', ''),
+			member_weight:route['params']['member_weight'].replace('kg', ''),
+			member_muscle:route['params']['member_muscle'].replace('kg', ''),
+			member_fat:route['params']['member_fat'].replace('%', ''),
 			member_no_weight:route['params']['member_no_weight'],
 			member_no_muscle:route['params']['member_no_muscle'],
 			member_no_fat:route['params']['member_no_fat'],			
@@ -533,19 +613,31 @@ const RegisterStep8 = ({navigation, route}) => {
 		}			
 
 		const badgeFileData = [];
-		if(realFile1.path != undefined){ badgeFileData.push({badge_idx : realFile1Grade, mb_file : file1Url}); }
-		if(realFile2.path != undefined){ badgeFileData.push({badge_idx : realFile2Grade, mb_file : file2Url}); }
-		if(realFile3.path != undefined){ badgeFileData.push({badge_idx : realFile3Grade, mb_file : file3Url}); }
-		if(realFile4.path != undefined){ badgeFileData.push({badge_idx : realFile4Grade, mb_file : file4Url}); }
-		if(realFile5.path != undefined){ badgeFileData.push({badge_idx : realFile5Grade, mb_file : file5Url}); }
-		if(realFile6.path != undefined){ badgeFileData.push({badge_idx : realFile6Grade, mb_file : file6Url}); }
-		if(realFile7.path != undefined){ badgeFileData.push({badge_idx : realFile7Grade, mb_file : file7Url}); }
-		if(realFile8.path != undefined){ badgeFileData.push({badge_idx : realFile8Grade, mb_file : file8Url}); }
+		// console.log('realFile1 ::::: ', realFile1);
+		// console.log('realFile2 ::::: ', realFile2);
+		// console.log('realFile3 ::::: ', file3Url);
+		// console.log('realFile4 ::::: ', realFile4);
+		// console.log('realFile5 ::::: ', realFile5);
+		// console.log('realFile6 ::::: ', realFile6);
+
+		// console.log('realFile7 ::::: ', realFile7);
+		// console.log('realFile8 ::::: ', realFile8);
+		
+		if(realFile1.length > 0){ 
+			badgeFileData.push({badge_idx : realFile1Grade, mb_file : file1Url}); 
+		}
+		if(realFile2.length > 0){ badgeFileData.push({badge_idx : realFile2Grade, mb_file : file2Url}); }
+		if(realFile3.length > 0){ badgeFileData.push({badge_idx : realFile3Grade, mb_file : file3Url}); }
+		if(realFile4.length > 0 ){ badgeFileData.push({badge_idx : realFile4Grade, mb_file : file4Url}); }
+		if(realFile5.length > 0 ){ badgeFileData.push({badge_idx : realFile5Grade, mb_file : file5Url}); }
+		if(realFile6.length > 0 ){ badgeFileData.push({badge_idx : realFile6Grade, mb_file : file6Url}); }
+		if(realFile7.length > 0 ){ badgeFileData.push({badge_idx : realFile7Grade, mb_file : file7Url}); }
+		if(realFile8.length > 0 ){ badgeFileData.push({badge_idx : realFile8Grade, mb_file : file8Url}); }
 
 		if(badgeFileData.length > 0){
 			nextObj2.member_badge = badgeFileData;
 		}
-
+		
 		const certFileData = [];
 		if(realJobFile.path != undefined){			
 			certFileData.push({
@@ -576,7 +668,8 @@ const RegisterStep8 = ({navigation, route}) => {
 			nextObj2.member_profile_auth = certFileData;
 		}
 
-		//console.log(nextObj2);				
+		//console.log(nextObj2);	
+		//return false;				
 		//console.log(route['params']['member_exercise']);		
 
 		let sData = nextObj2
@@ -587,7 +680,7 @@ const RegisterStep8 = ({navigation, route}) => {
 		}
 		//console.log(response);
 		setLoading(false);
-		navigation.navigate('RegisterResult');
+		navigation.navigate('RegisterResult', {newMemberNick:route['params']['member_nick']});
 	}
 
 	const moveNav = async (loc) => {
@@ -710,7 +803,7 @@ const RegisterStep8 = ({navigation, route}) => {
 				<View style={styles.cmWrap}>
 					<View style={styles.cmTitleBox}>
 						<Text style={styles.cmTitleText}>배지 & 인증으로</Text>
-						<Text style={[styles.cmTitleText, styles.mgt8]}>프로필을 업그레이드!</Text>
+						<Text style={[styles.cmTitleText, styles.mgt8]}>프로필을 업그레이드! <Text style={{fontSize:13,color:'#999'}}>[선택사항]</Text></Text>
 					</View>
 					<View style={styles.cmDescBox}>
 						<Text style={styles.cmDescText}>프로필 신뢰도와 매칭율이 증가해요.</Text>
@@ -722,6 +815,11 @@ const RegisterStep8 = ({navigation, route}) => {
 								<View key={index} style={[styles.badgeBox, styles.mgt40]}>
 									<View style={styles.iptTit}>
 										<Text style={styles.iptTitText}>{item.title}</Text>
+										{item.title == '프로필 인증' ? (
+											<Text style={[styles.iptTitText, styles.iptTitText2]}>[프로틴 {authPoint}개 혜택]</Text>
+										) : (
+											<Text style={[styles.iptTitText, styles.iptTitText2]}>[프로틴 {badgePoint}개 혜택]</Text>
+										)}										
 									</View>
 									{item.title == '프로필 인증' ? (
 										<View style={[styles.badgeBtnBox]}>
@@ -756,7 +854,7 @@ const RegisterStep8 = ({navigation, route}) => {
 													>
 														<View style={[styles.badgeBtnLeft2]}>
 															<Text style={[styles.badgeBtnLeftText, styles.mgl0]}>{item2.pa_name}</Text>
-															<Text style={styles.badgeBtnLeftText2}>{item2.pa_benefit}</Text>
+															{/* <Text style={styles.badgeBtnLeftText2}>{item2.pa_benefit}</Text> */}
 														</View>
 
 														{(item2.pa_idx == 1 && realJobFile.path) || (item2.pa_idx == 2 && realSchoolFile.path) || (item2.pa_idx == 3 && realMarryFile.path) ? (
@@ -771,6 +869,7 @@ const RegisterStep8 = ({navigation, route}) => {
 									) : (
 										<View style={[styles.badgeBtnBox, styles.boxShadow, Platform.OS !== 'ios' ? styles.overHidden : null]}>
 											{(item.lists).map((item2, index2) => {
+												
 												return (
 													<View key={index2}>
 														{index2 != 0 ? (<View style={styles.btnLineBox}><View style={styles.btnLine}></View></View>) : null}
@@ -778,43 +877,43 @@ const RegisterStep8 = ({navigation, route}) => {
 															style={styles.badgeBtn}
 															//activeOpacity={realFile3.path ? 1 : opacityVal}
 															activeOpacity={
-																item2.bc_idx == 1 && realFile1.path ? 1 : opacityVal 
-																|| item2.bc_idx == 2 && realFile2.path ? 1 : opacityVal
-																|| item2.bc_idx == 3 && realFile3.path ? 1 : opacityVal
-																|| item2.bc_idx == 4 && realFile4.path ? 1 : opacityVal
-																|| item2.bc_idx == 5 && realFile5.path ? 1 : opacityVal
-																|| item2.bc_idx == 6 && realFile6.path ? 1 : opacityVal
-																|| item2.bc_idx == 7 && realFile7.path ? 1 : opacityVal
-																|| item2.bc_idx == 8 && realFile8.path ? 1 : opacityVal
+																item2.bc_idx == 1 && realFile1.length > 0 ? 1 : opacityVal 
+																|| item2.bc_idx == 2 && realFile2.length > 0 ? 1 : opacityVal
+																|| item2.bc_idx == 3 && realFile3.length > 0 ? 1 : opacityVal
+																|| item2.bc_idx == 4 && realFile4.length > 0 ? 1 : opacityVal
+																|| item2.bc_idx == 5 && realFile5.length > 0 ? 1 : opacityVal
+																|| item2.bc_idx == 6 && realFile6.length > 0 ? 1 : opacityVal
+																|| item2.bc_idx == 7 && realFile7.length > 0 ? 1 : opacityVal
+																|| item2.bc_idx == 8 && realFile8.length > 0 ? 1 : opacityVal
 															}
 															onPress={()=>{
 																setBadgeTitle(item2.bc_name);
 																setBadgeType(item2.bc_idx);
 																getBadge2dp(item2.bc_idx);
 																if(item2.bc_idx == 1){
-																	!realFile1.path ? setBadgeModal(true) : null
-																	!realFile1.path ? setPreventBack(true) : null		
+																	!realFile1.length > 0 ? setBadgeModal(true) : null
+																	!realFile1.length > 0 ? setPreventBack(true) : null		
 																}else if(item2.bc_idx == 2){
-																	!realFile2.path ? setBadgeModal(true) : null
-																	!realFile2.path ? setPreventBack(true) : null																	
+																	!realFile2.length > 0 ? setBadgeModal(true) : null
+																	!realFile2.length > 0 ? setPreventBack(true) : null																	
 																}else if(item2.bc_idx == 3){
-																	!realFile3.path ? setBadgeModal(true) : null
-																	!realFile3.path ? setPreventBack(true) : null
+																	!realFile3.length > 0 ? setBadgeModal(true) : null
+																	!realFile3.length > 0 ? setPreventBack(true) : null
 																}else if(item2.bc_idx == 4){
-																	!realFile4.path ? setBadgeModal(true) : null
-																	!realFile4.path ? setPreventBack(true) : null
+																	!realFile4.length > 0 ? setBadgeModal(true) : null
+																	!realFile4.length > 0 ? setPreventBack(true) : null
 																}else if(item2.bc_idx == 5){
-																	!realFile5.path ? setBadgeModal(true) : null
-																	!realFile5.path ? setPreventBack(true) : null
+																	!realFile5.length > 0 ? setBadgeModal(true) : null
+																	!realFile5.length > 0 ? setPreventBack(true) : null
 																}else if(item2.bc_idx == 6){
-																	!realFile6.path ? setBadgeModal(true) : null
-																	!realFile6.path ? setPreventBack(true) : null
+																	!realFile6.length > 0 ? setBadgeModal(true) : null
+																	!realFile6.length > 0 ? setPreventBack(true) : null
 																}else if(item2.bc_idx == 7){
-																	!realFile7.path ? setBadgeModal(true) : null
-																	!realFile7.path ? setPreventBack(true) : null
+																	!realFile7.length > 0 ? setBadgeModal(true) : null
+																	!realFile7.length > 0 ? setPreventBack(true) : null
 																}else if(item2.bc_idx == 8){
-																	!realFile8.path ? setBadgeModal(true) : null
-																	!realFile8.path ? setPreventBack(true) : null
+																	!realFile8.length > 0 ? setBadgeModal(true) : null
+																	!realFile8.length > 0 ? setPreventBack(true) : null
 																}
 															}}
 														>
@@ -823,7 +922,7 @@ const RegisterStep8 = ({navigation, route}) => {
 																<Text style={styles.badgeBtnLeftText}>{item2.bc_name}</Text>
 															</View>
 
-															{(item2.bc_idx == 1 && realFile1.path) || (item2.bc_idx == 2 && realFile2.path) || (item2.bc_idx == 3 && realFile3.path)  || (item2.bc_idx == 4 && realFile4.path)  || (item2.bc_idx == 5 && realFile5.path)  || (item2.bc_idx == 6 && realFile6.path)  || (item2.bc_idx == 7 && realFile7.path)  || (item2.bc_idx == 8 && realFile8.path) ? (
+															{(item2.bc_idx == 1 && realFile1.length > 0) || (item2.bc_idx == 2 && realFile2.length > 0) || (item2.bc_idx == 3 && realFile3.length > 0)  || (item2.bc_idx == 4 && realFile4.length > 0)  || (item2.bc_idx == 5 && realFile5.length > 0)  || (item2.bc_idx == 6 && realFile6.length > 0)  || (item2.bc_idx == 7 && realFile7.length > 0)  || (item2.bc_idx == 8 && realFile8.length > 0) ? (
 																<View style={styles.stateView}><Text style={styles.stateViewText}>심사중</Text></View>
 															) : (
 																<ImgDomain fileWidth={24} fileName={'icon_arr5.png'}/>
@@ -1334,15 +1433,17 @@ const RegisterStep8 = ({navigation, route}) => {
 								<View style={styles.iptTit}>
 									<Text style={styles.iptTitText}>인증방법</Text>									
 								</View>
-								{(badgeSub[0].auth).map((item, index) => {
+								{badgeSub[0]?.auth.map((item, index) => {
 									return (
 										<View key={index}>
-											<View style={[styles.iptSubTit, index == 0 ? styles.mgt5 : styles.mgt10]}>
+											<View style={[styles.iptSubTit, index == 0 ? styles.mgt10 : styles.mgt20]}>
 												<Text style={styles.iptSubTitText}>{index+1}. {item.ba_subject}</Text>									
 											</View>
+											{item.ba_content && (
 											<View style={[styles.popInfoBox, styles.mgt8]}>
 												<Text style={styles.popInfoBoxText}>{item.ba_content}</Text>
 											</View>
+											)}
 										</View>
 									)
 								})}
@@ -1352,26 +1453,77 @@ const RegisterStep8 = ({navigation, route}) => {
 								<View style={styles.iptTit}>
 									<Text style={styles.iptTitText}>인증 예시</Text>									
 								</View>
-								<View style={[styles.iptSubTit, styles.mgt5]}>
-									<Text style={styles.iptSubTitText}>{badgeSub[0].badge_auth_info1}</Text>									
-								</View>
-								<View style={[styles.exampleBox, styles.mgt8]}>
-									<ImgDomain2 fileWidth={innerWidth} fileName={badgeSub[0].badge_auth_img}/>
-								</View>
-								<View style={styles.exampleBoxDesc}>
-									<Text style={styles.exampleBoxDescText}>{badgeSub[0].badge_auth_info2}</Text>
-								</View>
+								{badgeSub[0]?.ex.map((item, index) => {
+									return (
+										<View key={index} style={index == 0 ? styles.mgt10 : styles.mgt20}>
+											<View style={[styles.iptSubTit, styles.mgt5]}>
+												<Text style={styles.iptSubTitText}>{item.be_subject}</Text>
+											</View>
+											<View style={[styles.exampleBox, styles.mgt8]}>
+												<ImgDomain2 fileWidth={innerWidth} fileName={item.be_img}/>
+											</View>
+											{/* <View style={styles.exampleBoxDesc}>
+												<Text style={styles.exampleBoxDescText}>{badgeSub[0].badge_auth_info2}</Text>
+											</View> */}
+										</View>
+									)
+								})}
 							</View>
 
 							<View style={styles.mgt40}>
 								<View style={styles.iptTit}>
 									<Text style={styles.iptTitText}>인증 자료 첨부</Text>									
 								</View>
-								<View style={[styles.iptSubTit, styles.mgt5]}>
+								{/* <View style={[styles.iptSubTit, styles.mgt5]}>
 									<Text style={styles.iptSubTitText}>{badgeSub[0].badge_auth_info3}</Text>									
-								</View>
+								</View> */}
+
+								{badgeSub[0]?.ex.map((item, index) => {
+									return (
+										<View key={index} style={styles.mgt10}>
+											<View style={[styles.iptSubTit]}>
+												<Text style={styles.iptSubTitText}>{item.be_subject}</Text>
+											</View>
+											{fileAry[index]?.path ? (
+												<View style={styles.fileBox}>
+													<View style={styles.fileBoxLeft}>										
+														<View style={styles.fileBoxLeftView}>
+															<AutoHeightImage width={38} source={{ uri: fileAry[index]?.path }} style={styles.fileBoxLeftImg} />
+														</View>	
+														<View style={styles.fileBoxLeftInfo}>
+															<Text style={styles.fileBoxLeftInfoText}>{fileAry[index]?.name}</Text>
+															<Text style={styles.fileBoxLeftInfoText2}>{fileAry[index]?.size} MB</Text>
+														</View>
+													</View>
+													<TouchableOpacity 
+														style={styles.fileBoxRight}
+														activeOpacity={opacityVal}
+														onPress={() => deleteFileAry(index)}
+													>
+														<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
+													</TouchableOpacity>
+												</View>
+											) : (
+												<View style={[styles.uploadBox, styles.mgt8]}>
+													<TouchableOpacity 
+														style={styles.uploadBoxBtn}
+														activeOpacity={opacityVal}
+														onPress={() => {chooseImage(index)}}
+													>
+														<ImgDomain fileWidth={18} fileName={'icon_upload.png'}/>
+														<Text style={styles.uploadBoxBtnText}>사진 업로드</Text>
+													</TouchableOpacity>
+													<View style={styles.uploadBoxDesc}>
+														<Text style={styles.uploadBoxDescText}>도용/위조는 중범죄이며 처벌 받을 수 있습니다.</Text>
+														<Text style={styles.uploadBoxDescText}>모든 인증 서류는 인증 후 폐기됩니다.</Text>
+													</View>
+												</View>
+											)}											
+										</View>
+									)
+								})}
 																
-								{file.path ? (
+								{/* {file.path ? (
 									<View style={styles.fileBox}>
 										<View style={styles.fileBoxLeft}>										
 											<View style={styles.fileBoxLeftView}>
@@ -1407,7 +1559,7 @@ const RegisterStep8 = ({navigation, route}) => {
 											<Text style={styles.uploadBoxDescText}>모든 인증 서류는 인증 후 폐기됩니다.</Text>
 										</View>
 									</View>
-								)}
+								)} */}
 							</View>
 							</>
 							) : null}
@@ -1415,9 +1567,11 @@ const RegisterStep8 = ({navigation, route}) => {
 					</ScrollView>
 					<View style={styles.nextFix}>
 						<TouchableOpacity 
-							style={[styles.nextBtn, file.path ? null : styles.nextBtnOff]}
+							style={[styles.nextBtn, fileCert ? null : styles.nextBtnOff]}
 							activeOpacity={opacityVal}
-							onPress={() => saveBadgeFileInfo()}
+							onPress={() => {
+								saveBadgeFileInfo();
+							}}
 						>
 							<Text style={styles.nextBtnText}>저장하기</Text>
 						</TouchableOpacity>
@@ -1885,8 +2039,9 @@ const styles = StyleSheet.create({
 	regiStateText: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:13,color:'#dbdbdb',width:60,position:'absolute',left:-20,bottom:-28,textAlign:'center',},
 	regiStateTexOn: {color:'#243B55'},
 
-	iptTit: {},
+	iptTit: {flexDirection:'row',},
   iptTitText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:18,color:'#1e1e1e'},
+	iptTitText2: {color:'#999',marginLeft:3,},
 	iptSubTit: {},
 	iptSubTitText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:15,color:'#666'},
   

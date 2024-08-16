@@ -40,23 +40,22 @@ class APIs {
         return formData
     }
 
-    // 기본
-    
+    // 기본    
     send = async (datas, method = 'POST') => {
         try {
             const response = await axios(BASE_URL + datas.basePath, {
                 method,
                 headers: {
-                    Accept: '*/*',
+                    'Accept': '*/*',
                     'Content-Type': 'multipart/form-data',
                     'Cache-Control': 'no-cache',
-                    'Accept-Encoding': 'gzip, deflate',
-                    'cache-control': 'no-cache',
+                    'Accept-Encoding': 'gzip, deflate',                    
                     'Access-Control-Allow-Origin': '*', // Required for CORS support to work
+                    //'cache-control': 'no-cache',
                     //'Access-Control-Allow-Credentials': true, // Required for cookies, authorization headers with HTTPS
                 },
                 data: datas,
-            });
+            });            
             const responseJson = await response.data;
             return responseJson;
         } catch (error) {

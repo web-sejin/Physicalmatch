@@ -35,6 +35,8 @@ const RegisterStep6 = ({navigation, route}) => {
 		accessRoute:route['params']['accessRoute'],
 		phonenumber:route['params']['phonenumber'],
 		age:route['params']['age'],
+		gender:route['params']['gender'],
+		name:route['params']['name'],
 		member_id:route['params']['member_id'],
 		member_pw:route['params']['member_pw'],
 		member_nick:route['params']['member_nick'],
@@ -166,7 +168,7 @@ const RegisterStep6 = ({navigation, route}) => {
 			type: "GetProfileGuide",
 		}
 		const response = await APIs.send(sData);		
-		console.log('response ::: ', response);
+		//console.log('response ::: ', response);
 		if(response.code == 200){
 			// const source = {
       //   html: response.data
@@ -292,6 +294,9 @@ const RegisterStep6 = ({navigation, route}) => {
 			nextObj.fileResData = response.data;
 			setLoading(false);
 		}
+
+		//console.log(nextObj);
+
 		navigation.navigate('RegisterStep7', nextObj);
 	}
 

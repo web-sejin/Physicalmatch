@@ -54,7 +54,7 @@ const NewMember = (props) => {
     {idx:4, imgUrl:''},
   ]
 
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -195,6 +195,7 @@ const NewMember = (props) => {
     if(response.code == 200){
       setProfileInfo(response.data);      
       setProtainCnt(response.e_cnt);
+      setPhoneNumber(response.data.info.member_phone);
       
       if(response.data){
         setNewCnt(1);
@@ -362,7 +363,7 @@ const NewMember = (props) => {
   }
 
   useEffect(() => {
-    setPhoneNumber('01000000000');
+    //setPhoneNumber('01000000000');
     let warterAry = [];
     for(let i=0; i<100; i++){
       warterAry = [...warterAry, {order:i}];
@@ -634,7 +635,7 @@ const NewMember = (props) => {
                       <View style={[styles.cmInfoBoxContLi]}>
                         <Text style={[styles.cmInfoBoxContWrapText, styles.bold]}>{profileSchool?.mpa_info1}{profileInfo?.info.member_education} {profileInfo?.info.member_education_status}</Text>
                         {profileSchool?.mpa_info2 != '' ? (
-                        <Text style={[styles.cmInfoBoxContWrapText2]}>{profileSchool?.mpa_info2} 전공</Text>
+                        <Text style={[styles.cmInfoBoxContWrapText2]}>{profileSchool?.mpa_info2}</Text>
                         ) : null}
                       </View>
                     </View>              
@@ -905,7 +906,7 @@ const styles = StyleSheet.create({
   warterMark: {width:widnowWidth,height:widnowWidth*1.25,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   warterMarkWrap: {width:widnowWidth*1.5,flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'center',transform: [{rotate: '-45deg'}],gap:60},
   warterMarkView: {},
-  warterMarkText: {fontFamily:Font.RobotoMedium,fontSize:13,color:'#fff',opacity:0.2},
+  warterMarkText: {fontFamily:Font.RobotoMedium,fontSize:13,color:'#fff',opacity:0.1},
 	pagination: {flexDirection:'row',justifyContent:'center',marginTop:15},
 	paginationBtn: {width:46,height:46,overflow:'hidden',borderWidth:2,borderColor:'transparent',borderRadius:5,marginHorizontal:6,alignItems:'center',justifyContent:'center'},
   paginationActive: {borderWidth:2,borderColor:'#D1913C'},
@@ -994,7 +995,7 @@ const styles = StyleSheet.create({
 
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
 	input2: {width: innerWidth},
-  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e',paddingTop:paddTop,},
+  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e',paddingTop:15,},
 
   modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},

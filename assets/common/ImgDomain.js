@@ -3,7 +3,7 @@ import {Alert, View, Text, Button, TextInput, TouchableOpacity, Modal, Pressable
 import AutoHeightImage from "react-native-auto-height-image";
 
 const ImgDomain = (props) => {
-  const imgDomain = 'https://cnj02.cafe24.com/appImg/';
+  const imgDomain = 'https://physicalmatch.co.kr/appImg/';
   const {fileWidth, fileName, fileName2, memberType} = props;	
 
   return (

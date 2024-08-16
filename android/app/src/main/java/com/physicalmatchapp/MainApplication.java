@@ -11,6 +11,7 @@ import com.facebook.soloader.SoLoader;
 import java.util.List;
 import io.xogus.reactnative.versioncheck.RNVersionCheckPackage; 
 import com.dooboolab.rniap.RNIapPackage;
+import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 
 public class MainApplication extends Application implements ReactApplication {
 

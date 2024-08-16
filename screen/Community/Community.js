@@ -1,12 +1,12 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {ActivityIndicator, Alert, Animated, Button, Image, Dimensions, ImageBackground, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Toast from 'react-native-toast-message';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import AsyncStorage from '@react-native-community/async-storage';
+import { WebView } from 'react-native-webview';
 
 import APIs from '../../assets/APIs';
 import Font from "../../assets/common/Font";
@@ -31,6 +31,8 @@ const Community = (props) => {
     {idx:2, imgUrl:'', type:'social_guide'},
     {idx:3, imgUrl:'', type:'shop_free'},
   ]
+	const webViews = useRef();
+  const webViews2 = useRef();
 
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
@@ -52,6 +54,8 @@ const Community = (props) => {
 	const [resetState, setResetState] = useState(false);
 	const [guideModal, setGuideModal] = useState(false);
 	const [guideModal2, setGuideModal2] = useState(false);
+	const [guideComm, setGuideComm] = useState('');
+  const [guideSocial, setGuideSocial] = useState('');
 
 	const [tabState, setTabState] = useState(0); //자유, 운동, 프교, 셀소
 	const [commSch, setCommSch] = useState('');	
@@ -66,15 +70,17 @@ const Community = (props) => {
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 
-			//console.log('userInfo :::: ', userInfo);
+			console.log('userInfo comm :::: ', userInfo.is_new);
 
 			AsyncStorage.getItem('member_idx', (err, result) => {		
 				setMemberIdx(result);
 			});
 
 			if(params?.reload){	
+				//console.log('reload!!!');
 				getMemInfo();
-        getCommList();
+        getCommList(1);
+				setNowPage(1);
         delete params?.reload;
       }
 		}
@@ -120,22 +126,24 @@ const Community = (props) => {
 
 	useEffect(() => {
 		setSwiperList(swp);
+		getGuide1();
+		getGuide2();
 	}, []);
 
 	useEffect(() => {
 		if(memberIdx){
 			setLoading(true);
-			getMemInfo();
-			setNowPage(1);
+			getMemInfo();			
 			getCommList(1);
+			setNowPage(1);
 		}
 	}, [memberIdx, tabState]);
 
 	useEffect(() => {
 		if(resetState){
-			setLoading(true);
-			setNowPage(1);
-			getCommList(1);			
+			setLoading(true);			
+			getCommList(1);	
+			setNowPage(1);		
 			setResetState(false);			
 		}
 	}, [resetState]);
@@ -159,31 +167,42 @@ const Community = (props) => {
 		if(viewPage){
 			curr_page = viewPage;
 		}
-		
+		if(commList.length < 1){
+			curr_page = 1;
+		}
+
+		let curr_tab = tabState;		
+		if(params?.writeType){
+			setTabState(params?.writeType);
+			curr_tab = params?.writeType;
+			delete params?.writeType;
+		}
 		let sData = {
 			basePath: "/api/community/",
 			type: "GetCommunityList",
 			member_idx: memberIdx,
-			comm_type: tabState,
+			comm_type: curr_tab,
 			comm_sch: commSch,
 			page:curr_page,
 		};
-
+		console.log('sData ::: ', sData);
 		const response = await APIs.send(sData);		
-		//console.log('curr_page::: ', curr_page);
+		console.log('curr_page::: ', curr_page);
+		console.log('curr_tab::: ', curr_tab);
 		//console.log(response);
 		if(response.code == 200){		
-
 			//setTotalPage(Math.ceil(response.data.length/10));								
 			if(curr_page == 1){					
 				if(response.msg == 'EMPTY'){
 					setNowPage(1);
 					setCommList([]);
+					//console.log('1');
 				}else{
 					setCommList(response.data);
 				}
-			}else if(curr_page > 1 && response.msg != 'EMPTY'){					
-				const addList = [...socialList, ...response.data];
+			}else if(curr_page > 1 && response.msg != 'EMPTY'){								
+				//console.log(response.data);
+				const addList = [...commList, ...response.data];
 				setCommList(addList);
 			}
 				
@@ -248,7 +267,7 @@ const Community = (props) => {
 					{item.ci_img ? (
 					<ImageBackground
 						style={styles.commLiThumb}						
-						source={{uri:`https://cnj02.cafe24.com/${item.ci_img}`}}
+						source={{uri:`https://physicalmatch.co.kr/${item.ci_img}`}}
 						resizeMode='cover'
 						blurRadius={item.comm_care == 1 ? 6 : 0}
 					>					
@@ -268,9 +287,11 @@ const Community = (props) => {
 
 	//리스트 무한 스크롤
 	const moreData = async () => {		
-		console.log('moreData nowPage ::::', nowPage);
-		getCommList(nowPage+1);
-		setNowPage(nowPage+1);					
+		//console.log('moreData nowPage ::::', nowPage);
+		if (commList.length > 0) {
+			getCommList(nowPage + 1);
+			setNowPage(nowPage + 1);
+		}
 	}
 
 	const onRefresh = () => {
@@ -294,6 +315,33 @@ const Community = (props) => {
 		setLoading(true);
 		getCommList(1);
 		setNowPage(1);
+	}
+
+	const getGuide1 = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetGuide",
+			tab: 1,
+		};
+
+		const response = await APIs.send(sData);    		
+    setGuideSocial(response.data);
+  }
+
+  const getGuide2 = async () => {
+    let sData = {      
+      basePath: "/api/etc/",
+			type: "GetGuide",
+      tab: 2,
+		}
+
+		const response = await APIs.send(sData);
+    setGuideComm(response.data);
+  }
+
+	const moveAlimPage = async () => {
+		console.log('alarm_type ::: ', userInfo?.alarm_type);
+		navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type});
 	}
 
 	return (
@@ -333,7 +381,7 @@ const Community = (props) => {
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {navigation.navigate('Alim')}}
+							onPress={() => moveAlimPage()}
 						>
 							{userInfo?.is_new == 'y' ? (
 								<ImgDomain fileWidth={24} fileName={'icon_alim_on.png'}/>
@@ -522,11 +570,24 @@ const Community = (props) => {
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
-				<ScrollView>
-					<View style={styles.guidePopCont}>
-						<Text style={styles.guidePopContText}>커뮤니티 가이드입니다.</Text>
-					</View>
-				</ScrollView>
+				<View style={styles.guidePopCont}>
+					<WebView
+						ref={webViews}
+						source={{uri: guideComm}}
+						useWebKit={false}						
+						javaScriptEnabledAndroid={true}
+						allowFileAccess={true}
+						renderLoading={true}
+						mediaPlaybackRequiresUserAction={false}
+						setJavaScriptEnabled = {false}
+						scalesPageToFit={true}
+						allowsFullscreenVideo={true}
+						allowsInlineMediaPlayback={true}						
+						originWhitelist={['*']}
+						javaScriptEnabled={true}
+						textZoom = {100}
+					/>
+				</View>
 			</Modal>
 
 			{/* 소셜 가이드 */}
@@ -546,11 +607,24 @@ const Community = (props) => {
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
-				<ScrollView>
-					<View style={styles.guidePopCont}>
-						<Text style={styles.guidePopContText}>소셜 가이드입니다.</Text>
-					</View>
-				</ScrollView>
+				<View style={styles.guidePopCont}>
+					<WebView
+						ref={webViews2}
+						source={{uri: guideSocial}}
+						useWebKit={false}						
+						javaScriptEnabledAndroid={true}
+						allowFileAccess={true}
+						renderLoading={true}
+						mediaPlaybackRequiresUserAction={false}
+						setJavaScriptEnabled = {false}
+						scalesPageToFit={true}
+						allowsFullscreenVideo={true}
+						allowsInlineMediaPlayback={true}						
+						originWhitelist={['*']}
+						javaScriptEnabled={true}
+						textZoom = {100}
+					/>
+				</View>
 			</Modal>
 
 			{loading ? (
@@ -589,7 +663,7 @@ const styles = StyleSheet.create({
 	filterResetBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',paddingHorizontal:20,height:48,backgroundColor:'#fff',position:'absolute',top:0,right:0,zIndex:10,},
 	filterResetText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#1E1E1E',marginLeft:6,},
 
-	guidePopCont: {padding:20,},
+	guidePopCont: {flex:1,},
 	guidePopContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e'},
 
 	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},

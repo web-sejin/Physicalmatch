@@ -123,7 +123,7 @@ const Privacy = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-    console.log(response);
+    //console.log(response);
     setProvision(response.data);
   }
 

@@ -23,14 +23,16 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const MyInvite = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route;	
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
-	const [loading, setLoading] = useState(true);	
+	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
+	const [memberIdx, setMemberIdx] = useState();
 	const [shareImg, setShareImg] = useState('');
+	const [registPoint, setRegistPoint] = useState();
 
 	const tagData = ['초중고 동창', '친척', '동호회 지인', '대학동기', '결혼하고 싶어 하는', '회사 동료', '지인', '형제·자매', '외로워하는', '친구', '소개팅 해 달라고 보채는', '보는 눈이 높은', '만년 솔로인', '이별의 슬픔을 겪고 있는'];
 
@@ -46,9 +48,9 @@ const MyInvite = (props) => {
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 
-			setTimeout(function(){
-				setLoading(false);
-			}, 500);
+			AsyncStorage.getItem('member_idx', (err, result) => {		        
+				setMemberIdx(result);
+			});
 		}
 
     Keyboard.dismiss();
@@ -73,12 +75,54 @@ const MyInvite = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
-	const onPressShare = useCallback(async () => {
+	useEffect(() => {
+		if(memberIdx){
+			getMemInfo();
+		}
+	}, [memberIdx])
+
+	useEffect(() => {		
+		getShareImg();
+	}, []);	
+
+	const getMemInfo = async () => {
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		if(response.code == 200){        
+      setRegistPoint(response.regist_point);
+    }
+  }
+
+	const getShareImg = async (v) => {
+		let sData = {
+			basePath: "/api/etc/",
+			type: "GetKakaoShareThumbnail",
+		};		
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			if(v == 'direct'){
+				onPressShare(response.data);
+			}else{
+				setShareImg(response.data);
+			}			
+		}
+	}
+
+	const onPressShare = useCallback(async (v) => {
+		const img_url = v ? v : shareImg;
+		//console.log('img_url ::: ', img_url);
+
 		try {
 				const response = await KakaoShareLink.sendFeed({
 						content: {
 							title: '피지컬 매치',
-							imageUrl: shareImg,
+							imageUrl: img_url,
 							link: {
 								webUrl: '',
 								mobileWebUrl: '',
@@ -99,28 +143,12 @@ const MyInvite = (props) => {
 								},
 						],
 				});
-				console.log(response);
+				//console.log(response);
 		} catch (e) {
 				console.error(e);
 				console.error(e.message);
 		}
-	}, []);
-
-	useEffect(() => {
-		getShareImg();
-	}, []);
-
-	const getShareImg = async () => {
-		let sData = {
-			basePath: "/api/etc/",
-			type: "GetKakaoShareThumbnail",
-		};		
-		const response = await APIs.send(sData);
-		//console.log(response);
-		if(response.code == 200){
-			setShareImg(response.data);
-		}
-	}
+	}, []);	
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -130,7 +158,7 @@ const MyInvite = (props) => {
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'지인 초대하기'}/>
 
-			<ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/invite_background.png'}} resizeMode='cover' style={{flex:1}}>
+			<ImageBackground source={{uri:'https://physicalmatch.co.kr/appImg/invite_background.png'}} resizeMode='cover' style={{flex:1}}>
 				<View style={styles.inviteBox}>
 					<View style={styles.inviteView1}>
 						<Text style={styles.inviteText1}>피지컬 매치의</Text>
@@ -141,7 +169,7 @@ const MyInvite = (props) => {
 					</View>
 					<View style={styles.inviteView3}>
 						<ImgDomain fileWidth={20} fileName={'icon_heart3.png'} />
-						<Text style={styles.inviteText3}>신규 회원 프로틴 00개 증정</Text>
+						<Text style={styles.inviteText3}>신규 회원 프로틴 {registPoint}개 증정</Text>
 						<ImgDomain fileWidth={20} fileName={'icon_heart3.png'} />
 					</View>
 					<View style={styles.tagBox}>
@@ -163,7 +191,14 @@ const MyInvite = (props) => {
 			<TouchableOpacity
 				style={styles.kakaoShare}
 				activeOpacity={opacityVal}
-				onPress={()=>{onPressShare()}}
+				onPress={()=>{					
+					if(shareImg != ''){
+						onPressShare();	
+					}else{
+						//console.log('no shareImg!!');
+						getShareImg('direct');
+					}					
+				}}
 			>
 				<ImgDomain fileWidth={20} fileName={'icon_kakao.png'}/>	
 				<View style={styles.kakaoShareView}>

@@ -23,7 +23,7 @@ const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 
 const MyBadge = (props) => {
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
   const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
@@ -80,6 +80,10 @@ const MyBadge = (props) => {
 	const [rejectIdx, setRejectIdx] = useState();
 	const [rejectMemo, setRejectMemo] = useState();
 
+	const [fileCert, setFileCert] = useState(false);
+	const [fileAry, setFileAry] = useState([]);
+	const [fileType, setFileType] = useState(); //0:필수, 1:택1
+
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isSubscribed = true;
@@ -112,6 +116,7 @@ const MyBadge = (props) => {
 				setBadgeModal(false);
 				setConfirm(false);
 				setPreventBack(false);
+				offBadgeModal();
 				e.preventDefault();
       } else {
         //console.log('뒤로 가기 이벤트 발생!');								
@@ -128,6 +133,16 @@ const MyBadge = (props) => {
 			getBadgeInfo();
 		}
 	}, [memberIdx]);
+
+	useEffect(() => {
+		//console.log('fileAry change ::: ', fileAry);		
+		setFileCert(false);
+		for(let i=0; i<fileAry.length; i++){
+			if(fileAry[i].path){				
+				setFileCert(true);				
+			}
+		}
+	}, [fileAry]);
 
 	const getMemInfo = async () => {
 		let sData = {
@@ -151,6 +166,7 @@ const MyBadge = (props) => {
 		};
 
 		const response = await APIs.send(sData);		
+		//console.log(response);
 		if(response.code == 200){
 			setBadgeGnb(response.data);
 		}
@@ -176,6 +192,7 @@ const MyBadge = (props) => {
 			bc_idx: idx,
 			m_sex: gender,
 		}
+		//console.log(idx);
 		const response = await APIs.send(sData);
 		//console.log(response);
 		setBadge2dp(response.data);
@@ -191,9 +208,19 @@ const MyBadge = (props) => {
 		const result = badge2dp.filter((v) => v.badge_idx == idx);
 		//console.log('getBadgeSubInfo ::: ', result);
 		setBadgeSub(result);
+		
+		let ary = [];
+		const selectObj = {path: '', mime: '', name:'', size:''}
+		if(result[0].ex.length > 0){						
+			result[0].ex.map((item, index) => {				
+				ary.push(selectObj)
+			});	
+		}
+		setFileAry(ary);
+		setFileType();
 	}
 
-	const chooseImage = () => {
+	const chooseImage = (n) => {
     ImagePicker.openPicker({
       //width: 300,
       //height: 400,
@@ -202,10 +229,14 @@ const MyBadge = (props) => {
 		.then(image => {
 			//console.log('image :::: ',image);
 			let megabytes = parseInt(Math.floor(Math.log(image.size) / Math.log(1024)));
-			let fileName = image.filename ? image.filename : '인증자료';
+			let fileName = image.filename ? image.filename : '인증자료.png';
 			let selectObj = {path: image.path, mime: image.mime, name:fileName, size:megabytes}
-			//console.log(selectObj);
-			setFile(selectObj);
+
+			setFileAry(prevFileAry => {
+				const newFileAry = [...prevFileAry];
+				newFileAry[n] = selectObj;
+				return newFileAry;
+			});
 		})
 		.finally(() => {
 
@@ -226,8 +257,8 @@ const MyBadge = (props) => {
 	}
 
 	const saveBadgeFileInfo = async () => {
-		if(!file.path){
-			ToastMessage('인증 자료를 첨부해 주세요.');
+		if(!fileCert){
+			ToastMessage('인증 자료를 1개 이상 첨부해 주세요.');
 			return false;
 		}
 
@@ -257,14 +288,14 @@ const MyBadge = (props) => {
 			setRealFile8Grade(badgeGrade);
 		}
 
-		const fileData = [];		
-		fileData[0] = {uri: file.path, name: 'badgeAuthFile.png', type: file.mime};
+		const fileData = [];	
+		//fileData[0] = {uri: file.path, name: 'badgeAuthFile.png', type: file.mime};	
 
 		let sData = {
 			basePath: "/api/member/",
 			type: "SetMyBadge",
 			member_idx: memberIdx,
-			mb_file: fileData
+			//mb_file: fileData,
 		};
 
 		if(rejectIdx){ 
@@ -272,14 +303,31 @@ const MyBadge = (props) => {
 		}else{
 			sData.badge_idx = badgeGrade;
 		}
+
 		if(badgeMbIdx){ sData.mb_idx = badgeMbIdx; }		
+
+		if(fileAry[0] && fileAry[0].path){ sData.mb_file = [{uri: fileAry[0].path, name: fileAry[0].name, type: fileAry[0].mime}]; }
+		if(fileAry[1] && fileAry[1].path){ sData.mb_file1 = [{uri: fileAry[1].path, name: fileAry[1].name, type: fileAry[1].mime}]; }
+		if(fileAry[2] && fileAry[2].path){ sData.mb_file2 = [{uri: fileAry[2].path, name: fileAry[2].name, type: fileAry[2].mime}]; }
+		if(fileAry[3] && fileAry[3].path){ sData.mb_file3 = [{uri: fileAry[3].path, name: fileAry[3].name, type: fileAry[3].mime}]; }
+		if(fileAry[4] && fileAry[4].path){ sData.mb_file4 = [{uri: fileAry[4].path, name: fileAry[4].name, type: fileAry[4].mime}]; }
+		if(fileAry[5] && fileAry[5].path){ sData.mb_file5 = [{uri: fileAry[5].path, name: fileAry[5].name, type: fileAry[5].mime}]; }
+		if(fileAry[6] && fileAry[6].path){ sData.mb_file6 = [{uri: fileAry[6].path, name: fileAry[6].name, type: fileAry[6].mime}]; }
+		if(fileAry[7] && fileAry[7].path){ sData.mb_file7 = [{uri: fileAry[7].path, name: fileAry[7].name, type: fileAry[7].mime}]; }
+		if(fileAry[8] && fileAry[8].path){ sData.mb_file8 = [{uri: fileAry[8].path, name: fileAry[8].name, type: fileAry[8].mime}]; }
+		if(fileAry[9] && fileAry[9].path){ sData.mb_file9 = [{uri: fileAry[9].path, name: fileAry[9].name, type: fileAry[9].mime}]; }
+		
 		const formData = APIs.makeFormData(sData)
-		const response = await APIs.multipartRequest(formData);			
+		const response = await APIs.multipartRequest(formData);					
 		if(response.code == 200){
+			getBadgeInfo();
 			ToastMessage('심사가 등록되었습니다.');
 		}else{
 			ToastMessage('잠시후 다시 시도해 주세요.');
 		}
+		setFileType();
+		setFileCert(false);
+		setFileAry([]);
 		offBadgeModal();
 	}
 
@@ -319,6 +367,14 @@ const MyBadge = (props) => {
 			getBadgeInfo();
 			ToastMessage('정상적으로 삭제되었습니다.');
 		}
+	}
+
+	const deleteFileAry = (index) => {
+		setFileAry(prevFileAry => {
+			const newFileAry = [...prevFileAry];
+			newFileAry[index] = {path: '', mime: '', name: '', size: ''};
+			return newFileAry;
+		});
 	}
 
 	const headerHeight = 48;
@@ -679,7 +735,7 @@ const MyBadge = (props) => {
 									<Text style={styles.iptTitText}>기준</Text>									
 								</View>
 								<View style={[styles.popInfoBox, styles.mgt8]}>
-									<Text style={styles.popInfoBoxText}>{badgeSub[0].badge_standard}</Text>
+									<Text style={styles.popInfoBoxText}>{badgeSub[0]?.badge_standard}</Text>
 								</View>
 							</View>
 
@@ -687,15 +743,17 @@ const MyBadge = (props) => {
 								<View style={styles.iptTit}>
 									<Text style={styles.iptTitText}>인증방법</Text>									
 								</View>
-								{(badgeSub[0].auth).map((item, index) => {
+								{badgeSub[0]?.auth.map((item, index) => {
 									return (
 										<View key={index}>
-											<View style={[styles.iptSubTit, index == 0 ? styles.mgt5 : styles.mgt10]}>
+											<View style={[styles.iptSubTit, index == 0 ? styles.mgt10 : styles.mgt20]}>
 												<Text style={styles.iptSubTitText}>{index+1}. {item.ba_subject}</Text>									
 											</View>
+											{item.ba_content && (
 											<View style={[styles.popInfoBox, styles.mgt8]}>
 												<Text style={styles.popInfoBoxText}>{item.ba_content}</Text>
 											</View>
+											)}
 										</View>
 									)
 								})}
@@ -705,7 +763,7 @@ const MyBadge = (props) => {
 								<View style={styles.iptTit}>
 									<Text style={styles.iptTitText}>인증 예시</Text>									
 								</View>
-								<View style={[styles.iptSubTit, styles.mgt5]}>
+								{/* <View style={[styles.iptSubTit, styles.mgt5]}>
 									<Text style={styles.iptSubTitText}>{badgeSub[0].badge_auth_info1}</Text>									
 								</View>
 								<View style={[styles.exampleBox, styles.mgt8]}>
@@ -713,18 +771,78 @@ const MyBadge = (props) => {
 								</View>
 								<View style={styles.exampleBoxDesc}>
 									<Text style={styles.exampleBoxDescText}>{badgeSub[0].badge_auth_info2}</Text>
-								</View>
+								</View> */}
+								{badgeSub[0]?.ex.map((item, index) => {
+									return (
+										<View key={index} style={index == 0 ? styles.mgt10 : styles.mgt20}>
+											<View style={[styles.iptSubTit, styles.mgt5]}>
+												<Text style={styles.iptSubTitText}>{item.be_subject}</Text>
+											</View>
+											<View style={[styles.exampleBox, styles.mgt8]}>
+												<ImgDomain2 fileWidth={innerWidth} fileName={item.be_img}/>
+											</View>
+											{/* <View style={styles.exampleBoxDesc}>
+												<Text style={styles.exampleBoxDescText}>{badgeSub[0].badge_auth_info2}</Text>
+											</View> */}
+										</View>
+									)
+								})}
 							</View>
 
 							<View style={styles.mgt40}>
 								<View style={styles.iptTit}>
 									<Text style={styles.iptTitText}>인증 자료 첨부</Text>									
 								</View>
-								<View style={[styles.iptSubTit, styles.mgt5]}>
+								{/* <View style={[styles.iptSubTit, styles.mgt5]}>
 									<Text style={styles.iptSubTitText}>{badgeSub[0].badge_auth_info3}</Text>									
-								</View>
+								</View> */}
+
+								{badgeSub[0]?.ex.map((item, index) => {
+									return (
+										<View key={index} style={styles.mgt10}>
+											<View style={[styles.iptSubTit]}>
+												<Text style={styles.iptSubTitText}>{item.be_subject}</Text>
+											</View>
+											{fileAry[index].path ? (
+												<View style={styles.fileBox}>
+													<View style={styles.fileBoxLeft}>										
+														<View style={styles.fileBoxLeftView}>
+															<AutoHeightImage width={38} source={{ uri: fileAry[index].path }} style={styles.fileBoxLeftImg} />
+														</View>	
+														<View style={styles.fileBoxLeftInfo}>
+															<Text style={styles.fileBoxLeftInfoText}>{fileAry[index].name}</Text>
+															<Text style={styles.fileBoxLeftInfoText2}>{fileAry[index].size} MB</Text>
+														</View>
+													</View>
+													<TouchableOpacity 
+														style={styles.fileBoxRight}
+														activeOpacity={opacityVal}
+														onPress={() => deleteFileAry(index)}
+													>
+														<ImgDomain fileWidth={24} fileName={'icon_trash.png'}/>
+													</TouchableOpacity>
+												</View>
+											) : (
+												<View style={[styles.uploadBox, styles.mgt8]}>
+													<TouchableOpacity 
+														style={styles.uploadBoxBtn}
+														activeOpacity={opacityVal}
+														onPress={() => {chooseImage(index)}}
+													>
+														<ImgDomain fileWidth={18} fileName={'icon_upload.png'}/>
+														<Text style={styles.uploadBoxBtnText}>사진 업로드</Text>
+													</TouchableOpacity>
+													<View style={styles.uploadBoxDesc}>
+														<Text style={styles.uploadBoxDescText}>도용/위조는 중범죄이며 처벌 받을 수 있습니다.</Text>
+														<Text style={styles.uploadBoxDescText}>모든 인증 서류는 인증 후 폐기됩니다.</Text>
+													</View>
+												</View>
+											)}											
+										</View>
+									)
+								})}
 																
-								{file.path ? (
+								{/* {file.path ? (
 									<View style={styles.fileBox}>
 										<View style={styles.fileBoxLeft}>										
 											<View style={styles.fileBoxLeftView}>
@@ -760,7 +878,7 @@ const MyBadge = (props) => {
 											<Text style={styles.uploadBoxDescText}>모든 인증 서류는 인증 후 폐기됩니다.</Text>
 										</View>
 									</View>
-								)}
+								)} */}
 							</View>
 							</>
 							) : null}
@@ -768,7 +886,7 @@ const MyBadge = (props) => {
 					</ScrollView>
 					<View style={styles.nextFix}>
 						<TouchableOpacity 
-							style={[styles.nextBtn, file.path ? null : styles.nextBtnOff]}
+							style={[styles.nextBtn, fileCert ? null : styles.nextBtnOff]}
 							activeOpacity={opacityVal}
 							onPress={() => saveBadgeFileInfo()}
 						>

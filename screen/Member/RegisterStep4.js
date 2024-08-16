@@ -26,6 +26,8 @@ const RegisterStep4 = ({navigation, route}) => {
   const accessRoute = route['params']['accessRoute'];
 	const phonenumber = route['params']['phonenumber'];
   const age = route['params']['age'];
+  const gender = route['params']['gender'];
+  const name = route['params']['name'];
   const member_id = route['params']['member_id'];
 
 	const [routeLoad, setRouteLoad] = useState(false);
@@ -76,11 +78,15 @@ const RegisterStep4 = ({navigation, route}) => {
 			return false;
     }
 
+		//console.log(phonenumber+'///'+age+'///'+gender+'///'+name);
+
 		navigation.navigate('RegisterStep5', {
       prvChk4:prvChk4,
       accessRoute:accessRoute, 
 			phonenumber:phonenumber,
       age:age,
+			gender: gender,
+      name: name,
       member_id:member_id,
 			member_pw:pw,
     })
@@ -148,6 +154,9 @@ const RegisterStep4 = ({navigation, route}) => {
 									onSubmitEditing={nextStep}
 								/>
 							</View>
+							<View style={styles.help_box}>
+								<Text style={styles.alertText}>영문, 숫자, 특수문자를 이용해 6~16자를 입력해 주세요.</Text>
+							</View>
 						</View>
 					</TouchableWithoutFeedback>
 				</ScrollView>
@@ -182,6 +191,9 @@ const styles = StyleSheet.create({
   iptTitText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:16,color:'#1e1e1e'},
   loginIptBox: {marginTop:10,position:'relative',},
 	input: { fontFamily: Font.NotoSansRegular, width: innerWidth, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
+
+	help_box: {marginTop:10,},
+	alertText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#B8B8B8',},
   
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },

@@ -34,7 +34,7 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const Shop = (props) => {  
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -236,7 +236,7 @@ const Shop = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-    //console.log(response.data.member_point);
+    //console.log(response.data.member_sex);
 		if(response.code == 200){
       setMemberInfo(response.data);
 
@@ -313,6 +313,7 @@ const Shop = (props) => {
                 activeOpacity={opacityVal}
                 onPress={()=>{
                   setLoading(true);
+                  setPrdIdx(item2.pd_idx);
                   if(Platform.OS === 'ios'){
                     _requestPurchase(item2.pd_code_ios, item2.pd_idx);
                   }else{
@@ -372,7 +373,7 @@ const Shop = (props) => {
     let sData = {
 			basePath: "/api/etc/",
 			type: "GetEventList",
-      sort: 1,
+      gender: memberInfo?.member_sex,
 		};
 
 		const response = await APIs.send(sData);    
@@ -453,7 +454,7 @@ const Shop = (props) => {
     //setLoading2(true);
     let iapObj = {skus: [sku], sku: sku};
     let getItems = await getProducts(iapObj);
-    //console.log('getItems :::: ', getItems);
+    console.log('getItems :::: ', getItems[0]);
 
     let amount = 0;
     if(pd_idx == 19){
@@ -472,16 +473,25 @@ const Shop = (props) => {
       amount = 4500;
     }
 
+    let itemName = '';
+    if(Platform.OS === 'ios'){
+      itemName = getItems[0].title;
+    }else{
+      itemName = getItems[0].name;
+    }
+
     const inappPayResult = {
       basePath: "/api/order/",
       type: "SetProductOrder",		
       member_idx: memberIdx,
-      pd_idx: prdIdx,
+      pd_idx: pd_idx,
       pd_code: getItems[0].productId,
-      pd_name: getItems[0].name,
+      pd_name: itemName,
       pd_price: getItems[0].price,
       pd_amount: amount,
     };
+
+    //console.log('inappPayResult ::: ', inappPayResult);
 
     try {
       await requestPurchase(iapObj)
@@ -585,16 +595,24 @@ const Shop = (props) => {
                 <Text style={styles.footerTitleText}>결제 및 환불 안내</Text>
               </View>
               <View style={styles.footerCont}>
-                <Text style={styles.footerContText}>결제 및 환불 안내 내용이 표시됩니다.</Text>
+                <Text style={styles.footerContText}>
+                - 프로틴은 피지컬매치의 유료서비스를 이용하기 위해 사용되는 단위입니다.
+                </Text>
+                <Text style={styles.footerContText}>
+                - 결제 관련 문의는 마이페이지 -> 공지/안내 -> 고객센터 를 통해 가능합니다.
+                </Text>
+                <Text style={styles.footerContText}>
+                - 모든 상품은 부가가치세가 포함된 가격입니다.
+                </Text>
               </View>
 
-              <TouchableOpacity 
+              {/* <TouchableOpacity 
                 style={[styles.nextBtn, styles.nextBtnOff]}
                 activeOpacity={opacityVal}
                 onPress={() => {navigation.navigate('CsCenter')}}
               >
                 <Text style={styles.nextBtnText}>결제 및 환불 관련 문의</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           }
           ListEmptyComponent={
@@ -681,7 +699,7 @@ const styles = StyleSheet.create({
   prdFooter: {paddingTop:25,paddingBottom:50,paddingHorizontal:20,backgroundColor:'#F9FAFB',marginTop:40,},
   footerTitle: {},
   footerTitleText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:17,color:'#888'},
-  footerCont: {marginTop:4,marginBottom:40,},
+  footerCont: {marginTop:4,/*marginBottom:40,*/},
   footerContText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:17,color:'#888'},
 
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},

@@ -22,6 +22,8 @@ const RegisterStep3 = ({navigation, route}) => {
   const accessRoute = route['params']['accessRoute'];
   const phonenumber = route['params']['phonenumber'];
   const age = route['params']['age'];
+  const gender = route['params']['gender'];
+  const name = route['params']['name'];
 
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
@@ -87,6 +89,8 @@ const RegisterStep3 = ({navigation, route}) => {
       accessRoute:accessRoute,
       phonenumber:phonenumber,
       age:age,
+      gender: gender,
+      name: name,
       member_id:id,
     })
   }

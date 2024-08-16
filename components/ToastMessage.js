@@ -5,7 +5,7 @@ import Toast from 'react-native-toast-message';
 const ToastMessage = ( message, duration, position, offset, message2 = '') => {
 	Toast.show({
 		type    : 'custom_type', //success | error | info
-		position: position == '1' ? position : 'bottom',
+		position: position == '1' ? 'top' : 'bottom',
 		text1   : message,
 		text2   : message2,
 		visibilityTime: duration ? duration : 2000,

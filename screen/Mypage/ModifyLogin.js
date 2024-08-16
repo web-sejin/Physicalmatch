@@ -25,7 +25,7 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const ModifyLogin = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -57,6 +57,10 @@ const ModifyLogin = (props) => {
 				//console.log('member_idx :::: ', result);		
 				setMemberIdx(result);
 			});
+
+			if(params?.phonenumber){
+        setNewPhone(params?.phonenumber);
+      }
 		}
 
     Keyboard.dismiss();
@@ -82,12 +86,12 @@ const ModifyLogin = (props) => {
   }, [navigationUse, preventBack]);
 
 	useEffect(() => {
-		if(pw != "" && pw2 != "" && pw3 != "" && pw2.length >= 6 && pw2.length <= 16 && pw != pw2 && pw2 == pw3){			
+		if((pw != "" && pw2 != "" && pw3 != "" && pw2.length >= 6 && pw2.length <= 16 && pw != pw2 && pw2 == pw3) || newPhone){			
 			setState(true);
 		}else{
 			setState(false);
 		}
-	}, [pw, pw2, pw3]);
+	}, [pw, pw2, pw3, newPhone]);
 
 	useEffect(() => {
 		if(memberIdx){
@@ -111,66 +115,73 @@ const ModifyLogin = (props) => {
 	}
 
 	const fnCert = async () => {
-		setNewPhone();
-    let sData = {
-      basePath: "/api/member/",
-      type: 'IsPass',
-      pass_type: 3,
-      member_phone: '010-9999-7570',
-      test_yn: 'n'
-    }
-    const response = await APIs.send(sData);
-    //console.log(response);
-    if(response.code == 200){
-      setNewPhone('010-9999-7571');
-    }else{
-      if(response.msg == 'MANAGER BAN'){
-				setNewPhone();
-        ToastMessage('회원가입이 제한된 번호입니다.');
-        return false;
-      }else if(response.msg == 'DUPLICATION PHONE'){
-				setNewPhone();
-        ToastMessage('이미 가입된 번호입니다.');
-        return false;
-      }
-    }
+		navigation.navigate('Certification', {type:'change_number'});
+		// setNewPhone();
+    // let sData = {
+    //   basePath: "/api/member/",
+    //   type: 'IsPass',
+    //   pass_type: 3,
+    //   member_phone: '010-9999-7570',
+    //   test_yn: 'n'
+    // }
+    // const response = await APIs.send(sData);
+    // //console.log(response);
+    // if(response.code == 200){
+    //   setNewPhone('010-9999-7571');
+    // }else{
+    //   if(response.msg == 'MANAGER BAN'){
+		// 		setNewPhone();
+    //     ToastMessage('회원가입이 제한된 번호입니다.');
+    //     return false;
+    //   }else if(response.msg == 'DUPLICATION PHONE'){
+		// 		setNewPhone();
+    //     ToastMessage('이미 가입된 번호입니다.');
+    //     return false;
+    //   }
+    // }
 	}
 
 	const update = async () => {
-		if(!pw || pw == ""){
-			ToastMessage('기존 비밀번호를 입력해 주세요.');
-			return false;
-		}		
-
-		if(!pw2 || pw2 == ""){
-			ToastMessage('변경할 비밀번호를 입력해 주세요.');
+		if(pw == '' && pw2 == '' && pw3 == '' && (!newPhone || newPhone == '')){
+			ToastMessage('변경할 정보를 입력해 주세요.');
 			return false;
 		}
+		
+		if(pw != '' || pw2 != '' || pw3 != ''){
+			if(!pw || pw == ""){
+				ToastMessage('기존 비밀번호를 입력해 주세요.');
+				return false;
+			}		
 
-		const num = pw2.search(/[0-9]/g);
-		const eng = pw2.search(/[a-z]/ig);
-		const spe = pw2.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
+			if(!pw2 || pw2 == ""){
+				ToastMessage('변경할 비밀번호를 입력해 주세요.');
+				return false;
+			}
 
-		if (pw2.length < 6 || pw2.length > 16) {
-			ToastMessage('비밀번호는 영문, 숫자, 특수문자를 활용해 6~16자리 수를 입력해 주세요.');
-			return false;
+			const num = pw2.search(/[0-9]/g);
+			const eng = pw2.search(/[a-z]/ig);
+			const spe = pw2.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
+
+			if (pw2.length < 6 || pw2.length > 16) {
+				ToastMessage('비밀번호는 영문, 숫자, 특수문자를 활용해 6~16자리 수를 입력해 주세요.');
+				return false;
+			}
+
+			if(pw == pw2){
+				ToastMessage('기존 비밀번호와 변경할 비밀번호가 같습니다.\n다시 입력해 주세요.');
+				return false;
+			}
+
+			if(!pw3 || pw3 == ""){
+				ToastMessage('변경할 비밀번호를 한 번 더 입력해 주세요.');
+				return false;
+			}
+			
+			if(pw2 != pw3){
+				ToastMessage('비밀번호가 일치하지 않습니다. 다시 입력해 주세요.');
+				return false;
+			}
 		}
-
-		if(pw == pw2){
-			ToastMessage('기존 비밀번호와 변경할 비밀번호가 같습니다.\n다시 입력해 주세요.');
-			return false;
-    }
-
-		if(!pw3 || pw3 == ""){
-			ToastMessage('변경할 비밀번호를 한 번 더 입력해 주세요.');
-			return false;
-    }
-    
-    if(pw2 != pw3){
-			ToastMessage('비밀번호가 일치하지 않습니다. 다시 입력해 주세요.');
-			return false;
-    }
-
 		// if(!cert){
 		// 	ToastMessage('휴대폰 번호를 인증해 주세요.');
 		// 	return false;
@@ -180,16 +191,18 @@ const ModifyLogin = (props) => {
 			basePath: "/api/member/",
 			type: "SetMemberInfo",
       member_idx: memberIdx,
-      member_pw: pw,
-      member_new_pw: pw2,
-      member_new_repw: pw3,
 		};
+		if(pw){
+			sData.member_pw = pw;
+			sData.member_new_pw = pw2;
+			member_new_repw = pw3;
+		}
 		if(newPhone){
 			sData.member_phone = phone;
 			sData.member_new_phone = newPhone;
 		}
 		const response = await APIs.send(sData);		
-		console.log(response);
+		//console.log(response);
 		if(response.code == 200){
 			ToastMessage('정보수정이 완료되었습니다.');
 			setPw('');
@@ -304,7 +317,7 @@ const styles = StyleSheet.create({
 	title: {marginBottom:10,},
 	titleText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},
 
-	input: {justifyContent:'center',width:innerWidth,height:36,borderBottomWidth:1,borderBottomColor:'#1e1e1e',fontFamily:Font.NotoSansRegular,fontSize:15,color:'#1e1e1e',},
+	input: {justifyContent:'center',width:innerWidth,height:36,borderBottomWidth:1,borderBottomColor:'#1e1e1e',paddingVertical: 0, paddingHorizontal: 5, fontFamily:Font.NotoSansRegular,fontSize:15,color:'#1e1e1e',},
 	input2: {borderBottomColor:'#DBDBDB'},
 	inputText: {fontFamily:Font.NotoSansRegular,fontSize:16,lineHeight:19,color:'#1e1e1e'},	
 

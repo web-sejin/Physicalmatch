@@ -1,15 +1,17 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {ActivityIndicator, Alert, BackHandler, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
+import {ActivityIndicator, Animated, Alert, BackHandler, Button, Dimensions, DeviceEventEmitter, View, Text, TextInput, TouchableOpacity, ImageBackground, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Video from 'react-native-video';
+import messaging from '@react-native-firebase/messaging';
 
 import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
 import ImgDomain from '../../assets/common/ImgDomain';
 import ImgDomain2 from '../../components/ImgDomain2';
+import ToastMessage from "../../components/ToastMessage";
 
 import {connect} from 'react-redux';
 import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
@@ -21,6 +23,7 @@ const opacityVal = 0.8;
 
 const RegisterResult = (props) => {
 	const {navigation, userInfo, member_info, route} = props;
+	const {params} = route;
 	const [routeLoad, setRouteLoad] = useState(false);
   const [pageSt, setPageSt] = useState(false);
 	const navigationUse = useNavigation();
@@ -28,13 +31,15 @@ const RegisterResult = (props) => {
 	const [backPressCount, setBackPressCount] = useState(0);
 	const [memberId, setMemberId] = useState();
 	const [memberIdx, setMemberIdx] = useState();
-	const [memberName, setMemberName] = useState('');
+	const [memberName, setMemberName] = useState(params?.newMemberNick ? params?.newMemberNick : '');
 	const [firebaseToken, setFirebaseToken] = useState();
 	const [deviceToken, setDeviceToken] = useState();
-
+	const [loading, setLoading] = useState(false);
 	const [backgroundType, setBackgroundType] = useState();
 	const [backgroundUrl, setBackgroundUrl] = useState('');
+	const [backgroundSubUrl, setBackgroundSubUrl] = useState('');
 	const [backgroundOnlyUrl, setBackgroundOnlyUrl] = useState('');
+	const [fadeAnim] = useState(new Animated.Value(1));
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -49,22 +54,18 @@ const RegisterResult = (props) => {
 			setPageSt(!pageSt);
 
 			AsyncStorage.getItem('appToken', (err, result) => {
-				//console.log('appToken :::: ', result);
 				setFirebaseToken(result);
 			});
 	
-			AsyncStorage.getItem('deviceId', (err, result) => {		
-				//console.log('deviceId :::: ', result);		
+			AsyncStorage.getItem('deviceId', (err, result) => {			
 				setDeviceToken(result);
 			});
 
-			AsyncStorage.getItem('member_id', (err, result) => {		
-				//console.log('member_id :::: ', result);		
+			AsyncStorage.getItem('member_id', (err, result) => {	
 				setMemberId(result);
 			});
 
-			AsyncStorage.getItem('member_idx', (err, result) => {		
-				//console.log('member_idx :::: ', result);		
+			AsyncStorage.getItem('member_idx', (err, result) => {			
 				setMemberIdx(result);
 			});
 		}
@@ -100,12 +101,64 @@ const RegisterResult = (props) => {
   );
 
 	useEffect(() => {
+		setLoading(true);
 		getBackground();
 	}, []);
 
 	useEffect(() => {
-		getMemInfo();
-	}, [memberIdx])
+		if(memberIdx && !params?.newMemberNick){
+			getMemInfo();
+		}
+	}, [memberIdx]);
+
+	useEffect(() => {
+    // 포그라운드 메시지 처리
+    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
+      console.log('포그라운드 메시지:', remoteMessage);
+      ToastMessage(remoteMessage.data.subject, 3500, '1', '', remoteMessage.data.content);
+      
+      let mb_idx = await AsyncStorage.getItem('member_idx');
+      if (mb_idx) {
+        //console.log('user!!!!');
+        memberHandler(mb_idx);
+      }
+    });
+
+    // 백그라운드에서 알림을 탭하여 앱을 열었을 때
+    const unsubscribeOnNotificationOpenedApp = messaging().onNotificationOpenedApp(remoteMessage => {
+      //console.log('백그라운드에서 알림으로 앱 열림:', remoteMessage);
+      // 필요한 처리 로직 추가
+      navigation.navigate('Alim');
+    });
+
+    // 앱이 종료된 상태에서 알림을 탭하여 앱을 열었을 때
+    messaging()
+      .getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          //console.log('종료 상태에서 알림으로 앱 열림:', remoteMessage);          
+          // 필요한 처리 로직 추가
+          navigation.navigate('Alim');
+        }
+      });
+
+    // 클린업 함수
+    return () => {
+      unsubscribeOnMessage();
+      unsubscribeOnNotificationOpenedApp();
+    };    
+  }, []);
+
+  const memberHandler = async (mb_idx) => {
+    //console.log('memberHandler ::: ', mb_idx);
+    const formData = new FormData();
+    formData.append('type', 'GetMyInfo');
+    formData.append('member_idx', mb_idx);
+    //console.log(formData);
+    const mem_info = await member_info(formData);
+
+    //console.log('tabNavigation mem_info ::: ', mem_info);
+  }
 
 	const getMemInfo = async () => {
 		let sData = {
@@ -115,7 +168,7 @@ const RegisterResult = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-    //console.log(response);
+    //console.log(response.data.info);
 		if(response.code == 200){
 			setMemberName(response.data.info.member_nick);
 		}
@@ -127,12 +180,22 @@ const RegisterResult = (props) => {
 			type: "GetIntroBackground",
 		};
 
-		const response = await APIs.send(sData);
-		//console.log(response);
+		const response = await APIs.send(sData);		
 		if(response.code == 200){
 			setBackgroundType(response.data.intro_r_type);
 			setBackgroundUrl(response.host_url+response.data.intro_r_file);
+			setBackgroundSubUrl(response.host_url+response.data.intro_r_sub_file);
 			setBackgroundOnlyUrl(response.data.intro_r_file);
+
+			// 페이드 아웃 애니메이션 시작
+			Animated.timing(fadeAnim, {
+				toValue: 0,
+				duration: 1500, // 1초 동안 페이드 아웃
+				delay: 100,
+				useNativeDriver: true,
+			}).start(() => {
+				setLoading(false); // 애니메이션이 끝나면 loading 상태를 false로 설정
+			});
 		}
 	}
 
@@ -142,6 +205,8 @@ const RegisterResult = (props) => {
 				<Video
 					//source={require('../assets/video/intro.mp4')}
 					source={{uri:backgroundUrl}}
+					poster={'https://physicalmatch.co.kr/appImg/video_intro.jpg'} // 영상 썸네일 이미지 URL
+					posterResizeMode="cover"
 					style={styles.fullScreen}
 					paused={false} // 재생/중지 여부
 					resizeMode={"cover"} // 프레임이 비디오 크기와 일치하지 않을 때 비디오 크기를 조정하는 방법을 결정합니다. cover : 비디오의 크기를 유지하면서 최대한 맞게
@@ -157,7 +222,9 @@ const RegisterResult = (props) => {
 			) : null}
       <View style={styles.introDescBox}>
         <View style={styles.introDescBoxWrap}>
+					{memberName != '' ? (
           <Text style={styles.introDescBoxName}>{memberName}님,</Text>
+					) : null}
           <Text style={[styles.introDescBoxText, styles.mgt15]}>피지컬 매치 회원으로</Text>
           <Text style={styles.introDescBoxText}>가입해주셔서 감사드립니다.</Text>
           <Text style={[styles.introDescBoxText, styles.mgt15]}>회원님이 소중한 서류를 검토중입니다.</Text>
@@ -182,6 +249,17 @@ const RegisterResult = (props) => {
 				</TouchableOpacity>
 			</View>
 			
+			{loading && (
+				<Animated.View style={[styles.indicator, { opacity: fadeAnim }]}>
+					{backgroundType == 1 && backgroundSubUrl != '' ? (
+					<ImageBackground source={{uri:backgroundSubUrl}} resizeMode="cover" >
+						<View style={{width:widnowWidth, height: widnowHeight}}></View>
+					</ImageBackground>				
+					) : null}				
+					<ActivityIndicator size="large" color="#fff" style={{position:'absolute',bottom:50,}} />
+				</Animated.View>
+			)}
+			
 		</SafeAreaView>
 	)
 }
@@ -189,7 +267,7 @@ const RegisterResult = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },
 	fullScreen: { flex: 1, },
-	indicator: {height:widnowHeight-185, display:'flex', alignItems:'center', justifyContent:'center'},
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'#1e1e1e', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, zIndex:100},		
 	indicator2: { marginTop: 62 },	
 
   introDescBox: {width:widnowWidth, height:widnowHeight, position:'absolute', left:0, top:0, zIndex:99, alignItems:'center', justifyContent:'center'},

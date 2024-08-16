@@ -66,6 +66,7 @@ const MatchDetail = (props) => {
   const [memberInfo, setMemberInfo] = useState({});
   const [memberPoint, setMemberPoint] = useState();
   const [profileInfo, setProfileInfo] = useState();
+  const [datePopUse, setDatePopUse] = useState();
   const [profilePhysical, setProfilePhysical] = useState([]);
   const [profileJob, setProfileJob] = useState();
   const [profileSchool, setProfileSchool] = useState();
@@ -96,7 +97,8 @@ const MatchDetail = (props) => {
   const [reportEtc, setReportEtc] = useState('');
   const [matchState, setMatchState] = useState(); //0:좋아요 보냄, 1:좋아요 받음, 2:번호 오픈 전, 3:번호 오픈 후
   const [matchPremium, setMatchPremium] = useState(false); //프리미엄 좋아요
-
+  const [premiumMemo, setPremiumMemo] = useState(''); //프리미엄 내용
+  
   const [popState, setPopState] = useState();
   const [dotPop, setDotPop] = useState(false);
   const [reportPop, setReportPop] = useState(false);
@@ -123,6 +125,9 @@ const MatchDetail = (props) => {
   const [socialState, setSocialState] = useState(0); //1::수락, 2:거절
   const [numberTradePop, setNumberTradePop] = useState(false);
   const [numberTradePop2, setNumberTradePop2] = useState(false);
+  const [badgeInfoPop, setBadgeInfoPop] = useState(false);
+  const [badgeInfoTitle, setBadgeInfoTitle] = useState('');
+  const [badgeInfoCont, setBadgeInfoCont] = useState('');
   
   const [swiperList, setSwiperList] = useState([]);
   const [warterList, setWarterList] = useState([]);
@@ -157,6 +162,12 @@ const MatchDetail = (props) => {
       AsyncStorage.getItem('member_idx', (err, result) => {		        
 				setMemberIdx(result);
 			});
+
+      if(memberIdx){
+        getMemInfo();
+        getProfileInfo();
+        getProfileDateQna();
+      }
 		}
 
     Keyboard.dismiss();
@@ -220,7 +231,7 @@ const MatchDetail = (props) => {
       getProfileInfo();
       getProfileDateQna();
     }
-  }, [memberIdx])
+  }, [memberIdx]);
 
   useEffect(() => {    
     let warterAry = [];
@@ -370,8 +381,7 @@ const MatchDetail = (props) => {
 		const response = await APIs.send(sData);
 		if(response.code == 200){      
       setMemberInfo(response.data);
-      setMemberPoint(response.data.member_point);
-      setPhoneNumber(response.data.member_phone);
+      setMemberPoint(response.data.member_point);      
       setRegistPoint(response.regist_point);
     }
   }
@@ -408,10 +418,11 @@ const MatchDetail = (props) => {
       profile_type: profileType,
 		};
 
-		const response = await APIs.send(sData);
-    //console.log(response);
-    if(response.code == 200){
+		const response = await APIs.send(sData);    
+    if(response.code == 200){      
+      setDatePopUse(response.date_yn);
       setProfileInfo(response.data);
+      setPhoneNumber(response.data.info.member_phone);
       
       if(response.data.img.length > 0){
         setSwiperList(response.data.img);
@@ -480,7 +491,7 @@ const MatchDetail = (props) => {
       }else if(response.data.info.member_drink_status == 5){
         drinkString = '매우 즐기는 편';
       }
-      setProfileDrink(drinkString);
+      setProfileDrink(drinkString);      
 
       let smokeString = '';
       if(response.data.info.member_smoke_status == 0){
@@ -502,11 +513,11 @@ const MatchDetail = (props) => {
       }
       setProfileSmokeType(smokeTypeString);
 
-      if(response.data.interview){
+      if(response.data.interview.length > 0){
         setProfileInterview(response.data.interview);
-      }else{
+      }else{        
         setProfileInterview([]);
-      }
+      }      
 
       if(response.data.hobby){
         setProfileHobby(response.data.hobby);
@@ -517,7 +528,7 @@ const MatchDetail = (props) => {
       if(response.data.info.is_before_score){
         if(response.data.info.is_before_score == 'y'){
           setReviewState(false);
-        }else if(response.data.info.is_before_score == 'n'){
+        }else if(response.data.info.is_before_score == 'n' && response.data.info.is_evaluate == 'n'){
           setReviewState(true);
         }
       }else if(response.data.info.is_after_score){
@@ -528,19 +539,30 @@ const MatchDetail = (props) => {
         }
       }
 
+      if(response.data.content){
+        // console.log('ml_status ::: ',response.data.content.ml_status);
+        // console.log('request_member_idx ::: ',response.data.content.request_member_idx);
+        // console.log('request_open_status ::: ',response.data.content.request_open_status);
+        // console.log('receive_member_idx ::: ',response.data.content.receive_member_idx);
+        // console.log('receive_open_status ::: ',response.data.content.receive_open_status);
+        // console.log('memberIdx ::: ',memberIdx);
+        //console.log('ml_status ::: ',response.data.content);
+      }
+
       if(response.data.content && response.data.feel_yn == 'n'){
         if(response.data.content.request_member_idx == memberIdx && response.data.content.ml_status == 0){
           setMatchState(0);
         }else if(response.data.content.receive_member_idx == memberIdx && response.data.content.ml_status == 0){      
-          setMatchState(1);
+          setMatchState(1);          
           if(response.data.content.ml_type == 1){
             setMatchPremium(true);
+            setPremiumMemo(response.data.content.ml_memo);
           }else{
             setMatchPremium(false);
           }
         }else if(response.data.content.ml_status == 1 && response.data.content.request_member_idx == memberIdx && response.data.content.request_open_status == 1){
           setMatchState(3);
-        }else if(response.data.content.ml_status == 1 && response.data.content.receive_member_idx == memberIdx && response.data.content.receive_open_status == 1){          
+        }else if(response.data.content.ml_status == 1 && response.data.content.receive_member_idx == memberIdx && response.data.content.receive_open_status == 1){                    
           setMatchState(3);
         }else if(response.data.content.ml_status == 1 && (response.data.content.request_open_status == 0 || response.data.content.receive_open_status == 0)){
           setMatchState(2);
@@ -622,6 +644,8 @@ const MatchDetail = (props) => {
   }
 
   const reviewConfirm = async () => {
+    setLoading2(true);
+    setReviewPop(false);
     let ms_type = 0;
     if(profileInfo?.info.is_before_score){
       ms_type = 0;
@@ -641,13 +665,17 @@ const MatchDetail = (props) => {
 		const response = await APIs.send(sData);
     if(response.code == 200){
       setReviewState(false); 
-      ToastMessage('평가가 완료되었습니다.');
+      setTimeout(function(){
+        setLoading2(false);
+        ToastMessage('평가가 완료되었습니다.');        
+      }, 200);      
     }else{
       setReviewScore(0);
-      ToastMessage('잠시후 다시 이용해 주세요.');
-    }
-    setReviewPop(false);
-    
+      setTimeout(function(){
+        setLoading2(false);
+        ToastMessage('잠시후 다시 이용해 주세요.');
+      }, 200);      
+    }        
   }
 
   const reportPopClose = () => {
@@ -668,6 +696,7 @@ const MatchDetail = (props) => {
       return false;
     }
 
+    setLoading2(true);
     let sData = {
 			basePath: "/api/match/",
 			type: "SetReportMember",
@@ -677,12 +706,12 @@ const MatchDetail = (props) => {
 		};
     const response = await APIs.send(sData);
     //console.log(response);
-    if(response.code == 200){
-      reportPopClose();
-      ToastMessage('신고접수가 완료되었습니다.');      
-      // setTimeout(function(){
-      //   navigation.navigate('Home', {reload: true});
-      // } ,300);    
+    if(response.code == 200){      
+      setTimeout(function(){
+        reportPopClose();
+        ToastMessage('신고접수가 완료되었습니다.');
+        setLoading2(false);
+      }, 200);
     }
   }  
   
@@ -711,8 +740,10 @@ const MatchDetail = (props) => {
 
   const submitSotong = async () => {
     let sData = {};    
-    console.log(mb_member_idx);
-    const paramsString = JSON.stringify({accessType:'match', mb_member_idx:mb_member_idx});
+    //console.log(mb_member_idx);
+    sotongSendClose();
+    setLoading2(true);
+    const paramsString = JSON.stringify({accessType:'match', mb_member_idx:memberIdx});
     if(sotongType == 'feel'){      
       sData = {
         basePath: "/api/match/",
@@ -735,11 +766,13 @@ const MatchDetail = (props) => {
     }
 
     const response = await APIs.send(sData);
-    console.log(response);
+    //console.log(response);
     if(response.code == 200){      
-      getProfileInfo();
-      ToastMessage(sotongTypeText+' 보냈습니다.');
-      sotongSendClose();
+      getProfileInfo();            
+      setTimeout(function(){        
+        ToastMessage(sotongTypeText+' 보냈습니다.');
+        setLoading2(false);
+      }, 200);
     }        
   }
 
@@ -754,7 +787,10 @@ const MatchDetail = (props) => {
       ToastMessage('메세지를 2글자 이상 작성해 주세요.');
       return false;
     }
-    const paramsString = JSON.stringify({accessType:'match', mb_member_idx:mb_member_idx});
+
+    preLikePopClose();
+    setLoading2(true);
+    const paramsString = JSON.stringify({accessType:'match', mb_member_idx:memberIdx});
     let sData = {
       basePath: "/api/match/",
       type: "SetMemberLike",		
@@ -767,9 +803,12 @@ const MatchDetail = (props) => {
     };
     const response = await APIs.send(sData);
     //console.log(response);
-    if(response.code == 200){      
-      ToastMessage('프리미엄 좋아요를 보냈습니다.');
-      preLikePopClose();
+    if(response.code == 200){       
+      getProfileInfo();           
+      setTimeout(function(){                
+        ToastMessage('프리미엄 좋아요를 보냈습니다.');
+        setLoading2(false);
+      }, 200);
     }
     
   }
@@ -983,45 +1022,61 @@ const MatchDetail = (props) => {
   }
 
   const acceptLike = async () => {
+    setLoading2(true);
+    const paramsString = JSON.stringify({accessType:'match', mb_member_idx:memberIdx});
     let sData = {
       basePath: "/api/match/",
       type: "AcceptMemberLike",		
       ml_idx: profileInfo?.content.ml_idx,
       member_idx: memberIdx,
       user_idx: mb_member_idx,      
+      push_idx: 5,
+      params: paramsString,
     };
 
     const response = await APIs.send(sData);
     if(response.code == 200){
-      getProfileInfo();
-      setMatchPop(true);
-      setPreventBack(true);
+      getProfileInfo();      
+      setTimeout(function(){
+        setMatchPop(true);
+        setPreventBack(true);
+        setLoading2(false);
+      }, 200);
     }        
   }
 
-  const openPhonenumber = async () => {  
-    if(memberPoint < 30){
+  const openPhonenumber = async () => {      
+    if(memberPoint < 30){      
       setCashType(2);
+      setNumbOpenPop(false);
       setCashPop(true);
       setSotongPop(false);
-    }else{
+    }else{      
+      setNumbOpenPop(false);
+      setLoading2(true);
       let sData = {
         basePath: "/api/match/",
         type: "OpenMemberPhone",		
+        member_idx: memberIdx,
         ml_idx: profileInfo?.content.ml_idx,    
       };
   
       const response = await APIs.send(sData);
+      //console.log(response);
       if(response.code == 200){
         getProfileInfo();
-        setNumbOpenPop(false);
-        ToastMessage('번호가 오픈되었습니다.');
+        setTimeout(function(){          
+          ToastMessage('번호가 오픈되었습니다.');
+          setLoading2(false);
+        }, 200);
       }
     }    
   }
 
   const lastJoinSocial = async () => {
     //console.log(socialType);
+    setSocialPop(false);
+    setLoading2(true);
     let socialMsg = '';
     let socialState = '';
     const paramsString = JSON.stringify({social_idx:comm_idx, social_host_sex:params?.social_host_sex});
@@ -1053,14 +1108,22 @@ const MatchDetail = (props) => {
     //console.log(response);
     if(response.code == 200){
       setCurrState(socialState);
-      ToastMessage(socialMsg);
+      setTimeout(function(){
+        ToastMessage(socialMsg);
+        setLoading2(false);
+      }, 200);      
     }else{
-      ToastMessage('잠시후 다시 이용해 주세요.');
-    }
-    setSocialPop(false);
+      setTimeout(function(){
+        ToastMessage('잠시후 다시 이용해 주세요.');
+        setLoading2(false);
+      }, 200);
+    }    
   }
 
   const lastPermitSocial = async () => {
+    setSocialPop2(false);
+    setLoading2(true);
+
     //console.log(socialType);    
     const paramsString = JSON.stringify({social_idx:comm_idx, social_host_sex:params?.social_host_sex});
 
@@ -1082,21 +1145,31 @@ const MatchDetail = (props) => {
     //console.log(response);
     if(response.code == 200){
       setCurrState(4);
-      ToastMessage('최종 참여 수락이 되었습니다.');
+      setTimeout(() => {
+        setLoading2(false);        
+        ToastMessage('최종 참여 수락이 되었습니다.');
+      }, 200);       
     }else{
-      ToastMessage('잠시후 다시 이용해 주세요.');
-    }
-    setSocialPop2(false);
+      setTimeout(() => {
+        setLoading2(false);        
+        ToastMessage('잠시후 다시 이용해 주세요.');
+      }, 200);      
+    }    
   }
 
-  const changeTradeProfile = async () => {    
+  const changeTradeProfile = async () => {   
+    setNumberTradePop2(false);
+    setLoading2(true);
+
     const paramsString = JSON.stringify({
       accessType:'community', 
-      mb_member_idx:mb_member_idx, 
+      mb_member_idx:memberIdx, 
       commIdx:comm_idx, 
-      currState:curr_state,
-      reqMbIdx:curr_req_mb_idx,
-      recMbIdx:curr_rec_mb_idx,   
+      currState:2,
+      //reqMbIdx:curr_req_mb_idx,
+      //recMbIdx:curr_rec_mb_idx,
+      reqMbIdx:memberIdx,  
+      recMbIdx:mb_member_idx, 
     });    
     let sData = {
       basePath: "/api/community/",
@@ -1112,26 +1185,29 @@ const MatchDetail = (props) => {
     const response = await APIs.send(sData);
     //console.log(response);
     if(response.code == 200){
-      ToastMessage('번호 교환을 신청했습니다.');
       setCurrState(2);
-
-      console.log(memberIdx);
-      console.log(mb_member_idx);
       setCurrReqMbIdx(memberIdx);
       setCurrRecMbIdx(mb_member_idx);
+      setTimeout(() => {
+        setLoading2(false);
+        ToastMessage('번호 교환을 신청했습니다.');        
+      }, 200);      
     }else{
-      ToastMessage('잠시후 다시 이용해 주세요.');
-    }
-
-    setNumberTradePop2(false);
+      setTimeout(() => {
+        setLoading2(false);
+        ToastMessage('잠시후 다시 이용해 주세요.');
+      }, 200);      
+    }    
   }
 
   const permitTradeProfile = async () => {
+    setNumberTradePop(false);
+    setLoading2(true);
     const paramsString = JSON.stringify({
       accessType:'community', 
       mb_member_idx:mb_member_idx, 
       commIdx:comm_idx, 
-      currState:curr_state,
+      currState:3,
       reqMbIdx:curr_req_mb_idx,
       recMbIdx:curr_rec_mb_idx,   
     }); 
@@ -1149,29 +1225,40 @@ const MatchDetail = (props) => {
     const response = await APIs.send(sData);
     //console.log(response);
     if(response.code == 200){
-      ToastMessage('번호 교환을 수락했습니다.');
       setCurrState(3);
+      setTimeout(() => {
+        setLoading2(false);
+        ToastMessage('번호 교환을 수락했습니다.');
+      }, 200);            
     }else{
-      ToastMessage('잠시후 다시 이용해 주세요.');
-    }
-
-    setNumberTradePop(false);
+      setTimeout(() => {
+        setLoading2(false);
+        ToastMessage('잠시후 다시 이용해 주세요.');
+      }, 200);      
+    }    
   }
 
   const openSubProfile = async () => {
+    setLoading2(true);
+    setValuesConfirm(false);
     let sData = {
       basePath: "/api/match/",
       type: "OpenSubProfile",
-      member_idx: memberIdx,
+      member_idx: memberIdx,      
+			user_idx: mb_member_idx,
     };
 
     const response = await APIs.send(sData);
     //console.log(response);
     if(response.code == 200){
-      getMemberProtain();
-      setValuesConfirm(false);
+      getMemberProtain();     
+      setLoading2(false); 
       setValuesPop(true);
-    }    
+      getProfileInfo();
+    }else{ 
+      setLoading2(false); 
+      ToastMessage('잠시후 다시 이용해 주세요.');
+    }
   }
 
   const handleScroll = (event) => {
@@ -1295,9 +1382,9 @@ const MatchDetail = (props) => {
             })}
           </View>
         </>
-        ) : null}
+        ) : null}      
 
-        <View style={styles.detailInfo1}>
+        <View style={[styles.detailInfo1]}>
           <View style={[styles.detailInfo1Wrap, styles.boxShadow]}>
             <View style={styles.detailInfo1View}>
               <Text style={styles.detailInfo1ViewText}>{profileInfo?.info.member_nick}</Text>
@@ -1307,9 +1394,20 @@ const MatchDetail = (props) => {
             <View style={styles.detailInfo1BadgeBox}>
               {profileInfo?.badge.map((item, index) => {
                 return (
-                  <View key={index} style={styles.detailInfo1Badge}><ImgDomain2 fileWidth={45} fileName={item.badge_img}/></View>
+                  <TouchableOpacity 
+                    key={index} 
+                    style={styles.detailInfo1Badge}
+                    activeOpacity={0.6}
+                    onPress={() => {                      
+                      setBadgeInfoPop(true);                      
+                      setBadgeInfoTitle(item.badge_name);
+                      setBadgeInfoCont(item.badge_info);
+                    }}
+                  >
+                    <ImgDomain2 fileWidth={45} fileName={item.badge_img}/>
+                  </TouchableOpacity>
                 )
-              })}                        
+              })}                    
             </View>
             ) : null}
 
@@ -1351,8 +1449,13 @@ const MatchDetail = (props) => {
                 </View>
                 <View style={styles.detailInfo2Text2Box}>
                   <Text style={styles.detailInfo2Text2}>{likeDate}</Text>
-                  <Text style={styles.detailInfo2Text2}>{likeTime}</Text>
+                  <Text style={styles.detailInfo2Text2}>{likeTime}</Text>                  
                 </View>
+                {matchPremium && (
+                  <View style={styles.premiumMemo}>
+                    <Text style={styles.premiumMemoText}>{premiumMemo}</Text>
+                  </View>
+                )}
                 <LinearGradient
                   colors={['#D1913C', '#FFD194', '#D1913C']}
                   start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 1.0 }}
@@ -1828,7 +1931,7 @@ const MatchDetail = (props) => {
                 <View style={[styles.cmInfoBoxContLi]}>
                   <Text style={[styles.cmInfoBoxContWrapText, styles.bold]}>{profileSchool?.mpa_info1}{profileInfo?.info.member_education} {profileInfo?.info.member_education_status}</Text>
                   {profileSchool?.mpa_info2 != '' ? (
-                  <Text style={[styles.cmInfoBoxContWrapText2]}>{profileSchool?.mpa_info2} 전공</Text>
+                  <Text style={[styles.cmInfoBoxContWrapText2]}>{profileSchool?.mpa_info2}</Text>
                   ) : null}
                 </View>
               </View>              
@@ -1847,13 +1950,17 @@ const MatchDetail = (props) => {
               }else if(profileInfo?.info.is_user_love == 'n'){
                 ToastMessage(`${profileInfo?.info.member_nick}님이 아직 등록하지 않았어요`);
               }else{
-                //상세 프로필 오픈 컨펌
-                if(memberPoint < 5){
-                  setCashType(3);
-                  setCashPop(true);
-                  setSotongPop(false);
+                if(datePopUse == 'y'){
+                  setValuesPop(true);
                 }else{
-                  setValuesConfirm(true);
+                  //상세 프로필 오픈 컨펌
+                  if(memberPoint < 5){
+                    setCashType(3);
+                    setCashPop(true);
+                    setSotongPop(false);
+                  }else{
+                    setValuesConfirm(true);
+                  }
                 }
               }
             }}
@@ -2268,7 +2375,7 @@ const MatchDetail = (props) => {
                 style={[styles.sotongBtn]}
                 activeOpacity={opacityVal}
                 onPress={()=>{
-                  if(memberPoint < 10000000){
+                  if(memberPoint < 1){
                     setCashType(1);
                     setCashPop(true);
                     setSotongPop(false);
@@ -3078,12 +3185,34 @@ const MatchDetail = (props) => {
 					</View>
 				</View>
 			</Modal>
+
+      <Modal
+				visible={badgeInfoPop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setBadgeInfoPop(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setBadgeInfoPop(false)}}
+					>
+					</TouchableOpacity>
+					<View style={[styles.prvPop, styles.prvPop2]}>						
+            <View><Text style={styles.popTitleText}>{badgeInfoTitle}</Text></View>	
+            <View style={styles.mgt15}><Text style={styles.popTitleText2}>{badgeInfoCont}</Text></View>	            
+					</View>
+				</View>
+			</Modal>
       </>
       ) : (
       <View style={[styles.indicator]}>
         <ActivityIndicator size="large" color="#D1913C" />
       </View>
       )}
+
+      {loading2 ? ( <View style={[styles.indicator, styles.indicator2]}><ActivityIndicator size="large" color="#fff" /></View> ) : null}
 		</SafeAreaView>
 	)
 }
@@ -3091,7 +3220,8 @@ const MatchDetail = (props) => {
 const styles = StyleSheet.create({
 	safeAreaView: { flex: 1, backgroundColor: '#fff' },  
 	fullScreen: { flex: 1, },
-	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255, 0.3)', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255, 1)', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },	
+  indicator2: {backgroundColor:'rgba(0,0,0,0.5)'},
 
   DetailBackBtn: {width:54,height:48,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   DetailDotBtn: {width:54,height:48,position:'absolute',right:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
@@ -3101,7 +3231,7 @@ const styles = StyleSheet.create({
   warterMark: {width:widnowWidth,height:widnowWidth*1.25,position:'absolute',left:0,top:0,zIndex:10,alignItems:'center',justifyContent:'center',},
   warterMarkWrap: {width:widnowWidth*1.5,flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'center',transform: [{rotate: '-45deg'}],gap:60},
   warterMarkView: {},
-  warterMarkText: {fontFamily:Font.RobotoMedium,fontSize:13,color:'#fff',opacity:0.2},
+  warterMarkText: {fontFamily:Font.RobotoMedium,fontSize:13,color:'#fff',opacity:0.1},
 	pagination: {flexDirection:'row',justifyContent:'center',marginTop:15},
 	paginationBtn: {width:46,height:46,overflow:'hidden',borderWidth:2,borderColor:'transparent',borderRadius:5,marginHorizontal:6,alignItems:'center',justifyContent:'center'},
   paginationActive: {borderWidth:2,borderColor:'#D1913C'},
@@ -3109,13 +3239,13 @@ const styles = StyleSheet.create({
   swiperDot: {width:10,height:4,backgroundColor:'#fff',borderRadius:50,opacity:0.3,marginHorizontal:2.5},
   swiperDotOn: {width:20,opacity:1,},
 
-  detailInfo1: {paddingHorizontal:20,paddingTop:15,paddingBottom:30,},
-  detailInfo1Wrap: {backgroundColor:'#fff',padding:20,position:'relative'},
+  detailInfo1: {paddingHorizontal:20,paddingTop:15,paddingBottom:30,zIndex:10,},
+  detailInfo1Wrap: {backgroundColor:'#fff',padding:20,position:'relative',},
   detailInfo1View: {},
   detailInfo1ViewText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:20,lineHeight:26,color:'#1e1e1e'},
   detailInfo1ViewAge: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:10,},
-  detailInfo1BadgeBox: {flexDirection:'row',justifyContent:'center',flexWrap:'wrap',marginTop:6,},
-  detailInfo1Badge: {marginTop:10,marginHorizontal:10,},
+  detailInfo1BadgeBox: {flexDirection:'row',justifyContent:'center',flexWrap:'wrap',marginTop:6,position:'relative',},
+  detailInfo1Badge: {marginTop:10,marginHorizontal:10,},  
   zzimBtn: {alignItems:'center',justifyContent:'center',width:38,height:38,position:'absolute',top:14,right:10,},
 
   detailInfo2: {paddingHorizontal:20,paddingBottom:30,alignItems:'center',},
@@ -3124,8 +3254,10 @@ const styles = StyleSheet.create({
   detailInfo2Text2Box: {flexDirection:'row',alignItems:'center',paddingHorizontal:7,paddingTop:6,paddingBottom:3,backgroundColor:'#F9FAFB',borderRadius:50,marginTop:10,},
   detailInfo2Text2: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:16,color:'#1E1E1E',marginHorizontal:5},
   detailInfo2Text3: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:16,color:'#1E1E1E',marginTop:20},
+  premiumMemo: {width:innerWidth,marginTop:15,borderWidth:1,borderColor:'#EDEDED',padding:10,},
+  premiumMemoText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},
   detailInfo2Btn: {alignItems:'center',justifyContent:'center',width:innerWidth,height:52,backgroundColor:'#fff',borderRadius:5,},
-  detailInfo2BtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#D1913C'},
+  detailInfo2BtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#D1913C'},
   detailInfo2BtnGray: {flexDirection:'row',alignItems:'center',justifyContent:'center',backgroundColor:'#F8F8F8',borderWidth:0,},
   detailInfo2BtnGrayText: {color:'#1E1E1E',marginRight:6,},
 
@@ -3190,13 +3322,14 @@ const styles = StyleSheet.create({
 
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
 	input2: {width: innerWidth},
-  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e',paddingTop:paddTop,},
+  textarea: {width:innerWidth-40,height:141,paddingVertical:0,paddingTop:15,paddingHorizontal:15,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e',paddingTop:15,},
 
   modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},
 	popBack: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight},
 	popBack2: {backgroundColor:'rgba(0,0,0,0.7)',},
 	prvPop: {position:'relative',zIndex:10,width:innerWidth,maxHeight:innerHeight,paddingTop:50,paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',borderRadius:10,},	
+  prvPop2: {paddingTop:20,},
 	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
   popInImageView: {alignItems:'center',marginBottom:20,},
   popInImageViewBox: {width:100,height:100,borderRadius:50,overflow:'hidden',alignItems:'center',justifyContent:'center'},
@@ -3205,8 +3338,9 @@ const styles = StyleSheet.create({
 	popTitleFlex: {flexDirection:'row',alignItems:'center',justifyContent:'center',flexWrap:'wrap',},
   popTitleFlexWrap: {position:'relative'},
 	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E',},
+  popTitleText2: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#1e1e1e'},
   popTitleFlexText: {position:'relative',top:2,},
-	popTitleDesc: {width:innerWidth-40,textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:20,},
+	popTitleDesc: {width:innerWidth-40,textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e',marginTop:20,},
 	emoticon: {},
 	popIptBox: {paddingTop:10,},
 	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
@@ -3327,6 +3461,7 @@ const styles = StyleSheet.create({
   mgt0: {marginTop:0},
   mgt5: {marginTop:5},
   mgt10: {marginTop:10},
+  mgt15: {marginTop:15},
   mgt20: {marginTop:20},
   mgt30: {marginTop:30},
   mgt40: {marginTop:40},

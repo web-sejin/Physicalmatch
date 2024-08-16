@@ -23,7 +23,7 @@ const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const innerHeight = widnowHeight - 40 - stBarHt;
-const opacityVal = 0.8;
+const opacityVal = 1;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const PushSet = (props) => {
@@ -167,7 +167,7 @@ const PushSet = (props) => {
 			push_type: 0,
 		};
 		const response = await APIs.send(sData);    
-    console.log(response);
+    //console.log(response);
     if(response.code == 200){      
       if(response.data.match_push_yn == 'y'){ setOnOff(true); }else{ setOnOff(false); }
       if(response.data.social_push_yn == 'y'){ setOnOff2(true); }else{ setOnOff2(false); }
@@ -194,7 +194,7 @@ const PushSet = (props) => {
       push_yn: yn 
 		};
     const response = await APIs.send(sData);
-    console.log(response);
+    //console.log(response);
   }
 
   const chkOnOffState = () => {
@@ -492,12 +492,12 @@ const styles = StyleSheet.create({
   onOff: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',},
   onOffInfo: {},
   onOffInfoTitle: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e'},
-  onOffInfoTitle2: {fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:17,},
+  onOffInfoTitle2: {fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:17,color:'#1e1e1e'},
   onOffInfoDesc: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:16,color:'#888888',marginTop:7,},
   onOffBtn: {width:36,height:15,backgroundColor:'rgba(36,59,85,0.4)',borderRadius:20,position:'relative'},
   onOffBtn2: {backgroundColor:'#DBDBDB'},
-  onOffBtn3: {opacity:0.5},
-  onOffCircle: {width:21,height:21,borderRadius:50,position:'absolute',left:0,top:-3,},
+  onOffBtn3: {/*opacity:0.5*/},
+  onOffCircle: {width:21,height:21,borderRadius:50,position:'absolute',left:0,top:-3,opacity:1,},
 
   boxShadow: {    
 		shadowColor: "#000",

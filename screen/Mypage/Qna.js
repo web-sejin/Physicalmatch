@@ -1,12 +1,9 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Toast from 'react-native-toast-message';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import {connect} from 'react-redux';
 
 import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
@@ -23,34 +20,8 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const Qna = (props) => {
-	const data = [
-		[
-			'질문 대분류',
-			[
-				{idx:1, subject:'공지 제목1', date:'2024.00.00', content:'내용이 입력됩니다.1', open:false,},
-        {idx:2, subject:'공지 제목2', date:'2024.00.00', content:'내용이 입력됩니다.2', open:false,},
-			],
-			false
-		],
-		[
-			'질문 대분류2',
-			[
-				{idx:3, subject:'공지 제목3', date:'2024.00.00', content:'내용이 입력됩니다.3', open:false,},
-        {idx:4, subject:'공지 제목4', date:'2024.00.00', content:'내용이 입력됩니다.4', open:false,},
-			],
-			false
-		],
-		[
-			'질문 대분류3',
-			[
-				{idx:5, subject:'공지 제목5', date:'2024.00.00', content:'내용이 입력됩니다.5', open:false,},
-			],
-			false
-		],
-	];
-
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -115,7 +86,7 @@ const Qna = (props) => {
 
 	const getApiEvent = async () => {
 		let sData = {      
-      basePath: "/api/etc/index.php",
+      basePath: "/api/etc/",
 			type: "GetQnA",
 		}
 		const response = await APIs.send(sData);
@@ -162,8 +133,14 @@ const Qna = (props) => {
 			{openIdx == index ? (
 			<View style={styles.pointDateBox}>
 				{item.data.map((item2, index2) => {
+					let splt = '';
+					let splt2 = '';
+					if(item2.qna_screen_info){
+						splt = item2.qna_screen_info.split('|');
+						splt2 = item2.qna_screen.split('|');
+					}
 					return (						
-						<View style={[styles.guidePopContBox]}>
+						<View key={index2} style={[styles.guidePopContBox]}>
 							<TouchableOpacity
 								style={[styles.guidePopContBtn, openIdx2 == index2 ? styles.guidePopContBtn2 : null]}
 								activeOpacity={opacityVal}
@@ -202,6 +179,26 @@ const Qna = (props) => {
 							{openIdx2 == index2 ? (
 							<View style={styles.guidePopCont2}>
 								<Text style={styles.guidePopCont2Text}>{item2.qna_answer}</Text>
+
+								{item2.qna_screen_info ? (
+									<View style={styles.moveNaviBox}>
+										{splt.map((item3, index3) => {
+											return (
+												<TouchableOpacity
+													style={styles.moveNavi}
+													activeOpacity={opacityVal}
+													onPress={() => {
+														//console.log(splt2[index3]);
+														navigation.navigate(splt2[index3]);
+													}}
+												>
+													<Text style={styles.moveNaviText}>{item3}</Text>
+												</TouchableOpacity>
+											)
+										})}
+										
+									</View>									
+								) : null}
 							</View>
 							) : null}
 						</View>
@@ -313,6 +310,10 @@ const styles = StyleSheet.create({
   guidePopContBtnDateText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#888'},
 	guidePopCont2: {paddingVertical:10,paddingHorizontal:15,backgroundColor:'#F9FAFB',borderBottomWidth:1,borderBottomColor:'#DBDBDB'},
 	guidePopCont2Text: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e',},
+
+	moveNaviBox: {flexDirection:'row',marginTop:10,gap:5,},
+	moveNavi: {alignItems:'center',justifyContent:'center',paddingHorizontal:10,height:35,backgroundColor:'#243B55',borderRadius:5,},
+	moveNaviText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:14,color:'#fff'},
 
 	notData: {paddingTop:50},
 	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},

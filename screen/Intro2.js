@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {ActivityIndicator, Animated, Alert, BackHandler, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
+import {ActivityIndicator, Animated, Alert, BackHandler, Button, Dimensions, View, Text, TextInput, TouchableOpacity, ImageBackground, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -24,29 +24,30 @@ const Intro2 = (props) => {
 	const [backPressCount, setBackPressCount] = useState(0);
 	const [backgroundType, setBackgroundType] = useState();
 	const [backgroundUrl, setBackgroundUrl] = useState('');
+	const [backgroundSubUrl, setBackgroundSubUrl] = useState('');
 	const [backgroundOnlyUrl, setBackgroundOnlyUrl] = useState('');
 	const [fadeAnim] = useState(new Animated.Value(1));
 
 	const isFocused = useIsFocused();
-	useEffect(() => {
-		let isSubscribed = true;
+	// useEffect(() => {
+	// 	let isSubscribed = true;
 
-		if(!isFocused){
-			if(!pageSt){
-				//setAll(false);
-			}
-		}else{
-			setRouteLoad(true);
-			setPageSt(!pageSt);
-		}
+	// 	if(!isFocused){
+	// 		if(!pageSt){
+	// 			//setAll(false);
+	// 		}
+	// 	}else{
+	// 		setRouteLoad(true);
+	// 		setPageSt(!pageSt);
+	// 	}
 
-		return () => isSubscribed = false;
-	}, [isFocused]);
+	// 	return () => isSubscribed = false;
+	// }, [isFocused]);
 
 	useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
-				console.log(backPressCount);
+				//console.log(backPressCount);
         if (backPressCount === 0) {
           setBackPressCount(1);
           ToastAndroid.show('한 번 더 누르면 종료됩니다.', ToastAndroid.SHORT);
@@ -82,20 +83,17 @@ const Intro2 = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-		//console.log(response);
 		if(response.code == 200){			
 			setBackgroundType(response.data.intro_i_type);
 			setBackgroundUrl(response.host_url+response.data.intro_i_file);
-			setBackgroundOnlyUrl(response.data.intro_i_file);
-			// setTimeout(function(){
-			// 	setLoading(false);
-			// }, 1000)			
+			setBackgroundSubUrl(response.host_url+response.data.intro_i_sub_file);
+			setBackgroundOnlyUrl(response.data.intro_i_file);		
 
 			// 페이드 아웃 애니메이션 시작
 			Animated.timing(fadeAnim, {
 				toValue: 0,
-				duration: 1000, // 1초 동안 페이드 아웃
-				delay: 1000,
+				duration: 1500, // 1초 동안 페이드 아웃
+				delay: 100,
 				useNativeDriver: true,
 			}).start(() => {
 				setLoading(false); // 애니메이션이 끝나면 loading 상태를 false로 설정
@@ -105,13 +103,12 @@ const Intro2 = (props) => {
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
-			
 				<>
 				{backgroundType == 1 && backgroundUrl != '' ? (
 					<Video
 						//source={require('../assets/video/intro.mp4')}
 						source={{uri:backgroundUrl}}
-						poster={backgroundUrl} // 영상 썸네일 이미지 URL
+						poster={backgroundSubUrl} // 영상 썸네일 이미지 URL
 						posterResizeMode="cover"
 						style={styles.fullScreen}
 						paused={false} // 재생/중지 여부
@@ -139,7 +136,9 @@ const Intro2 = (props) => {
 					<TouchableOpacity
 						style={[styles.introBtn]}
 						activeOpacity={opacityVal}
-						onPress={() => {navigation.navigate('RegisterStep1')}}
+						onPress={() => {
+							navigation.navigate('RegisterStep1');
+					}}
 					>
 						<Text style={styles.introBtnText}>피지컬 매치 시작하기</Text>
 					</TouchableOpacity>
@@ -155,7 +154,7 @@ const Intro2 = (props) => {
 					<TouchableOpacity
 						style={[styles.introBtn, styles.introBtn2, styles.mgt15]}
 						activeOpacity={opacityVal}
-						onPress={() => {navigation.navigate('CsCenter')}}
+						onPress={() => {navigation.navigate('About')}}
 					>
 						<Text style={styles.introBtnText}>피지컬 매치 알아보기</Text>
 						<View style={styles.introArr}>
@@ -168,8 +167,12 @@ const Intro2 = (props) => {
 
 				{loading && (
 					<Animated.View style={[styles.indicator, { opacity: fadeAnim }]}>
-						<ImgDomain fileWidth={80} fileName={'logo.png'} />						
-						<ActivityIndicator size="large" color="#D1913C" style={{position:'absolute',bottom:50,}} />
+						{backgroundType == 1 && backgroundSubUrl != '' ? (
+						<ImageBackground source={{uri:backgroundSubUrl}} resizeMode="cover" >
+							<View style={{width:widnowWidth, height: widnowHeight}}></View>
+						</ImageBackground>				
+						) : null}
+						<ActivityIndicator size="large" color="#fff" style={{position:'absolute',bottom:50,}} />
 					</Animated.View>
 				)}
 			

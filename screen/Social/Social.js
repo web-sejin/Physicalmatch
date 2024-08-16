@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { WebView } from 'react-native-webview';
 
 import APIs from "../../assets/APIs";
 import Font from "../../assets/common/Font";
@@ -26,23 +27,14 @@ const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const Social = (props) => {
-	const socialData = [
-		{idx:1, cate:'1:1', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:2, cate:'미팅', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:3, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:4, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:5, cate:'1:1', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:6, cate:'미팅', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:7, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-		{idx:8, cate:'모임', date:'12.24 (수)', subject:'제목최대열다섯자까지노출됩니다.', loc:'강남역', age:'00', gender:'남', image:'', profile:''},
-	];
-
 	const swp = [
     {idx:1, imgUrl:'', type:'community_guide'},
     {idx:2, imgUrl:'', type:'social_guide'},
     {idx:3, imgUrl:'', type:'shop_free'},
   ]
 
+	const webViews = useRef();
+  const webViews2 = useRef();
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
 	const {params} = route;	
@@ -89,6 +81,8 @@ const Social = (props) => {
 	const [filterPickDate, setFilterPickDate] = useState([]);
 	const [swiperList, setSwiperList] = useState([]);	
 	const [resetState, setResetState] = useState(false);
+	const [guideComm, setGuideComm] = useState('');
+  const [guideSocial, setGuideSocial] = useState('');
 
 	//필터 임시 저장
 	const [tempSocialSch, setTempSocialSch] = useState('');
@@ -110,14 +104,16 @@ const Social = (props) => {
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 
-			//console.log('userInfo ::: ', userInfo.is_new);
+			console.log('userInfo social :::: ', userInfo.is_new);
 
 			AsyncStorage.getItem('member_idx', (err, result) => {		
 				setMemberIdx(result);
 			});
 
-			if(params?.reload){
-        getSocialList();
+			if(params?.reload){				
+				getMemInfo();
+        getSocialList(1);
+				setNowPage(1);
         delete params?.reload;
       }
 		}
@@ -163,6 +159,8 @@ const Social = (props) => {
 
 	useEffect(() => {
 		getDateInfo();
+		getGuide1();
+		getGuide2();		
 	}, []);
 
 	useEffect(() => {
@@ -291,12 +289,23 @@ const Social = (props) => {
 		if(viewPage){
 			curr_page = viewPage;
 		}
+
+		if (socialList.length < 1) {
+			curr_page = 1;
+		}	
+
+		let curr_tab = tabState;		
+		if(params?.writeType){
+			setTabState(params?.writeType);
+			curr_tab = params?.writeType;
+			delete params?.writeType;
+		}
 		
 		let sData = {
 			basePath: "/api/social/",
 			type: "GetSocialList",
 			member_idx: memberIdx,
-			social_type: tabState,
+			social_type: curr_tab,
 			host_sex: filterGender,
 			host_min_age: realAgeMax,
 			host_max_age: realAgeMin,
@@ -418,8 +427,10 @@ const Social = (props) => {
 	//리스트 무한 스크롤
 	const moreData = async () => {		
 		//console.log('moreData nowPage ::::', nowPage);
-		getSocialList(nowPage+1);
-		setNowPage(nowPage+1);		
+		if (socialList.length > 0) {
+			getSocialList(nowPage + 1);
+			setNowPage(nowPage + 1);
+		}	
 	}
 
 	const onRefresh = () => {
@@ -559,6 +570,32 @@ const Social = (props) => {
 		setNowPage(1);
 	}
 
+	const getGuide1 = async () => {
+    let sData = {
+			basePath: "/api/etc/",
+			type: "GetGuide",
+			tab: 1,
+		};
+
+		const response = await APIs.send(sData);    		
+    setGuideSocial(response.data);
+  }
+
+  const getGuide2 = async () => {
+    let sData = {      
+      basePath: "/api/etc/",
+			type: "GetGuide",
+      tab: 2,
+		}
+
+		const response = await APIs.send(sData);
+    setGuideComm(response.data);
+  }
+
+	const moveAlimPage = async () => {
+		navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type});
+	}
+
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
 			<View style={styles.header}>
@@ -596,7 +633,7 @@ const Social = (props) => {
 						<TouchableOpacity
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
-							onPress={() => {navigation.navigate('Alim')}}
+							onPress={() => moveAlimPage()}
 						>
 							{userInfo?.is_new == 'y' ? (
 								<ImgDomain fileWidth={24} fileName={'icon_alim_on.png'}/>
@@ -1035,11 +1072,24 @@ const Social = (props) => {
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
-				<ScrollView>
-					<View style={styles.guidePopCont}>
-						<Text style={styles.guidePopContText}>커뮤니티 가이드입니다.</Text>
-					</View>
-				</ScrollView>
+				<View style={styles.guidePopCont}>
+					<WebView
+						ref={webViews}
+						source={{uri: guideComm}}
+						useWebKit={false}						
+						javaScriptEnabledAndroid={true}
+						allowFileAccess={true}
+						renderLoading={true}
+						mediaPlaybackRequiresUserAction={false}
+						setJavaScriptEnabled = {false}
+						scalesPageToFit={true}
+						allowsFullscreenVideo={true}
+						allowsInlineMediaPlayback={true}						
+						originWhitelist={['*']}
+						javaScriptEnabled={true}
+						textZoom = {100}
+					/>
+				</View>
 			</Modal>
 
 			{/* 소셜 가이드 */}
@@ -1059,11 +1109,24 @@ const Social = (props) => {
 						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
 					</TouchableOpacity>
 				</View>
-				<ScrollView>
-					<View style={styles.guidePopCont}>
-						<Text style={styles.guidePopContText}>소셜 가이드입니다.</Text>
-					</View>
-				</ScrollView>
+				<View style={styles.guidePopCont}>
+					<WebView
+						ref={webViews2}
+						source={{uri: guideSocial}}
+						useWebKit={false}						
+						javaScriptEnabledAndroid={true}
+						allowFileAccess={true}
+						renderLoading={true}
+						mediaPlaybackRequiresUserAction={false}
+						setJavaScriptEnabled = {false}
+						scalesPageToFit={true}
+						allowsFullscreenVideo={true}
+						allowsInlineMediaPlayback={true}						
+						originWhitelist={['*']}
+						javaScriptEnabled={true}
+						textZoom = {100}
+					/>
+				</View>
 			</Modal>
 
 			{loading ? (
@@ -1102,7 +1165,7 @@ const styles = StyleSheet.create({
 	filterResetBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',paddingHorizontal:20,height:48,backgroundColor:'#fff',position:'absolute',top:0,right:0,zIndex:10,},
 	filterResetText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#1E1E1E',marginLeft:6,},
 
-	guidePopCont: {padding:20,},
+	guidePopCont: {flex:1,},
 	guidePopContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e'},
 
 	socialSchBox: {paddingHorizontal:20,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'},

@@ -72,6 +72,8 @@ const RegisterStep5 = ({navigation, route}) => {
   const accessRoute = route['params']['accessRoute'];
 	const phonenumber = route['params']['phonenumber'];
   const age = route['params']['age'];
+	const gender = route['params']['gender'];
+  const name = route['params']['name'];
   const member_id = route['params']['member_id'];
 	const member_pw = route['params']['member_pw'];
 
@@ -119,7 +121,7 @@ const RegisterStep5 = ({navigation, route}) => {
 
 	const [nick, setNick] = useState('');
 	const [realNick, setRealNick] = useState('');
-	const [realGender, setRealGender] = useState();
+	const [realGender, setRealGender] = useState(route['params']['gender']);
 	const [realClass, setRealClass] = useState('');
 	const [realClass2, setRealClass2] = useState('');
 	const [job, setJob] = useState('');
@@ -218,6 +220,12 @@ const RegisterStep5 = ({navigation, route}) => {
 		return () => isSubscribed = false;
 	}, [isFocused]);
 
+	useEffect(() => {		
+		if(route['params']['gender'] == 0 || route['params']['gender'] == 1){			
+			getPhyData(route['params']['gender']);
+		}
+	}, []);
+
 	useEffect(() => {
     const unsubscribe = navigationUse.addListener('beforeRemove', (e) => {
       // 뒤로 가기 이벤트가 발생했을 때 실행할 로직을 작성합니다.
@@ -312,6 +320,10 @@ const RegisterStep5 = ({navigation, route}) => {
 		if(realClass != "" && realClass2 != ""){
 			setPopClass(false);
 			setPreventBack(false);
+
+			setTimeout(function(){
+				setPopJob(true);
+			}, 100);
 		}
 		chkTotalVal();
 	}, [realClass, realClass2]);  
@@ -321,12 +333,20 @@ const RegisterStep5 = ({navigation, route}) => {
 			if(realSmoke == 0){
 				setPopDrink(false);
 				setPreventBack(false);
+
+				setTimeout(function(){
+					setPopMbti(true);
+				}, 100);
 			}else{
 				if(realSmokeSort != undefined){
 					setPopDrink(false);
 					setPreventBack(false);
+
+					setTimeout(function(){
+						setPopMbti(true);
+					}, 100);
 				}
-			}
+			}			
 		}
 		chkTotalVal();
 	}, [realDrink, realSmoke, realSmokeSort])
@@ -504,9 +524,11 @@ const RegisterStep5 = ({navigation, route}) => {
 		}
 	}
 
-	const routeSave = () => {
+	const routeSave = () => {				
 		if(route['params']['member_nick']){ setRealNick(route['params']['member_nick']);}
-		if(route['params']['member_sex']){ setRealGender(route['params']['member_sex']);}
+		if(route['params']['member_sex']){ 
+			setRealGender(route['params']['member_sex']);
+		}
 		if(route['params']['member_main_local']){ setRealLocal1(route['params']['member_main_local']);}
 		if(route['params']['member_main_local_detail']){ 
 			//console.log(route['params']['member_main_local_detail']);
@@ -695,6 +717,9 @@ const RegisterStep5 = ({navigation, route}) => {
 				setRealNick(nick);
 				setPreventBack(false);
 				setNickCert(true);
+				setTimeout(function(){
+					setPopGender(true);
+				}, 100);
 				//ToastMessage('사용할 수 있는 닉네임 입니다.');
 			}else{
 				setNickCert(false);
@@ -717,6 +742,10 @@ const RegisterStep5 = ({navigation, route}) => {
 			}
 			setPreventBack(false);
 
+			setTimeout(function(){
+				setPopClass(true);
+			}, 100);
+
 		}else if(v == 'job'){
 			if(job == ''){
 				ToastMessage('직업을 입력 또는 선택해 주세요.');
@@ -728,6 +757,10 @@ const RegisterStep5 = ({navigation, route}) => {
 			setRealJobDetail(jobDetail);
 			setPreventBack(false);
 
+			setTimeout(function(){
+				setPopPhysical2(true);
+			}, 100);
+
 		}else if(v == 'physical'){
 			if(phyAryCnt < 2 || phyAryCnt > 5){
 				ToastMessage('체형은 2개 이상 5개 이하로 선택해 주세요.');
@@ -738,6 +771,10 @@ const RegisterStep5 = ({navigation, route}) => {
 			setRealPhyAryCnt(phyAryCnt);
 			setPopPhysical(false);
 			setPreventBack(false);
+
+			setTimeout(function(){
+				setPopDrink(true);
+			}, 100);
 		}else if(v == 'mbti'){
 			if(mbtiRes1 == '' || mbtiRes2 == '' || mbtiRes3 == '' || mbtiRes4 == ''){
 				ToastMessage('MBTI를 완성해 주세요.');
@@ -758,6 +795,10 @@ const RegisterStep5 = ({navigation, route}) => {
 			setMbti7_2(mbti7);
 			setMbti8_2(mbti8);
 			setPreventBack(false);
+
+			setTimeout(function(){
+				setPopRel(true);
+			}, 100);
 		}else if(v == 'physical2'){
 
 			setRealHeight(height);
@@ -769,6 +810,10 @@ const RegisterStep5 = ({navigation, route}) => {
 			setRealNoFat(noFat);
 			setPopPhysical2(false);
 			setPreventBack(false);
+
+			setTimeout(function(){
+				setPopExe(true);
+			}, 100);
 		}else if(v == 'exe'){
 
 			if(exeList.length < 1 && !exeRest && !exeAddSt){
@@ -817,13 +862,17 @@ const RegisterStep5 = ({navigation, route}) => {
 				setRealExeList(exeList);
 				setPopExe(false);
 				setPreventBack(false);
+
+				setTimeout(function(){
+					setPopPhysical(true);
+				}, 100);
 			}
 
 			setExeAddSt(false);
 			setExePeri('');
 			setExeDay('0');
 			setExeSportIdx();
-			setExeSport('');
+			setExeSport('');			
 		}
 	}	
 
@@ -843,11 +892,15 @@ const RegisterStep5 = ({navigation, route}) => {
 				
 		if(realRel == '' || realRel == undefined){ ToastMessage('종교를 선택해 주세요.'); return false; }
 
+		console.log(phonenumber+'///'+age+'///'+gender+'///'+name);
+
 		const nextObj = {
 			prvChk4:prvChk4,
 			accessRoute:accessRoute,
 			phonenumber:phonenumber,
       age:age,
+			gender: gender,
+      name: name,
 			member_id:member_id,
 			member_pw:member_pw,
 			member_nick:realNick,
@@ -1288,7 +1341,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					behavior={behavior}
 				>
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-						<View style={{...styles.prvPop, top:keyboardHeight}}>
+						<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 							<TouchableOpacity
 								style={styles.pop_x}					
 								onPress={() => {
@@ -1348,7 +1401,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={styles.prvPop}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -1371,6 +1424,9 @@ const RegisterStep5 = ({navigation, route}) => {
 									setRealGender(0);
 									setPreventBack(false);
 									getPhyData(0);
+									setTimeout(function(){
+										setPopLocal(true);
+									}, 100);
 								}}
 							>
 								<Text style={[styles.popRadioBoxBtnText, realGender == 0 ? styles.popRadioBoxBtnTextOn : null]}>남자</Text>
@@ -1383,6 +1439,9 @@ const RegisterStep5 = ({navigation, route}) => {
 									setRealGender(1);
 									setPreventBack(false);
 									getPhyData(1);
+									setTimeout(function(){
+										setPopLocal(true);
+									}, 100);
 								}}
 							>
 								<Text style={[styles.popRadioBoxBtnText, realGender == 1 ? styles.popRadioBoxBtnTextOn : null]}>여자</Text>
@@ -1403,8 +1462,8 @@ const RegisterStep5 = ({navigation, route}) => {
 						Keyboard.dismiss();
 					}}
 				>
-				</TouchableOpacity>
-				<View style={{...styles.prvPop}}>
+				</TouchableOpacity>				
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -1523,7 +1582,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -1595,7 +1654,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					}}
 				></TouchableOpacity>
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-					<View style={{...styles.prvPop, top:keyboardHeight}}>
+					<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 						<TouchableOpacity
 							style={styles.pop_x}					
 							onPress={() => {
@@ -1737,7 +1796,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -1791,7 +1850,8 @@ const RegisterStep5 = ({navigation, route}) => {
 									{noWeight ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
 									) : (
-										<ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
+										// <ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
+										<View style={styles.noCheckbox}></View>
 									)}
 									<Text style={styles.notPickBtnText}>선택안함</Text>
 								</TouchableOpacity>
@@ -1828,7 +1888,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									{noMuscle ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
 									) : (
-										<ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
+										<View style={styles.noCheckbox}></View>
 									)}
 									<Text style={styles.notPickBtnText}>선택안함</Text>
 								</TouchableOpacity>
@@ -1865,7 +1925,7 @@ const RegisterStep5 = ({navigation, route}) => {
 									{noFat ? (
 										<ImgDomain fileWidth={20} fileName={'icon_chk3.png'}/>
 									) : (
-										<ImgDomain fileWidth={20} fileName={'icon_chk2.png'}/>
+										<View style={styles.noCheckbox}></View>
 									)}
 									<Text style={styles.notPickBtnText}>선택안함</Text>
 								</TouchableOpacity>
@@ -1920,7 +1980,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -2110,7 +2170,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -2169,7 +2229,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -2273,7 +2333,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={[styles.prvPop]}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -2567,7 +2627,7 @@ const RegisterStep5 = ({navigation, route}) => {
 					}}
 				>
 				</TouchableOpacity>
-				<View style={styles.prvPop}>
+				<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? -(stBarHt-5) : keyboardHeight}}>
 					<TouchableOpacity
 						style={styles.pop_x}					
 						onPress={() => {
@@ -2647,7 +2707,7 @@ const styles = StyleSheet.create({
 	popBack: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,},
 	prvPop: {position:'relative',zIndex:10,width:innerWidth,maxHeight:innerHeight,paddingTop:50,paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',borderRadius:10,},
 	prvPop2: {height:innerHeight,},
-	prvPop3: {position:'absolute',left:20,top:20+(stBarHt/2),paddingHorizontal:10,},
+	prvPop3: {position:'absolute',left:20,top:Platform.OS == 'ios' ? stBarHt/3 : 20+(stBarHt/2),paddingHorizontal:10,},
 	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
 	popTitle: {paddingBottom:20,},
 	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E'},
@@ -2770,7 +2830,8 @@ const styles = StyleSheet.create({
 	restBtnText : {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:18,color:'#1e1e1e',marginLeft:8,},
 
 	notPickBtn: {flexDirection:'row',alignItems:'center'},
-	notPickBtnText: {fontFamily:Font.NotoSansMedium,fontSize:12,color:'#243B55',marginLeft:5,},
+	notPickBtnText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:20,color:'#243B55',marginLeft:5,},
+	noCheckbox: {width:20,height:20,backgroundColor:'#fff',borderWidth:1,borderColor:'#243B55',borderRadius:2,},
 
 	red: {color:'#EE4245'},
 	gray: {color:'#B8B8B8'},

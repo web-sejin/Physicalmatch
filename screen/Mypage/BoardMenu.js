@@ -23,7 +23,7 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const BoardMenu = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -140,6 +140,14 @@ const BoardMenu = (props) => {
             onPress={()=>{navigation.navigate('Privacy')}}
           >
             <Text style={styles.btnText2}>개인정보 처리방침 / 이용약관</Text>
+            <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.btn, styles.btn2]}
+            activeOpacity={opacityVal}
+            onPress={()=>{navigation.navigate('RefundCont')}}
+          >
+            <Text style={styles.btnText2}>환불정책</Text>
             <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
           </TouchableOpacity>
         </View>

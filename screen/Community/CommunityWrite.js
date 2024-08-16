@@ -186,13 +186,13 @@ const CommunityWrite = (props) => {
 
       const formData = APIs.makeFormData(sData)
       const response = await APIs.multipartRequest(formData);
-      console.log('111 ', response);
+      //console.log('111 ', response);
       if(response.code == 200){
         submitState = true;
       }
     }else{
       const response = await APIs.send(sData);    
-      console.log('222 ', response);
+      //console.log('222 ', response);
       if(response.code == 200){
         submitState = true;
       }
@@ -204,7 +204,7 @@ const CommunityWrite = (props) => {
       setPreventBack(false);
       setTimeout(function(){
         setLoading(false);
-        navigation.navigate('TabNavigation', {screen:'Community', params : {reload:true}});
+        navigation.navigate('TabNavigation', {screen:'Community', params : {reload:true, writeType:cate}});
       }, 200)
     }
   }
@@ -303,12 +303,18 @@ const CommunityWrite = (props) => {
                     maxLength={1000}
                   />
                   <View style={styles.help_box}>
-                    {cate == 0 || cate == 1 ? (
-                      <Text style={styles.alertText2}>최소 5자 이상 입력해 주세요.</Text>
-                    ) : null}
-                    {cate == 2 || cate == 3 ? (
-                      <Text style={styles.alertText2}>최소 30자 이상 입력해 주세요.</Text>
-                    ) : null}              
+                    <View style={styles.alertTextView}>
+                      {cate == 0 || cate == 1 ? (
+                        content.length < 5 ? (
+                        <Text style={[styles.alertText2, styles.alertText3]}>최소 5자 이상 입력해 주세요.</Text>
+                        ) : null
+                      ) : null}
+                      {cate == 2 || cate == 3 ? (
+                        content.length < 30 ? (
+                          <Text style={[styles.alertText2, styles.alertText3]}>최소 30자 이상 입력해 주세요.</Text>
+                          ) : null
+                      ) : null}
+                    </View>              
                     <Text style={styles.txtCntText}>{content.length}/1000</Text>
                   </View>
                 </View> 
@@ -474,10 +480,12 @@ const styles = StyleSheet.create({
   input4: {width:innerWidth-25,},
   inputLine0 : {borderBottomWidth:0,},
   inputText: {fontFamily:Font.NotoSansRegular,fontSize: 16, lineHeight:21, color: '#1e1e1e',},
-  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,paddingTop:15,color:'#1e1e1e',paddingTop:paddTop,},
+  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:15,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:14,paddingTop:15,color:'#1e1e1e',paddingTop:15,},
 
   help_box: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:5,},
+  alertTextView: {minWidth:1,},
 	alertText2: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#B8B8B8',},
+  alertText3: {color:'#EE4245',},
 	txtCntText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#b8b8b8'},
 
   imgBox: {flexDirection:'row',marginTop:20,},

@@ -27,6 +27,7 @@ import ImgDomain from '../assets/common/ImgDomain';
 import Card from '../components/Card';
 import Card2 from '../components/Card2';
 import Card3 from '../components/Card3';
+import Card4 from '../components/Card4';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -80,17 +81,8 @@ const Home = (props) => {
 	const [ageAryIdx, setAgeAryIdx] = useState([]);
 	const [ageMinInt, setAgeMinInt] = useState();
 	const [ageMaxInt, setAgeMaxInt] = useState();
-	// const [ageMin, setAgeMin] = useState('');
-	// const [ageMax, setAgeMax] = useState('');
-	// const [ageMin2, setAgeMin2] = useState('');
-	// const [ageMax2, setAgeMax2] = useState('');
-	// const [realAgeMin, setRealAgeMin] = useState('');
-	// const [realAgeMax, setRealAgeMax] = useState('');
-	// const [realAgeMin2, setRealAgeMin2] = useState('');
-	// const [realAgeMax2, setRealAgeMax2] = useState('');
-	// const [distanceStandard, setDistanceStandard] = useState();
-	// const [distance, setDistance] = useState();
-	// const [distance2, setDistance2] = useState();
+	const [ageMax, setAgeMax] = useState();
+	const [ageMin, setAgeMin] = useState();
 	const [recentAccess, setRecentAccess] = useState();
 	const [prdIdx, setPrdIdx] = useState(1);
 	const [skuCode, setSkuCode] = useState();
@@ -100,20 +92,8 @@ const Home = (props) => {
   const [platformData, setPlatformData] = useState(null);
 
 	//필터 임시 저장
-	const [tempAgeMin, setTempAgeMin] = useState('');
-	const [tempAgeMax, setTempAgeMax] = useState('');
-	const [tempAgeMin2, setTempAgeMin2] = useState('');
-	const [tempAgeMax2, setTempAgeMax2] = useState('');
 	const [tempNonCollidingMultiSliderValue, setTempNonCollidingMultiSliderValue] = useState([]);
 	const [tempNonCollidingMultiSliderValue2, setTempNonCollidingMultiSliderValue2] = useState([]);
-	const [tempRealAgeMin, setTempRealAgeMin] = useState('');
-	const [tempRealAgeMax, setTempRealAgeMax] = useState('');
-	const [tempRealAgeMin2, setTempRealAgeMin2] = useState('');
-	const [tempRealAgeMax2, setTempRealAgeMax2] = useState('');
-	const [tempDistanceStandard, setTempDistanceStandard] = useState();
-	const [tempDistance, setTempDistance] = useState();
-	const [tempDistance2, setTempDistance2] = useState();
-	const [tempRecentAccess, setTempRecentAccess] = useState();
 	const [tempData, setTempData] = useState({
 		tempAgeMins: '',
 		tempAgeMaxs: '',
@@ -154,17 +134,17 @@ const Home = (props) => {
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 
-			//console.log('userInfo :::: ', userInfo);
+			//console.log('userInfo :::: ', userInfo.is_new);
 
 			AsyncStorage.getItem('member_idx', (err, result) => {		
 				setMemberIdx(result);
 			});
 
+			getInterList();
 			if(params?.reload){	
         getMemberInfo();
 				getMemberProtain();
-				getCardList();
-				getInterList();
+				getCardList();				
         delete params?.reload;
       }			
 		}
@@ -368,8 +348,7 @@ const Home = (props) => {
 			member_idx: memberIdx,
 		};
 
-		const response = await APIs.send(sData);
-		//console.log(response.data);
+		const response = await APIs.send(sData);		
 		if(response.code == 200){
       setMemberInfo(response.data);
 			setMemberPoint(response.data.member_point);
@@ -427,14 +406,8 @@ const Home = (props) => {
 				findeIndex2 = 0;
 			}
 
-			//setRealAgeMax(startAge.toString());
-			//setRealAgeMin(endAge.toString());
-
 			let yearString = startAge.toString().substr(2,2);
 			let yearString2 = endAge.toString().substr(2,2);
-
-			//setAgeMin(yearString2.toString());
-			//setAgeMax(yearString.toString());			
 
 			setNonCollidingMultiSliderValue([findeIndex2, findeIndex]);
 			//선호 카드 설정 끝
@@ -456,36 +429,24 @@ const Home = (props) => {
 				findeIndex4 = 0;
 			}
 
-			// setRealAgeMax2(startAge2.toString());
-			// setRealAgeMin2(endAge2.toString());
-
 			let yearString3 = startAge2.toString().substr(2,2);
-			let yearString4 = endAge2.toString().substr(2,2);
-
-			// setAgeMin2(yearString4.toString());
-			// setAgeMax2(yearString3.toString());			
+			let yearString4 = endAge2.toString().substr(2,2);	
 
 			setNonCollidingMultiSliderValue2([findeIndex4, findeIndex3]);
 			//내 카드 설정 끝
 
-			// setDistanceStandard(response.data.ms_distance_type);
-			// setDistance(parseInt(response.data.ms_distance));
-			// setDistance2(parseInt(response.data.ms_sub_distance));
 			let distance = 20;
 			if(response.data.ms_distance){
-				//setRecentAccess(parseInt(response.data.ms_logined_at));
 				distance = parseInt(response.data.ms_distance);
 			}
 
 			let distance2 = 20;
 			if(response.data.ms_sub_distance){
-				//setRecentAccess(parseInt(response.data.ms_logined_at));
 				distance2 = parseInt(response.data.ms_sub_distance);
 			}
 			
 			let loginedAt = 7;
 			if(response.data.ms_logined_at){
-				//setRecentAccess(parseInt(response.data.ms_logined_at));
 				loginedAt = parseInt(response.data.ms_logined_at);
 			}
 			
@@ -531,11 +492,15 @@ const Home = (props) => {
 		let yaerAry = [];
 		let yaerAryIdx = [];
 		let cnt = 0;
-		for(let i=year; i<=year2; i++){
+		for(let i=year; i<=year2; i++){			
 			yaerAry.unshift(i);
 			yaerAryIdx.push(cnt);
 			cnt++;
 		}		
+		
+		setAgeMax(yaerAry[cnt-1]);
+		setAgeMin(yaerAry[0]);
+
 		setAgeAry(yaerAry);
 		setAgeAryIdx(yaerAryIdx);
 		setAgeMinInt(5);
@@ -543,6 +508,7 @@ const Home = (props) => {
 	}	
 
 	const getInterList = async () => {
+		//console.log('getInterList !!!!!');
 		let sData = {      
       basePath: "/api/match/",
 			type: "GetInterestCard",
@@ -644,16 +610,19 @@ const Home = (props) => {
 			ms_min_age: msMaxAge,
 			ms_max_age: msMinAge,
 			ms_distance_type: realData.tempDistanceStandards,
-			ms_distance: realData.tempDistances,
-			ms_sub_distance: realData.tempDistance2s,
+			ms_distance: realData.tempDistances,			
 			ms_logined_at: realData.tempRecentAccesss,
 			ms_min_open_age: msMaxOpenAge,
 			ms_max_open_age: msMinOpenAge,
 		};
 
+		if(memberInfo?.member_sub_local != ''){
+			sData.ms_sub_distance = realData.tempDistance2s;
+		}
+
 		let msg = '';
 		const response = await APIs.send(sData);
-		console.log(response);
+		//console.log(response);
 		if(response.code == 200){
 			msg = '필터가 수정되었습니다.';
 			setFilterSave(true);
@@ -833,14 +802,8 @@ const Home = (props) => {
 				findeIndex2 = 0;
 			}
 
-			//setRealAgeMax(startAge.toString());
-			//setRealAgeMin(endAge.toString());
-
 			let yearString = startAge.toString().substr(2,2);
-			let yearString2 = endAge.toString().substr(2,2);
-
-			//setAgeMin(yearString2.toString());
-			//setAgeMax(yearString.toString());								
+			let yearString2 = endAge.toString().substr(2,2);						
 
 			setNonCollidingMultiSliderValue([findeIndex2, findeIndex]);
 			//선호 카드 설정 끝
@@ -862,38 +825,24 @@ const Home = (props) => {
 				findeIndex4 = 0;
 			}
 
-			//setRealAgeMax2(startAge2.toString());
-			//setRealAgeMin2(endAge2.toString());
-
 			let yearString3 = startAge2.toString().substr(2,2);
-			let yearString4 = endAge2.toString().substr(2,2);
-
-			//setAgeMin2(yearString4.toString());
-			//setAgeMax2(yearString3.toString());					
+			let yearString4 = endAge2.toString().substr(2,2);			
 
 			setNonCollidingMultiSliderValue2([findeIndex4, findeIndex3]);
 			//내 카드 설정 끝
 
-			//setDistanceStandard(response.data.ms_distance_type);
-			//setDistance(parseInt(response.data.ms_distance));
-			//setDistance2(parseInt(response.data.ms_sub_distance));
-			//setRecentAccess(parseInt(response.data.ms_logined_at));
-
 			let distance = 20;
 			if(response.data.ms_distance){
-				//setRecentAccess(parseInt(response.data.ms_logined_at));
 				distance = parseInt(response.data.ms_distance);
 			}
 
 			let distance2 = 20;
 			if(response.data.ms_sub_distance){
-				//setRecentAccess(parseInt(response.data.ms_logined_at));
 				distance2 = parseInt(response.data.ms_sub_distance);
 			}
 			
 			let loginedAt = 7;
 			if(response.data.ms_logined_at){
-				//setRecentAccess(parseInt(response.data.ms_logined_at));
 				loginedAt = parseInt(response.data.ms_logined_at);
 			}
 			
@@ -915,20 +864,22 @@ const Home = (props) => {
 	}
 
 	const offFilterPop = () => {
-		// setAgeMin(tempAgeMin);
-		// setAgeMax(tempAgeMax);
-		// setAgeMin2(tempAgeMin2);
-		// setAgeMax2(tempAgeMax2);
-		// setNonCollidingMultiSliderValue(tempNonCollidingMultiSliderValue);
-		// setNonCollidingMultiSliderValue2(tempNonCollidingMultiSliderValue2);
-		// setRealAgeMin(tempRealAgeMin);
-		// setRealAgeMax(tempRealAgeMax);
-		// setRealAgeMin2(tempRealAgeMin2);
-		// setRealAgeMax2(tempRealAgeMax2);
-		// setDistanceStandard(tempDistanceStandard);
-		// setDistance(tempDistance);
-		// setDistance2(tempDistance2);
-		// setRecentAccess(tempRecentAccess);
+		setNonCollidingMultiSliderValue(tempNonCollidingMultiSliderValue);
+		setNonCollidingMultiSliderValue2(tempNonCollidingMultiSliderValue2);
+		setRealData({
+			tempAgeMins: tempData.tempAgeMins,
+			tempAgeMaxs: tempData.tempAgeMaxs,
+			tempAgeMin2s: tempData.tempAgeMin2s,
+			tempAgeMax2s: tempData.tempAgeMax2s,
+			tempRealAgeMins: tempData.tempRealAgeMins,
+			tempRealAgeMaxs: tempData.tempRealAgeMaxs,
+			tempRealAgeMin2s: tempData.tempRealAgeMin2s,
+			tempRealAgeMax2s: tempData.tempRealAgeMax2s,
+			tempDistanceStandards: tempData.tempDistanceStandards,
+			tempDistances: tempData.tempDistances,
+			tempDistance2s: tempData.tempDistance2s,
+			tempRecentAccesss: tempData.tempRecentAccesss
+		});
 
 		setFilterPop(false);
 	}
@@ -942,6 +893,12 @@ const Home = (props) => {
 			setLeaveMsg('탈퇴한 회원이에요');
 		}else if(v == '4'){
 			setLeaveMsg('차단된 회원이에요');
+		}else if(v == '5'){
+			setLeaveMsg('신고한 회원이에요');
+		}else if(v == '6'){
+			setLeaveMsg('카드를 비활성화한 회원이에요');
+		}else if(v == '7'){
+			setLeaveMsg('이미 지인이 된 회원이에요');
 		}
 		setLeavePop(true);
 	}
@@ -951,13 +908,15 @@ const Home = (props) => {
 	}
 
 	const addCardList = async () => {
-		setLoading(true);
+		//setLoading(true);		
+		setAddIntroPop(false);
 		let openType = 0;
 		if(todayFree < 1){
 			openType = 1;
 		}else{
 			openType = 0;
 		}
+		
 		let sData = {
 			basePath: "/api/match/",
 			type: "SetDailyCard",
@@ -965,24 +924,66 @@ const Home = (props) => {
 			open_type: openType,
 		};
 		const response = await APIs.send(sData);		
-		//console.log(response);
+		//console.log('addCardList ::: ', response);
 		if(response.code == 200){
 			if(response.add_yn == 'y'){
 				getMemberProtain();
 				const newsTest = response.data.filter(el => el.length > 0);			
 				setCardList(newsTest);
-			}else{
-				if(filterSave){
-					setUnAddIntroPop2(true);
-				}else{
-					setUnAddIntroPop1(true);
+
+				if(openType == 0){
+					setTodayFree(todayFree - 1);
 				}
+			}else{
+				//ageMax, ageMin, 500, 500, 28
+				
+				// const [realData, setRealData] = useState({
+				// 	tempAgeMins: '',
+				// 	tempAgeMaxs: '',
+				// 	tempAgeMin2s: '',
+				// 	tempAgeMax2s: '',
+				// 	tempRealAgeMins: '',
+				// 	tempRealAgeMaxs: '',
+				// 	tempRealAgeMin2s: '',
+				// 	tempRealAgeMax2s: '',
+				// 	tempDistanceStandards: '',
+				// 	tempDistances: '',
+				// 	tempDistance2s: '',
+				// 	tempRecentAccesss: '',
+				// });
+				//console.log('realData ::: ', realData);
+				if(realData.tempDistanceStandards == 0 
+						&& realData.tempRealAgeMins == ageMin 
+						&& realData.tempRealAgeMaxs == ageMax
+						&& realData.tempDistances == 500
+						&& realData.tempRecentAccesss == 28
+						&& realData.tempRealAgeMin2s == ageMin
+						&& realData.tempRealAgeMax2s == ageMax
+				){
+					setUnAddIntroPop1(true);
+				}else if(realData.tempDistanceStandards == 1
+					&& realData.tempRealAgeMins == ageMin 
+					&& realData.tempRealAgeMaxs == ageMax
+					&& realData.tempDistance2s == 500
+					&& realData.tempRecentAccesss == 28
+					&& realData.tempRealAgeMin2s == ageMin
+					&& realData.tempRealAgeMax2s == ageMax
+				){
+					setUnAddIntroPop1(true);
+				}else{
+					setUnAddIntroPop2(true);
+				}
+				
+				// if(filterSave){
+				// 	setUnAddIntroPop2(true);
+				// }else{
+				// 	setUnAddIntroPop1(true);
+				// }
 			}
-		}
-		setAddIntroPop(false);
+		}		
 		setTimeout(() => {
 			setLoading(false);
-		}, 100);
+		}, 200);
 	}
 
 	const checkWelcom = async () => {
@@ -1024,7 +1025,7 @@ const Home = (props) => {
   };	
 
 	const moveAlimPage = async () => {
-		navigation.navigate('Alim');
+		navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type});
 	}
 
 	const headerHeight = 48;
@@ -1044,20 +1045,22 @@ const Home = (props) => {
 							style={styles.headerLnbBtn}
 							activeOpacity={opacityVal}
 							onPress={() => {
-								// setTempAgeMin(ageMin);
-								// setTempAgeMax(ageMax);
-								// setTempAgeMin2(ageMin2);
-								// setTempAgeMax2(ageMax2);
-								// setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
-								// setTempNonCollidingMultiSliderValue2(nonCollidingMultiSliderValue2);
-								// setTempRealAgeMin(realAgeMin);
-								// setTempRealAgeMax(realAgeMax);
-								// setTempRealAgeMin2(realAgeMin2);
-								// setTempRealAgeMax2(realAgeMax2);
-								// setTempDistanceStandard(distanceStandard);
-								// setTempDistance(distance);
-								// setTempDistance2(distance2);
-								// setTempRecentAccess(recentAccess);	
+								setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
+								setTempNonCollidingMultiSliderValue2(nonCollidingMultiSliderValue2);
+								setTempData({
+									tempAgeMins: realData.tempAgeMins,
+									tempAgeMaxs: realData.tempAgeMaxs,
+									tempAgeMin2s: realData.tempAgeMin2s,
+									tempAgeMax2s: realData.tempAgeMax2s,
+									tempRealAgeMins: realData.tempRealAgeMins,
+									tempRealAgeMaxs: realData.tempRealAgeMaxs,
+									tempRealAgeMin2s: realData.tempRealAgeMin2s,
+									tempRealAgeMax2s: realData.tempRealAgeMax2s,
+									tempDistanceStandards: realData.tempDistanceStandards,
+									tempDistances: realData.tempDistances,
+									tempDistance2s: realData.tempDistance2s,
+									tempRecentAccesss: realData.tempRecentAccesss
+								});
 								setFilterPop(true);
 							}}
 						>
@@ -1149,14 +1152,12 @@ const Home = (props) => {
 												// 	ToastMessage('이미 모두 사용했습니다.');
 												// 	return false;
 												// }
-												addCardList();
-												setTodayFree(todayFree - 1);
+												addCardList();												
 											}}
 										>
 											<Text style={styles.todayFreeBtnText}>무료 소개 받기 ({todayFree}/2)</Text>
 										</TouchableOpacity>
 									) : (
-										<>
 										<TouchableOpacity
 											style={[styles.todayFreeBtn]}
 											activeOpacity={opacityVal}
@@ -1164,28 +1165,13 @@ const Home = (props) => {
 										>
 											<Text style={styles.todayFreeBtnText}>추가 소개 받기</Text>
 										</TouchableOpacity>
-
-										{/* <TouchableOpacity
-											style={[styles.todayFreeBtn, styles.mgt10]}
-											activeOpacity={opacityVal}
-											onPress={() => {
-												if(filterSave){
-													setUnAddIntroPop2(true);
-												}else{
-													setUnAddIntroPop1(true);
-												}
-											}}
-										>
-											<Text style={styles.todayFreeBtnText}>추가 소개 받기 불가</Text>
-										</TouchableOpacity> */}
-										</>
 									)}
 								</LinearGradient>
-							</View>
+							</View>							
 						</View>
 
 						<View style={[styles.newCardSection]}>							
-							{cardList.map((item, index) => {
+							{cardList.map((item, index) => {								
 								return (
 									<View key={index} style={[styles.cardView, styles.cardView2]}>		
 										{item.map((item2, index2) => {
@@ -1201,14 +1187,14 @@ const Home = (props) => {
 										})}
 
 
-										{item.map((item2, index2) => {												
+										{item.map((item2, index2) => {																							
 											const job = item2.member_job+" "+item2.member_job_detail;
 											let openState = false;
 											if((index == 0 && (index2 == 0 || index2 == 1)) || item2.open_yn == 'y'){
 												openState = true;
 											}
 											
-											if(item2.available_yn == 'n' || item2.card_yn == 'n' || item2.delete_yn == 'y' || item2.block_yn == 'y'){
+											if(item2.available_yn == 'n' || item2.card_yn == 'n' || item2.delete_yn == 'y' || item2.block_yn == 'y' || item2.rel_yn == 'y'){
 												openState = false;
 											}
 											return (													
@@ -1230,6 +1216,8 @@ const Home = (props) => {
 														propsCardState={item2.card_yn}
 														propsDeleteState={item2.delete_yn}
 														propsBlockState={item2.block_yn}
+														propsReportState={item2.report_yn}
+														propsRelState={item2.rel_yn}
 														propsImg={item2.mpi_img}
 														myMemberIdx={memberIdx}
 														ModalEvent={modalPopOn}
@@ -1297,6 +1285,7 @@ const Home = (props) => {
 															propsBlockState={item.block_yn}
 															propsImg={item.mpi_img}
 															propsDday={item.diff_date}
+															propsReportState={item.report_yn}
 															ModalEvent={modalPopOn}
 														/>
 													)
@@ -1340,8 +1329,8 @@ const Home = (props) => {
 														</TouchableOpacity>
 													)
 												}else{
-													return (
-														<Card3
+													return (														
+														<Card4
 															navigation={navigation}
 															key={index}													
 															propsNick={item.member_nick}
@@ -1357,6 +1346,7 @@ const Home = (props) => {
 															propsBlockState={item.block_yn}
 															propsImg={item.mpi_img}
 															propsDday={item.diff_date}
+															propsReportState={item.report_yn}
 															ModalEvent={modalPopOn}
 														/>
 													)
@@ -1419,6 +1409,7 @@ const Home = (props) => {
 															propsBlockState={item.block_yn}
 															propsImg={item.mpi_img}
 															propsDday={item.diff_date}
+															propsReportState={item.report_yn}
 															ModalEvent={modalPopOn}
 														/>
 													)
@@ -1477,6 +1468,7 @@ const Home = (props) => {
 															propsBlockState={item.block_yn}
 															propsImg={item.mpi_img}
 															propsDday={item.diff_date}
+															propsReportState={item.report_yn}
 															ModalEvent={modalPopOn}
 														/>
 													)
@@ -1535,6 +1527,7 @@ const Home = (props) => {
 															propsBlockState={item.block_yn}
 															propsImg={item.mpi_img}
 															propsDday={item.diff_date}
+															propsReportState={item.report_yn}
 															ModalEvent={modalPopOn}
 														/>
 													)
@@ -1593,6 +1586,7 @@ const Home = (props) => {
 															propsBlockState={item.block_yn}
 															propsImg={item.mpi_img}
 															propsDday={item.diff_date}
+															propsReportState={item.report_yn}
 															ModalEvent={modalPopOn}
 														/>
 													)
@@ -1651,6 +1645,7 @@ const Home = (props) => {
 															propsBlockState={item.block_yn}
 															propsImg={item.mpi_img}
 															propsDday={item.diff_date}
+															propsReportState={item.report_yn}
 															ModalEvent={modalPopOn}
 														/>
 													)
@@ -1718,6 +1713,7 @@ const Home = (props) => {
 															propsBlockState={item.block_yn}
 															propsImg={item.mpi_img}
 															propsDday={item.diff_date}
+															propsReportState={item.report_yn}
 															ModalEvent={modalPopOn}
 														/>
 													)
@@ -1792,7 +1788,7 @@ const Home = (props) => {
 									nonCollidingMultiSliderValue[1],
 								]}
 								markerOffsetY={1}
-								sliderLength={innerWidth}
+								sliderLength={innerWidth}								
 								min={ageMaxInt}
 								max={ageMinInt}
 								step={1}
@@ -1810,15 +1806,6 @@ const Home = (props) => {
 																		
 									let yearString = first.toString();
 									let yearString2 = last.toString();
-
-									//setRealAgeMin(yearString);																		
-									//setRealAgeMax(yearString2);
-
-									// yearString = yearString.substr(2,2);
-									// yearString2 = yearString2.substr(2,2);
-									
-									//setAgeMin(yearString);
-									//setAgeMax(yearString2);
 
 									let yearString3 = yearString.substr(2,2);
 									let yearString4 = yearString2.substr(2,2);
@@ -1881,6 +1868,7 @@ const Home = (props) => {
 								values={[parseInt(realData.tempDistances)]}
 								markerOffsetY={1}
 								sliderLength={innerWidth}
+								enableTap={true}
 								value={[0]}
 								min={10}
 								max={500}
@@ -1903,6 +1891,7 @@ const Home = (props) => {
 								}}
 							/>
 						</View>
+						{memberInfo?.member_sub_local != '' ? (
 						<View style={[styles.msBox, styles.mgt30]}>
 							<View style={[styles.msTitleBox]}>
 								<TouchableOpacity 
@@ -1963,6 +1952,7 @@ const Home = (props) => {
 								}}
 							/>
 						</View>
+						) : null}
 			
 						<View style={[styles.msBox, styles.mgt50]}>
 							<View style={[styles.msTitleBox, styles.mgb25]}>
@@ -1971,7 +1961,7 @@ const Home = (props) => {
 							</View>
 							<View style={styles.multiSliderCustom}>
 								<View style={styles.multiSliderDotBack}>
-									<View style={[styles.multiSliderDotBackOn, realData.tempRecentAccesss == 14 ? styles.w33p : null, realData.tempRecentAccesss == 21 ? styles.w66p : null, recentAccess == 28 ? styles.w100p : null]}></View>
+									<View style={[styles.multiSliderDotBackOn, realData.tempRecentAccesss == 14 ? styles.w33p : null, realData.tempRecentAccesss == 21 ? styles.w66p : null, realData.tempRecentAccesss == 28 ? styles.w100p : null]}></View>
 								</View>
 								<TouchableOpacity 
 									style={[styles.multiSliderDot, styles.boxShadow]}
@@ -2067,16 +2057,7 @@ const Home = (props) => {
 										const last = ageAry[e[1]];
 										
 										let yearString = first.toString();
-										let yearString2 = last.toString();																
-
-										// setRealAgeMin2(yearString);
-										// setRealAgeMax2(yearString2);
-
-										// yearString = yearString.substr(2,2);
-										// yearString2 = yearString2.substr(2,2);
-										
-										// setAgeMin2(yearString);
-										// setAgeMax2(yearString2);
+										let yearString2 = last.toString();
 
 										let yearString3 = yearString.substr(2,2);
 										let yearString4 = yearString2.substr(2,2);
@@ -2295,7 +2276,10 @@ const Home = (props) => {
 							<TouchableOpacity 
 								style={[styles.popBtn]}
 								activeOpacity={opacityVal}
-								onPress={() => {navigation.navigate('Community')}}
+								onPress={() => {
+									setUnAddIntroPop1(false);
+									navigation.navigate('Community');
+								}}
 							>
 								<Text style={styles.popBtnText}>커뮤니티 바로가기</Text>
 							</TouchableOpacity>
@@ -2349,21 +2333,23 @@ const Home = (props) => {
 								style={[styles.popBtn]}
 								activeOpacity={opacityVal}
 								onPress={() => {
-									// setTempAgeMin(ageMin);
-									// setTempAgeMax(ageMax);
-									// setTempAgeMin2(ageMin2);
-									// setTempAgeMax2(ageMax2);
-									// setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
-									// setTempNonCollidingMultiSliderValue2(nonCollidingMultiSliderValue2);
-									// setTempRealAgeMin(realAgeMin);
-									// setTempRealAgeMax(realAgeMax);
-									// setTempRealAgeMin2(realAgeMin2);
-									// setTempRealAgeMax2(realAgeMax2);
-									// setTempDistanceStandard(distanceStandard);
-									// setTempDistance(distance);
-									// setTempDistance2(distance2);
-									// setTempRecentAccess(recentAccess);									
-									// setUnAddIntroPop2(false);
+									setTempNonCollidingMultiSliderValue(nonCollidingMultiSliderValue);
+									setTempNonCollidingMultiSliderValue2(nonCollidingMultiSliderValue2);
+									setTempData({
+										tempAgeMins: realData.tempAgeMins,
+										tempAgeMaxs: realData.tempAgeMaxs,
+										tempAgeMin2s: realData.tempAgeMin2s,
+										tempAgeMax2s: realData.tempAgeMax2s,
+										tempRealAgeMins: realData.tempRealAgeMins,
+										tempRealAgeMaxs: realData.tempRealAgeMaxs,
+										tempRealAgeMin2s: realData.tempRealAgeMin2s,
+										tempRealAgeMax2s: realData.tempRealAgeMax2s,
+										tempDistanceStandards: realData.tempDistanceStandards,
+										tempDistances: realData.tempDistances,
+										tempDistance2s: realData.tempDistance2s,
+										tempRecentAccesss: realData.tempRecentAccesss
+									});
+									setUnAddIntroPop2(false);
 									setFilterPop(true);
 								}}
 							>
@@ -2388,7 +2374,7 @@ const Home = (props) => {
 				>
 				</TouchableOpacity>
 				<View style={[styles.prvPopBot2, styles.prvPopBot4]}>
-					<ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/welcome.png'}} resizeMode="cover" >
+					<ImageBackground source={{uri:'https://physicalmatch.co.kr/appImg/welcome.png'}} resizeMode="cover" >
 						<View style={styles.prvPopBot2Wrap}>
 							<View style={styles.prvPopBot2Title}>
 								<View style={styles.prvPopBot2View}>
@@ -2466,7 +2452,7 @@ const styles = StyleSheet.create({
 	msCheckBoxCircle: {width:20,height:20,backgroundColor:'#fff',borderWidth:1,borderColor:'#dbdbdb',borderRadius:50,position:'relative'},
 	msCheckBoxCircleOn: {borderColor:'#243B55'},
 	msCheckBoxCircleIn: {width:12,height:12,backgroundColor:'#243B55',borderRadius:50,position:'absolute',left:3,top:3,},
-	msCheckBoxText: {fontFamily:Font.NotoSansRegular,fontSize:12,color:'#1e1e1e',marginLeft:6,},
+	msCheckBoxText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#1e1e1e',marginLeft:6,},
 
 	grediant: {padding:1,borderRadius:5,},
 	boxShadow: {
@@ -2590,7 +2576,7 @@ const styles = StyleSheet.create({
 	nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
   nextBtnOff: {backgroundColor:'#DBDBDB'},
-	nextBtnText: { fontFamily: Font.NotoSansMedium, fontSize: 14, lineHeight: 52, color: '#fff' },
+	nextBtnText: { fontFamily: Font.NotoSansMedium, fontSize: 14, lineHeight: 50, color: '#fff' },
 
 	pointBox: {flexDirection:'row',alignItems:'center',justifyContent:'center'},
 	pointBoxText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#D1913C',marginLeft:6},

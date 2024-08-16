@@ -71,6 +71,8 @@ const CommunityView = (props) => {
   const [receiveMemberIdx, setReceiveMemberIdx] = useState();
   const [falsePop, setFalsePop] = useState(false);
   const [focusState, setFocusState] = useState(false);
+  const [leavePop, setLeavePop] = useState(false);
+  const [leavePopText, setLeavePopText] = useState('');
 
   const [report, setReport] = useState('');
   const [reportEtc, setReportEtc] = useState('');
@@ -729,8 +731,8 @@ const CommunityView = (props) => {
       usePoint = 20;
     }
 
-    if(memberPoint < usePoint){
-      closeTradePop();
+    closeTradePop();
+    if(memberPoint < usePoint){      
       setCashPop(true);
       return false;
     }
@@ -1153,352 +1155,507 @@ const CommunityView = (props) => {
                 </View>
               </View>               
 
-              <View style={styles.lineView}></View>
+              {receiveList.length > 0 || sendList.length > 0 ? (
+                <>
+                <View style={styles.lineView}></View>
 
-              <View style={[styles.cmView, styles.pdt30, styles.pdb40]}>
-                <View style={styles.tradeTitle}>
-                  <View style={styles.tradeTitleWrap}>
-                    <Text style={styles.tradeTitleText}>프로필 교환 신청</Text>
-                    <View style={styles.tradeTitleLine}></View>
-                  </View>
-                </View>
-
-                <View style={styles.mgt30}>
-                  <View style={styles.cmViewTitle2}>
-                    <Text style={styles.cmViewTitleText2}>받은 프로필 교환</Text>
-                  </View>
-                  {receiveList.length < 1 ? (
-                    <View style={[styles.notData, styles.pdt0]}>
-                      <Text style={styles.notDataText}>받은 프로필이 없습니다.</Text>
+                <View style={[styles.cmView, styles.pdt30, styles.pdb40]}>
+                  <View style={styles.tradeTitle}>
+                    <View style={styles.tradeTitleWrap}>
+                      <Text style={styles.tradeTitleText}>프로필 교환 신청</Text>
+                      <View style={styles.tradeTitleLine}></View>
                     </View>
-                  ) : null}
-                  <View style={styles.reqUl}>     
-                    {receiveList.map((item, index) => {
-                      const profileImg = hostUrl+item.send_profile;
-                      if(item.cpc_type == 0){
-                        return (                        
-                          <View key={index} style={[styles.reqLi, styles.boxShadow2, index == 0 ? styles.mgt0 : null]}>
-                            <TouchableOpacity
-                              style={styles.reqUser}
-                              activeOpacity={1}
-                            >
-                              <AutoHeightImage width={46} source={{uri:profileImg}} resizeMethod='resize' />
-                            </TouchableOpacity>
-                            <View style={styles.reqUserInfo}>
-                              <View style={styles.tradeState}>
-                                <View style={styles.tradeStateView}>
-                                  <Text style={styles.tradeStateText}>프로필 교환이 도착했어요</Text>
+                  </View>
+
+                  {receiveList.length > 0 ? (
+                  <View style={styles.mgt30}>
+                    <View style={styles.cmViewTitle2}>
+                      <Text style={styles.cmViewTitleText2}>받은 프로필 교환</Text>
+                    </View>
+                    {receiveList.length < 1 ? (
+                      <View style={[styles.notData]}>
+                        <Text style={styles.notDataText}>받은 프로필이 없습니다.</Text>
+                      </View>
+                    ) : null}
+                    <View style={styles.reqUl}>     
+                      {receiveList.map((item, index) => {
+                        //const profileImg = hostUrl+item.send_profile;
+                        if(item.cpc_type == 0){
+                          return (                        
+                            <View key={index} style={[styles.reqLi, styles.boxShadow2, index == 0 ? styles.mgt0 : null]}>
+                              <TouchableOpacity
+                                style={styles.reqUser}
+                                activeOpacity={1}
+                              >
+                                <ImgDomain2 fileWidth={46} fileName={item.send_profile} />
+                              </TouchableOpacity>
+                              <View style={styles.reqUserInfo}>
+                                <View style={styles.tradeState}>
+                                  <View style={styles.tradeStateView}>
+                                    <Text style={styles.tradeStateText}>프로필 교환이 도착했어요</Text>
+                                  </View>
+                                  <ImgDomain fileWidth={12} fileName={'icon_profile_msg.png'}/>
                                 </View>
-                                <ImgDomain fileWidth={12} fileName={'icon_profile_msg.png'}/>
+                                <View style={styles.reqUserNick}>
+                                  <Text style={styles.reqUserNickText}>{item.send_nick}</Text>                          
+                                </View>
+                                <View style={styles.reqUserDetail}>
+                                  <Text style={styles.reqUserDetailText}>{item.send_age}년생</Text>
+                                  <View style={styles.reqDtLine}></View>
+                                  <Text style={styles.reqUserDetailText}>{item.send_local}</Text>
+                                </View>
                               </View>
-                              <View style={styles.reqUserNick}>
-                                <Text style={styles.reqUserNickText}>{item.send_nick}</Text>                          
-                              </View>
-                              <View style={styles.reqUserDetail}>
-                                <Text style={styles.reqUserDetailText}>{item.send_age}년생</Text>
-                                <View style={styles.reqDtLine}></View>
-                                <Text style={styles.reqUserDetailText}>{item.send_local}</Text>
-                              </View>
-                            </View>
-                            <TouchableOpacity
-                              style={styles.reqOkBtn}
-                              activeOpacity={opacityVal}
-                              onPress={() => {
-                                setTradeType(2);
-                                setTradePop(true);
-                                setPermitCpcIdx(item.cpc_idx);
+                              <TouchableOpacity
+                                style={styles.reqOkBtn}
+                                activeOpacity={opacityVal}
+                                onPress={() => {
+                                  if(item.report_yn == 'y'){
+                                    setLeavePopText('신고한 회원이에요');
+                                    setLeavePop(true);
+                                  }else if(item.leave_yn == 'y'){
+                                    setLeavePopText('탈퇴한 회원이에요');
+                                    setLeavePop(true);
+                                  }else if(item.available_yn == 'n'){
+                                    setLeavePopText('계정비활성화 회원이에요');
+                                    setLeavePop(true);
+                                  }else if(item.card_yn == 'n'){
+                                    setLeavePopText('카드를 비활성화한 회원이에요');
+                                    setLeavePop(true);
+                                  }else{
+                                    setTradeType(2);
+                                    setTradePop(true);
+                                    setPermitCpcIdx(item.cpc_idx);
+                                  }                                  
+                                }}
+                              >
+                                <Text style={styles.reqOkBtnText}>수락</Text>
+                              </TouchableOpacity>
+                            </View>                                                
+                          )
+                        }else if(item.cpc_type == 1 || item.cpc_type == 2){
+                          return (
+                            <TouchableOpacity 
+                              key={index}
+                              style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
+                              activeOpacity={1}           
+                              onPress={()=>{
+                                if(item.diff_date < 1){
+                                  ToastMessage('기간이 만료되었습니다.');
+                                  return false;
+                                }
+
+                                if(item.report_yn == 'y'){
+                                  setLeavePopText('신고한 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.leave_yn == 'y'){
+                                  setLeavePopText('탈퇴한 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.available_yn == 'n'){
+                                  setLeavePopText('계정비활성화 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.card_yn == 'n'){
+                                  setLeavePopText('카드를 비활성화한 회원이에요');
+                                  setLeavePop(true);
+                                }else{                                 
+                                  navigation.navigate(
+                                    'MatchDetail', 
+                                    {
+                                      accessType:'community', 
+                                      mb_member_idx:item.send_member_idx,
+                                      commIdx:item.cpc_idx, 
+                                      currState:item.cpc_type,
+                                      reqMbIdx:item.cpc_request_member_idx,
+                                      recMbIdx:item.cpc_permit_member_idx,                                
+                                    }
+                                  )
+                                }
                               }}
-                            >
-                              <Text style={styles.reqOkBtnText}>수락</Text>
+                            >                  
+                              <ImageBackground source={{uri:'https://physicalmatch.co.kr/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
+                                <View style={[styles.cardBtn, styles.cardBtn3]}>
+                                  <View style={[styles.cardCont, styles.cardCont3]}>		
+                                    <View style={styles.peopleImgBack}>
+                                      <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                                    </View>
+                                    <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                                      <View style={styles.peopleImgBack}>
+                                        <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                                      </View>
+                                      {item.diff_date > 0 ? (
+                                      <>
+                                        <View style={styles.peopleImg}>
+                                          <ImgDomain2 fileWidth={110} fileName={item.send_profile} />
+                                        </View>
+                                        <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
+                                          <View	View style={styles.cardFrontDday}>
+                                            {item.diff_date >= 0 ? (
+                                              <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
+                                            ) : (
+                                              <Text style={styles.cardFrontDdayText}>D-0</Text>
+                                            )}
+                                          </View>
+                                          <View style={styles.cardFrontNick2}>
+                                            <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.send_nick}</Text>
+                                          </View>
+                                          <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+                                            <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_age}</Text>
+                                            {item.send_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
+                                            {item.send_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_height}cm</Text> ) : null}
+                                          </View>
+                                        </View>
+                                      </>
+                                      ) : (
+                                        <View style={styles.peopleImg}>
+                                          <ImgDomain fileWidth={110} fileName={'front2.png'} />     
+                                        </View>
+                                      )}
+                                    </View>
+                                  </View>
+                                </View>           
+                                <View style={styles.reqStateInfo}>
+                                  <View style={styles.reqStateTitle}>
+                                    <Text style={styles.reqStateTitleText}>교환이 수락 되었어요</Text>
+                                  </View>                          
+                                  <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
+                                  <View style={styles.reqStateCont}>
+                                    <Text style={styles.reqStateContText}>번호를 교환하고</Text>
+                                    <Text style={styles.reqStateContText}>인연을 시작해보세요!</Text>
+                                  </View>
+                                </View>         
+                              </ImageBackground>
                             </TouchableOpacity>
-                          </View>                                                
-                        )
-                      }else if(item.cpc_type == 1 || item.cpc_type == 2){
-                        return (
-                          <TouchableOpacity 
-                            key={index}
-                            style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
-                            activeOpacity={1}           
-                            onPress={()=>{
-                              navigation.navigate(
-                                'MatchDetail', 
-                                {
-                                  accessType:'community', 
-                                  mb_member_idx:item.send_member_idx,
-                                  commIdx:item.cpc_idx, 
-                                  currState:item.cpc_type,
-                                  reqMbIdx:item.cpc_request_member_idx,
-                                  recMbIdx:item.cpc_permit_member_idx,                                
+                          )
+                        }else if(item.cpc_type == 3){
+                          return (
+                            <TouchableOpacity 
+                              key={index}
+                              style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
+                              activeOpacity={1}           
+                              onPress={()=>{
+                                if(item.diff_date < 1){
+                                  ToastMessage('기간이 만료되었습니다.');
+                                  return false;
                                 }
-                              )
-                            }}
-                          >                  
-                            <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
-                              <View style={[styles.cardBtn, styles.cardBtn3]}>
-                                <View style={[styles.cardCont, styles.cardCont3]}>		
-                                  <View style={styles.peopleImgBack}>
-                                    <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                                  </View>
-                                  <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
-                                    <View style={styles.peopleImgBack}>
-                                      <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                                    </View>
-                                    <AutoHeightImage width={110} source={{uri:profileImg}} resizeMethod='resize' style={styles.peopleImg} />
-                                    <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
-                                      <View	View style={styles.cardFrontDday}>
-                                        <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
-                                      </View>
-                                      <View style={styles.cardFrontNick2}>
-                                        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.send_nick}</Text>
-                                      </View>
-                                      <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_age}</Text>
-                                        {item.send_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
-                                        {item.send_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_height}cm</Text> ) : null}
-                                      </View>
-                                    </View>
-                                  </View>
-                                </View>
-                              </View>           
-                              <View style={styles.reqStateInfo}>
-                                <View style={styles.reqStateTitle}>
-                                  <Text style={styles.reqStateTitleText}>교환이 수락 되었어요</Text>
-                                </View>                          
-                                <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
-                                <View style={styles.reqStateCont}>
-                                  <Text style={styles.reqStateContText}>번호를 교환하고</Text>
-                                  <Text style={styles.reqStateContText}>인연을 시작해보세요!</Text>
-                                </View>
-                              </View>         
-                            </ImageBackground>
-                          </TouchableOpacity>
-                        )
-                      }else if(item.cpc_type == 3){
-                        return (
-                          <TouchableOpacity 
-                            key={index}
-                            style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
-                            activeOpacity={1}           
-                            onPress={()=>{
-                              navigation.navigate(
-                                'MatchDetail', 
-                                {
-                                  accessType:'community', 
-                                  mb_member_idx:item.send_member_idx,
-                                  commIdx:item.cpc_idx, 
-                                  currState:item.cpc_type,
-                                  reqMbIdx:item.cpc_request_member_idx,
-                                  recMbIdx:item.cpc_permit_member_idx,                                
-                                }
-                              )
-                            }}
-                          >                  
-                            <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
-                              <View style={[styles.cardBtn, styles.cardBtn3]}>
-                                <View style={[styles.cardCont, styles.cardCont3]}>		
-                                  <View style={styles.peopleImgBack}>
-                                    <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                                  </View>
-                                  <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
-                                    <View style={styles.peopleImgBack}>
-                                      <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                                    </View>
-                                    <AutoHeightImage width={110} source={{uri:profileImg}} resizeMethod='resize' style={styles.peopleImg} />
-                                    <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
-                                      <View	View style={styles.cardFrontDday}>
-                                        <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
-                                      </View>
-                                      <View style={styles.cardFrontNick2}>
-                                        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.send_nick}</Text>
-                                      </View>
-                                      <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_age}</Text>
-                                        {item.send_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
-                                        {item.send_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_height}cm</Text> ) : null}
-                                      </View>
-                                    </View>
-                                  </View>
-                                </View>
-                              </View>           
-                              <View style={styles.reqStateInfo}>
-                                <View style={styles.reqStateTitle}>
-                                  <Text style={styles.reqStateTitleText}>교환이 완료 되었어요</Text>
-                                </View>
-                                <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
-                                <View style={styles.reqStateCont}>
-                                  <Text style={styles.reqStateContText}>프로필에 오픈된 번호를</Text>
-                                  <Text style={styles.reqStateContText}>지금 바로 확인해보세요!</Text>
-                                </View>
-                              </View>         
-                            </ImageBackground>
-                          </TouchableOpacity>
-                        )
-                      }
-                    })}
-                  </View> 
-                </View>
 
-                <View style={styles.mgt30}>
-                  <View style={styles.cmViewTitle2}>
-                    <Text style={styles.cmViewTitleText2}>보낸 프로필 교환</Text>
+                                if(item.report_yn == 'y'){
+                                  setLeavePopText('신고한 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.leave_yn == 'y'){
+                                  setLeavePopText('탈퇴한 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.available_yn == 'n'){
+                                  setLeavePopText('계정비활성화 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.card_yn == 'n'){
+                                  setLeavePopText('카드를 비활성화한 회원이에요');
+                                  setLeavePop(true);
+                                }else{
+                                  navigation.navigate(
+                                    'MatchDetail', 
+                                    {
+                                      accessType:'community', 
+                                      mb_member_idx:item.send_member_idx,
+                                      commIdx:item.cpc_idx, 
+                                      currState:item.cpc_type,
+                                      reqMbIdx:item.cpc_request_member_idx,
+                                      recMbIdx:item.cpc_permit_member_idx,                                
+                                    }
+                                  )
+                                }
+                              }}
+                            >                  
+                              <ImageBackground source={{uri:'https://physicalmatch.co.kr/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
+                                <View style={[styles.cardBtn, styles.cardBtn3]}>
+                                  <View style={[styles.cardCont, styles.cardCont3]}>		
+                                    <View style={styles.peopleImgBack}>
+                                      <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                                    </View>
+                                    <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                                      <View style={styles.peopleImgBack}>
+                                        <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                                      </View>
+                                      {item.diff_date > 0 ? (
+                                        <>
+                                        <View style={styles.peopleImg}>
+                                          <ImgDomain2 fileWidth={110} fileName={item.send_profile} />
+                                        </View>
+                                        <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
+                                          <View	View style={styles.cardFrontDday}>
+                                            {item.diff_date >= 0 ? (
+                                              <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
+                                            ) : (
+                                              <Text style={styles.cardFrontDdayText}>D-0</Text>
+                                            )}
+                                          </View>
+                                          <View style={styles.cardFrontNick2}>
+                                            <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.send_nick}</Text>
+                                          </View>
+                                          <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+                                            <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_age}</Text>
+                                            {item.send_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
+                                            {item.send_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.send_height}cm</Text> ) : null}
+                                          </View>
+                                        </View>
+                                        </>
+                                      ) : (
+                                        <View style={styles.peopleImg}>
+                                          <ImgDomain fileWidth={110} fileName={'front2.png'} />     
+                                        </View>
+                                      )}
+                                    </View>
+                                  </View>
+                                </View>           
+                                <View style={styles.reqStateInfo}>
+                                  <View style={styles.reqStateTitle}>
+                                    <Text style={styles.reqStateTitleText}>교환이 완료 되었어요</Text>
+                                  </View>
+                                  <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
+                                  <View style={styles.reqStateCont}>
+                                    <Text style={styles.reqStateContText}>프로필에 오픈된 번호를</Text>
+                                    <Text style={styles.reqStateContText}>지금 바로 확인해보세요!</Text>
+                                  </View>
+                                </View>         
+                              </ImageBackground>
+                            </TouchableOpacity>
+                          )
+                        }
+                      })}
+                    </View> 
                   </View>
-                  {sendList.length < 1 ? (
-                    <View style={[styles.notData]}>
-                      <Text style={styles.notDataText}>보낸 프로필이 없습니다.</Text>
-                    </View>
                   ) : null}
-                  
-                  <View style={styles.reqUl}>                  
-                    {sendList.map((item, index) => {
-                      const profileImg = hostUrl+item.receive_profile;
-                      if(item.cpc_type == 0){
-                        return (
-                          <View key={index} style={[styles.reqLi, styles.boxShadow2, index == 0 ? styles.mgt0 : null]}>
-                            <ImageBackground
-                              style={styles.reqUser}
-                              source={{uri:profileImg}}
-                              resizeMode='cover'
-                              blurRadius={5}
-                            />
-                            <View style={[styles.reqUserInfo, styles.reqUserInfo2]}>
-                              <View style={styles.tradeState}>
-                                <View style={styles.tradeStateView}>
-                                  <Text style={styles.tradeStateText}>{item.receive_nick}님에게 프로필 교환을 신청했어요.</Text>
+
+                  {sendList.length > 0 ? (
+                  <View style={styles.mgt30}>
+                    <View style={styles.cmViewTitle2}>
+                      <Text style={styles.cmViewTitleText2}>보낸 프로필 교환</Text>
+                    </View>
+                    {sendList.length < 1 ? (
+                      <View style={[styles.notData]}>
+                        <Text style={styles.notDataText}>보낸 프로필이 없습니다.</Text>
+                      </View>
+                    ) : null}
+                    
+                    <View style={styles.reqUl}>                  
+                      {sendList.map((item, index) => {                      
+                        const profileImg = hostUrl+item.receive_profile;
+                        if(item.cpc_type == 0){
+                          return (
+                            <View key={index} style={[styles.reqLi, styles.boxShadow2, index == 0 ? styles.mgt0 : null]}>
+                              <ImageBackground
+                                style={styles.reqUser}
+                                source={{uri:profileImg}}
+                                resizeMode='cover'
+                                blurRadius={5}
+                              />
+                              <View style={[styles.reqUserInfo, styles.reqUserInfo2]}>
+                                <View style={styles.tradeState}>
+                                  <View style={styles.tradeStateView}>
+                                    <Text style={styles.tradeStateText}>{item.receive_nick}님에게 프로필 교환을 신청했어요.</Text>
+                                  </View>
                                 </View>
-                              </View>
-                              <View style={styles.reqUserDetail}>
-                                <Text style={styles.reqUserDetailText}>수락까지 잠시 기다려주세요!</Text>
+                                <View style={styles.reqUserDetail}>
+                                  <Text style={styles.reqUserDetailText}>수락까지 잠시 기다려주세요!</Text>
+                                </View>
                               </View>
                             </View>
-                          </View>
-                        )
-                      }else if(item.cpc_type == 1 || item.cpc_type == 2){
-                        return (
-                          <TouchableOpacity 
-                            key={index}
-                            style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
-                            activeOpacity={1}
-                            onPress={()=>{
-                              navigation.navigate(
-                                'MatchDetail', 
-                                {
-                                  accessType:'community', 
-                                  mb_member_idx:item.receive_member_idx,
-                                  commIdx:item.cpc_idx, 
-                                  currState:item.cpc_type,
-                                  reqMbIdx:item.cpc_request_member_idx,
-                                  recMbIdx:item.cpc_permit_member_idx,
+                          )
+                        }else if(item.cpc_type == 1 || item.cpc_type == 2){
+                          return (
+                            <TouchableOpacity 
+                              key={index}
+                              style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
+                              activeOpacity={1}
+                              onPress={()=>{
+                                if(item.diff_date < 1){
+                                  ToastMessage('기간이 만료되었습니다.');
+                                  return false;
                                 }
-                              )
-                            }}
-                          >                  
-                            <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
-                              <View style={[styles.cardBtn, styles.cardBtn3]}>
-                                <View style={[styles.cardCont, styles.cardCont3]}>		
-                                  <View style={styles.peopleImgBack}>
-                                    <ImgDomain fileWidth={110} fileName={'front2.png'}/>
-                                  </View>
-                                  <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+
+                                if(item.report_yn == 'y'){
+                                  setLeavePopText('신고한 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.leave_yn == 'y'){
+                                  setLeavePopText('탈퇴한 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.available_yn == 'n'){
+                                  setLeavePopText('계정비활성화 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.card_yn == 'n'){
+                                  setLeavePopText('카드를 비활성화한 회원이에요');
+                                  setLeavePop(true);
+                                }else{
+                                  navigation.navigate(
+                                    'MatchDetail', 
+                                    {
+                                      accessType:'community', 
+                                      mb_member_idx:item.receive_member_idx,
+                                      commIdx:item.cpc_idx, 
+                                      currState:item.cpc_type,
+                                      reqMbIdx:item.cpc_request_member_idx,
+                                      recMbIdx:item.cpc_permit_member_idx,
+                                    }
+                                  )
+                                }
+                              }}
+                            >                  
+                              <ImageBackground source={{uri:'https://physicalmatch.co.kr/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
+                                <View style={[styles.cardBtn, styles.cardBtn3]}>
+                                  <View style={[styles.cardCont, styles.cardCont3]}>		
                                     <View style={styles.peopleImgBack}>
                                       <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                                     </View>
-                                    <AutoHeightImage width={110} source={{uri:profileImg}} resizeMethod='resize' style={styles.peopleImg} />                              
-                                    <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
-                                      <View	View style={styles.cardFrontDday}>
-                                        <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
+                                    <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                                      <View style={styles.peopleImgBack}>
+                                        <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                                       </View>
-                                      <View style={styles.cardFrontNick2}>
-                                        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.receive_nick}</Text>
-                                      </View>
-                                      <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_age}</Text>
-                                        {item.receive_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
-                                        {item.receive_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_height}cm</Text> ) : null}                                        
-                                      </View>
+                                      {item.diff_date > 0 ? (
+                                        <>
+                                        <View style={styles.peopleImg}>
+                                          <ImgDomain2 fileWidth={110} fileName={item.receive_profile} />
+                                        </View>                          
+                                        <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
+                                          <View	View style={styles.cardFrontDday}>
+                                            {item.diff_date >= 0 ? (
+                                              <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
+                                            ) : (
+                                              <Text style={styles.cardFrontDdayText}>D-0</Text>
+                                            )}
+                                          </View>
+                                          <View style={styles.cardFrontNick2}>
+                                            <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.receive_nick}</Text>
+                                          </View>
+                                          <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+                                            <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_age}</Text>
+                                            {item.receive_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
+                                            {item.receive_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_height}cm</Text> ) : null}                                        
+                                          </View>
+                                        </View>
+                                        </>
+                                      ) : (
+                                        <View style={styles.peopleImg}>
+                                          <ImgDomain fileWidth={110} fileName={'front2.png'} />     
+                                        </View>
+                                      )}
                                     </View>
                                   </View>
-                                </View>
-                              </View>           
-                              <View style={styles.reqStateInfo}>
-                                <View style={styles.reqStateTitle}>
-                                  <Text style={styles.reqStateTitleText}>교환이 수락 되었어요</Text>
-                                </View>
-                                <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
-                                <View style={styles.reqStateCont}>
-                                  <Text style={styles.reqStateContText}>번호를 교환하고</Text>
-                                  <Text style={styles.reqStateContText}>인연을 시작해보세요!</Text>
-                                </View>
-                              </View>         
-                            </ImageBackground>
-                          </TouchableOpacity>
-                        )
-                      }else if(item.cpc_type == 3){
-                        return (
-                          <TouchableOpacity 
-                            key={index}
-                            style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
-                            activeOpacity={1}
-                            onPress={()=>{
-                              //console.log(item.send_member_idx);
-                              //console.log(item.receive_member_idx);
-                              navigation.navigate(
-                                'MatchDetail', 
-                                {
-                                  accessType:'community', 
-                                  mb_member_idx:item.receive_member_idx,
-                                  commIdx:item.cpc_idx, 
-                                  currState:item.cpc_type,
-                                  reqMbIdx:item.cpc_request_member_idx,
-                                  recMbIdx:item.cpc_permit_member_idx,
-                                }
-                              )
-                            }}
-                          >                  
-                            <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
-                              <View style={[styles.cardBtn, styles.cardBtn3]}>
-                                <View style={[styles.cardCont, styles.cardCont3]}>		
-                                  <View style={styles.peopleImgBack}>
-                                    <ImgDomain fileWidth={110} fileName={'front2.png'}/>
+                                </View>           
+                                <View style={styles.reqStateInfo}>
+                                  <View style={styles.reqStateTitle}>
+                                    <Text style={styles.reqStateTitleText}>교환이 수락 되었어요</Text>
                                   </View>
-                                  <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                                  <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
+                                  <View style={styles.reqStateCont}>
+                                    <Text style={styles.reqStateContText}>번호를 교환하고</Text>
+                                    <Text style={styles.reqStateContText}>인연을 시작해보세요!</Text>
+                                  </View>
+                                </View>         
+                              </ImageBackground>
+                            </TouchableOpacity>
+                          )
+                        }else if(item.cpc_type == 3){
+                          console.log(item);
+                          return (                            
+                            <TouchableOpacity 
+                              key={index}
+                              style={[styles.reqLi, styles.boxShadow2, styles.reqStateBox]}
+                              activeOpacity={1}
+                              onPress={()=>{
+                                //console.log(item.send_member_idx);
+                                //console.log(item.receive_member_idx);
+                                if(item.diff_date < 1){
+                                  ToastMessage('기간이 만료되었습니다.');
+                                  return false;
+                                }
+
+                                if(item.report_yn == 'y'){
+                                  setLeavePopText('신고한 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.leave_yn == 'y'){
+                                  setLeavePopText('탈퇴한 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.available_yn == 'n'){
+                                  setLeavePopText('계정비활성화 회원이에요');
+                                  setLeavePop(true);
+                                }else if(item.card_yn == 'n'){
+                                  setLeavePopText('카드를 비활성화한 회원이에요');
+                                  setLeavePop(true);
+                                }else{
+                                  navigation.navigate(
+                                    'MatchDetail', 
+                                    {
+                                      accessType:'community', 
+                                      mb_member_idx:item.receive_member_idx,
+                                      commIdx:item.cpc_idx, 
+                                      currState:item.cpc_type,
+                                      reqMbIdx:item.cpc_request_member_idx,
+                                      recMbIdx:item.cpc_permit_member_idx,
+                                    }
+                                  )
+                                }
+                              }}
+                            >                  
+                              <ImageBackground source={{uri:'https://physicalmatch.co.kr/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
+                                <View style={[styles.cardBtn, styles.cardBtn3]}>
+                                  <View style={[styles.cardCont, styles.cardCont3]}>		
                                     <View style={styles.peopleImgBack}>
                                       <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                                     </View>
-                                    <AutoHeightImage width={110} source={{uri:profileImg}} resizeMethod='resize' style={styles.peopleImg} />                              
-                                    <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
-                                      <View	View style={styles.cardFrontDday}>
-                                        <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
+                                    <View style={[styles.cardFrontInfo, styles.cardFrontInfo3]}>
+                                      <View style={styles.peopleImgBack}>
+                                        <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                                       </View>
-                                      <View style={styles.cardFrontNick2}>
-                                        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.receive_nick}</Text>
-                                      </View>
-                                      <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
-                                        <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_age}</Text>
-                                        {item.receive_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
-                                        {item.receive_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_height}cm</Text> ) : null}                                        
-                                      </View>
+                                      {item.diff_date > 0 ? (
+                                        <>
+                                        <View style={styles.peopleImg}>
+                                          <ImgDomain2 fileWidth={110} fileName={item.receive_profile} />
+                                        </View>                           
+                                        <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
+                                          <View	View style={styles.cardFrontDday}>
+                                            {item.diff_date >= 0 ? (
+                                              <Text style={styles.cardFrontDdayText}>D-{item.diff_date}</Text>
+                                            ) : (
+                                              <Text style={styles.cardFrontDdayText}>D-0</Text>
+                                            )}                                        
+                                          </View>
+                                          <View style={styles.cardFrontNick2}>
+                                            <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText2}>{item.receive_nick}</Text>
+                                          </View>
+                                          <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
+                                            <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_age}</Text>
+                                            {item.receive_height != 0 ? ( <View style={styles.cardFrontContLine}></View> ) : null}
+                                            {item.receive_height != 0 ? ( <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{item.receive_height}cm</Text> ) : null}                                        
+                                          </View>
+                                        </View>
+                                        </>
+                                      ) : (
+                                        <View style={styles.peopleImg}>
+                                          <ImgDomain fileWidth={110} fileName={'front2.png'} />     
+                                        </View>
+                                      )}
                                     </View>
                                   </View>
-                                </View>
-                              </View>           
-                              <View style={styles.reqStateInfo}>
-                                <View style={styles.reqStateTitle}>
-                                  <Text style={styles.reqStateTitleText}>교환이 완료 되었어요</Text>
-                                </View>
-                                <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
-                                <View style={styles.reqStateCont}>
-                                  <Text style={styles.reqStateContText}>프로필에 오픈된 번호를</Text>
-                                  <Text style={styles.reqStateContText}>지금 바로 확인해보세요!</Text>
-                                </View>
-                              </View>    
-                            </ImageBackground>
-                          </TouchableOpacity>
-                        )
-                      }
-                    })}
-                  </View>  
+                                </View>           
+                                <View style={styles.reqStateInfo}>
+                                  <View style={styles.reqStateTitle}>
+                                    <Text style={styles.reqStateTitleText}>교환이 완료 되었어요</Text>
+                                  </View>
+                                  <ImgDomain fileWidth={32} fileName={'icon_heart3.png'}/>
+                                  <View style={styles.reqStateCont}>
+                                    <Text style={styles.reqStateContText}>프로필에 오픈된 번호를</Text>
+                                    <Text style={styles.reqStateContText}>지금 바로 확인해보세요!</Text>
+                                  </View>
+                                </View>    
+                              </ImageBackground>
+                            </TouchableOpacity>
+                          )
+                        }
+                      })}
+                    </View>  
+                  </View>
+                  ) : null}
                 </View>
-              </View>
+                </>
+              ) : null}
 
               <View style={styles.lineView}></View>
 
@@ -1639,6 +1796,7 @@ const CommunityView = (props) => {
                     style={styles.reviewIpt}
                     returnKyeType='done'
                     readOnly={memberInfo?.member_type != 1 ? true : false}
+                    onSubmitEditing={submitComment}
                   />                
                 ) : (
                   <>
@@ -1666,6 +1824,7 @@ const CommunityView = (props) => {
                       placeholderTextColor="#B8B8B8"
                       style={styles.reviewIpt}
                       returnKyeType='done'
+                      onSubmitEditing={submitComment}
                     />
                   </>
                 )}
@@ -2053,6 +2212,45 @@ const CommunityView = (props) => {
 				</View>
 			</Modal>
 
+      <Modal
+				visible={leavePop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setLeavePop(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setLeavePop(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setLeavePop(false)}}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+						</TouchableOpacity>		
+						<View style={[styles.popTitle, styles.popTitleFlex]}>							
+							<View style={styles.popTitleFlexWrap}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>{leavePopText}</Text>
+              </View>
+              <ImgDomain fileWidth={18} fileName={'emiticon1.png'}/>
+						</View>
+						<View style={styles.popBtnBox}>
+							<TouchableOpacity 
+								style={[styles.popBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {setLeavePop(false)}}
+							>
+								<Text style={styles.popBtnText}>확인</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
 			{loading ? ( <View style={[styles.indicator]}><ActivityIndicator size="large" color="#D1913C" /></View> ) : null}
       {loading2 ? ( <View style={[styles.indicator, styles.indicator2]}><ActivityIndicator size="large" color="#fff" /></View> ) : null}
 		</SafeAreaView>
@@ -2130,7 +2328,7 @@ const styles = StyleSheet.create({
   reqOkBtn: {alignItems:'center',justifyContent:'center',width:46,height:30,backgroundColor:'#F2F4F6',borderRadius:5,position:'absolute',right:15,},
   reqOkBtnText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:17,color:'#243B55'},
   
-  reviewWrap: {alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',paddingTop:20,},  
+  reviewWrap: {alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',paddingTop:20,minHeight:100,},  
   blurView: {width:widnowWidth,height:'100%',position:'absolute',left:0,top:20,zIndex:10000,},
   blurView2: {width:innerWidth,height:'100%',position:'absolute',left:0,top:0,zIndex:10000,},
   blurAlert: {position:'absolute',zIndex:10001},
@@ -2177,7 +2375,7 @@ const styles = StyleSheet.create({
 	cardCont: {width: ((widnowWidth / 2) - 30), backgroundColor:'#fff', backfaceVisibility:'hidden', borderTopLeftRadius:80, borderTopRightRadius:80,},	
 	cardFrontInfo: {width: ((widnowWidth / 2) - 30), position:'absolute', left:0, top:0, zIndex:10,},
 	peopleImgBack: {opacity:0,},
-	peopleImg: {position:'absolute', left:0, top:0, zIndex:9, borderTopLeftRadius:80, borderTopRightRadius:80,},
+	peopleImg: {position:'absolute', left:0, top:0, zIndex:9, borderTopLeftRadius:80, borderTopRightRadius:80,overflow:'hidden'},
 	cardFrontInfoCont: {width: ((widnowWidth / 2) - 30), backgroundColor:'#fff', position:'absolute', left:0, bottom:0, zIndex:10, padding:10, borderRadius:5,},
 	cardFrontNick: {flexDirection:'row', alignItems:'center', justifyContent:'space-between'},
 	cardFrontNickText: {width:(innerWidth/2)-61,fontFamily:Font.NotoSansBold,fontSize:15,lineHeight:19,color:'#1e1e1e',},

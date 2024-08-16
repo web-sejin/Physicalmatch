@@ -28,7 +28,7 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const CsCenterWrite = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route	
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -200,6 +200,7 @@ const CsCenterWrite = (props) => {
       inquiry_content: content,
       inquiry_files: fileData,
 		}
+
     const formData = APIs.makeFormData(sData)
 		const response = await APIs.multipartRequest(formData);
 		//console.log(response);
@@ -502,7 +503,7 @@ const styles = StyleSheet.create({
   input4: {width:innerWidth-25,},
   inputLine0 : {borderBottomWidth:0,},
   inputText: {fontFamily:Font.NotoSansRegular,fontSize: 16, lineHeight:21, color: '#1e1e1e',},
-  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:0,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:16, color: '#1e1e1e', paddingTop:paddTop,},
+  textarea: {width:innerWidth,minHeight:180,paddingVertical:0,paddingHorizontal:0,textAlignVertical:'top',fontFamily:Font.NotoSansRegular,fontSize:16, color: '#1e1e1e', paddingTop:15,},
   selectView: {position:'relative',justifyContent:'center',marginTop:20,},
 	select: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
 	selectCont: {},

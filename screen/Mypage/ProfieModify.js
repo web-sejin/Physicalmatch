@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback, Component} from 'react';
-import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
+import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, Platform, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -19,6 +19,7 @@ import ImgDomain2 from '../../components/ImgDomain2';
 
 import {connect} from 'react-redux';
 import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
+import { DrawerContentScrollView } from '@react-navigation/drawer';
 
 const padding_top = Platform.OS === 'ios' ? 10 : 15;
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
@@ -44,13 +45,15 @@ const ProfieModify = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 	const swiperRef = useRef(null);
   const [swiperList, setSwiperList] = useState([]);
   const [guideModal, setGuideModal] = useState(false);
 	const [guideModal2, setGuideModal2] = useState(false);
   const [memberIdx, setMemberIdx] = useState();
-  const [memberType, setMemberType] = useState(0);
+  const [memberType, setMemberType] = useState();
 	const [memberInfo, setMemberInfo] = useState([]);
+  const [memberNick, setMemberNick] = useState('');
   const [memberBadge, setMemberBadge] = useState([]);
   const [badgeReject, setBadgeReject] = useState();
   const [memberAuth, setMemberAuth] = useState([]);
@@ -66,6 +69,13 @@ const ProfieModify = (props) => {
   const [mbInterview, setMbInterview] = useState([]);
   const [rejectMemo, setRejectMemo] = useState('');
   const [lovePoint, setLovePoint] = useState();
+  const [popNick, setPopNick] = useState(false);
+  const [currFocus, setCurrFocus] = useState('');
+  const [nick, setNick] = useState('');
+  const [nickCert, setNickCert] = useState(true);
+  const [nickBtn, setNickBtn] = useState(false);
+  const [authPoint, setAuthPoint] = useState();
+  const [badgePoint, setBadgePoint] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -100,6 +110,54 @@ const ProfieModify = (props) => {
 	}, [isFocused]);
 
   useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardStatus(true);
+			if(Platform.OS != 'ios'){
+				if(currFocus == 'nick'){
+					setKeyboardHeight((e.endCoordinates.height/2)*-1);
+				}else if(currFocus == 'job1'){
+					setKeyboardHeight(0);
+				}else if(currFocus == 'job2'){
+					setKeyboardHeight((e.endCoordinates.height)*-1);
+				}else{
+					setKeyboardHeight(0);
+				}
+				//console.log('currFocus ::: ',currFocus);
+			}
+			//console.log(e.endCoordinates.height);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardStatus(false);
+			if(Platform.OS != 'ios'){
+				setKeyboardHeight(0);
+			}
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [currFocus]);
+
+  useEffect(() => {
+    const unsubscribe = navigationUse.addListener('beforeRemove', (e) => {
+      // 뒤로 가기 이벤트가 발생했을 때 실행할 로직을 작성합니다.
+      // 여기에 원하는 동작을 추가하세요.
+      // e.preventDefault();를 사용하면 뒤로 가기를 막을 수 있습니다.
+      //console.log('preventBack22 ::: ',preventBack);
+      if (preventBack) {        
+				setPopNick(false);
+				setPreventBack(false);
+				e.preventDefault();
+      } else {
+        //console.log('뒤로 가기 이벤트 발생!');								
+      }
+    });
+
+    return unsubscribe;
+  }, [navigationUse, preventBack]);
+
+  useEffect(() => {
 		setSwiperList(swp);
 	}, [])
 
@@ -117,10 +175,12 @@ const ProfieModify = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-    console.log(response);
+    //console.log(response);
 		if(response.code == 200){
       setLovePoint(response.love_point);
 			setMemberInfo(response.data);
+      setMemberNick(response.data.info.member_nick);
+      setNick(response.data.info.member_nick);
       setBadgeReject(response.data.is_badge_reject);
       setAuthReject(response.data.is_auth_reject);
       if(response.data.reject_memo){
@@ -148,9 +208,11 @@ const ProfieModify = (props) => {
 
       //체형
       let shapeString = '';
-      if(response.data.info.member_physical[0].mp_name){
-        setMbShape(response.data.info.member_physical[0].mp_name.replace('[', '').replace(']', '').replaceAll('"', '').replaceAll(',', ' ·'));
-      }
+      response.data.info.member_physical.map((item, index) => {
+        if(index != 0){ shapeString += ' · '; }
+        shapeString += item.mp_name;
+      })
+      setMbShape(shapeString);      
 
       //음주
       let drinkString = '';
@@ -170,25 +232,25 @@ const ProfieModify = (props) => {
       setMbDrink(drinkString);
 
       //흡연
-      let smokeString = '';
-      if(response.data.info.member_smoke_status == 0){
-        smokeString = '비흡연';
-      }else if(response.data.info.member_smoke_status == 1){
-        smokeString = '금연 중';
-      }else if(response.data.info.member_smoke_status == 2){
-        smokeString = '가끔 피움';
-      }else if(response.data.info.member_smoke_status == 3){
-        smokeString = '흡연 중';
-      }
-
+      let smokeString = '';            
       if(response.data.info.member_smoke_status != 0 && response.data.info.member_smoke_type){
         if(response.data.info.member_smoke_type == 1){
-          smokeString += ' 연초';
+          smokeString += '연초 ';
         }else if(response.data.info.member_smoke_type == 2){
-          smokeString += ' 권련형 전자담배';
+          smokeString += '권련형 전자담배 ';
         }else if(response.data.info.member_smoke_type == 3){
-          smokeString += ' 액상형 전자담배';
+          smokeString += '액상형 전자담배 ';
         }
+      }
+      
+      if(response.data.info.member_smoke_status == 0){
+        smokeString += '비흡연';
+      }else if(response.data.info.member_smoke_status == 1){
+        smokeString += '금연 중';
+      }else if(response.data.info.member_smoke_status == 2){
+        smokeString += '가끔 피움';
+      }else if(response.data.info.member_smoke_status == 3){
+        smokeString += '흡연 중';
       }
       setMbSmoke(smokeString);
 
@@ -208,6 +270,7 @@ const ProfieModify = (props) => {
       //프로필 이미지
       let profileReject = 0;
       let profileConfirm = 0;    
+      //console.log(response.data.img);
       if(response.data.img.length > 0){
         setMbProfile(response.data.img);
         response.data.img.map((item, index) => {
@@ -218,6 +281,15 @@ const ProfieModify = (props) => {
           }
         })        
       }
+      //console.log(response.data.mimg);
+      if(response.data.mimg){
+        if(response.data.mimg.agree_yn == 'n'){
+          profileReject = profileReject+1;
+        }else if(response.data.mimg.agree_yn == 'i'){
+          profileConfirm = profileConfirm+1;
+        }
+      }
+
       setProfileReject(profileReject);
       setProfileConfirm(profileConfirm);
 
@@ -226,8 +298,10 @@ const ProfieModify = (props) => {
 
       //인증
       setMemberAuth(response.data.auth);
-
-      setLoading(false);
+      
+      setTimeout(function(){
+        setLoading(false);
+      }, 1000);
 		}
 	}
 
@@ -239,14 +313,89 @@ const ProfieModify = (props) => {
 		};
 
 		const response = await APIs.send(sData);    
+    //console.log(response);
 		if(response.code == 200){
 			setMemberType(response.data.member_type);		
+      setAuthPoint(response.auth_point ? response.auth_point : 0);
+      setBadgePoint(response.badge_point ? response.badge_point : 0);
 		}
 	}
 
   const notMember = () => {
 		ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
 	}
+
+  const chkNick = (v) => {
+		const spe = v.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
+		if(spe >= 0 || v.length < 2 || v.length > 8){
+			setNickBtn(false);
+		}else{
+			setNickBtn(true);
+		}
+	}
+
+  const checkPopVal = async (v) => {
+		if(v == 'nick'){
+			if(nick == ''){
+				ToastMessage('닉네임을 입력해 주세요.');
+				return false;
+			}
+
+			const spe = nick.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
+			if(spe >= 0){
+				ToastMessage('닉네임은 한글, 숫자, 영문만 사용 가능합니다.');
+				return false;
+			}
+
+			if(nick.length < 2 || nick.length > 8){
+				ToastMessage('닉네임은 2~8자리 입력이 가능합니다.');
+				return false;
+			}
+
+      if(nick == memberNick){
+        ToastMessage('현재 닉네임과 같습니다.');
+				return false;
+      }
+
+			let sData = {      
+				basePath: "/api/member/",
+				type: "IsDuplicationNick",
+				member_nick: nick,
+			}
+			const response = await APIs.send(sData);
+      //console.log('checkPopVal ::: ', response);
+			if(response.code == 200){
+        setNickCert(true);
+				modifyNick();							
+			}else{
+				setNickCert(false);
+				ToastMessage('이미 사용 중이거나 사용할 수 없는 닉네임 입니다.');      
+			}
+		}
+	}	
+
+  const modifyNick = async () => {
+    let sData = {      
+      basePath: "/api/member/",
+      type: "SetNick",
+      member_idx: memberIdx,
+      member_nick: nick,
+    }
+    const response = await APIs.send(sData);
+    //console.log('modifyNick ::: ', response);
+    if(response.code == 200){
+      setPopNick(false);
+      setMemberNick(nick);
+      setPreventBack(false);
+      ToastMessage('닉네임이 변경되었습니다.');   
+    }else{
+      ToastMessage('이미 사용 중이거나 사용할 수 없는 닉네임 입니다.');      
+    }    	
+  }
+
+  const headerHeight = 48;
+	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
+	const behavior = Platform.OS === "ios" ? "padding" : "height";
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
@@ -301,6 +450,38 @@ const ProfieModify = (props) => {
         ) : null}
 
         <View style={styles.cmWrap}>
+          {memberType == 0 && (
+          <View style={styles.modiBtn}>
+            <View style={styles.modiBtnTop}>
+              <TouchableOpacity 
+                style={styles.modiBtnTopLeft}
+                activeOpacity={opacityVal}
+                onPress={()=>{
+                  setPopNick(true);
+                  setNick(memberNick);
+                  setPreventBack(true);
+                }}
+              >
+                <Text style={[styles.modiBtnTopLeftText, styles.mgr5]}>{memberNick}</Text>
+                <ImgDomain fileWidth={13} fileName={'modify_pen.png'} />
+              </TouchableOpacity>
+              <View style={styles.modiBtnTopRight}>
+                <TouchableOpacity
+                  style={styles.modiBtnTouch}
+                  activeOpacity={opacityVal}
+                  onPress={() => {
+                    setPopNick(true);
+                    setNick(memberNick);
+                    setPreventBack(true);
+                  }}
+                >
+                  <Text style={styles.modiBtnTouchText}>수정하기</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+          )}
+          
           <TouchableOpacity
             style={styles.modiBtn}
             activeOpacity={opacityVal}
@@ -354,6 +535,9 @@ const ProfieModify = (props) => {
                 {/* <View style={[styles.modiBtnState, styles.modiBtnState3, styles.mgr10]}>
                   <Text style={[styles.modiBtnStateText, styles.modiBtnStateText3]}>심사중</Text>
                 </View> */}
+                <View style={styles.modiBtnTopRightView}>
+                  <Text style={styles.modiBtnTopRightViewText}>프로틴 {badgePoint}개 혜택</Text>
+                </View>
                 <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
               </View>
             </View>
@@ -377,6 +561,8 @@ const ProfieModify = (props) => {
             <View style={styles.modiBtnTop}>
               <View style={styles.modiBtnTopLeft}>
                 <Text style={styles.modiBtnTopLeftText}>내 인증</Text>
+              </View>
+              <View style={styles.modiBtnTopRight}>
                 {memberAuth.length > 0 ? null : (
                   authReject ? (
                     <View style={[styles.modiBtnState, styles.modiBtnState1, styles.mgl10]}>
@@ -387,9 +573,15 @@ const ProfieModify = (props) => {
                   //   <Text style={[styles.modiBtnStateText, styles.modiBtnStateText3]}>심사중</Text>
                   // </View>
                 )}
+                <View style={styles.modiBtnTopRightView}>
+                  <Text style={styles.modiBtnTopRightViewText}>프로틴 {authPoint}개 혜택</Text>
+                </View>
+                <ImgDomain fileWidth={7} fileName={'icon_arr8.png'}/>
               </View>
-              <View style={styles.modiBtnTopRight}>
-                {memberAuth.map((item, index) => {
+            </View>
+
+            <View style={[styles.modiImgFlex]}>
+              {memberAuth.map((item, index) => {
                   return(
                     <View key={index} style={[styles.modiBtnState, styles.modiBtnState2, index != 0 ? styles.mgl4 : null]}>
                       <ImgDomain fileWidth={8} fileName={'icon_chk1.png'}/>
@@ -397,16 +589,6 @@ const ProfieModify = (props) => {
                     </View>
                   )
                 })}
-
-                {/* <View style={[styles.modiBtnState, styles.modiBtnState2]}>
-                  <ImgDomain fileWidth={8} fileName={'icon_chk1.png'}/>
-                  <Text style={[styles.modiBtnStateText, styles.modiBtnStateText2, styles.mgl4]}>직장</Text>
-                </View>
-                <View style={[styles.modiBtnState, styles.modiBtnState2, styles.mgl4]}>
-                  <ImgDomain fileWidth={8} fileName={'icon_chk1.png'}/>
-                  <Text style={[styles.modiBtnStateText, styles.modiBtnStateText2, styles.mgl4]}>결혼</Text>
-                </View> */}
-              </View>
             </View>
           </TouchableOpacity>
 
@@ -509,13 +691,15 @@ const ProfieModify = (props) => {
                 <Text style={styles.modiLocViewText2}>{mbPhysical}</Text>
               </View>
               <View style={[styles.modiLocView, styles.modiLocView2, styles.mgt10]}>
-                <Text style={styles.modiLocViewText1}>운동</Text>                
-                <Text style={styles.modiLocViewText2}>{mbExe}</Text>          
+                <Text style={[styles.modiLocViewText1, styles.width1]}>운동</Text>
+                <View style={[styles.width1_2]}>                
+                  <Text style={styles.modiLocViewText2}>{mbExe}</Text> 
+                </View>
               </View>
               <View style={[styles.modiLocView, styles.modiLocView2, styles.mgt10]}>
                 <Text style={[styles.modiLocViewText1, styles.width1]}>체형</Text>
                 <View style={[styles.width1_2]}>
-                  <Text style={styles.modiLocViewText2} numberOfLines={2} ellipsizeMode='tail'>{mbShape}</Text>
+                  <Text style={styles.modiLocViewText2}>{mbShape}</Text>
                 </View>
               </View>
               <View style={[styles.modiLocView, styles.mgt10]}>
@@ -652,6 +836,70 @@ const ProfieModify = (props) => {
 				</ScrollView>
 			</Modal>
 
+      {/* 닉네임 */}
+			{popNick ? (
+			<View style={styles.cmPop}>
+				<TouchableOpacity 
+					style={styles.popBack} 
+					activeOpacity={1} 
+					onPress={()=>{
+						Keyboard.dismiss();
+					}}
+				>
+				</TouchableOpacity>
+				<KeyboardAvoidingView
+					keyboardVerticalOffset={0}
+					behavior={behavior}
+				>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View style={{...styles.prvPop, top:keyboardHeight}}>
+							<TouchableOpacity
+								style={styles.pop_x}					
+								onPress={() => {
+									setPopNick(false);
+									setPreventBack(false);
+								}}
+							>
+								<ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+							</TouchableOpacity>		
+							<View style={styles.popTitle}>
+								<Text style={styles.popTitleText}>닉네임을 입력해 주세요</Text>
+								<Text style={styles.popTitleDesc}>승인 전에는 수정이 가능합니다.</Text>
+							</View>
+							<View style={[styles.popIptBox]}>									
+								<TextInput
+									value={nick}
+									onChangeText={(v) => {
+										setNick(v);
+										chkNick(v);
+									}}
+									onFocus={()=>{
+										setCurrFocus('nick');
+									}}
+									placeholder={'한글, 숫자, 영문만 사용 가능 / 2~8자'}
+									placeholderTextColor="#DBDBDB"
+									style={[styles.input]}
+									returnKyeType='done'
+								/>
+								{nickCert ? null : (
+									<Text style={styles.alertText}>* 이미 사용 중이거나 사용할 수 없는 닉네임 입니다.</Text>
+								)}								
+							</View>															
+							<View style={styles.popBtnBox}>
+								<TouchableOpacity 
+									style={[styles.popBtn, nickBtn ? null : styles.nextBtnOff]}
+									activeOpacity={opacityVal}
+									onPress={() => {checkPopVal('nick')}}
+								>
+									<Text style={styles.popBtnText}>수정하기</Text>
+								</TouchableOpacity>
+							</View>
+						</View>
+					</TouchableWithoutFeedback>
+				</KeyboardAvoidingView>
+			</View>
+			) : null}
+
 			{loading ? (
       <View style={[styles.indicator]}>
         <ActivityIndicator size="large" color="#D1913C" />
@@ -712,6 +960,8 @@ const styles = StyleSheet.create({
   modiBtnTopLeft: {flexDirection:'row',alignItems:'center'},
   modiBtnTopLeftText: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:19,color:'#1e1e1e'},
   modiBtnTopRight: {flexDirection:'row',alignItems:'center'},
+  modiBtnTouch: {width:60,height:30,alignItems:'center',justifyContent:'center',backgroundColor:'#243B55',borderRadius:5,},
+  modiBtnTouchText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:18,color:'#fff'},
   modiBtnTopRightView: {},
   modiBtnTopRightViewText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#888',marginRight:20,},
   modiBtnState: {flexDirection:'row',alignItems:'center',justifyContent:'center',paddingHorizontal:6,height:18,borderRadius:20,},
@@ -727,7 +977,7 @@ const styles = StyleSheet.create({
   modiImg2: {width:45,height:45,borderRadius:0,marginTop:10,},
 
   modiLocFlex: {flexDirection:'row',justifyContent:'space-between',flexWrap:'wrap',marginTop:15,},
-  modiLocView: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',width:(innerWidth/2)-5,height:48,backgroundColor:'#F9FAFB',borderRadius:5,paddingHorizontal:10,},
+  modiLocView: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',width:(innerWidth/2)-5,minHeight:48,backgroundColor:'#F9FAFB',borderRadius:5,padding:10,},
   modiLocView2: {width:innerWidth},
   modiLocViewText1: {fontFamily:Font.NotoSansMedium,fontSize:13,lineHeight:18,color:'#1e1e1e',width:45,},
   modiLocViewText2View: {width:innerWidth/2-65,overflow:'hidden',},
@@ -742,6 +992,24 @@ const styles = StyleSheet.create({
   modiQnaRight: {paddingLeft:3,},
   modiQnaRightTitle: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:18,color:'#1e1e1e',},
   modiContContent: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:18,color:'#1e1e1e',marginTop:3,},
+
+  input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
+	input2: {width: innerWidth},
+
+  cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},
+	popBack: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,},
+	prvPop: {position:'relative',zIndex:10,width:innerWidth,maxHeight:innerHeight,paddingTop:50,paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',borderRadius:10,},
+	prvPop2: {height:innerHeight,},
+	prvPop3: {position:'absolute',left:20,top:20+(stBarHt/2),paddingHorizontal:10,},
+	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
+	popTitle: {paddingBottom:20,},
+	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E'},
+	popTitleDesc: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:17,color:'#1e1e1e',marginTop:20,},
+	popIptBox: {paddingTop:10,},
+	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
+	popBtnBox: {marginTop:30,},
+	popBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#243B55',borderRadius:5,},
+	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},
 
 	lineView: {height:6,backgroundColor:'#F2F4F6'},
 	pdt0: {paddingTop:0},
@@ -766,6 +1034,7 @@ const styles = StyleSheet.create({
 	mgb10: {marginBottom:10},
 	mgb20: {marginBottom:20},
 	mgr0: {marginRight:0},
+  mgr5: {marginRight:5},
   mgr10: {marginRight:10},
   mgr15: {marginRight:15},
 	mgl0: {marginLeft:0},

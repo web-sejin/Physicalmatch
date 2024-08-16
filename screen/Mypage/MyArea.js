@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback, Component} from 'react';
-import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
+import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, Platform, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
@@ -276,7 +276,7 @@ const MyArea = (props) => {
 				}}
 			>
 			</TouchableOpacity>	
-			<View style={{...styles.prvPop}}>
+			<View style={{...styles.prvPop, top:Platform.OS == 'ios' ? stBarHt/3 : 20}}>
 				<TouchableOpacity
 					style={styles.pop_x}					
 					onPress={() => {

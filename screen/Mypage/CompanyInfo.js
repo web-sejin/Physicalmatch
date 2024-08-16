@@ -24,7 +24,7 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const CompanyInfo = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -113,36 +113,36 @@ const CompanyInfo = (props) => {
 						<Text style={styles.compViewContent}>{company.business_manager}</Text>
 					</View>
 					) : null}
-					{company.business_addr ? (
+					{/* {company.business_addr ? (
 					<View style={styles.compView}>
 						<Text style={styles.compViewTitle}>주소</Text>
 						<Text style={styles.compViewContent}>{company.business_addr}</Text>
 					</View>
-					) : null}
+					) : null} */}
 					{company.business_num ? (
 					<View style={styles.compView}>
 						<Text style={styles.compViewTitle}>사업자등록번호</Text>
 						<Text style={styles.compViewContent}>{company.business_num}</Text>
 					</View>
 					) : null}
-					{company.business_tel ? (
+					{/* {company.business_tel ? (
 					<View style={styles.compView}>
 						<Text style={styles.compViewTitle}>고객센터</Text>
 						<Text style={styles.compViewContent}>{company.business_tel}</Text>
 					</View>
-					) : null}
+					) : null} */}
 					{company.business_fax ? (
 					<View style={styles.compView}>
 						<Text style={styles.compViewTitle}>팩스</Text>
 						<Text style={styles.compViewContent}>{company.business_fax}</Text>
 					</View>
 					) : null}
-					{company.business_email ? (
+					{/* {company.business_email ? (
 					<View style={styles.compView}>
 						<Text style={styles.compViewTitle}>이메일</Text>
 						<Text style={styles.compViewContent}>{company.business_email}</Text>
 					</View>
-					) : null}
+					) : null} */}
 				</View>
 				) : null}
       </ScrollView>

@@ -1,13 +1,14 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {Alert, BackHandler, Button, Dimensions, FlatList, LogBox, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View} from 'react-native';
 import { CALL_PERMISSIONS_NOTI, usePermissions } from '../hooks/usePermissions';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator, CardStyleInterpolators } from "@react-navigation/stack";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import store from '../redux/configureStore';
 import {Provider} from 'react-redux';
 import { Provider as PaperProvider } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { allowScreenCapture, preventScreenCapture, addScreenshotListener } from "react-native-screenshot-prevention";
 
 import Font from '../assets/common/Font';
@@ -59,6 +60,7 @@ import About from './Mypage/About';
 import Qna from './Mypage/Qna';
 import CsCenter from './Mypage/CsCenter';
 import Privacy from './Mypage/Privacy';
+import RefundCont from './Mypage/RefundCont'
 import CsCenterWrite from './Mypage/CsCenterWrite';
 import PushSet from './Mypage/PushSet';
 import AccountSet from './Mypage/AccountSet';
@@ -83,6 +85,7 @@ TextInput.defaultProps.allowFontScaling = false;
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
@@ -148,6 +151,7 @@ const WholeStack = () => {
       <Stack.Screen name="CsCenter" component={CsCenter} />
       <Stack.Screen name="CsCenterWrite" component={CsCenterWrite} />
       <Stack.Screen name="Privacy" component={Privacy} />      
+      <Stack.Screen name="RefundCont" component={RefundCont} />      
       <Stack.Screen name="SettingMenu" component={SettingMenu} />
       <Stack.Screen name="PushSet" component={PushSet} />
       <Stack.Screen name="AccountSet" component={AccountSet} />
@@ -175,12 +179,16 @@ const Main = () => {
           // if (internalState.text2 && internalState.props && internalState.props.targetScreen) {
           //   navigationRef.current?.navigate(internalState.props.targetScreen);
           //   Toast.hide();
-          // }          
-          if (navigationRef.current) {
-            navigationRef.current.navigate('Alim');
-            Toast.hide();
-          } else {
-            console.log('Navigation is not available');
+          // }
+          //console.log("!!!!!!!!!!!!!! ", navigationRef.current);      \
+          
+          if(internalState.text2){
+            if (navigationRef.current && navigationRef.current.navigate) {
+              navigationRef.current?.navigate('Alim');
+              Toast.hide();
+            } else {
+              console.log('Navigation is not available');
+            }
           }
         }}
       >
@@ -194,11 +202,11 @@ const Main = () => {
 		),
   };
   
-  useEffect(() => {
-    setTimeout(function () {
-      setToastState(true);
-    }, 500);
-  });
+  // useEffect(() => {
+  //   setTimeout(function () {
+  //     setToastState(true);
+  //   }, 500);
+  // });
 
   /*캡쳐 방지 시작*/
   // Enable screenshot (android only)
@@ -240,7 +248,7 @@ const Main = () => {
 }
 
 const styles = StyleSheet.create({
-	pushView: {backgroundColor:'rgba(0,0,0,0.8)',borderRadius:10,paddingVertical:10,paddingHorizontal:20,},
+	pushView: {backgroundColor:'rgba(0,0,0,0.8)',borderRadius:10,paddingVertical:10,paddingHorizontal:20,marginTop:stBarHt},
   pushView2: {width:innerWidth},
   pushSubject: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:22,color:'#FFFFFF',},
   pushContent: {marginTop:10,},

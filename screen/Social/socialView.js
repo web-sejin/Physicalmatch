@@ -36,7 +36,7 @@ const opacityVal2 = 0.95;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const SocialView = (props) => {
-  const {navigation, userInfo, chatInfo, route} = props;
+  const {navigation, userInfo, route} = props;
   const {params} = route
   const social_idx = params['social_idx'];
   const host_sex = params['social_host_sex'];
@@ -387,7 +387,7 @@ const SocialView = (props) => {
           let newAccept = [];
           response.data.join.accept.map((item, index) => {
             let flippedState = true;            
-            if(item.leave_yn == 'y' || item.available_yn == 'n'){
+            if(item.report_yn == 'y' || item.leave_yn == 'y' || item.available_yn == 'n' || item.card_yn == 'n'){
               flippedState = false;
             }
 
@@ -410,6 +410,7 @@ const SocialView = (props) => {
               'member_sex': item.member_sex,
               'member_main_local': item.member_main_local,
               'member_height': item.member_height,
+              'report_yn': item.report_yn,
               'leave_yn': item.leave_yn,
               'card_yn': item.card_yn,
               'available_yn': item.available_yn,
@@ -426,7 +427,7 @@ const SocialView = (props) => {
           let newJoin = [];
           response.data.join.join.map((item, index) => {
             let flippedState = true;            
-            if(item.leave_yn == 'y' || item.available_yn == 'n'){
+            if(item.report_yn == 'y' || item.leave_yn == 'y' || item.available_yn == 'n' || item.card_yn == 'n'){
               flippedState = false;
             }
 
@@ -449,6 +450,7 @@ const SocialView = (props) => {
               'member_sex': item.member_sex,
               'member_main_local': item.member_main_local,
               'member_height': item.member_height,
+              'report_yn': item.report_yn,
               'leave_yn': item.leave_yn,
               'card_yn': item.card_yn,
               'available_yn': item.available_yn,
@@ -787,6 +789,8 @@ const SocialView = (props) => {
   }
 
   const socialBlock = async () => {
+    setBlockPop(false);
+    setLoading2(true);
     let sData = {
       basePath: "/api/social/",
       type: "SetReportMember",		
@@ -795,10 +799,15 @@ const SocialView = (props) => {
     };
     const response = await APIs.send(sData);
     if(response.code == 200){
-      setBlockPop(false);
-      navigation.navigate('Social', {reload: true});
+      setTimeout(function(){
+        setLoading2(false);
+        navigation.navigate('Social', {reload: true});
+      }, 200);
     }else{
-      ToastMessage('잠시후 다시 이용해 주세요.');
+      setTimeout(function(){
+        setLoading2(false);
+        ToastMessage('잠시후 다시 이용해 주세요.');
+      }, 200);
     }
   }
 
@@ -811,7 +820,9 @@ const SocialView = (props) => {
     setPreventBack(true);
   }
 
-  const submitParty = async () => {        
+  const submitParty = async () => {      
+    setLoading2(true);
+    setSocialPop(false);  
     let sData = {
       basePath: "/api/social/",
       type: "SetSocialJoin",		      
@@ -825,12 +836,22 @@ const SocialView = (props) => {
     if(response.code == 200){
       setGuestPartyState(0);
       getMemberProtain();
-      setSocialPop(false);
-      ToastMessage('참여 신청이 완료되었습니다.');
+      
+      setTimeout(function(){
+        setLoading2(false);
+        ToastMessage('참여 신청이 완료되었습니다.');
+      }, 200);
+    }else{
+      setTimeout(function(){
+        setLoading2(false);
+        ToastMessage('잠시후 다시 이용해 주세요.');
+      }, 200);
     }
   }
 
   const socialAgree = async () => {    
+    setLoading2(true);
+    setSocialPop2(false);    
     let sData = {
       basePath: "/api/social/",
       type: "SetSocialState",		      
@@ -851,10 +872,11 @@ const SocialView = (props) => {
       }
       
       if(response.data.join.accept.length > 0){
+        //console.log(response.data.join.accept);
         let newAccept = [];
-        response.data.join.accept.map((item, index) => {
+        response.data.join.accept.map((item, index) => {          
           let flippedState = true;            
-          if(item.leave_yn == 'y' || item.available_yn == 'n'){
+          if(item.report_yn == 'y' || item.leave_yn == 'y' || item.available_yn == 'n' || item.card_yn == 'n'){
             flippedState = false;
           }
 
@@ -893,7 +915,7 @@ const SocialView = (props) => {
         let newJoin = [];
         response.data.join.join.map((item, index) => {
           let flippedState = true;            
-          if(item.leave_yn == 'y' || item.available_yn == 'y'){
+          if(item.report_yn == 'y' || item.leave_yn == 'y' || item.available_yn == 'y' || item.card_yn == 'n'){
             flippedState = false;
           }
 
@@ -927,10 +949,14 @@ const SocialView = (props) => {
       }else{
         setJoinList([]);
       }
+
+      setTimeout(function(){
+        setLoading2(false);
+      }, 200);
     }else{
+      setLoading2(false);
       ToastMessage('잠시후 다시 이용해 주세요.');
-    }
-    setSocialPop2(false);
+    }    
   }
 
   const getProductList = ({item, index}) => {
@@ -974,7 +1000,7 @@ const SocialView = (props) => {
         if (products.length !== 0){
           setProductInappList(products);
         }
-        console.log('_getProducts success');
+        //console.log('_getProducts success');
     } catch (err){
         console.warn("IAP error code ", err.code);
         console.warn("IAP error message ", err.message);
@@ -1068,6 +1094,7 @@ const SocialView = (props) => {
   }
 
   const setOpenMiniProfile = async () => {
+    setMiniProfilePop(false);
     let sData = {
       basePath: "/api/social/",
       type: "OpenMemberProfile",
@@ -1087,8 +1114,7 @@ const SocialView = (props) => {
       setBigImgPop(true);      
     }else{
       ToastMessage('잠시후 다시 이용해 주세요.');
-    }
-    setMiniProfilePop(false);    
+    }    
   }
 
   const headerHeight = 48;
@@ -1130,7 +1156,7 @@ const SocialView = (props) => {
               <ImgDomain2 fileWidth={widnowWidth} fileName={visualImg}/>
             </View>
 
-            <View style={[styles.cmView, styles.pdt15, styles.pdb30]}>
+            <View style={[styles.cmView, styles.pdt15, styles.pdb30, styles.zindex2000]}>
               <View style={styles.nickArea}>
                 <View style={styles.nickView}>
                   <View style={styles.nickViewImg}>
@@ -1195,9 +1221,9 @@ const SocialView = (props) => {
                 <Text style={styles.contentText}>{content}</Text>
               </View>
 
-              <View style={[styles.viewSubInfo4, styles.zindex10]}>
+              <View style={[styles.viewSubInfo4, styles.zindex2000]}>
                 
-                  <View style={[styles.viewSubInfo4List, styles.zindex10]}>                  
+                  <View style={[styles.viewSubInfo4List, styles.zindex2000]}>                  
                     {hostGuest == 'y' ? (
                       <>
                         <ImgDomain fileWidth={20} fileName={'icon_power_o.png'}/>
@@ -1376,18 +1402,32 @@ const SocialView = (props) => {
                           style={styles.reqUser}
                           activeOpacity={opacityVal}
                           onPress={()=>{
-                            setMiniUserImg(profile_img);
-                            if(item.profile_open_yn == 'y'){
-                              setBigImgPop(true);
+                            if(item.report_yn == 'y'){
+                              setLeavePopText('신고한 회원이에요');
+                              setLeavePop(true);
+                            }else if(item.leave_yn == 'y'){
+                              setLeavePopText('탈퇴한 회원이에요');
+                              setLeavePop(true);
+                            }else if(item.available_yn == 'n'){
+                              setLeavePopText('계정비활성화 회원이에요');
+                              setLeavePop(true);
+                            }else if(item.card_yn == 'n'){
+                              setLeavePopText('카드를 비활성화한 회원이에요');
+                              setLeavePop(true);
                             }else{
-                              if(memberPoint < 5){
-                                setMiniChg(1);
+                              setMiniUserImg(profile_img);
+                              if(item.profile_open_yn == 'y'){
+                                setBigImgPop(true);
                               }else{
-                                setMiniChg(0);
-                                setMiniUserIdx(item.member_idx);                                
-                              }
-                              setMiniProfilePop(true);
-                            }                            
+                                if(memberPoint < 5){
+                                  setMiniChg(1);
+                                }else{
+                                  setMiniChg(0);
+                                  setMiniUserIdx(item.member_idx);                                
+                                }
+                                setMiniProfilePop(true);
+                              }      
+                            }                      
                           }}
                         >   
                           {item.profile_open_yn == 'n' ? (
@@ -1419,8 +1459,22 @@ const SocialView = (props) => {
                           style={styles.reqOkBtn}
                           activeOpacity={opacityVal}
                           onPress={() => {
-                            setSjIdx(item.sj_idx);
-                            setSocialPop2(true);
+                            if(item.report_yn == 'y'){
+                              setLeavePopText('신고한 회원이에요');
+                              setLeavePop(true);
+                            }else if(item.leave_yn == 'y'){
+                              setLeavePopText('탈퇴한 회원이에요');
+                              setLeavePop(true);
+                            }else if(item.available_yn == 'n'){
+                              setLeavePopText('계정비활성화 회원이에요');
+                              setLeavePop(true);
+                            }else if(item.card_yn == 'n'){
+                              setLeavePopText('카드를 비활성화한 회원이에요');
+                              setLeavePop(true);
+                            }else{
+                              setSjIdx(item.sj_idx);
+                              setSocialPop2(true);    
+                            }                            
                           }}
                         >
                           <Text style={styles.reqOkBtnText}>수락</Text>
@@ -1449,10 +1503,14 @@ const SocialView = (props) => {
 														style={[styles.cardBtn, styles.cardBtn2, (index+1)%3 == 0 ? styles.mgr0 : null]}
 														activeOpacity={opacityVal2}
 														onPress={() => {
-                              if(item.leave_yn == 'y'){
+                              if(item.report_yn == 'y'){
+                                setLeavePopText('신고한 회원이에요');
+                              }else if(item.leave_yn == 'y'){
                                 setLeavePopText('탈퇴한 회원이에요');
                               }else if(item.available_yn == 'n'){
                                 setLeavePopText('계정비활성화 회원이에요');
+                              }else if(item.card_yn == 'n'){
+                                setLeavePopText('카드를 비활성화한 회원이에요');                                
                               }
 															setLeavePop(true);
 														}}
@@ -1537,13 +1595,17 @@ const SocialView = (props) => {
 														key={index}
 														style={[styles.cardBtn, styles.cardBtn2, (index+1)%3 == 0 ? styles.mgr0 : null]}
 														activeOpacity={opacityVal2}
-														onPress={() => {
-                              console.log(item);
-                              if(item.leave_yn == 'y'){
+														onPress={() => {                            
+                              if(item.report_yn == 'y'){
+                                setLeavePopText('신고한 회원이에요');
+                              }else if(item.leave_yn == 'y'){
                                 setLeavePopText('탈퇴한 회원이에요');
                               }else if(item.available_yn == 'n'){
                                 setLeavePopText('계정비활성화 회원이에요');
+                              }else if(item.card_yn == 'n'){
+                                setLeavePopText('카드를 비활성화한 회원이에요');                                
                               }
+                              setLeavePop(true);
 															
 														}}
 													>
@@ -1645,9 +1707,9 @@ const SocialView = (props) => {
                   activeOpacity={1}
                   onPress={()=>{setReadyPop(true)}}
                 >                  
-                  <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>                    
+                  <ImageBackground source={{uri:'https://physicalmatch.co.kr/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>                    
                     <View style={[styles.cardBtn, styles.cardBtn3]}>                      
-                      <View style={[styles.cardCont, styles.cardCont2]}>																												                        											
+                      <View style={[styles.cardCont, styles.cardCont3]}>																												                        											
                         <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                       </View>
                     </View>           
@@ -1688,7 +1750,7 @@ const SocialView = (props) => {
                     }
                   }}
                 >                                        
-                  <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
+                  <ImageBackground source={{uri:'https://physicalmatch.co.kr/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                     <View style={[styles.cardBtn, styles.cardBtn3]}>                      
                       {dateDiff > 0 ? (
                         <View style={[styles.cardCont, styles.cardCont3]}>		
@@ -1699,7 +1761,7 @@ const SocialView = (props) => {
                             <View style={styles.peopleImgBack}>
                               <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                             </View>
-                            <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
+                            <AutoHeightImage width={110} source={{uri:'https://physicalmatch.co.kr/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
                             <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                               <View	View style={styles.cardFrontDday}>
                                 <Text style={styles.cardFrontDdayText}>D-{dateDiff}</Text>
@@ -1758,7 +1820,7 @@ const SocialView = (props) => {
                     }
                   }}
                 >                            
-                  <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
+                  <ImageBackground source={{uri:'https://physicalmatch.co.kr/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                     <View style={[styles.cardBtn, styles.cardBtn3]}>
                       {dateDiff > 0 ? (
                         <View style={[styles.cardCont, styles.cardCont3]}>		
@@ -1769,7 +1831,7 @@ const SocialView = (props) => {
                             <View style={styles.peopleImgBack}>
                               <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                             </View>
-                            <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
+                            <AutoHeightImage width={110} source={{uri:'https://physicalmatch.co.kr/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
                             <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                               <View	View style={styles.cardFrontDday}>
                                 <Text style={styles.cardFrontDdayText}>D-{dateDiff}</Text>
@@ -1828,7 +1890,7 @@ const SocialView = (props) => {
                     }
                   }}
                 >                            
-                  <ImageBackground source={{uri:'https://cnj02.cafe24.com/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
+                  <ImageBackground source={{uri:'https://physicalmatch.co.kr/appImg/social_req_bg.png'}} resizeMode='cover' style={styles.reqStateWrap}>
                     <View style={[styles.cardBtn, styles.cardBtn3]}>
                       {dateDiff > 0 ? (
                         <View style={[styles.cardCont, styles.cardCont3]}>		
@@ -1839,7 +1901,7 @@ const SocialView = (props) => {
                             <View style={styles.peopleImgBack}>
                               <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                             </View>
-                            <AutoHeightImage width={110} source={{uri:'https://cnj02.cafe24.com/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
+                            <AutoHeightImage width={110} source={{uri:'https://physicalmatch.co.kr/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
                             <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                               <View	View style={styles.cardFrontDday}>
                                 <Text style={styles.cardFrontDdayText}>D-{dateDiff}</Text>
@@ -1890,7 +1952,7 @@ const SocialView = (props) => {
                 </View>
               ) : null}
 
-              <View style={[styles.reviewWrap, styles.pdt0]}>
+              <View style={[styles.reviewWrap, styles.pdt0]}>                
                 {memberInfo?.member_type != 1 ? (
                 <>
                 <View style={{height:5,}}></View>
@@ -1992,6 +2054,7 @@ const SocialView = (props) => {
                   placeholderTextColor="#B8B8B8"
                   style={styles.reviewIpt}
                   returnKyeType='done'
+                  onSubmitEditing={submitComment}
                   readOnly={memberInfo?.member_type != 1 ? true : false}
                 />                
               ) : (
@@ -2019,7 +2082,8 @@ const SocialView = (props) => {
                     placeholder={'대댓글을 입력해 주세요'}
                     placeholderTextColor="#B8B8B8"
                     style={styles.reviewIpt}
-                    returnKyeType='done'                    
+                    returnKyeType='done'      
+                    onSubmitEditing={submitComment}             
                   />
                 </>
               )}
@@ -2312,7 +2376,10 @@ const SocialView = (props) => {
                 <TouchableOpacity 
                 style={[styles.popBtn]}
                   activeOpacity={opacityVal}
-                  onPress={() => {navigation.navigate('Shop')}}
+                  onPress={() => {
+                    setMiniProfilePop(false);
+                    navigation.navigate('Shop');
+                  }}
                 >
                   <Text style={styles.popBtnText}>상점으로 이동</Text>
                 </TouchableOpacity>
@@ -2782,7 +2849,7 @@ const styles = StyleSheet.create({
   cardFrontInfo3: {width:110},
   cardFrontInfoCont3: {width:110,padding:8,},
 
-  reviewWrap: {alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',paddingTop:20,},  
+  reviewWrap: {alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',paddingTop:20,minHeight:100,},  
   blurView: {width:widnowWidth,height:'100%',position:'absolute',left:0,top:0,zIndex:10000,},
   blurView2: {width:66,height:66,position:'absolute',left:-10,top:-10,zIndex:100,},
   blurAlert: {position:'absolute',zIndex:10001,},
@@ -2867,7 +2934,7 @@ const styles = StyleSheet.create({
   pointBox: {flexDirection:'row',alignItems:'center',justifyContent:'center'},
 	pointBoxText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#D1913C',marginLeft:6},
 
-  warnPop: {width:widnowWidth-20,backgroundColor:'#fff',padding:15,position:'absolute',top:32,left:-10,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
+  warnPop: {width:widnowWidth-20,backgroundColor:'#fff',padding:15,position:'absolute',top:32,left:-10,borderWidth:1,borderColor:'#EDEDED',borderRadius:5,zIndex:2000,},
   wranTri: {position:'absolute',top:-15.5,right:7},
   warnView: {position:'relative'},
   warn: {},
@@ -2968,6 +3035,9 @@ const styles = StyleSheet.create({
   mgl10: {marginLeft:10},
   mgl15: {marginLeft:15},
   zindex10: {zIndex:10,},
+  zindex100: {zIndex:100,},
+  zindex1000: {zIndex:1000,},
+  zindex2000: {zIndex:2000,},
 })
 
 export default SocialView

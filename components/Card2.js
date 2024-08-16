@@ -10,7 +10,7 @@ import Font from '../assets/common/Font';
 import ImgDomain from '../assets/common/ImgDomain';
 import ImgDomain2 from './ImgDomain2';
 
-const imgDomain = 'https://cnj02.cafe24.com/appImg/';
+const imgDomain = 'https://physicalmatch.co.kr/appImg/';
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;

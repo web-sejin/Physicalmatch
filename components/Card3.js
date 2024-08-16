@@ -10,7 +10,7 @@ import Font from '../assets/common/Font';
 import ImgDomain from '../assets/common/ImgDomain';
 import ImgDomain2 from './ImgDomain2';
 
-const imgDomain = 'https://cnj02.cafe24.com/appImg/';
+const imgDomain = 'https://physicalmatch.co.kr/appImg/';
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
@@ -24,7 +24,7 @@ const radius2 = widnowWidth >= 640 ? 15 : 5;
 const Card3 = (props) => {
 	const navigationUse = useNavigation();
 
-	const {navigation, propsNick, propsAge, propsHeight, viewOrder, myMemberIdx, propsMemberIdx, propsAvailableState, propsCardState, propsDeleteState, propsBlockState, ModalEvent, propsImg, propsDday} = props;  
+	const {navigation, propsNick, propsAge, propsHeight, viewOrder, myMemberIdx, propsMemberIdx, propsAvailableState, propsCardState, propsDeleteState, propsBlockState, ModalEvent, propsImg, propsDday, propsReportState} = props;  
   const spin = useSharedValue(0);
 
 	const frontAnimatedStyle = useAnimatedStyle(() => {
@@ -64,7 +64,6 @@ const Card3 = (props) => {
   };
 
   const ViewDetail = () => {
-		//포인트 있는지 체크 후 결제 유도 or 상세페이지 이동		
 		navigation.navigate(
       'MatchDetail', 
       {
@@ -80,12 +79,16 @@ const Card3 = (props) => {
         style={[styles.fakeView]} 
         activeOpacity={opacityVal}
         onPress={()=>{          
-          if(propsAvailableState == 'n'){
+          if(propsReportState == 'y'){
+            ModalEvent(5)
+          }else if(propsAvailableState == 'n'){
             ModalEvent(1)
           }else if(propsDeleteState == 'y'){
             ModalEvent(3)
           }else if(propsBlockState == 'y'){
             ModalEvent(4)
+          }else if(propsCardState == 'n'){
+            ModalEvent(6)
           }else{
             if(spin.value == 0){
               ViewDetail();

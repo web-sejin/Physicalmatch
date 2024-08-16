@@ -110,6 +110,7 @@ const CsCenter = (props) => {
 			type: "GetInquiryList",
       member_idx: memberIdx,
 		}
+    //console.log(sData);
 		const response = await APIs.send(sData);
 		//console.log(response);
 		if(response.code == 200){
@@ -128,9 +129,9 @@ const CsCenter = (props) => {
     let stateString = '';
     if(item.inquiry_status == 0){
       stateString = '문의 접수';
+    // }else if(item.inquiry_status == 1){
+    //   stateString = '확인중';
     }else if(item.inquiry_status == 1){
-      stateString = '확인중';
-    }else if(item.inquiry_status == 2){
       stateString = '답변 완료';
     }    
 
@@ -176,7 +177,7 @@ const CsCenter = (props) => {
               <Text style={styles.csContentViewText}>{item.inquiry_content}</Text>
             </View>
           </View>
-          {item.inquiry_status == 2 ? (
+          {item.inquiry_status == 1 ? (
           <View style={styles.guidePopCont2}>
             <View style={styles.ansTitle}>
               <Text style={styles.ansTitleText}>답변</Text>

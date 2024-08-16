@@ -24,7 +24,7 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const MyDate = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -145,8 +145,8 @@ const MyDate = (props) => {
 
 	const saveQuestion = async () => {
 		if(currCnt != questionTotal){
-			//ToastMessage('모든 질문에 답변을 선택해 주세요.');
-			//return false;
+			ToastMessage('모든 질문에 답변을 선택해 주세요.');
+			return false;
 		}
 
 		let submitAry = [];
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
 	nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },
   nextBtnOff: {backgroundColor:'#DBDBDB'},
-	nextBtnText: { fontFamily: Font.NotoSansMedium, fontSize: 14, lineHeight: 52, color: '#fff' },
+	nextBtnText: { fontFamily: Font.NotoSansMedium, fontSize: 14, lineHeight: 21, color: '#fff' },
 		
 	boxShadow3: {    
     borderRadius:5,

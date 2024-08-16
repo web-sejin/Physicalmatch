@@ -14,6 +14,7 @@ import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -25,7 +26,7 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const About = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -81,12 +82,13 @@ const About = (props) => {
       tab: tabSt,
 		}
 		const response = await APIs.send(sData);
-    //console.log(response);
+    console.log(response);
 		if(response.code == 200){
-      const source = {
-        html: response.data
-      };
-      setTabCont(source);
+      // const source = {
+      //   html: response.data
+      // };
+      // setTabCont(source);
+      setTabCont(response.data);
     }
   }
 
@@ -125,10 +127,11 @@ const About = (props) => {
 			{tabCont ? (
         <ScrollView style={styles.scrollView}>
           <View style={styles.cmWrap}>
-            <RenderHtml
+            {/* <RenderHtml
               contentWidth={widnowWidth}
               source={tabCont}            
-            />
+            /> */}
+            <ImgDomain2 fileWidth={widnowWidth} fileName={tabCont} />
           </View>
         </ScrollView>
       ) : (
@@ -145,7 +148,7 @@ const styles = StyleSheet.create({
 	gapBox: {height:80,},
 	indicator: { width:widnowWidth, height: widnowHeight, backgroundColor:'rgba(255,255,255,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', position:'absolute', left:0, top:0, },		
 
-  cmWrap: {paddingHorizontal:20},
+  cmWrap: {/*paddingHorizontal:20*/},
 	cmTitleBox: {position:'relative'},
 	cmTitleText: { fontFamily: Font.NotoSansSemiBold, fontSize: 22, lineHeight: 25, color: '#1e1e1e', position: 'relative', zIndex: 10, paddingLeft:1, },
 	cmTitleLine: { width: 61, height: 14, backgroundColor: '#ffd194', position: 'absolute',left:0,bottom:-1,zIndex:9,opacity:0.3},

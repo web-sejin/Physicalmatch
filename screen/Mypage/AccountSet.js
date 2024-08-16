@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
-import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
+import {ActivityIndicator, Alert, Animated, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform, InteractionManager} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -35,6 +35,7 @@ const AccountSet = (props) => {
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
   const [memberIdx, setMemberIdx] = useState();
+  const [memberInfo, setMemberInfo] = useState();
   const [modal, setModal] = useState(false);
   const [modal2, setModal2] = useState(false);
   const [modal3, setModal3] = useState(false);
@@ -106,6 +107,7 @@ const AccountSet = (props) => {
   useEffect(() => {
     if(memberIdx){
       getPushList();
+      getMemInfo();
     }
     getDisableList();
     getDisableList2();
@@ -125,14 +127,17 @@ const AccountSet = (props) => {
 	}, [onOff2]);
 
   useEffect(() => {
-    console.log('isLoggedOut ::: ', isLoggedOut);
-    if (isLoggedOut) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Intro2' }],
+    //console.log('isLoggedOut ::: ', isLoggedOut);
+    if (isLoggedOut) {      
+      InteractionManager.runAfterInteractions(() => {
+        // navigation.reset({
+        //   index: 0,
+        //   routes: [{ name: 'Intro2', }],
+        // });
+        navigation.navigate('Intro2');
       });
     }
-  }, [isLoggedOut]);
+  }, [isLoggedOut, navigation]);
 
   const chgOnOff = async () => {
     if(onOff){
@@ -155,22 +160,32 @@ const AccountSet = (props) => {
   }
 
   const logout = async () => { 
-    setLoading(true); 
-    let sData = {
-			basePath: "/api/member/",
-			type: "SetLogout",
-      member_idx: memberIdx,
-		};
-
-		const response = await APIs.send(sData);
-		if(response.code == 200){
-      AsyncStorage.removeItem('member_id');
-      AsyncStorage.removeItem('member_idx');
+    try {
+      setLoading(true);
+      let sData = {
+        basePath: "/api/member/",
+        type: "SetLogout",
+        member_idx: memberIdx,
+      };
   
-      setModal(false);
+      const response = await APIs.send(sData);
+      if (response.code == 200) {
+        await AsyncStorage.removeItem('member_id');
+        await AsyncStorage.removeItem('member_idx');
+        setModal(false);
+        setIsLoggedOut(true);
+        
+        // 여기에서 직접 네비게이션 실행
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Intro2' }],
+        });
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
       setLoading(false);
-      setIsLoggedOut(true);
-    }
+    }  
   }
 
   const updatePushList = async (col, state) => {
@@ -320,6 +335,19 @@ const AccountSet = (props) => {
     }
   }
 
+  const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);    
+		if(response.code == 200){
+			setMemberInfo(response.data);		
+		}
+	}
+
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
 	const behavior = Platform.OS === "ios" ? "padding" : "height";
@@ -333,7 +361,13 @@ const AccountSet = (props) => {
           <TouchableOpacity
             style={styles.btn}
             activeOpacity={opacityVal}
-            onPress={()=>{navigation.navigate('ModifyLogin')}}
+            onPress={()=>{
+              if(memberInfo?.member_type != 1){
+								ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+							}else{
+								navigation.navigate('ModifyLogin')
+							}              
+            }}
           >
             <Text style={styles.btnText}>로그인 정보 변경</Text>            
             <ImgDomain fileWidth={6} fileName={'icon_arr8.png'}/>
@@ -355,8 +389,14 @@ const AccountSet = (props) => {
             <Text style={styles.btnText}>카드 활성화</Text>
             <TouchableOpacity 
               style={[styles.onOffBtn, !onOff ? styles.onOffBtn2 : null]}
-              activeOpacity={opacityVal}
-              onPress={()=>chgOnOff()}
+              activeOpacity={1}              
+              onPress={()=>{
+                if(memberInfo?.member_type != 1){
+                  ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+                }else{
+                  chgOnOff();
+                }              
+              }}
             >
               <Animated.View 
                 style={{
@@ -372,8 +412,14 @@ const AccountSet = (props) => {
             <Text style={styles.btnText}>계정 활성화</Text>
             <TouchableOpacity 
               style={[styles.onOffBtn, !onOff2 ? styles.onOffBtn2 : null]}
-              activeOpacity={opacityVal}
-              onPress={()=>chgOnOff2()}
+              activeOpacity={1}
+              onPress={()=>{
+                if(memberInfo?.member_type != 1){
+                  ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+                }else{
+                  chgOnOff2();
+                }              
+              }}
             >
               <Animated.View 
                 style={{

@@ -12,6 +12,7 @@ import {
   View,
   Modal,
   Pressable,
+  DeviceEventEmitter,
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, CardStyleInterpolators } from "@react-navigation/stack";
@@ -196,14 +197,24 @@ const TabNavigation = (props) => {
   }
   if (Platform.OS === 'ios') { PushNotificationIOS.setApplicationIconBadgeNumber(0); }
 
+  // useEffect(() => {
+  //   const unsubscribe = props.navigation.addListener('state', (e) => {
+  //     const currentRouteName = e.data.state.routes[e.data.state.index].name;
+  //     console.log('userInfo :::::', userInfo.is_new);
+  //   });
+
+  //   return unsubscribe;
+  // }, [props.navigation]);
+
   useEffect(() => {
     // 포그라운드 메시지 처리
     const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
-      //console.log('포그라운드 메시지:', remoteMessage);
+      console.log('포그라운드 메시지:', remoteMessage);
       ToastMessage(remoteMessage.data.subject, 3500, '1', '', remoteMessage.data.content);
       
       let mb_idx = await AsyncStorage.getItem('member_idx');
       if (mb_idx) {
+        //console.log('user!!!!');
         memberHandler(mb_idx);
       }
     });
@@ -220,7 +231,7 @@ const TabNavigation = (props) => {
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) {
-          //console.log('종료 상태에서 알림으로 앱 열림:', remoteMessage);
+          //console.log('종료 상태에서 알림으로 앱 열림:', remoteMessage);          
           // 필요한 처리 로직 추가
           navigation.navigate('Alim');
         }
@@ -240,6 +251,8 @@ const TabNavigation = (props) => {
     formData.append('member_idx', mb_idx);
     //console.log(formData);
     const mem_info = await member_info(formData);
+
+    //console.log('tabNavigation mem_info ::: ', mem_info);
   }
 
 	return (

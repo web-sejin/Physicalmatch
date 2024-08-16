@@ -23,7 +23,7 @@ const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
 const SettingMenu = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, userInfo, chatInfo, route} = props;
+	const {navigation, userInfo, route} = props;
 	const {params} = route
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
@@ -158,11 +158,12 @@ const SettingMenu = (props) => {
             style={[styles.btn, styles.btnLine]}
             activeOpacity={opacityVal}
             onPress={()=>{
-							if(memberInfo?.member_type != 1){
-								ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
-							}else{
-								navigation.navigate('AccountSet');
-							}
+							navigation.navigate('AccountSet');
+							// if(memberInfo?.member_type != 1){
+							// 	ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
+							// }else{
+							// 	navigation.navigate('AccountSet');
+							// }
 						}}
           >
             <Text style={styles.btnText}>계정관리</Text>

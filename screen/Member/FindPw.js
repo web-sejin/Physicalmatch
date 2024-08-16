@@ -26,6 +26,7 @@ const FindPw = (props) => {
   const [id, setId] = useState(params?.result_id);
   const [certnumber, setCertnumber] = useState('');
   const [certSt, setCertSt] = useState(false);
+  const [certIdx, setCertIdx] = useState();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -38,6 +39,11 @@ const FindPw = (props) => {
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);
+      
+      if(params?.certState == 'y'){
+        setCertSt(true);
+        setCertIdx(params?.idx);
+      }
 		}
 		Toast.hide();
 		return () => isSubscribed = false;
@@ -49,22 +55,24 @@ const FindPw = (props) => {
 			return false;
 		}
 
-    let sData = {
-      basePath: "/api/member/",
-      type: 'IsPass',
-      pass_type: 2,
-      member_phone: '010-0000-0000',
-      member_id: id,
-      test_yn: 'y'
-    }
-    const response = await APIs.send(sData);    
-    if(response.code == 200){
-      setCertnumber('010-0000-0000');
-      setCertSt(true);
-    }else{
-      ToastMessage('일치하는 정보가 없습니다.');
-      setCertSt(false);
-    }
+    navigation.navigate('Certification', {type:'Pw_find', member_id:id});
+
+    // let sData = {
+    //   basePath: "/api/member/",
+    //   type: 'IsPass',
+    //   pass_type: 2,
+    //   member_phone: '010-0000-0000',
+    //   member_id: id,
+    //   test_yn: 'y'
+    // }
+    // const response = await APIs.send(sData);    
+    // if(response.code == 200){
+    //   setCertnumber('010-0000-0000');
+    //   setCertSt(true);
+    // }else{
+    //   ToastMessage('일치하는 정보가 없습니다.');
+    //   setCertSt(false);
+    // }
   }
 
   const result_pw = async () => {
@@ -78,21 +86,22 @@ const FindPw = (props) => {
 			return false;
     }
     
-    let sData = {
-			basePath: "/api/member/",
-			type: "SetFindPw",
-      member_id: id,
-			member_phone: certnumber,
-		};
+    // let sData = {
+		// 	basePath: "/api/member/",
+		// 	type: "SetFindPw",
+    //   member_id: id,
+		// 	member_phone: certnumber,
+		// };
 
-		const response = await APIs.send(sData);
-    console.log(response);
-    if(response.code == 200){
-      navigation.navigate('PwResult', {idx:response.data});
-    }else{ 
-      ToastMessage('일치하는 정보가 없습니다.');
-      return false;
-    } 
+		// const response = await APIs.send(sData);
+    // console.log(response);
+    // if(response.code == 200){
+    //   navigation.navigate('PwResult', {idx:response.data});
+    // }else{ 
+    //   ToastMessage('일치하는 정보가 없습니다.');
+    //   return false;
+    // } 
+    navigation.navigate('PwResult', {idx:certIdx});
   }
 
   const headerHeight = 48;

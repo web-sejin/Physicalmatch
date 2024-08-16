@@ -74,7 +74,9 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>일정을 확인하기 위해 필요합니다.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>카메라 기능으로 사진 등 파일 첨부를 이용하기 위해서는 해당 권한을 승인해 주세요.</string>
+	<string>카메라 기능으로 프로필 사진, 각 게시판에 이미지를 첨부하기 위해 권한을 승인해 주세요.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>지인을 차단하기 위해 연락처 목록이 필요합니다. 권한을 승인해 주세요.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>이용자가 Face ID를 사용하기 위해 필요합니다.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
@@ -93,9 +95,9 @@
 	<key>NSMotionUsageDescription</key>
 	<string>이용자의 모션을 허용하기 위한 용도입니다.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>사진 등 파일 첨부를 이용하기 위해서는 해당 권한을 승인해 주세요.</string>
+	<string>프로필 사진, 각 게시판에 이미지를 첨부하기 위해 권한을 승인해 주세요.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>사진 등 파일 첨부를 이용하기 위해서는 해당 권한을 승인해 주세요.</string>
+	<string>프로필 사진, 각 게시판에 이미지를 첨부하기 위해 권한을 승인해 주세요.</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>이용자가 주의사항을 인지하게 하기 위한 용도입니다.</string>
 	<key>NSSiriUsageDescription</key>
@@ -131,9 +133,10 @@
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>

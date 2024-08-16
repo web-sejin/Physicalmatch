@@ -12,7 +12,7 @@ import Font from '../assets/common/Font';
 import ImgDomain from '../assets/common/ImgDomain';
 import ImgDomain2 from './ImgDomain2';
 
-const imgDomain = 'https://cnj02.cafe24.com/appImg/';
+const imgDomain = 'https://physicalmatch.co.kr/appImg/';
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
@@ -25,7 +25,7 @@ const radius2 = widnowWidth >= 640 ? 15 : 5;
 
 const Card = (props) => {
 	const navigationUse = useNavigation();
-	const {navigation, propsNick, propsJob, propsAge, propsArea, propsHeight, propsWeight, propsBadgeCnt, propsOpen, propsMrIdx, myMemberIdx, propsMemberIdx, propsAvailableState, propsCardState, propsDeleteState, propsBlockState, ModalEvent, propsImg} = props;  
+	const {navigation, propsNick, propsJob, propsAge, propsArea, propsHeight, propsWeight, propsBadgeCnt, propsOpen, propsMrIdx, myMemberIdx, propsMemberIdx, propsAvailableState, propsCardState, propsDeleteState, propsBlockState, ModalEvent, propsReportState, propsImg, propsRelState} = props;  
   const spin = useSharedValue(1);
   useEffect(() => {
     if(propsOpen && spin.value != 0){
@@ -34,7 +34,6 @@ const Card = (props) => {
       }, 500);      
     }
   }, []);
-
 	
 	const frontAnimatedStyle = useAnimatedStyle(() => {
     const spinValue = interpolate(spin.value, [0, 1], [0, 180]);
@@ -89,12 +88,19 @@ const Card = (props) => {
         style={[styles.fakeView]} 
         activeOpacity={opacityVal}
         onPress={()=>{     
-          if(propsAvailableState == 'n'){
+          //propsRelState
+          if(propsReportState == 'y'){
+            ModalEvent(5)
+          }else if(propsAvailableState == 'n'){
             ModalEvent(1)
           }else if(propsDeleteState == 'y'){
             ModalEvent(3)
           }else if(propsBlockState == 'y'){
             ModalEvent(4)
+          }else if(propsCardState == 'n'){
+            ModalEvent(6)
+          }else if(propsRelState == 'y'){
+            ModalEvent(7)
           }else{
             if(spin.value == 0){
               ViewDetail();
@@ -109,33 +115,41 @@ const Card = (props) => {
             <View style={styles.peopleImgBack}>
               <ImgDomain fileWidth={(innerWidth/2)-5} fileName={'front.png'} />
             </View>
-            <View style={[styles.peopleImg]}>
-              <ImgDomain2 fileWidth={(innerWidth/2)-5} fileName={propsImg} />
-            </View>
-            <View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
-              <View style={styles.cardFrontNick}>
-                <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{propsNick}</Text>                
-                {propsBadgeCnt == 1 ? (<ImgDomain fileWidth={26} fileName={'b_1.png'} />) : null}
-                {propsBadgeCnt == 2 ? (<ImgDomain fileWidth={26} fileName={'b_2.png'} />) : null}
-                {propsBadgeCnt == 3 ? (<ImgDomain fileWidth={26} fileName={'b_3.png'} />) : null}
-                {propsBadgeCnt == 4 ? (<ImgDomain fileWidth={26} fileName={'b_4.png'} />) : null}
-                {propsBadgeCnt == 5 ? (<ImgDomain fileWidth={26} fileName={'b_5.png'} />) : null}
-                {propsBadgeCnt == 6 ? (<ImgDomain fileWidth={26} fileName={'b_6.png'} />) : null}
+            {propsReportState == 'y' ? (
+              <View style={[styles.peopleImg]}>              
+                <ImgDomain fileWidth={(innerWidth/2)-5} fileName={'front.png'} />
               </View>
-              <View style={styles.cardFrontJob}>
-                <Text style={styles.cardFrontJobText}>{propsJob}</Text>
-              </View>
-              <View style={styles.cardFrontContBox}>
-                <Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{propsAge}</Text>
-                <View style={styles.cardFrontContLine}></View>
-                <Text style={styles.cardFrontContText}>{propsArea}</Text>
-              </View>
-              <View style={[styles.cardFrontContBox, styles.mgt4]}>
-                <Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{propsHeight}cm</Text>
-                <View style={styles.cardFrontContLine}></View>
-                <Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{propsWeight}kg</Text>
-              </View>
-            </View>
+            ) : (
+              <>
+                <View style={[styles.peopleImg]}>              
+                  <ImgDomain2 fileWidth={(innerWidth/2)-5} fileName={propsImg} />
+                </View>
+                <View style={[styles.cardFrontInfoCont, styles.boxShadow2]}>
+                  <View style={styles.cardFrontNick}>
+                    <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardFrontNickText}>{propsNick}</Text>                
+                    {propsBadgeCnt == 1 ? (<ImgDomain fileWidth={26} fileName={'b_1.png'} />) : null}
+                    {propsBadgeCnt == 2 ? (<ImgDomain fileWidth={26} fileName={'b_2.png'} />) : null}
+                    {propsBadgeCnt == 3 ? (<ImgDomain fileWidth={26} fileName={'b_3.png'} />) : null}
+                    {propsBadgeCnt == 4 ? (<ImgDomain fileWidth={26} fileName={'b_4.png'} />) : null}
+                    {propsBadgeCnt == 5 ? (<ImgDomain fileWidth={26} fileName={'b_5.png'} />) : null}
+                    {propsBadgeCnt == 6 ? (<ImgDomain fileWidth={26} fileName={'b_6.png'} />) : null}
+                  </View>
+                  <View style={styles.cardFrontJob}>
+                    <Text style={styles.cardFrontJobText}>{propsJob}</Text>
+                  </View>
+                  <View style={styles.cardFrontContBox}>
+                    <Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{propsAge}</Text>
+                    <View style={styles.cardFrontContLine}></View>
+                    <Text style={styles.cardFrontContText}>{propsArea}</Text>
+                  </View>
+                  <View style={[styles.cardFrontContBox, styles.mgt4]}>
+                    <Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{propsHeight}cm</Text>
+                    <View style={styles.cardFrontContLine}></View>
+                    <Text style={[styles.cardFrontContText, styles.cardFrontContTextRoboto]}>{propsWeight}kg</Text>
+                  </View>
+                </View>
+              </>
+            )}
           </View>
         </Animated.View>
 

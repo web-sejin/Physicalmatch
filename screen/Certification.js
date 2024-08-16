@@ -17,7 +17,7 @@ const Certification = props => {
   };
 
   const callback = response => {
-    console.log('본인인증 response::', response);
+    //console.log('본인인증 response::', response);
 
     //response:: {"imp_uid": "imp_835217626476", "merchant_uid": "mid_1719463217604", "request_id": "req_1719463218082", "success": "true"}
     const {imp_success, success} = response;
@@ -33,19 +33,23 @@ const Certification = props => {
       registerHandler(isSuccess, response);
     }
 
-    if (params?.type == 'IdSearchResult') {
+    if (params?.type == 'Id_find') {
       idSearchHandler(isSuccess, response);
     }
 
-    if (params?.type == 'PasswordChange') {
+    if (params?.type == 'Pw_find') {
       pwChangeHander(isSuccess, response);
+    }
+
+    if (params?.type == 'change_number') {
+      numberChangeHander(isSuccess, response);
     }
   };
 
   //회원가입 본인인증
   const registerHandler = async (isSuccess, response) => {
     if (isSuccess) {
-      console.log('본인인증 완료', response);
+      //console.log('본인인증 완료', response);
 
       let sData = {
         basePath: "/api/member/",
@@ -56,36 +60,37 @@ const Certification = props => {
       };  
       const impRes = await APIs.send(sData);    
       console.log('iamport_cert_join_status', impRes);
-      if(impRes){
-        //성공시
-        let phones = phoneFormat(iamport_cert_join_status.phone);
-        let date = moment(iamport_cert_join_status.birthday);
-        //date = date.format('YYYY/MM/DD');
-        dateAge = date.format('YYYY');
 
-        navigation.replace('RegisterStep2', {
-          age: dateAge,
-          //birthday2: iamport_cert_join_status.birthday,
-          hp: phones,
-          //gender: iamport_cert_join_status.gender == '1' ? '남성' : '여성',
-          gender: iamport_cert_join_status.gender == '1' ? 0 : 1,
+      if(impRes.code == 200){
+        //성공시
+        let dateAge = impRes.birth.split('-');
+        navigation.replace('RegisterStep3', {
+          age: dateAge[0],
+          phonenumber: impRes.phone,
+          gender: impRes.gender == 'male' ? 0 : 1,
+          name: impRes.name,
+          accessRoute:params?.route,
+          prvChk4:params?.prvChk4,
         });
       }else{
         //실패
-        console.log('본인인증 회원가입 실패시', iamport_cert_join_status);
-        if (iamport_cert_join_status.result_text != '') {
-          ToastMessage(iamport_cert_join_status.result_text);
+        console.log('본인인증 회원가입 실패시', impRes);
+        if (impRes.msg != '') {
+          ToastMessage(impRes.msg);
         } else {
           ToastMessage('인증이 완료되지 못했습니다.');
         }
 
-        navigation.reset({
-          routes: [
-            {
-              name: 'Login',
-            },
-          ],
-        });
+        // navigation.reset({
+        //   routes: [
+        //     {
+        //       name: 'Login',
+        //     },
+        //   ],
+        // });
+        setTimeout(function(){
+          navigation.goBack();
+        }, 2000);
       }
     } else {
       Alert.alert(response.error_code, response.error_msg);
@@ -100,89 +105,130 @@ const Certification = props => {
   };
 
   //아이디 찾기
-  // const idSearchHandler = async (isSuccess, response) => {
-  //   if (isSuccess) {
-  //     console.log('본인인증 아이디 찾기 완료', response);
+  const idSearchHandler = async (isSuccess, response) => {
+    if (isSuccess) {
+      console.log('본인인증 아이디 찾기 완료', response);
 
-  //     const formData = new FormData();
-  //     formData.append('imp_uid', response?.imp_uid);
+      let sData = {
+        basePath: "/api/member/",
+        type: "IsPass",
+        pass_type: 1,
+        test_yn: 'n',
+        imp_uid: response?.imp_uid,
+      };  
+      const impRes = await APIs.send(sData);    
+      console.log('iamport_cert_findid_status', impRes);
 
-  //     const iamport_cert_findid_status = await Api.multipartRequest(
-  //       formData,
-  //       '/app/iamport_cert_findid',
-  //     );
+      if (impRes.code == 200) {
+        navigation.navigate('FindId', {
+          id: impRes.id,
+        });
+      } else {
+        //실패
+        console.log('본인인증 아이디찾기 실패시', impRes);
 
-  //     console.log('iamport_cert_findid_status', iamport_cert_findid_status);
+        if (impRes.msg != '') {
+          ToastMessage(impRes.msg);
+        } else {
+          ToastMessage('인증이 완료되지 못했습니다.');
+        }
 
-  //     if (iamport_cert_findid_status.result == 'success') {
-  //       navigation.replace('IdSearchResult', {
-  //         id: iamport_cert_findid_status.mb_id,
-  //       });
-  //     } else {
-  //       //실패
-  //       console.log('본인인증 아이디찾기 실패시', iamport_cert_findid_status);
+        setTimeout(function(){
+          navigation.goBack();
+        }, 2000);
+      }
+    } else {
+      Alert.alert(response.error_code, response.error_msg);
 
-  //       if (iamport_cert_findid_status.result_text != '') {
-  //         ToastMessage(iamport_cert_findid_status.result_text);
-  //       } else {
-  //         ToastMessage('인증이 완료되지 못했습니다.');
-  //       }
+      //navigation.replace('IdSearch');
+      setTimeout(function(){
+        navigation.goBack();
+      }, 2000);
+    }
+  };
 
-  //       //navigation.goBack();
-  //       navigation.goBack();
-  //     }
-  //   } else {
-  //     Alert.alert(response.error_code, response.error_msg);
+  //비밀번호 변경하기
+  const pwChangeHander = async (isSuccess, response) => {
+    if (isSuccess) {
+      let sData = {
+        basePath: "/api/member/",
+        type: "IsPass",
+        pass_type: 2,
+        member_id: params?.member_id,
+        test_yn: 'n',
+        imp_uid: response?.imp_uid,
+      };  
+      const impRes = await APIs.send(sData);    
+      console.log('iamport_cert_findpw_status', impRes);
 
-  //     //navigation.replace('IdSearch');
-  //     navigation.goBack();
-  //   }
-  // };
+      if (impRes.code == 200) {
+        navigation.navigate('FindPw', {
+          idx: impRes.data,
+          certState: 'y',
+        });
+      } else {
+        //실패
+        console.log('본인인증 비밀번호찾기 실패시', impRes);
 
-  // //비밀번호 변경하기
-  // const pwChangeHander = async (isSuccess, response) => {
-  //   if (isSuccess) {
-  //     console.log('본인인증 비밀번호변경 완료', response);
+        if (impRes.msg != '') {
+          ToastMessage(impRes.msg);
+        } else {
+          ToastMessage('인증이 완료되지 못했습니다.');
+        }
 
-  //     const formData = new FormData();
-  //     formData.append('imp_uid', response?.imp_uid);
-  //     formData.append('mb_id', params?.id);
+        setTimeout(function(){
+          navigation.goBack();
+        }, 2000);
+      }
+    } else {
+      Alert.alert(response.error_code, response.error_msg);
 
-  //     const iamport_cert_findpw_status = await Api.multipartRequest(
-  //       formData,
-  //       '/app/iamport_cert_findpw',
-  //     );
+      //navigation.replace('PasswordSearch');
+      setTimeout(function(){
+        navigation.goBack();
+      }, 2000);
+    }
+  };
 
-  //     console.log('iamport_cert_findpw_status', iamport_cert_findpw_status);
+  //로그인 정보 변경 - 핸드폰번호
+  const numberChangeHander = async (isSuccess, response) => {
+    if (isSuccess) {
+      //console.log('본인인증 완료', response);
 
-  //     if (iamport_cert_findpw_status.result == 'success') {
-  //       navigation.replace('PasswordChange', {
-  //         id: params?.id,
-  //         unique_key: iamport_cert_findpw_status.unique_key,
-  //       });
-  //     } else {
-  //       //실패
-  //       console.log(
-  //         '본인인증 비밀번호 변경 실패시',
-  //         iamport_cert_findpw_status,
-  //       );
+      let sData = {
+        basePath: "/api/member/",
+        type: "IsPass",
+        pass_type: 3,
+        test_yn: 'n',
+        imp_uid: response?.imp_uid,
+      };  
+      const impRes = await APIs.send(sData);    
+      console.log('iamport_cert_cange_status', impRes);
 
-  //       if (iamport_cert_findpw_status.result_text != '') {
-  //         ToastMessage(iamport_cert_findpw_status.result_text);
-  //       } else {
-  //         ToastMessage('인증이 완료되지 못했습니다.');
-  //       }
-
-  //       //navigation.replace('PasswordSearch');
-  //       navigation.goBack();
-  //     }
-  //   } else {
-  //     Alert.alert(response.error_code, response.error_msg);
-
-  //     //navigation.replace('PasswordSearch');
-  //     navigation.goBack();
-  //   }
-  // };
+      if(impRes.code == 200){
+        //성공시
+        navigation.replace('ModifyLogin', {          
+          phonenumber: impRes.phone,          
+        });
+      }else{
+        //실패
+        console.log('본인인증 번호변경 실패시', impRes);
+        if (impRes.msg != '') {
+          ToastMessage(impRes.msg);
+        } else {
+          ToastMessage('인증이 완료되지 못했습니다.');
+        }
+        setTimeout(function(){
+          navigation.goBack();
+        }, 2000);
+      }
+    } else {
+      Alert.alert(response.error_code, response.error_msg);
+      setTimeout(function(){
+        navigation.goBack();
+      }, 2000);
+    }
+  };
 
   return (
     <IMP.Certification
