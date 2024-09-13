@@ -3298,6 +3298,7 @@ __metadata:
     react-native: 0.71.18
     react-native-asset: ^2.1.1
     react-native-auto-height-image: 3.2.4
+    react-native-background-timer: ^2.4.1
     react-native-calendar-picker: ^8.0.4
     react-native-calendars: ^1.1304.1
     react-native-circular-progress: ^1.4.0
@@ -9370,6 +9371,15 @@ __metadata:
     react: ^17.0.0
     react-native: ^0.63.0
   checksum: 99d53a4a5859a24f89c58ac1d0d5cdc2377e25ebf3f8f335f67e2ac8a312b91d58aa514783970cc15ed3df6c052f4adaa51e1e85c1440d173cac7b148be92b9d
+  languageName: node
+  linkType: hard
+
+"react-native-background-timer@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "react-native-background-timer@npm:2.4.1"
+  peerDependencies:
+    react-native: ">=0.47.0"
+  checksum: 635feb23bfdc8c43b8ee85dc85a5eb83f85aa9c285ce92ac329946ac83864121ae66bfb64fefa21e2a10462d094e03c17ff87eeb5d7e6349bc8e72d941f12754
   languageName: node
   linkType: hard
 

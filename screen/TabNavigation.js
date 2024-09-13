@@ -2,6 +2,7 @@ import React, {useState, useEffect, useCallback} from 'react';
 import {
   ActivityIndicator,
   Alert,
+  AppState,
   BackHandler,
   Button,
   Dimensions,
@@ -28,11 +29,14 @@ import Font from '../assets/common/Font';
 import ImgDomain from '../assets/common/ImgDomain';
 import messaging from '@react-native-firebase/messaging';
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
+import PushNotification from 'react-native-push-notification';
+import BackgroundTimer from 'react-native-background-timer';
 
 import Home from './Home';
 import Social from './Social/Social';
 import Community from './Community/Community';
 import Mypage from './Mypage/Mypage';
+import TodayExercise from './Exercise/TodayExercise';
 import Alim from './Mypage/Alim';
 
 const Tab = createBottomTabNavigator();
@@ -116,6 +120,7 @@ const TabBarMenu = (props) => {
           <Text style={[styles.tabViewText, screenName=='Home' ? styles.tabViewTextOn : null]}>매칭</Text>
         </View>
       </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
@@ -138,6 +143,30 @@ const TabBarMenu = (props) => {
           <Text style={[styles.tabViewText, screenName=='Social' ? styles.tabViewTextOn : null]}>소셜</Text>
         </View>
       </TouchableOpacity>
+      
+      <TouchableOpacity
+        style={styles.TabBarBtn} 
+        activeOpacity={opacityVal}
+        onPress={() => {
+          if(socialBan == 'y'){
+            ToastMessage('앗! 오운완을 이용할 수 없어요🥲');  
+          }else{
+            navigation.navigate('TodayExercise');
+          }          
+        }}
+      >
+        <View style={styles.tabIcon}>
+          {screenName == 'TodayExercise' ? (
+            <ImgDomain fileWidth={20} fileName={'tab5_on.png'} />
+          ) : (
+            <ImgDomain fileWidth={20} fileName={'tab5_off.png'} />
+          )}
+        </View>
+        <View style={styles.tabView}>
+          <Text style={[styles.tabViewText, screenName=='TodayExercise' ? styles.tabViewTextOn : null]}>오운완</Text>
+        </View>
+      </TouchableOpacity>
+
       <TouchableOpacity 
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
@@ -160,6 +189,7 @@ const TabBarMenu = (props) => {
           <Text style={[styles.tabViewText, screenName=='Community' ? styles.tabViewTextOn : null]}>커뮤니티</Text>
         </View>
       </TouchableOpacity>
+
       <TouchableOpacity 
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
@@ -185,6 +215,67 @@ const TabBarMenu = (props) => {
 
 const TabNavigation = (props) => {
 	const {navigation, userInfo, member_info, route} = props;
+  const [startTime, setStartTime] = useState(null);  // 시작 시간
+  const [elapsedTime, setElapsedTime] = useState(0); // 경과 시간
+  const [timerRunning, setTimerRunning] = useState(false); // 타이머 상태
+
+  const handleAppStateChange = async (nextAppState) => {
+    if (nextAppState === 'background' && timerRunning) {
+      BackgroundTimer.runBackgroundTimer(() => {        
+        const nowTime = (new Date() - startTime) / 1000;
+        setElapsedTime(nowTime);
+
+        PushNotification.localNotification({
+          id: '999',
+          channelId: "timer-channel",
+          title: "타이머 실행 중",
+          message: `경과 시간: ${nowTime.toFixed(0)} 초`,
+          importance: "low",
+          priority: "low",
+          ongoing: true,
+          silent: true,
+          visibility: "secret",
+          onlyAlertOnce: true,
+          playSound: false,
+          vibrate: false,
+        });
+      }, 1000);
+    } else if (nextAppState === 'active') {
+      BackgroundTimer.stopBackgroundTimer();
+      PushNotification.cancelAllLocalNotifications();
+    }
+  };
+
+  const handleStart = async () => {
+    const now = new Date();
+    setStartTime(now);
+    await AsyncStorage.setItem('startTime', now.toString());
+    setElapsedTime(0);
+    setTimerRunning(true);
+  };
+
+  const handleStop = async () => {
+    setTimerRunning(false);
+    setElapsedTime(0);
+    await AsyncStorage.removeItem('startTime');
+    PushNotification.cancelAllLocalNotifications();
+    BackgroundTimer.stopBackgroundTimer();
+  };
+
+  useEffect(() => {
+    let interval = null;
+
+    if (timerRunning) {
+      interval = setInterval(() => {
+        setElapsedTime((new Date() - startTime) / 1000);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [timerRunning, startTime]);
+  
   const requestUserPermission = async () => {
     const authStatus = await messaging().requestPermission();
     const enabled =
@@ -264,6 +355,7 @@ const TabNavigation = (props) => {
     >
       <Tab.Screen name="Home" component={Home} options={{}} initialParams={{}} />
       <Tab.Screen name="Social" component={Social} options={{}} initialParams={{}} />
+      <Tab.Screen name="TodayExercise" component={TodayExercise} options={{}} initialParams={{}} />
       <Tab.Screen name="Community" component={Community} options={{}} initialParams={{}} />
       <Tab.Screen name="Mypage" component={Mypage} options={{}} />
     </Tab.Navigator>    
@@ -295,7 +387,7 @@ const styles = StyleSheet.create({
     // shadowRadius: 15.0,
     // elevation: 10,
   },
-  TabBarBtn: {width:'25%',height:86,display:'flex',alignItems:'center',paddingTop:14,},
+  TabBarBtn: {width:'20%',height:86,display:'flex',alignItems:'center',paddingTop:14,},
   tabIcon: {height:24,alignItems:'center',justifyContent:'center'},
   tabView: {marginTop:5},
   tabViewText: {fontFamily:Font.NotoSansMedium,fontSize:11,lineHeight:17,color:'#DBDBDB'},

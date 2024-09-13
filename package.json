@@ -33,6 +33,7 @@
     "react-native": "0.71.18",
     "react-native-asset": "^2.1.1",
     "react-native-auto-height-image": "3.2.4",
+    "react-native-background-timer": "^2.4.1",
     "react-native-calendar-picker": "^8.0.4",
     "react-native-calendars": "^1.1304.1",
     "react-native-circular-progress": "^1.4.0",
