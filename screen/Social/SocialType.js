@@ -101,7 +101,7 @@ const SocialType = (props) => {
                 <Text style={[styles.wrtTypeBtnText2, wrtCate == 0 ? styles.wrtTypeBtnText2On : null]}>깊이 있게 만나요</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[styles.wrtTypeBtn, styles.boxShadow, wrtCate == 1 ? styles.wrtTypeBtnOn : null]}
               activeOpacity={opacityVal}
               onPress={()=>selectType(1)}
@@ -112,7 +112,7 @@ const SocialType = (props) => {
                 <Text style={[styles.wrtTypeBtnText2, wrtCate == 1 ? styles.wrtTypeBtnText2On : null]}>성별비를 맞춰</Text>
                 <Text style={[styles.wrtTypeBtnText2, wrtCate == 1 ? styles.wrtTypeBtnText2On : null]}>함께 만나요</Text>
               </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               style={[styles.wrtTypeBtn, styles.boxShadow, wrtCate == 2 ? styles.wrtTypeBtnOn : null]}
               activeOpacity={opacityVal}
@@ -150,8 +150,8 @@ const styles = StyleSheet.create({
   cmDescBox: {marginTop:8,},
   cmDescText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#666'},
 
-  wrtType: {flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
-  wrtTypeBtn: {alignItems:'center',justifyContent:'center',width:(innerWidth/3)-7,height:149,backgroundColor:'#fff'},
+  wrtType: {flexDirection:'row',alignItems:'center',justifyContent:'center',gap:10,},
+  wrtTypeBtn: {alignItems:'center',justifyContent:'center',width:130,height:149,backgroundColor:'#fff'},
   wrtTypeBtnOn: {backgroundColor:'#243B55'},
   wrtTypeBtnText1: {fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E'},
   wrtTypeBtnText1On: {color:'#fff'},

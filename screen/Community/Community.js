@@ -70,7 +70,7 @@ const Community = (props) => {
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 
-			console.log('userInfo comm :::: ', userInfo.is_new);
+			//console.log('userInfo comm :::: ', userInfo.is_new);
 
 			AsyncStorage.getItem('member_idx', (err, result) => {		
 				setMemberIdx(result);
@@ -185,10 +185,10 @@ const Community = (props) => {
 			comm_sch: commSch,
 			page:curr_page,
 		};
-		console.log('sData ::: ', sData);
+		//console.log('sData ::: ', sData);
 		const response = await APIs.send(sData);		
-		console.log('curr_page::: ', curr_page);
-		console.log('curr_tab::: ', curr_tab);
+		//console.log('curr_page::: ', curr_page);
+		//console.log('curr_tab::: ', curr_tab);
 		//console.log(response);
 		if(response.code == 200){		
 			//setTotalPage(Math.ceil(response.data.length/10));								

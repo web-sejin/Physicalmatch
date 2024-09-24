@@ -107,6 +107,8 @@ const Home = (props) => {
 		tempDistances: '',
 		tempDistance2s: '',
 		tempRecentAccesss: '',
+		tempGender: '',
+		tempGender2: '',
 	});
 
 	const [realData, setRealData] = useState({
@@ -122,6 +124,8 @@ const Home = (props) => {
 		tempDistances: '',
 		tempDistance2s: '',
 		tempRecentAccesss: '',
+		tempRealGender: 0,
+		tempRealGender2: 0,
 	});
 
 	const isFocused = useIsFocused();
@@ -462,7 +466,9 @@ const Home = (props) => {
 				tempDistanceStandards: response.data.ms_distance_type,
 				tempDistances: distance,
 				tempDistance2s: distance2,
-				tempRecentAccesss: loginedAt
+				tempRecentAccesss: loginedAt,
+				tempRealGender: 0,
+				tempRealGender2: 0,
 			});
 		}
 	}
@@ -844,7 +850,7 @@ const Home = (props) => {
 			let loginedAt = 7;
 			if(response.data.ms_logined_at){
 				loginedAt = parseInt(response.data.ms_logined_at);
-			}
+			}			
 			
 			setRealData({
 				tempAgeMins: yearString2.toString(),
@@ -858,7 +864,9 @@ const Home = (props) => {
 				tempDistanceStandards: response.data.ms_distance_type,
 				tempDistances: distance,
 				tempDistance2s: distance2,
-				tempRecentAccesss: loginedAt
+				tempRecentAccesss: loginedAt,
+				tempRealGender: 0,
+				tempRealGender2: 0,
 			});
 		}
 	}
@@ -878,7 +886,9 @@ const Home = (props) => {
 			tempDistanceStandards: tempData.tempDistanceStandards,
 			tempDistances: tempData.tempDistances,
 			tempDistance2s: tempData.tempDistance2s,
-			tempRecentAccesss: tempData.tempRecentAccesss
+			tempRecentAccesss: tempData.tempRecentAccesss,
+			tempRealGender: tempData.tempGender,
+			tempRealGender2: tempData.tempGender2,
 		});
 
 		setFilterPop(false);
@@ -1059,7 +1069,9 @@ const Home = (props) => {
 									tempDistanceStandards: realData.tempDistanceStandards,
 									tempDistances: realData.tempDistances,
 									tempDistance2s: realData.tempDistance2s,
-									tempRecentAccesss: realData.tempRecentAccesss
+									tempRecentAccesss: realData.tempRecentAccesss,
+									tempGender: realData.tempRealGender,
+									tempGender2: realData.tempRealGender2,
 								});
 								setFilterPop(true);
 							}}
@@ -1825,10 +1837,69 @@ const Home = (props) => {
 									nonCollidingMultiSliderValuesChange(findeIndex, findeIndex2);
 								}}
 							/>
+						</View>			
+						<View style={[styles.msBox, styles.mgt20]}>
+							<View style={[styles.msTitleBox, styles.mgb20]}>
+								<Text style={styles.msTitleBoxText1}>성별</Text>
+							</View>
+							<View style={[styles.msTitleBox]}>
+								<View style={styles.genderRadio}>
+									<TouchableOpacity
+										style={styles.genderBtn}
+										activeOpacity={opacityVal}
+										onPress={()=>{
+											setRealData(prevData => ({
+												...prevData,
+												tempRealGender: 0,
+											}));
+										}}
+									>
+										{realData.tempRealGender == 0 ? (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+										) : (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+										)}
+										<Text style={styles.genderBtnText}>모두</Text>
+									</TouchableOpacity>
+									<TouchableOpacity
+										style={styles.genderBtn}
+										activeOpacity={opacityVal}
+										onPress={()=>{
+											setRealData(prevData => ({
+												...prevData,
+												tempRealGender: 1,
+											}));
+										}}
+									>
+										{realData.tempRealGender == 1 ? (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+										) : (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+										)}
+										<Text style={styles.genderBtnText}>남자</Text>
+									</TouchableOpacity>
+									<TouchableOpacity
+										style={styles.genderBtn}
+										activeOpacity={opacityVal}
+										onPress={()=>{
+											setRealData(prevData => ({
+												...prevData,
+												tempRealGender: 2,
+											}));
+										}}
+									>
+										{realData.tempRealGender == 2 ? (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+										) : (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+										)}
+										<Text style={styles.genderBtnText}>여자</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
 						</View>						
-
-						<View style={[styles.msBox, styles.mgt50]}>
-							<View style={[styles.msTitleBox, styles.mgb25]}>
+						<View style={[styles.msBox, styles.mgt30]}>
+							<View style={[styles.msTitleBox, styles.mgb20]}>
 								<Text style={styles.msTitleBoxText1}>거리</Text>
 							</View>
 							<View style={[styles.msTitleBox]}>
@@ -1843,13 +1914,13 @@ const Home = (props) => {
 										}));
 									}}
 								>
-									{realData.tempDistanceStandards == 0 ? (
-										<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
-											<View style={styles.msCheckBoxCircleIn}></View>
-										</View>
-									) : (
-										<View style={styles.msCheckBoxCircle}></View>
-									)}
+									<View style={[styles.msCheckBoxCircle]}>
+										{realData.tempDistanceStandards == 0 ? (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />	
+										) : (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+										)}
+									</View>
 									
 									<Text style={styles.msCheckBoxText}>주활동 지역 기준</Text>
 								</TouchableOpacity>
@@ -1905,13 +1976,13 @@ const Home = (props) => {
 										}));
 									}}
 								>
-									{realData.tempDistanceStandards == 1 ? (
-										<View style={[styles.msCheckBoxCircle, styles.msCheckBoxCircleOn]}>
-											<View style={styles.msCheckBoxCircleIn}></View>
-										</View>
-									) : (
-										<View style={styles.msCheckBoxCircle}></View>
-									)}
+									<View style={[styles.msCheckBoxCircle]}>
+										{realData.tempDistanceStandards == 1 ? (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />	
+										) : (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />	
+										)}
+									</View>
 									
 									<Text style={styles.msCheckBoxText}>부활동 지역 기준</Text>
 								</TouchableOpacity>
@@ -1952,10 +2023,9 @@ const Home = (props) => {
 								}}
 							/>
 						</View>
-						) : null}
-			
-						<View style={[styles.msBox, styles.mgt50]}>
-							<View style={[styles.msTitleBox, styles.mgb25]}>
+						) : null}			
+						<View style={[styles.msBox, styles.mgt30]}>
+							<View style={[styles.msTitleBox, styles.mgb20]}>
 								<Text style={styles.msTitleBoxText1}>최근 접속일 수</Text>
 								<Text style={styles.msTitleBoxText2}>{realData.tempRecentAccesss}일 이내 접속자</Text>
 							</View>
@@ -2013,7 +2083,10 @@ const Home = (props) => {
 								</TouchableOpacity>
 							</View>
 						</View>
-						<View style={[styles.msBox, styles.mgt60]}>
+					</View>
+					<View style={styles.cmLine}></View>
+					<View style={[styles.cmWrap]}>
+						<View style={[styles.msBox]}>
 							<View style={styles.filterTitle}>
 								<Text style={styles.filterTitleText}>내 카드 설정</Text>
 							</View>
@@ -2077,6 +2150,66 @@ const Home = (props) => {
 									}}
 								/>
 							</View>
+							<View style={[styles.msBox, styles.mgt20]}>
+							<View style={[styles.msTitleBox, styles.mgb20]}>
+								<Text style={styles.msTitleBoxText1}>성별</Text>
+							</View>
+							<View style={[styles.msTitleBox]}>
+								<View style={styles.genderRadio}>
+									<TouchableOpacity
+										style={styles.genderBtn}
+										activeOpacity={opacityVal}
+										onPress={()=>{
+											setRealData(prevData => ({
+												...prevData,
+												tempRealGender2: 0,
+											}));
+										}}
+									>
+										{realData.tempRealGender2 == 0 ? (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+										) : (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+										)}
+										<Text style={styles.genderBtnText}>모두</Text>
+									</TouchableOpacity>
+									<TouchableOpacity
+										style={styles.genderBtn}
+										activeOpacity={opacityVal}
+										onPress={()=>{
+											setRealData(prevData => ({
+												...prevData,
+												tempRealGender2: 1,
+											}));
+										}}
+									>
+										{realData.tempRealGender2 == 1 ? (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+										) : (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+										)}
+										<Text style={styles.genderBtnText}>남자</Text>
+									</TouchableOpacity>
+									<TouchableOpacity
+										style={styles.genderBtn}
+										activeOpacity={opacityVal}
+										onPress={()=>{
+											setRealData(prevData => ({
+												...prevData,
+												tempRealGender2: 2,
+											}));
+										}}
+									>
+										{realData.tempRealGender2 == 2 ? (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+										) : (
+											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+										)}
+										<Text style={styles.genderBtnText}>여자</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						</View>		
 						</View>
 					</View>
 				</ScrollView>
@@ -2449,9 +2582,9 @@ const styles = StyleSheet.create({
 	msTitleBoxText1: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:16,color:'#1e1e1e'},
 	msTitleBoxText2: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:14,color:'#888',position:'relative',top:-1,},
 	msCheckBox: {flexDirection:'row',alignItems:'center'},
-	msCheckBoxCircle: {width:20,height:20,backgroundColor:'#fff',borderWidth:1,borderColor:'#dbdbdb',borderRadius:50,position:'relative'},
-	msCheckBoxCircleOn: {borderColor:'#243B55'},
-	msCheckBoxCircleIn: {width:12,height:12,backgroundColor:'#243B55',borderRadius:50,position:'absolute',left:3,top:3,},
+	msCheckBoxCircle: {},
+	msCheckBoxCircleOn: {},
+	msCheckBoxCircleIn: {},
 	msCheckBoxText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#1e1e1e',marginLeft:6,},
 
 	grediant: {padding:1,borderRadius:5,},
@@ -2481,6 +2614,7 @@ const styles = StyleSheet.create({
 	todayFreeBtn: {height:50,alignItems:'center',justifyContent:'center',backgroundColor:'#fff',borderRadius:5,},
 	todayFreeBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#d1913c'},
 
+	cmLine: {width:widnowHeight,height:6,backgroundColor:'#F2F4F6',},
 	cmWrap: {paddingVertical:40,paddingHorizontal:20,},
 	cmWrap2: {paddingTop:30,},
 	cardView: {flexDirection: 'row',flexWrap: 'wrap'},
@@ -2605,6 +2739,10 @@ const styles = StyleSheet.create({
 	notData: {paddingTop:30},
 	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
+	genderRadio: {flexDirection:'row',gap:30,},
+	genderBtn: {flexDirection:'row',alignItems:'center',},
+	genderBtnText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:16,color:'#1e1e1e',marginLeft:6,},
+
 	boxShadow: {
 		shadowColor: "#000",
     shadowOffset: {
@@ -2624,11 +2762,13 @@ const styles = StyleSheet.create({
 	mgt4: {marginTop:4,},
 	mgt6: {marginTop:6,},
 	mgt10: {marginTop:10,},
+	mgt20: {marginTop:20,},
 	mgt30: {marginTop:30,},
 	mgt50: {marginTop:50,},
 	mgt60: {marginTop:60,},
 	mgb0: {marginBottom:0,},
 	mgb10: {marginBottom:10,},
+	mgb20: {marginBottom:20,},
 	mgb25: {marginBottom:25,},
 	mgr0: {marginRight:0},
   mgr10: {marginRight:10},

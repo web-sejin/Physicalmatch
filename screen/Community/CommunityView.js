@@ -1067,8 +1067,9 @@ const CommunityView = (props) => {
                           ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
                         }else{                                                  
                           if(memberInfo?.member_sex == hostSex){
-                            ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
-                            return false;
+                            // ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
+                            // return false;
+                            checkRelation(1, 'comment', item.member_idx, item.comment_nick,item.comment_idx);
                           }else{
                             checkRelation(1, 'host', hostMemberIdx, nick);
                             // setTradeType(1);
@@ -1704,10 +1705,10 @@ const CommunityView = (props) => {
                                       if(memberInfo?.member_type != 1){
                                         ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
                                       }else{                                                  
-                                        if(memberInfo?.member_sex == item.member_sex){
-                                          console.log(item);
-                                          ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
-                                          return false;                                        
+                                        if(memberInfo?.member_sex == item.member_sex){                                          
+                                          // ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
+                                          // return false;                                        
+                                          checkRelation(1, 'comment', item.member_idx, item.comment_nick,item.comment_idx);
                                         }
                                         
                                         checkRelation(1, 'comment', item.member_idx, item.comment_nick,item.comment_idx);
@@ -1750,7 +1751,7 @@ const CommunityView = (props) => {
                                 >
                                   <Text style={styles.reviewBtnText}>대댓글달기</Text>
                                 </TouchableOpacity>
-                                {item.delete_yn != 'y' || (item.is_my_comment != 'y' && item.delete_yn == 'y') ? (<View style={styles.reviewBtnLine}></View>) : null}                                
+                                {item.delete_yn != 'y' || (item.is_my_comment != 'y' && item.delete_yn == 'y') ? (<View style={styles.reviewBtnLine}></View>) : null}
                                 </>
                               ) : null}                                                          
 
@@ -1780,7 +1781,7 @@ const CommunityView = (props) => {
                     })}
                   </View>
 
-                  {memberInfo?.member_type != 1 ? ( <View style={{height:5,backgroundColor:'blue'}}></View> ) : null}
+                  {memberInfo?.member_type != 1 ? ( <View style={{height:5,}}></View> ) : null}
                 </View>
               </View>
 
@@ -1973,7 +1974,7 @@ const CommunityView = (props) => {
               <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
             </TouchableOpacity>		
             <View style={[styles.popTitle]}>
-              <Text style={styles.popTitleText}>신고 사유{report}</Text>
+              <Text style={styles.popTitleText}>신고 사유</Text>
             </View>
             <KeyboardAwareScrollView
               keyboardVerticalOffset={0}

@@ -70,6 +70,12 @@ import Shop from './Shop';
 import CompanyInfo from './Mypage/CompanyInfo';
 import Disable from './Disable';
 import Certification from './Certification';
+import TodayExerciseWrite from './Exercise/TodayExerciseWrite';
+import TodayExerciseView from './Exercise/TodayExerciseView';
+import ExerciseLogView from './Exercise/ExerciseLogView';
+import ExerciseLogWrite from './Exercise/ExerciseLogWrite';
+import ExercisePlanView from './Exercise/ExercisePlanView';
+import ExercisePlanWrite from './Exercise/ExercisePlanWrite';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -161,6 +167,12 @@ const WholeStack = () => {
       <Stack.Screen name="CompanyInfo" component={CompanyInfo} />
       <Stack.Screen name="Disable" component={Disable} />
       <Stack.Screen name="Certification" component={Certification} />
+      <Stack.Screen name="TodayExerciseWrite" component={TodayExerciseWrite} />
+      <Stack.Screen name="TodayExerciseView" component={TodayExerciseView} />
+      <Stack.Screen name="ExerciseLogView" component={ExerciseLogView} />
+      <Stack.Screen name="ExerciseLogWrite" component={ExerciseLogWrite} />
+      <Stack.Screen name="ExercisePlanView" component={ExercisePlanView} />
+      <Stack.Screen name="ExercisePlanWrite" component={ExercisePlanWrite} />      
     </Stack.Navigator>
   );
 };

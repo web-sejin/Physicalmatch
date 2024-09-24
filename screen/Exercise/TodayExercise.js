@@ -1,9 +1,14 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
-import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, PermissionsAndroid, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
+import {ActivityIndicator, Alert, AppState, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, PermissionsAndroid, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-toast-message';
+import RNPickerSelect from 'react-native-picker-select';
+import PushNotification from 'react-native-push-notification';
+import BackgroundTimer from 'react-native-background-timer';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
+import AutoHeightImage from "react-native-auto-height-image";
 
 import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
@@ -23,6 +28,15 @@ const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
+const exe_ary = [
+	{exe_idx:1, exe_name:'헬스'},
+	{exe_idx:2, exe_name:'필라테스'},
+	{exe_idx:3, exe_name:'요가'},
+	{exe_idx:4, exe_name:'테니스'},
+	{exe_idx:5, exe_name:'골프'},
+	{exe_idx:99, exe_name:'직접입력'}
+]
+
 const TodayExercise = (props) => {	
   const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
@@ -39,6 +53,28 @@ const TodayExercise = (props) => {
 	const [totalPage, setTotalPage] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
   const [tabState, setTabState] = useState(); //피드, 운동, 달력
+
+	const [alertPop, setAlertPop] = useState(false);
+	const [alertMsg, setAlertMsg] = useState('');
+	const [startPop, setStartPop] = useState(false);
+	const [endPop, setEndPop] = useState(false);
+	const [exeList, setExeList] = useState(exe_ary);
+	const [todayExe, setTodayExe] = useState(null);
+	const [todayEtc, setTodayEtc] = useState('');
+	const [startTime, setStartTime] = useState(null);  // 시작 시간
+  const [elapsedTime, setElapsedTime] = useState(0); // 경과 시간
+  const [timerRunning, setTimerRunning] = useState(false); // 타이머 상태
+	const [isPaused, setIsPaused] = useState(false); // 상태 추가
+	const [pausedElapsedTime, setPausedElapsedTime] = useState(0);
+	const [pickDate, setPickDate] = useState('');
+	const [viewDAte, setViewDate] = useState(new Date());
+
+	const headerHeight = 48;
+	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
+	const behavior = Platform.OS === "ios" ? "padding" : "height";
+
+	const scrollViewRef = useRef(null); // ScrollView 참조 생성
+  const exePlanListRef = useRef(null); // exePlanList 참조 생성
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -105,7 +141,7 @@ const TodayExercise = (props) => {
   }, []);
 
   useEffect(() => {
-		if(memberIdx){
+		if (memberIdx && tabState !== undefined) {
 			setLoading(true);
 			getMemInfo();
 			setNowPage(1);
@@ -128,7 +164,7 @@ const TodayExercise = (props) => {
 	}
 
   const getExerList = async (viewPage) => {
-    const ary = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const ary = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
     let curr_page = nowPage;
 		if(viewPage){
@@ -153,17 +189,18 @@ const TodayExercise = (props) => {
 		}, 300);
   }
 
-  const getList = ({item, index}) => {		
+  const getList = ({item, index}) => {
 		return (
 			<View style={styles.exeList}>
 				<TouchableOpacity
 					style={styles.exeButton}
 					activeOpacity={opacityVal}
-					onPress={()=>{
-						//navigation.navigate('SocialView', {social_idx:item.social_idx, social_host_sex:item.host_social_sex})								
+					onPress={()=>{						
+						//navigation.navigate('TodayExerciseView', {ex_idx:item.ex_idx});
+						navigation.navigate('TodayExerciseView', {ex_idx:1});
 					}}
 				>
-					<ImgDomain fileWidth={widnowWidth/3} fileName={'feed_'+(index+1)+'.png'} />
+					<ImgDomain fileWidth={widnowWidth/3} fileName={'feed_'+(item)+'.png'} />
 				</TouchableOpacity>
 			</View>
 		)
@@ -188,20 +225,199 @@ const TodayExercise = (props) => {
 			setRefreshing(true);
 			// getSocialList(1);
 			// setNowPage(1);
-			// //console.log('refresh!!!');
-			// setTimeout(() => {
-			// 	setRefreshing(false);
-			// }, 2000);
+			// //console.log('refresh!!!');			
+      setTimeout(() => setRefreshing(false), 2000);
 		}
 	}
+
+	const MAX_TIME = 36000; // 최대 시간 10시간 (36000초)
+
+	useEffect(() => {
+    PushNotification.createChannel({
+      channelId: "timer-channel", // 채널 ID
+      channelName: "Timer Channel", // 채널 이름
+      importance: 2, // 중요도 낮춤 (0: 없음, 1: 최소, 2: 낮음, 3: 중간, 4: 높음)
+      vibrate: false, // 진동 비활성화
+    });
+    const subscription = AppState.addEventListener("change", handleAppStateChange);
+    return () => {
+      subscription.remove();
+      BackgroundTimer.stopBackgroundTimer(); // 백그라운드 타이머 종료
+    };
+  }, [startTime, timerRunning]);  
+
+  useEffect(() => {
+    let interval = null;
+
+    if (timerRunning) {
+      interval = setInterval(() => {
+        //setElapsedTime((new Date() - startTime) / 1000);
+				const nowTime = (new Date() - startTime) / 1000 + pausedElapsedTime;
+
+				if (nowTime >= MAX_TIME) {
+					handleStop(); // 10시간이 지나면 타이머 자동 종료
+				} else {
+					setElapsedTime(nowTime);
+				}
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [timerRunning, startTime]);
+
+	const handleAppStateChange = async (nextAppState) => {
+    if (nextAppState === 'background' && timerRunning) {
+      // 백그라운드에서도 타이머를 계속 실행
+      BackgroundTimer.runBackgroundTimer(() => {        
+        const nowTime = (new Date() - startTime) / 1000;
+				if (nowTime >= MAX_TIME) {
+					handleStop(); // 10시간이 지나면 타이머 자동 종료
+					return;
+				}
+
+        setElapsedTime(nowTime);
+
+        PushNotification.localNotification({
+          id: '999',
+          channelId: "timer-channel",
+          title: "타이머 실행 중",
+          message: `경과 시간: ${nowTime.toFixed(0)} 초`,
+          importance: "low",
+          priority: "low",
+          ongoing: true,
+          silent: true,
+          visibility: "secret", // 잠금 화면에서 알림을 숨깁니다
+          onlyAlertOnce: true, // 알림을 한 번만 표시합니다
+          playSound: false, // 소리 비활성화
+          vibrate: false, // 진동 비활성화
+        });
+      }, 1000); // 1초마다 타이머 업데이트
+    } else if (nextAppState === 'active') {
+      BackgroundTimer.stopBackgroundTimer(); // 앱이 활성화되면 백그라운드 타이머 종료
+      PushNotification.cancelAllLocalNotifications(); // 알림 취소
+    }
+  };
+
+  const handleStart = async () => {
+    const now = new Date();
+    setStartTime(now);
+    await AsyncStorage.setItem('startTime', now.toString());
+		if(pausedElapsedTime == 0){
+    	setElapsedTime(0);
+		}
+    setTimerRunning(true);
+		setIsPaused(false);
+		setPausedElapsedTime(0);
+  };
+
+  const handleStop = async () => {
+    setTimerRunning(false);
+    setElapsedTime(0);
+		setPausedElapsedTime(0);
+		setIsPaused(false);
+		setTodayExe(null);
+		setTodayEtc('');
+    await AsyncStorage.removeItem('startTime');
+    PushNotification.cancelAllLocalNotifications(); // 타이머가 종료되면 알림 취소
+    BackgroundTimer.stopBackgroundTimer(); // 백그라운드 타이머 종료		
+  };
+
+	const handleFinish = () => {
+    // 일시 정지 상태로 전환하고 다이얼로그 표시
+		setEndPop(true);
+    setTimerRunning(false);
+    setIsPaused(true);
+		setPausedElapsedTime(elapsedTime);
+  };
+
+	const handleDialogConfirm = () => {    
+		setEndPop(false);
+    handleStop(); // 확인 버튼 클릭 시 타이머 멈추기
+  };
+
+	const handleDialogCancel = () => {
+		setStartPop(false);
+		setEndPop(false);
+    handleStart();
+  };
+
+	const startPopOff = () => {
+		setStartPop(false);
+	}
+
+	// 시간을 hh:mm:ss 형식으로 변환하는 함수
+	const formatTime = (seconds) => {
+		const hrs = Math.floor(seconds / 3600);
+		const mins = Math.floor((seconds % 3600) / 60);
+		const secs = Math.floor(seconds % 60);
+
+		return `${hrs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${secs.toString().padStart(2, '0')}`;
+	};
 
   const moveAlimPage = async () => {
 		navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type});
 	}
 
-	const headerHeight = 48;
-	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
-	const behavior = Platform.OS === "ios" ? "padding" : "height";
+	const handleSelect = (v) => {
+		if(v != 99){
+			setTodayEtc('');
+		}
+		setTodayExe(v);
+	}
+
+	const handleTimer = async () => {
+		if(!todayExe){			
+			setAlertMsg('운동 종목을 선택해 주세요.');
+			setAlertPop(true);
+			return false;
+		}
+
+		if(todayExe == 99 && todayEtc == ''){
+			setAlertMsg('운동 종목을 입력해 주세요.');
+			setAlertPop(true);
+			return false;
+		}
+
+		setStartPop(true);
+	}	
+
+  const markedDates = {
+    // '2024-09-03': { marked: true, dotColor: '#243B55' },
+    // '2024-09-05': { marked: true, dotColor: '#243B55' },
+    // '2024-09-09': { marked: true, dotColor: '#D1913C' },
+    // '2024-09-12': { marked: true, dotColor: '#243B55' },
+    // '2024-09-16': { marked: true, dotColor: '#D1913C' },
+    // '2024-09-19': { marked: true, dotColor: '#D1913C' },
+		// '2024-10-19': { marked: true, dotColor: '#D1913C' },
+		'2024-09-03': { dots: [{ color: '#243B55' }, { color: '#D1913C' }] },
+		'2024-09-05': { dots: [{ color: '#243B55' }] },
+		'2024-09-09': { dots: [{ color: '#D1913C' }] },
+		'2024-09-12': { dots: [{ color: '#243B55' }] },
+		'2024-09-16': { dots: [{ color: '#D1913C' }] },
+		'2024-09-19': { dots: [{ color: '#D1913C' }] },
+		'2024-10-19': { dots: [{ color: '#D1913C' }] },
+  };
+
+	const selectedDate = {
+		selected: true,
+		dotColor: markedDates[pickDate]?.dots, // 기존 dotColor가 있으면 사용, 없으면 red
+		selectedColor: '#F7B863', // 원하는 배경색
+	};
+
+	// pickDate를 markedDates에 추가
+	markedDates[pickDate] = {
+		...markedDates[pickDate], // 기존의 markedDates 정보를 유지
+		...selectedDate,          // selectedDate의 새로운 정보 추가
+	};
+
+	const onDayPress = (day) => {
+    setPickDate(day.dateString);
+    exePlanListRef.current?.measureLayout(scrollViewRef.current, (x, y) => {
+      scrollViewRef.current?.scrollTo({ y, animated: true });
+    });
+  };
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
@@ -252,7 +468,7 @@ const TodayExercise = (props) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setTabState(2)}}
 					>
-						<Text style={[styles.headerTabText, tabState == 21 ? styles.headerTabTextOn : null]}>오늘 운동</Text>
+						<Text style={[styles.headerTabText, tabState == 2 ? styles.headerTabTextOn : null]}>오늘 운동</Text>
 						{tabState == 2 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 
@@ -267,28 +483,279 @@ const TodayExercise = (props) => {
 				</View>
 			</View>
 
-      <FlatList 				
-				data={exerList}
-				renderItem={(getList)}
-				keyExtractor={(item, index) => index.toString()}
-        numColumns={3}
-        columnWrapperStyle={{ gap:1,marginBottom:1, }} 
-				refreshing={refreshing}
-				disableVirtualization={false}
-				onScroll={onScroll}	
-				onEndReachedThreshold={0.8}
-				onEndReached={moreData}
-				onRefresh={onRefresh}
-				//ListHeaderComponent={}
-        ListEmptyComponent={
-					<View style={styles.notData}>
-						<Text style={styles.notDataText}>등록된 피드가 없습니다.</Text>
+      {tabState == 1 ? (
+        <FlatList 				
+          data={exerList}
+          renderItem={(getList)}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={3}
+          columnWrapperStyle={{ gap:1,marginBottom:1, }} 
+          refreshing={refreshing}
+          disableVirtualization={false}
+          onScroll={onScroll}	
+          onEndReachedThreshold={0.8}
+          onEndReached={moreData}
+          onRefresh={onRefresh}
+          //ListHeaderComponent={}
+          ListEmptyComponent={
+            <View style={styles.notData}>
+              <Text style={styles.notDataText}>등록된 피드가 없습니다.</Text>
+            </View>
+          }
+        />
+      ) : null}
+
+			{tabState == 2 ? (
+				<ScrollView style={{flex:1}}>
+					<View style={[styles.cmWrap, styles.cmWrap3]}>
+						<View style={styles.selectView}>
+							<RNPickerSelect
+								value={todayExe}
+								onValueChange={(value, index) => {
+									Keyboard.dismiss();
+									handleSelect(value);									
+								}}
+								placeholder={{
+									label: '운동 종목 선택', // 여기에 원하는 플레이스홀더 텍스트를 입력합니다
+									value: null, // 기본값으로 null을 설정합니다
+									color: '#666' // 플레이스홀더 텍스트 색상
+								}}
+								items={exeList.map(item => ({
+									label: item.exe_name,
+									value: item.exe_idx,
+									}))}
+								fixAndroidTouchableBug={true}
+								useNativeAndroidPickerStyle={false}
+								multiline={false}							
+								style={{
+									placeholder: {fontFamily:Font.NotoSansRegular,color: '#666'},
+									inputAndroid: styles.select,
+									inputAndroidContainer: styles.selectCont,
+									inputIOS: styles.select,
+									inputIOSContainer: styles.selectCont,
+								}}
+								disabled={timerRunning ? true : false}
+							/>
+							<View style={styles.selectArr}>
+								<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+							</View>
+						</View>
+						{todayExe == 99 ? (
+						<View style={styles.inputView}>								
+							<TextInput
+								value={todayEtc}
+								onChangeText={(v) => {
+									setTodayEtc(v);                     
+								}}
+								placeholder={'운동을 입력해 주세요'}
+								placeholderTextColor="#DBDBDB"
+								style={[styles.input]}								
+								returnKyeType='done'
+								editable={timerRunning ? false : false}
+							/>
+						</View>
+						) : null}
+
+						
+						<View style={[styles.timerView, todayExe == 99 ? styles.timerView2 : null]}>
+							<Text style={[styles.timerViewText, timerRunning ? styles.timerViewText2 : null]}>{formatTime(elapsedTime)}</Text>
+						</View>		
+						<View style={styles.timerBtnView}>
+							{!timerRunning && pausedElapsedTime == 0 ? (
+								<TouchableOpacity
+									style={styles.timerBtn}
+									activeOpacity={opacityVal}
+									onPress={()=>handleTimer()}
+								>
+									<Text style={styles.timerBtnText}>START</Text>
+								</TouchableOpacity>
+							) : (
+								<TouchableOpacity
+									style={[styles.timerBtn, styles.timerBtn2]}
+									activeOpacity={opacityVal}
+									onPress={()=>handleFinish()}
+								>
+									<Text style={[styles.timerBtnText, styles.timerBtnText2]}>FINISH</Text>
+								</TouchableOpacity>
+							)}
+						</View>
+						<View style={styles.timerInfo}>
+							<View style={styles.timerInfoTitle}>
+								<Text style={[styles.timerInfoTitleText, styles.timerInfoTitleText1, styles.colorRed]}>*</Text>
+								<Text style={[styles.timerInfoTitleText, styles.timerInfoTitleText2, styles.colorRed]}>오늘 운동 보상</Text>
+							</View>
+							<View style={styles.timerInfoDesc}>
+								<Text style={[styles.timerInfoDescText, styles.colorRed]}>- 30분 이상 운동 달성 시 프로틴 보상 +3 지급 (1일 1회, 월 10회 제한)</Text>
+							</View>
+							<View style={[styles.timerInfoTitle, styles.mgt5]}>
+								<Text style={[styles.timerInfoTitleText, styles.timerInfoTitleText1]}>*</Text>
+								<Text style={[styles.timerInfoTitleText, styles.timerInfoTitleText2]}>오늘 운동 유의사항</Text>
+							</View>
+							<View style={styles.timerInfoDesc}>
+								<Text style={[styles.timerInfoDescText]}>- 운동 시작 후 운동 종목 변경 불가하며, 직접 입력한 경우 수정 불가합니다.</Text>
+							</View>
+						</View>
 					</View>
-				}
-      />
+				</ScrollView>
+			) : null}
+
+			{tabState == 3 ? (
+				<ScrollView style={{flex:1}} ref={scrollViewRef}>
+					<View style={[styles.cmWrap, styles.cmWrap4, styles.cmWrap5]}>
+						<Calendar
+							style={styles.calendar}
+								// 캘린더 내 스타일 수정
+							theme={{
+								dayTextColor: '#1e1e1e',
+								todayTextColor: '#fff',
+								todayBackgroundColor: '#FFD194',								                                     								
+								textSectionTitleColor: '#1E1E1E',								
+								textDisabledColor: '#DBDBDB',
+								selectedDayBackgroundColor:'#243B55',
+								selectedDayTextColor: '#fff',
+								monthTextColor:'#1e1e1e',
+								textMonthFontFamily:Font.NotoSansMedium,
+								textMonthFontSize: 12,
+								textDayFontSize: 14,								
+							}}     
+							markedDates={markedDates}
+							markingType={'multi-dot'}
+							dayComponent={({ date, state, marking }) => {
+								const newDate = new Date(date.dateString.toString());								
+								const monthStart = new Date(newDate.getFullYear(), newDate.getMonth(), 1); // 해당 월의 첫날								
+								const firstDayOfWeek = monthStart.getDay(); // 첫날의 요일
+								const offset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // 주의 시작이 월요일일 경우 조정
+								const daysFromStartOfMonth = (newDate.getDate() + firstDayOfWeek); // 해당 날짜까지의 일수
+
+								let weekNumber = 0;
+								
+								if (monthStart.getMonth() === viewDAte.getMonth()) {
+									weekNumber = Math.ceil(daysFromStartOfMonth / 7); // 몇 번째 주인지 계산																		
+								}else if (monthStart <= viewDAte) {
+									weekNumber = 1;
+								} else {
+									weekNumber = 0;
+								}								
+
+								return (
+									<>
+										{weekNumber == 1 ? (<View style={styles.dayLine}></View>) : null}
+										<TouchableOpacity style={[styles.dayContainer]} activeOpacity={opacityVal} onPress={() => onDayPress(date)}>										
+											<View style={[styles.day, state === 'disabled' && styles.disabledDay, marking?.selectedColor ? {backgroundColor:marking?.selectedColor} : null]}>
+												<View style={styles.dateTextContainer}>
+													<Text style={[styles.dateText, state === 'disabled' && styles.disabledText, marking?.selectedColor ? {color:'#fff'} : null]}>
+														{date.day}
+													</Text>
+												</View>
+												{marking?.dots && marking.dots.length > 0 && (
+													<View style={styles.dotContainer}>
+														{marking.dots.map((dot, index) => (
+															<View key={index} style={[styles.dot, index !=0 ? styles.mgt2 : null, { backgroundColor: dot.color }]} />
+														))}
+													</View>
+												)}
+											</View>
+										</TouchableOpacity>
+									</>
+								)
+							}}					
+							onDayPress={onDayPress} // 날짜 클릭 시 그 날짜 출력                    
+							hideExtraDays={false} // 이전 달, 다음 달 날짜 숨기기                    
+							monthFormat={'yyyy년 M월'} // 달 포맷 지정   
+							onMonthChange={(month) => {											
+								setViewDate(new Date(month.dateString.toString()));
+							}} // 달이 바뀔 때 바뀐 달 출력                 														
+							// 달 이동 화살표 구현 왼쪽이면 왼쪽 화살표 이미지, 아니면 오른쪽 화살표 이미지
+							renderArrow={(direction) => direction === "left" ?
+								<AutoHeightImage name="left" width={22} source={require('../../assets/image/cal_prev.png')}/> : <AutoHeightImage name="right" width={22} source={require('../../assets/image/cal_next.png')}/>
+							}
+						/>   
+						<View style={styles.calendarState}>
+							<View style={styles.calendarStateView}>
+								<View style={styles.calendarStateCircle}></View>
+								<Text style={styles.calendarStateText}>완료 운동</Text>
+							</View>
+							<View style={styles.calendarStateView}>
+								<View style={[styles.calendarStateCircle, styles.calendarStateCircle2]}></View>
+								<Text style={styles.calendarStateText}>운동 계획</Text>
+							</View>
+						</View>
+						<View style={[styles.popBtnBox]}>
+							<TouchableOpacity 
+								style={[styles.popBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {
+									navigation.navigate('ExercisePlanWrite');
+								}}
+							>
+								<Text style={styles.popBtnText}>운동 계획 추가</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+					<View style={[styles.commonLine]}></View>
+					<View style={[styles.cmWrap]}>
+						<View style={styles.exePlanList} ref={exePlanListRef}>
+							<TouchableOpacity
+								style={styles.exePlanBtn}
+								activeOpacity={opacityVal}
+								onPress={()=>{									
+									navigation.navigate('ExerciseLogView', {ex_idx:1});
+								}}
+							>
+								<View style={styles.exePlanLeft}>
+									<View style={[styles.exePlanLeftCir]}></View>
+									<View style={styles.exePlanLeftCont}>
+										<Text style={styles.exePlanLeftText}>직접 입력한 운동</Text>
+									</View>
+								</View>
+								<View style={styles.exePlanRight}>
+									<Text style={styles.exePlanRightText}>2분</Text>
+								</View>
+							</TouchableOpacity>
+
+							<TouchableOpacity
+								style={styles.exePlanBtn}
+								activeOpacity={opacityVal}
+								onPress={()=>{									
+									navigation.navigate('ExerciseLogView', {ex_idx:1});
+								}}
+							>
+								<View style={styles.exePlanLeft}>
+									<View style={[styles.exePlanLeftCir]}></View>
+									<View style={styles.exePlanLeftCont}>
+										<Text style={styles.exePlanLeftText}>필라테스</Text>
+									</View>
+								</View>
+								<View style={styles.exePlanRight}>
+									<Text style={styles.exePlanRightText}>10분</Text>
+								</View>
+							</TouchableOpacity>
+
+							<TouchableOpacity
+								style={styles.exePlanBtn}
+								activeOpacity={opacityVal}
+								onPress={()=>{									
+									navigation.navigate('ExercisePlanView', {ex_idx:1});
+								}}
+							>
+								<View style={styles.exePlanLeft}>
+									<View style={[styles.exePlanLeftCir, styles.exePlanLeftCir2]}></View>
+									<View style={styles.exePlanLeftCont}>
+										<Text style={styles.exePlanLeftText}>탁구</Text>
+									</View>
+								</View>
+								<View style={styles.exePlanRight}>
+									<Text style={styles.exePlanRightText}>계획</Text>
+								</View>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</ScrollView>
+			) : null}
+
       <View style={styles.gapBox}></View>
 
-      {keyboardStatus == 0 || keyboardStatus == 1 ? (
+      {(keyboardStatus == 0 || keyboardStatus == 1) && tabState == 1 ? (
 			<TouchableOpacity
         style={[styles.wrtBtn, styles.wrtBtnBoxShadow, keyboardStatus == 1 ? styles.wrtBtnHide : null]}
         activeOpacity={opacityVal}
@@ -296,13 +763,137 @@ const TodayExercise = (props) => {
 					if(memberInfo?.member_type != 1){
 						ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
 					}else{
-						//navigation.navigate('SocialType');
+						navigation.navigate('TodayExerciseWrite');
 					}
 			}}
       >
 				<ImgDomain fileWidth={60} fileName={'icon_write.png'}/>
       </TouchableOpacity>
 			) : null}
+
+			<Modal
+				visible={startPop}
+				transparent={true}
+				animationType={"none"}				
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 						
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => handleDialogCancel()}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+						</TouchableOpacity>		
+						<View style={[styles.popTitle]}>
+							<Text style={styles.popTitleText}>운동 시작</Text>							
+						</View>				
+						<View>
+							<Text style={[styles.popTitleDesc, styles.mgt0]}>운동을 시작하시겠습니까?</Text>
+							<Text style={[styles.popTitleDesc, styles.mgt5]}>시작 후 운동 종목 변경 불가합니다.</Text>							
+						</View>
+						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
+								activeOpacity={opacityVal}
+								onPress={() => startPopOff()}
+							>
+								<Text style={[styles.popBtnText, styles.popBtnOffText]}>취소</Text>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2]}
+								activeOpacity={opacityVal}
+								onPress={() => handleDialogCancel()}
+							>
+								<Text style={styles.popBtnText}>확인</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+			<Modal
+				visible={endPop}
+				transparent={true}
+				animationType={"none"}				
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 						
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => handleDialogCancel()}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+						</TouchableOpacity>		
+						<View style={[styles.popTitle]}>
+							<Text style={styles.popTitleText}>운동 종료</Text>							
+						</View>				
+						<View>
+							<Text style={[styles.popTitleDesc, styles.mgt0]}>운동을 종료하시겠습니까?</Text>						
+						</View>
+						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
+								activeOpacity={opacityVal}
+								onPress={() => handleDialogCancel()}
+							>
+								<Text style={[styles.popBtnText, styles.popBtnOffText]}>취소</Text>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2]}
+								activeOpacity={opacityVal}
+								onPress={() => handleDialogConfirm()}
+							>
+								<Text style={styles.popBtnText}>확인</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+			<Modal
+				visible={alertPop}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setAlertPop(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 						
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => setAlertPop(false)}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+						</TouchableOpacity>		
+						<View style={[styles.popTitle]}>
+							<Text style={styles.popTitleText}>{alertMsg}</Text>							
+						</View>										
+						<View style={[styles.popBtnBox]}>							
+							<TouchableOpacity 
+								style={[styles.popBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => setAlertPop(false)}
+							>
+								<Text style={styles.popBtnText}>확인</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
 
 			{loading ? (
       <View style={[styles.indicator]}>
@@ -330,8 +921,12 @@ const styles = StyleSheet.create({
 	headerTabTextOn: {fontFamily:Font.NotoSansBold,color:'#FFD194'},
 	activeLine: {width:widnowWidth/3,height:4,backgroundColor:'#FFD194',position:'absolute',left:0,bottom:0,zIndex:10,},
 
+	commonLine: {width:widnowWidth,height:6,backgroundColor:'#F2F4F6'},
   cmWrap: {paddingBottom:40,paddingHorizontal:20,},
-	cmWrap2: {paddingTop:30,},
+	cmWrap2: {paddingTop:30},
+	cmWrap3: {paddingTop:20},
+	cmWrap4: {paddingTop:15},
+	cmWrap5: {paddingBottom:30},
 	wrtBtn: {position:'absolute',right:20,bottom:96,width:60,height:60,zIndex:100,backgroundColor:'#fff'},
 	wrtBtnHide: {opacity:0,},
 	wrtBtnBoxShadow: {
@@ -347,6 +942,92 @@ const styles = StyleSheet.create({
 	},
   exeList: {width:widnowWidth/3},
   exeButton: {},
+
+	inputView: {marginTop:10,},
+	selectView: {position:'relative',justifyContent:'center'},
+	input: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+	select: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+	selectCont: {},
+	selectArr: {position:'absolute',right:20,},
+	timerView: {alignItems:'center',justifyContent:'center',backgroundColor:'#F9FAFB',height:130,borderRadius:5,marginTop:100,},
+	timerView2: {marginTop:42},
+	timerViewText: {fontFamily:Font.NotoSansBlack,fontSize:38,lineHeight:46,color:'#888'},
+	timerViewText2: {color:'#1e1e1e'},
+	timerBtnView: {alignItems:'center',marginTop:50,},
+	timerBtn: {alignItems:'center',justifyContent:'center',width:180,height:58,backgroundColor:'#F7B863',borderRadius:5,},
+	timerBtn2: {backgroundColor:'#ededed'},
+	timerBtnText: {fontFamily:Font.NotoSansMedium,fontSize:20,lineHeight:27,color:'#fff'},
+	timerBtnText2: {color:'#1E1E1E'},
+	timerInfo: {marginTop:60,paddingTop:15,borderTopWidth:1,borderTopColor:'#EDEDED'},
+	timerInfoTitle: {flexDirection:'row',alignItems:'center'},
+	timerInfoTitleText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:15,color:'#888'},
+	timerInfoTitleText1: {width:8,},
+	timerInfoTitleText2: {width:innerWidth-8},
+	timerInfoDesc: {paddingLeft:10,},
+	timerInfoDescText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:17,color:'#888'},
+
+	dayLine: {width:innerWidth/7,height:1,backgroundColor:'#EDEDED',marginBottom:10,},
+	dayContainer: {width:innerWidth/7,height:24,alignItems:'center',justifyContent:'center',},
+  day: {width:24,height:24,alignItems:'center',justifyContent:'center',borderRadius:50,},
+  dateTextContainer: {flex:1,justifyContent:'center',},
+  dateText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:24,color:'#1e1e1e'},
+  // disabledDay: {opacity:0.4,},
+  // disabledText: {color:'#ccc',},
+	dotContainer: {position:'absolute',right:-2,top:2,},
+  dot: {width:6,height:6,borderRadius:10,},
+
+	calendarState: {flexDirection:'row',borderTopWidth:1,borderTopColor:'#EDEDED',marginTop:10,paddingTop:13,},
+	calendarStateView: {flexDirection:'row',alignItems:'center',marginRight:20,},
+	calendarStateCircle: {width:6,height:6,backgroundColor:'#243b55',borderRadius:20,marginRight:6,},
+	calendarStateCircle2: {backgroundColor:'#D1913C'},
+	calendarStateText: {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:19,color:'#888'},
+
+	exePlanList: {marginTop:5,},
+	exePlanBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingVertical:15,borderBottomWidth:1,borderBottomColor:'#EDEDED'},
+	exePlanLeft: {flexDirection:'row',alignItems:'center',width:innerWidth-50},
+	exePlanLeftCir: {width:10,height:10,backgroundColor:'#243B55',borderRadius:20,},
+	exePlanLeftCir2: {backgroundColor:'#D1913C'},
+	exePlanLeftCont: {width:innerWidth-60,paddingLeft:8,},
+	exePlanLeftText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+	exePlanRight: {flexDirection:'row',justifyContent:'flex-end',width:50,},
+	exePlanRightText: {textAlign:'right',fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:20,color:'#888888'},
+
+	modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
+	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},
+	popBack: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight},
+	popBack2: {backgroundColor:'rgba(0,0,0,0.7)',},
+	prvPop: {position:'relative',zIndex:10,width:innerWidth,maxHeight:innerHeight,paddingTop:50,paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',borderRadius:10,},	
+  prvPop2: {paddingTop:20,},
+	pop_x: {width:38,height:38,alignItems:'center',justifyContent:'center',position:'absolute',top:10,right:10,zIndex:10},
+  popInImageView: {alignItems:'center',marginBottom:20,},
+  popInImageViewBox: {width:100,height:100,borderRadius:50,overflow:'hidden',alignItems:'center',justifyContent:'center'},
+  popInImage: {},
+	popTitle: {paddingBottom:20,},
+	popTitleFlex: {flexDirection:'row',alignItems:'center',justifyContent:'center',flexWrap:'wrap',},
+  popTitleFlexWrap: {position:'relative'},
+	popTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:18,lineHeight:21,color:'#1E1E1E',},
+  popTitleText2: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+  popTitleFlexText: {position:'relative',top:2,},
+	popTitleDesc: {width:innerWidth-40,textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:21,color:'#1e1e1e',marginTop:20,},
+	emoticon: {},
+	popIptBox: {paddingTop:10,},
+	alertText: {fontFamily:Font.NotoSansRegular,fontSize:11,lineHeight:15,color:'#EE4245',marginTop:5,},
+	popBtnBox: {marginTop:30,},
+	popBtnBoxFlex: {flexDirection:'row',justifyContent:'space-between'},
+  popBtnBoxFlex2: {width:innerWidth},
+	popBtn: {alignItems:'center',justifyContent:'center',height:48,backgroundColor:'#243B55',borderRadius:5,},
+	popBtn2: {width:(innerWidth/2)-25,},
+  popBtn3: {width:(innerWidth/2)-5,},
+	popBtnOff: {backgroundColor:'#EDEDED',},
+	popBtnOff2: {backgroundColor:'#fff',marginTop:10,},
+	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},
+	popBtnOffText: {color:'#1e1e1e'},
+
+	mgt0: {marginTop:0,},
+	mgt2: {marginTop:2,},
+	mgt5: {marginTop:5,},
+
+	colorRed: {color:'#EE4245'},
 })
 
 export default connect(

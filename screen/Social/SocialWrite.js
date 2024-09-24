@@ -67,8 +67,11 @@ const SocialWrite = (props) => {
   const [hostFriend, setHostFriend] = useState('');
   const [guestFriend, setGuestFriend] = useState('');
   const [memberIdx, setMemberIdx] = useState();
+  const [memberSex, setMemberSex] = useState();
   const [basicPicture, setBasicPicture] = useState([]);
   const [pickedPicture, setPickedPicture] = useState();
+  const [gender, setGender] = useState(0);
+  const [genderType, setGenderType] = useState(0);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -111,6 +114,13 @@ const SocialWrite = (props) => {
   }, [navigationUse, preventBack]);
 
   useEffect(() => {
+		if (memberIdx) {
+			getMemInfo();	
+      getBasicPicture();
+		}
+	}, [memberIdx]);
+
+  useEffect(() => {
     let totalReq = 7;
     let currReq = 0;
     if(cate == 1 || cate == 2){
@@ -146,12 +156,18 @@ const SocialWrite = (props) => {
     setToday(dateStr);
   }, [])
 
-  useEffect(() => {
-		if(memberIdx){
-			//setLoading(true);
-			getBasicPicture();
+  const getMemInfo = async () => {
+		let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);    
+		if(response.code == 200){
+      setMemberSex(response.data.member_sex);
 		}
-	}, [memberIdx]);
+	}
 
   const getBasicPicture = async () => {
     let sData = {
@@ -217,7 +233,21 @@ const SocialWrite = (props) => {
 
   const fnCount = (v) => {
     if(v == 'm'){
-      if(cate == 1){
+      // if(cate == 1){
+      //   if(womanCnt > 2){
+      //     if(womanCnt == ManCnt){
+      //       setManCnt(ManCnt-1);
+      //     }else if(womanCnt > ManCnt){
+      //       setWomanCnt(womanCnt-1);
+      //     }
+      //   }
+      // }else if(cate == 2){
+      //   if(peopleCnt > 2){
+      //     setPeopleCnt(peopleCnt-1);
+      //   }
+      // }
+
+      if(gender == 0 && genderType == 0){ //상관없음 + 성비 맞추기
         if(womanCnt > 2){
           if(womanCnt == ManCnt){
             setManCnt(ManCnt-1);
@@ -225,20 +255,33 @@ const SocialWrite = (props) => {
             setWomanCnt(womanCnt-1);
           }
         }
-      }else if(cate == 2){
+      }else if(gender == 1 || (gender == 0 && genderType == 1)){ //상관없음 + 성비 무관
         if(peopleCnt > 2){
           setPeopleCnt(peopleCnt-1);
         }
       }
     }else if(v == 'p'){
-      if(cate == 1){
-        if(womanCnt == ManCnt){
-          setWomanCnt(womanCnt+1);
-        }else{
-          setManCnt(ManCnt+1);
-        }        
-      }else if(cate == 2){
-        setPeopleCnt(peopleCnt+1);
+      // if(cate == 1){
+      //   if(womanCnt == ManCnt){
+      //     setWomanCnt(womanCnt+1);
+      //   }else{
+      //     setManCnt(ManCnt+1);
+      //   }        
+      // }else if(cate == 2){
+      //   setPeopleCnt(peopleCnt+1);
+      // }
+      if(gender == 0 && genderType == 0){ //상관없음 + 성비 맞추기
+        if(womanCnt < 10 || ManCnt < 10){
+          if(womanCnt == ManCnt){
+            setWomanCnt(womanCnt+1);
+          }else{
+            setManCnt(ManCnt+1);
+          }  
+        }
+      }else if(gender == 1 || (gender == 0 && genderType == 1)){ //상관없음 + 성비 무관
+        if(peopleCnt < 30){
+          setPeopleCnt(peopleCnt+1);
+        }
       }
     }
   }
@@ -490,11 +533,94 @@ const SocialWrite = (props) => {
                     </TouchableOpacity>              
                   </View>
                 </View>
+                
+                <View style={styles.mgt50}>
+                  <View style={[styles.iptTit]}>
+                    <Text style={styles.iptTitText}>성별을 선택해 주세요. <Text style={styles.red}>*</Text></Text>
+                  </View>
+                  <View style={styles.genderRadioBox}>
+                    {cate == 0 ? (
+                      <>
+                      <TouchableOpacity
+                        style={[styles.genderRadioBoxBtn, gender == 0 ? styles.genderRadioBoxBtnOn : null]}
+                        activeOpacity={opacityVal}
+                        onPress={()=>setGender(0)}
+                      >
+                        <Text style={[styles.genderRadioBoxText, gender == 0 ? styles.genderRadioBoxTextOn : null]}>상관없음</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.genderRadioBoxBtn, gender == 1 ? styles.genderRadioBoxBtnOn : null]}
+                        activeOpacity={opacityVal}
+                        onPress={()=>setGender(1)}
+                      >
+                        <Text style={[styles.genderRadioBoxText, gender == 1 ? styles.genderRadioBoxTextOn : null]}>남성만</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.genderRadioBoxBtn, gender == 2 ? styles.genderRadioBoxBtnOn : null]}
+                        activeOpacity={opacityVal}
+                        onPress={()=>setGender(2)}
+                      >
+                        <Text style={[styles.genderRadioBoxText, gender == 2 ? styles.genderRadioBoxTextOn : null]}>여성만</Text>
+                      </TouchableOpacity>
+                      </>
+                    ) : (
+                      <>
+                      <TouchableOpacity
+                        style={[styles.genderRadioBoxBtn, styles.genderRadioBoxBtn2, gender == 0 ? styles.genderRadioBoxBtnOn : null]}
+                        activeOpacity={opacityVal}
+                        onPress={()=>setGender(0)}
+                      >
+                        <Text style={[styles.genderRadioBoxText, gender == 0 ? styles.genderRadioBoxTextOn : null]}>상관없음</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.genderRadioBoxBtn, styles.genderRadioBoxBtn2, gender == 1 ? styles.genderRadioBoxBtnOn : null]}
+                        activeOpacity={opacityVal}
+                        onPress={()=>setGender(1)}
+                      >
+                        {memberSex == 0 ? (
+                          <Text style={[styles.genderRadioBoxText, gender == 1 ? styles.genderRadioBoxTextOn : null]}>남성만</Text>
+                        ) : (
+                          <Text style={[styles.genderRadioBoxText, gender == 1 ? styles.genderRadioBoxTextOn : null]}>여성만</Text>
+                        )}                        
+                      </TouchableOpacity>
+                      </>
+                    )}
+                  </View>
+                </View>
 
                 {cate == 1 || cate == 2 ? (
                 <View style={styles.mgt50}>
                   <View style={[styles.iptTit]}>
                     <Text style={styles.iptTitText}>인원 수를 선택해 주세요 <Text style={styles.red}>*</Text></Text>
+
+                    {gender == 0 ? (
+                    <View style={styles.countGender}>
+                      <TouchableOpacity
+                        style={styles.countGenderBtn}
+                        activeOpacity={opacityVal}
+                        onPress={()=>setGenderType(0)}
+                      >
+                        {genderType == 0 ? (
+                          <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+                        ) : (
+                          <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+                        )}
+                        <Text style={styles.countGenderBtnText}>성비 맞추기</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.countGenderBtn}
+                        activeOpacity={opacityVal}
+                        onPress={()=>setGenderType(1)}
+                      >
+                        {genderType == 1 ? (
+                          <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+                        ) : (
+                          <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+                        )}
+                        <Text style={styles.countGenderBtnText}>성비 무관</Text>
+                      </TouchableOpacity>
+                    </View>
+                    ) : null}
                   </View>
                   <View style={styles.countBox}>
                     <TouchableOpacity
@@ -505,8 +631,35 @@ const SocialWrite = (props) => {
                       <ImgDomain fileWidth={24} fileName={'icon_minus.png'}/>
                     </TouchableOpacity>
                     <View style={styles.countBoxBtnView}>
-                      {cate == 1 ? (<Text style={styles.countBoxBtnText}>{womanCnt}:{ManCnt}</Text>) : null}
-                      {cate == 2 ? (<Text style={styles.countBoxBtnText}>{peopleCnt}</Text>) : null}
+                      {/* {cate == 1 ? (<Text style={styles.countBoxBtnText}>{womanCnt}:{ManCnt}</Text>) : null}
+                      {cate == 2 ? (<Text style={styles.countBoxBtnText}>{peopleCnt}</Text>) : null} */}
+
+                      {gender == 0 && genderType == 0 ? (             
+                        <View style={styles.countBoxBtnFlex}>
+                          <ImgDomain fileWidth={28} fileName={'icon_gender_man.png'} />
+                          <View style={styles.countBoxBtnFlexInner}>
+                            <Text style={styles.countBoxBtnText}>{womanCnt}:{ManCnt}</Text>
+                          </View>
+                          <ImgDomain fileWidth={28} fileName={'icon_gender_woman.png'} />
+                        </View>                                                             
+                      ) : null}
+
+                      {gender == 1 || (gender == 0 && genderType == 1) ? (
+                        <View style={styles.countBoxBtnFlex}>
+                          {gender == 1 && memberSex == 0 ? (
+                            <ImgDomain fileWidth={28} fileName={'icon_gender_man.png'} />
+                          ) : null}
+                          {gender == 1 && memberSex == 1 ? (
+                            <ImgDomain fileWidth={28} fileName={'icon_gender_woman.png'} />
+                          ) : null}
+                          {gender == 0 && genderType == 1 ? (
+                            <ImgDomain fileWidth={28} fileName={'icon_gender_all.png'} />
+                          ) : null}
+                          <View style={styles.countBoxBtnFlexInner2}>
+                            <Text style={styles.countBoxBtnText}>{peopleCnt}</Text>
+                          </View>
+                        </View>
+                      ) : null}
                     </View>
                     <TouchableOpacity
                       style={styles.countBoxBtn}
@@ -840,7 +993,10 @@ const styles = StyleSheet.create({
 
   countBox: {flexDirection:'row',alignItems:'center',marginTop:15,},
   countBoxBtn: {width:24,height:24,},
-  countBoxBtnView: {alignItems:'center',justifyContent:'center',minWidth:42,height:32,marginHorizontal:3,},
+  countBoxBtnView: {alignItems:'center',justifyContent:'center',minWidth:42,height:32,marginHorizontal:10,},
+  countBoxBtnFlex: {alignItems:'center',justifyContent:'center',flexDirection:'row'},
+  countBoxBtnFlexInner: {alignItems:'center',justifyContent:'center',minWidth:40,marginHorizontal:8,},
+  countBoxBtnFlexInner2: {alignItems:'center',justifyContent:'center',minWidth:30,marginLeft:8,},
   countBoxBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},
 
   imgBox: {flexDirection:'row',marginTop:20,},
@@ -860,6 +1016,13 @@ const styles = StyleSheet.create({
   friendBtnText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:19,color:'#666'},
   friendBtnTextOn: {color:'#fff'},
 
+  genderRadioBox: {flexDirection:'row',gap:10,marginTop:20,},
+  genderRadioBoxBtn: {alignItems:'center',justifyContent:'center',width:(innerWidth/3)-6.6666,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#EDEDED',borderRadius:5,},
+  genderRadioBoxBtn2: {width:(innerWidth/2)-5},
+  genderRadioBoxBtnOn: {backgroundColor:'#243B55',borderWidth:0,},
+  genderRadioBoxText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:19,color:'#666666'},
+  genderRadioBoxTextOn: {fontFamily:Font.NotoSansMedium,color:'#fff'},
+
   warn: {},
   warnText: {fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:17,color:'#888'},
   warn2: {marginVertical:4,},
@@ -869,6 +1032,10 @@ const styles = StyleSheet.create({
   warn3dotText: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:17,color:'#888'},
   warn3TextView: {width:innerWidth-10,},
   warn3Text: {fontFamily:Font.NotoSansRegular,fontSize:10,lineHeight:17,color:'#888'},
+
+  countGender: {flexDirection:'row',gap:30,marginTop:20,paddingBottom:10,},
+  countGenderBtn: {flexDirection:'row',alignItems:'center',},
+  countGenderBtnText : {fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:17,color:'#1E1E1E',marginLeft:6},
 
   header: {height:48,backgroundColor:'#fff',position:'relative',display:'flex',justifyContent:'center',paddingHorizontal:40},
 	headerBackBtn2: {width:56,height:48,position:'absolute',left:0,top:0,zIndex:10,display:'flex',alignItems:'center',justifyContent:'center',},
