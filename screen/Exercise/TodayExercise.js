@@ -8,6 +8,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import PushNotification from 'react-native-push-notification';
 import BackgroundTimer from 'react-native-background-timer';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 import AutoHeightImage from "react-native-auto-height-image";
 
 import APIs from "../../assets/APIs"
@@ -95,8 +96,9 @@ const TodayExercise = (props) => {
 				setMemberIdx(result);
 			});
 
-      if(params?.reload){				
+      if(params?.reload){								
 				getMemInfo();
+				getExerList(1);
 				setNowPage(1);
         delete params?.reload;
       }
@@ -141,7 +143,7 @@ const TodayExercise = (props) => {
   }, []);
 
   useEffect(() => {
-		if (memberIdx && tabState !== undefined) {
+		if (memberIdx && tabState !== undefined) {			
 			setLoading(true);
 			getMemInfo();
 			setNowPage(1);
@@ -164,8 +166,6 @@ const TodayExercise = (props) => {
 	}
 
   const getExerList = async (viewPage) => {
-    const ary = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
     let curr_page = nowPage;
 		if(viewPage){
 			curr_page = viewPage;
@@ -177,12 +177,36 @@ const TodayExercise = (props) => {
 
 		let curr_tab = tabState;		
 		if(params?.writeType){
-			setTabState(params?.writeType);
-			curr_tab = params?.writeType;
+			// setTabState(params?.writeType);
+			// curr_tab = params?.writeType;
 			delete params?.writeType;
 		}
     
-    setExerList(ary);
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "GetTodayExeList",
+			member_idx: memberIdx,
+			page:curr_page,
+		};		
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){						
+
+			//setTotalPage(Math.ceil(response.data.length/10));
+			//console.log('curr_page::: ', curr_page);
+			if(curr_page == 1){
+				if(response.msg == 'EMPTY'){
+					setNowPage(1);
+					setExerList([]);
+				}else{
+					setExerList(response.data);
+				}
+			}else if(curr_page > 1 && response.msg != 'EMPTY'){					
+				const addList = [...exerList, ...response.data];
+				setExerList(addList);
+			}
+				
+		}
 
     setTimeout(function(){
 			setLoading(false);
@@ -197,10 +221,10 @@ const TodayExercise = (props) => {
 					activeOpacity={opacityVal}
 					onPress={()=>{						
 						//navigation.navigate('TodayExerciseView', {ex_idx:item.ex_idx});
-						navigation.navigate('TodayExerciseView', {ex_idx:1});
+						navigation.navigate('TodayExerciseView', {exe_idx:item.exe_idx});
 					}}
 				>
-					<ImgDomain fileWidth={widnowWidth/3} fileName={'feed_'+(item)+'.png'} />
+					<ImgDomain2 fileWidth={widnowWidth/3} fileName={item.ef_file} />
 				</TouchableOpacity>
 			</View>
 		)
@@ -214,18 +238,17 @@ const TodayExercise = (props) => {
 
   //무한 스크롤
   const moreData = async () => {				
-		// if (socialList.length > 0) {
-		// 	getSocialList(nowPage + 1);
-		// 	setNowPage(nowPage + 1);
-		// }	
+		if (exerList.length > 0) {
+			getExerList(nowPage + 1);
+			setNowPage(nowPage + 1);
+		}	
 	}
 
 	const onRefresh = () => {
 		if(!refreshing) {
 			setRefreshing(true);
-			// getSocialList(1);
-			// setNowPage(1);
-			// //console.log('refresh!!!');			
+			getExerList(1);
+			setNowPage(1);
       setTimeout(() => setRefreshing(false), 2000);
 		}
 	}
@@ -270,30 +293,30 @@ const TodayExercise = (props) => {
 	const handleAppStateChange = async (nextAppState) => {
     if (nextAppState === 'background' && timerRunning) {
       // 백그라운드에서도 타이머를 계속 실행
-      BackgroundTimer.runBackgroundTimer(() => {        
-        const nowTime = (new Date() - startTime) / 1000;
-				if (nowTime >= MAX_TIME) {
-					handleStop(); // 10시간이 지나면 타이머 자동 종료
-					return;
-				}
+      // BackgroundTimer.runBackgroundTimer(() => {        
+      //   const nowTime = (new Date() - startTime) / 1000;
+			// 	if (nowTime >= MAX_TIME) {
+			// 		handleStop(); // 10시간이 지나면 타이머 자동 종료
+			// 		return;
+			// 	}
 
-        setElapsedTime(nowTime);
+      //   setElapsedTime(nowTime);
 
-        PushNotification.localNotification({
-          id: '999',
-          channelId: "timer-channel",
-          title: "타이머 실행 중",
-          message: `경과 시간: ${nowTime.toFixed(0)} 초`,
-          importance: "low",
-          priority: "low",
-          ongoing: true,
-          silent: true,
-          visibility: "secret", // 잠금 화면에서 알림을 숨깁니다
-          onlyAlertOnce: true, // 알림을 한 번만 표시합니다
-          playSound: false, // 소리 비활성화
-          vibrate: false, // 진동 비활성화
-        });
-      }, 1000); // 1초마다 타이머 업데이트
+      //   PushNotification.localNotification({
+      //     id: '999',
+      //     channelId: "timer-channel",
+      //     title: "타이머 실행 중",
+      //     message: `경과 시간: ${nowTime.toFixed(0)} 초`,
+      //     importance: "low",
+      //     priority: "low",
+      //     ongoing: true,
+      //     silent: true,
+      //     visibility: "secret", // 잠금 화면에서 알림을 숨깁니다
+      //     onlyAlertOnce: true, // 알림을 한 번만 표시합니다
+      //     playSound: false, // 소리 비활성화
+      //     vibrate: false, // 진동 비활성화
+      //   });
+      // }, 1000); // 1초마다 타이머 업데이트
     } else if (nextAppState === 'active') {
       BackgroundTimer.stopBackgroundTimer(); // 앱이 활성화되면 백그라운드 타이머 종료
       PushNotification.cancelAllLocalNotifications(); // 알림 취소

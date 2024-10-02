@@ -168,7 +168,7 @@ const ExerciseLogView = (props) => {
             activeOpacity={opacityVal}
             onPress={()=>{
               setDotPop(false);
-              navigation.navigate('ExerciseLogWrite', {ex_idx:1});
+              navigation.navigate('ExerciseLogWrite', {exe_idx:1});
             }}
           >
             <Text style={styles.dotPopBtnText}>운동 기록 수정</Text>

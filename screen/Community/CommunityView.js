@@ -582,6 +582,7 @@ const CommunityView = (props) => {
       return false;
     }
   
+    Keyboard.dismiss();
     setLoading2(true);
     let sData = {
 			basePath: "/api/community/",
@@ -1023,7 +1024,7 @@ const CommunityView = (props) => {
       </View>
 
       <KeyboardAvoidingView
-        keyboardVerticalOffset={0}
+        keyboardVerticalOffset={keyboardVerticalOffset+15}
         behavior={behavior}
         style={{flex:1}}
       >
@@ -1965,70 +1966,72 @@ const CommunityView = (props) => {
           }}
         >
         </TouchableOpacity>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{...styles.prvPop, top:keyboardHeight}}>
-            <TouchableOpacity
-              style={styles.pop_x}					
-              onPress={() => reportPopClose()}
-            >
-              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
-            </TouchableOpacity>		
-            <View style={[styles.popTitle]}>
-              <Text style={styles.popTitleText}>신고 사유</Text>
-            </View>
-            <KeyboardAwareScrollView
-              keyboardVerticalOffset={0}
-              behavior={behavior}
-            >
-              <View style={styles.reportRadio}>
-                {reportList.map((item, index) => {
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      style={[styles.reportRadioBtn, index == 0 ? styles.mgt0 : null]}
-                      activeOpacity={opacityVal}
-                      onPress={() => setReport(item.rr_idx)}
-                    >
-                      <Text style={styles.reportRadioBtnText}>{item.rr_content}</Text>
-                      {report == item.rr_idx ? (                        
-                        <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'}/>
-                      ) : (
-                        <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'}/>
-                      )}
-                    </TouchableOpacity>
-                  )
-                })}                
-              </View>
-              {report == 6 ? (
-              <View style={[styles.popIptBox]}>		
-                <TextInput
-                  value={reportEtc}
-                  ref={etcRef}
-                  onChangeText={(v) => {
-                    setReportEtc(v);
-                  }}
-                  onFocus={()=>{
-                    setCurrFocus('report');
-                  }}
-                  placeholder={'상세 사유를 작성해 주세요. (최소 3자)'}
-                  placeholderTextColor="#DBDBDB"
-                  style={[styles.input, styles.input2]}
-                  returnKyeType='done'                      
-                />
-              </View>
-              ) : null}
-            </KeyboardAwareScrollView>
-            <View style={styles.popBtnBox}>
-              <TouchableOpacity 
-                style={[styles.popBtn]}
-                activeOpacity={opacityVal}
-                onPress={() => submitReport()}
+          <KeyboardAvoidingView
+            keyboardVerticalOffset={keyboardVerticalOffset}
+            behavior={behavior}
+          >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={{...styles.prvPop, top:keyboardHeight}}>
+              <TouchableOpacity
+                style={styles.pop_x}					
+                onPress={() => reportPopClose()}
               >
-                <Text style={styles.popBtnText}>확인</Text>
-              </TouchableOpacity>
+                <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+              </TouchableOpacity>		
+              <View style={[styles.popTitle]}>
+                <Text style={styles.popTitleText}>신고 사유</Text>
+              </View>
+              <View>
+                <View style={styles.reportRadio}>
+                  {reportList.map((item, index) => {
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        style={[styles.reportRadioBtn, index == 0 ? styles.mgt0 : null]}
+                        activeOpacity={opacityVal}
+                        onPress={() => setReport(item.rr_idx)}
+                      >
+                        <Text style={styles.reportRadioBtnText}>{item.rr_content}</Text>
+                        {report == item.rr_idx ? (                        
+                          <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'}/>
+                        ) : (
+                          <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'}/>
+                        )}
+                      </TouchableOpacity>
+                    )
+                  })}                
+                </View>
+                {report == 6 ? (
+                <View style={[styles.popIptBox]}>		
+                  <TextInput
+                    value={reportEtc}
+                    ref={etcRef}
+                    onChangeText={(v) => {
+                      setReportEtc(v);
+                    }}
+                    onFocus={()=>{
+                      setCurrFocus('report');
+                    }}
+                    placeholder={'상세 사유를 작성해 주세요. (최소 3자)'}
+                    placeholderTextColor="#DBDBDB"
+                    style={[styles.input, styles.input2]}
+                    returnKyeType='done'                      
+                  />
+                </View>
+                ) : null}
+              </View>
+              <View style={styles.popBtnBox}>
+                <TouchableOpacity 
+                  style={[styles.popBtn]}
+                  activeOpacity={opacityVal}
+                  onPress={() => submitReport()}
+                >
+                  <Text style={styles.popBtnText}>확인</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </TouchableWithoutFeedback>              
+          </TouchableWithoutFeedback>              
+        </KeyboardAvoidingView>
       </View>
       ) : null}
 
@@ -2404,7 +2407,7 @@ const styles = StyleSheet.create({
   cardFrontInfoCont3: {width:110,padding:8,},
 
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
-	input2: {width: innerWidth},
+	input2: {width: innerWidth-40},
 
   viewTitle: {flexDirection:'row',justifyContent:'space-between',paddingBottom:20,borderBottomWidth:1,borderBottomColor:'#EDEDED'},
   viewTitleArea: {width:innerWidth-40},

@@ -37,7 +37,8 @@ const TodayExerciseView = (props) => {
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
 	const {params} = route	
-  const ex_idx = params['ex_idx'];
+  const exe_idx = params['exe_idx'];
+  const paramsString = JSON.stringify({exe_idx:exe_idx});
   const scrollRef = useRef();	
   const etcRef = useRef(null);
   const [keyboardStatus, setKeyboardStatus] = useState(false);
@@ -54,15 +55,21 @@ const TodayExerciseView = (props) => {
   const [reportList, setReportList] = useState([]);
   const [deletePop, setDeletePop] = useState(false);
 
-  const [profileImg, setProfileImg] = useState('profile_sample.png');
-  const [nick, setNick] = useState('법정에선골룸');
-  const [datetime, setDatetime] = useState('2024-09-04 14:03');
-  const [content, setContent] = useState('내용이 입력되는 영역입니다. 자유롭게 내용을 입력해 주세요. 자유롭게 내용을 입력해 주세요. 자유롭게 내용을 입력해 주세요.');
-  const [zzim, setZzim] = useState(false);
-	const [zzimCnt, setZzimCnt] = useState(5);
+  const [contMbIdx, setContMbIdx] = useState();
+  const [profileImg, setProfileImg] = useState('');
+  const [nick, setNick] = useState('');
+  const [datetime, setDatetime] = useState('');
+  const [content, setContent] = useState('');
+  const [contentImg, setContentImg] = useState();
+  const [zzim, setZzim] = useState();
+	const [zzimCnt, setZzimCnt] = useState();
+  const [pbIdx, setPbIdx] = useState();  
 
   const [memberIdx, setMemberIdx] = useState();
   const [memberInfo, setMemberInfo] = useState({});
+
+  const [commentCnt, setCommentCnt] = useState(0);
+  const [commentList, setCommentList] = useState([]);
 
   const [report, setReport] = useState('');
   const [reportEtc, setReportEtc] = useState('');
@@ -91,11 +98,6 @@ const TodayExerciseView = (props) => {
       AsyncStorage.getItem('member_idx', (err, result) => {		        
 				setMemberIdx(result);
 			});
-      
-      if(memberIdx){        
-        //getReceive();
-        //getSend();
-      }
 		}
 
 		Keyboard.dismiss();
@@ -150,11 +152,9 @@ const TodayExerciseView = (props) => {
 
   useEffect(() => {
     if(memberIdx){
-      //setLoading(true);
+      setLoading(true);
       getMemInfo();
-      //getCommDetail();
-      //getReceive();
-      //getSend();
+      getTodayExeDetail();
     }
   }, [memberIdx]);
 
@@ -175,10 +175,52 @@ const TodayExerciseView = (props) => {
     }
   }
 
+  const getTodayExeDetail = async () => {
+    let sData = {
+			basePath: "/api/exercise/",
+			type: "GetTodayExeDetail",
+			exe_idx: exe_idx,
+      member_idx: memberIdx
+		};
+    const response = await APIs.send(sData);
+    //console.log(response);
+		if(response.code == 200){      
+      setContMbIdx(response.data.today.member_idx);
+      if(response.data.today.member_sex == 0){
+        setProfileImg('profile_sample.png');
+      }else{
+        setProfileImg('profile_sample2.png');
+      }      
+      setNick(response.data.today.exe_nick);
+      setDatetime(response.data.today.created_at);
+      setContent(response.data.today.exe_content);
+      setContentImg(response.data.today.ef_file);      
+      if(response.data.today.cnt > 0){
+        setZzimCnt(response.data.today.cnt);
+      }else{
+        setZzimCnt(0);
+      }
+      if(response.data.today.my_delete_yn == 'n'){
+        setZzim(true);
+      }else{
+        setZzim(false);
+      }      
+      setPbIdx(response.data.today.pb_idx);
+
+      setCommentCnt(response.data.comment.length);
+      if(response.data.comment.length > 0){
+        setCommentList(response.data.comment);
+      }else{
+        setCommentList([]);
+      }
+      setLoading(false);      
+    }
+  }
+
   const getReportList = async () => {
     let sData = {
-			basePath: "/api/etc/",
-			type: "GetReportReasonList",
+			basePath: "/api/exercise/",
+			type: "GetTodayExeReportList",
 		};
 
 		const response = await APIs.send(sData);    
@@ -188,14 +230,35 @@ const TodayExerciseView = (props) => {
   }
 
   const zzimLike = async () => {
-		setZzim(!zzim);
-		if(zzim){
-			if(zzimCnt > 0){
-				setZzimCnt(zzimCnt-1);
-			}		
-		}else{
-			setZzimCnt(zzimCnt+1);
-		}
+    let sData = {};
+    if(zzim){
+      sData = {
+        basePath: "/api/exercise/",
+        type: "DeletePostBookMark",		
+        pb_idx: pbIdx,
+      };
+    }else{      
+      sData = {
+        basePath: "/api/exercise/",
+        type: "SetPostBookMark",
+        member_idx: memberIdx,
+        pb_type: 'exe',			
+        pb_post_idx: exe_idx,
+      };
+    }
+
+    const response = await APIs.send(sData); 
+    if(response.code == 200){
+      const zzim_cnt = parseInt(zzimCnt);
+      setZzim(!zzim);
+      if(zzim){
+        if(zzim_cnt > 0){
+          setZzimCnt(zzim_cnt-1);
+        }		
+      }else{
+        setZzimCnt(zzim_cnt+1);
+      }
+    }				
   }
 
   const submitComment = async () => {
@@ -220,42 +283,36 @@ const TodayExerciseView = (props) => {
       return false;
     }
 
-    return false;
-  
-    setLoading(true);
+    Keyboard.dismiss();
+    setLoading2(true);
     let sData = {
-			basePath: "/api/community/",
-			type: "SetComment",
-      my_board: hostMemberIdx == memberIdx ? 0 : 1,
-			my_nick: hostMemberIdx == memberIdx ? nick : '',
-      member_idx: memberIdx,
-      comment_main_idx: comm_idx,
-      comment_type: 1,
-      comment_depth: reviewType,
-      comment_main_idx: comm_idx,
-      comment_content: reviewCont,
-      params: paramsString,
-      
+			basePath: "/api/exercise/",
+			type: "SetExerciseComment",
+      exe_idx: exe_idx,
+			member_idx: memberIdx,
+      sc_type: reviewType,
+      sc_content: reviewCont,      
+      params:paramsString,      
 		};
 
     if(reviewType == 1){
-      sData.comment_idx = subReviewIdx;
+      sData.sc_org_idx = subReviewIdx;
       sData.push_idx = 19;
     }else{
       sData.push_idx = 18;
     }
     
 		const response = await APIs.send(sData);    
-    //console.log(response);
+    //console.log(response.data);
     if(response.code == 200){
-      //setCommentCnt(response.data.comment.length);
-      //setCommentList(response.data.comment);
+      setCommentCnt(response.data.comment.length);
+      setCommentList(response.data.comment);
       setReviewCont('');
       setReviewType(0);      
       setSubReviewIdx();
       setSubReivewNick('');
       setTimeout(function(){
-        setLoading(false);
+        setLoading2(false);
         scrollRef.current?.scrollTo({y:layout3.y+10});
       },300);  
     }
@@ -283,22 +340,93 @@ const TodayExerciseView = (props) => {
     setReportPop(false);
     setReport('');
     setReportEtc('');
+    setReportType('');
+    setReportMemberIdx();
+    setReportBoardIdx();
   }
 
   const submitReport = async () => {
+    if(report == ''){
+      ToastMessage('신고 사유를 선택해 주세요.');
+      return false;
+    }
 
+    if(report == 11 && (reportEtc == '' || reportEtc.length < 3)){
+      ToastMessage('상세 사유를 3자 이상 입력해 주세요.');
+      return false;
+    }
+
+    //setLoading2(true);
+    let sData = {
+			basePath: "/api/exercise/",
+			type: "SetReportPost",
+      rp_type: reportType,
+      member_idx: memberIdx,
+      rp_member_idx: reportMemberIdx,
+      rp_post_idx: reportBoardIdx,
+      rr_idx: report,
+      rp_content: reportEtc,
+		};
+    const response = await APIs.send(sData);
+    console.log(response);
+    if(response.code == 200){
+      reportPopClose();
+      ToastMessage('신고접수가 완료되었습니다.');
+      if(reportType == 'exercise'){
+        setTimeout(function(){
+          setLoading2(false);
+          navigation.navigate('TodayExercise', {reload: true});
+        } ,300)      
+      }else if(reportType == 'exerciseComment'){        
+        getTodayExeDetail();
+        setTimeout(() => {
+          setLoading2(false);
+        }, 200);
+      }
+    }
   }
 
-  const submitDelete = async () => {
+  const submitDelete = async () => {    
     setDeletePop(false);
     setLoading2(true);
-    setTimeout(function(){      
-      setLoading2(false);
-    }, 2000);
+    
+    let sData = {
+			basePath: "/api/exercise/",
+			type: "DeleteTodayExe",
+      member_idx: memberIdx,
+      exe_idx: exe_idx,   
+		};
+    const response = await APIs.send(sData);    
+    console.log('DeleteTodayExe ::: ',response);
+    if(response.code == 200){      
+      setTimeout(function(){      
+        setLoading2(false);
+        navigation.navigate('TodayExercise', {reload: true});
+      }, 300);      
+    }else{
+      setTimeout(function(){      
+        setLoading2(false);
+      }, 300);
+    }    
+  }
+
+  const deleteComment = async (idx) => {
+    let sData = {
+      basePath: "/api/exercise/",
+      type: "DeleteExerciseComment",		
+      sc_idx: idx,
+      member_idx: memberIdx,
+      exe_idx: exe_idx,
+    };
+    const response = await APIs.send(sData);        
+    if(response.code == 200){
+      setCommentCnt(response.data.comment.length);
+      setCommentList(response.data.comment);
+    }
   }
 
   const headerHeight = 48;
-	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
+	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight+15 : 0;
 	const behavior = Platform.OS === "ios" ? "padding" : "height";
 
 	return (
@@ -328,11 +456,14 @@ const TodayExerciseView = (props) => {
       </View>
 
       <KeyboardAvoidingView
-        keyboardVerticalOffset={0}
+        keyboardVerticalOffset={keyboardVerticalOffset}
         behavior={behavior}
         style={{flex:1}}
       >
-        <ScrollView ref={scrollRef}>
+        <ScrollView 
+          ref={scrollRef}
+          keyboardShouldPersistTaps="handled"
+        >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <>
               <View style={[styles.cmView, styles.pdb40]}>
@@ -350,7 +481,7 @@ const TodayExerciseView = (props) => {
                   </View>
                 </View>
 								<View style={styles.viewImg}>
-									<ImgDomain fileWidth={innerWidth} fileName={'feed_1.png'} />
+									<ImgDomain2 fileWidth={innerWidth} fileName={contentImg} />
 								</View>
 								<View style={styles.viewZzim}>
 									<TouchableOpacity
@@ -388,137 +519,78 @@ const TodayExerciseView = (props) => {
                   </>
                   ) : null}
 
-                  {/* <View style={styles.notData}>
-                    <Text style={styles.notDataText}>등록된 댓글이 없습니다.</Text>
-                  </View> */}
+                  {commentCnt < 1 ? (
+                    <View style={[styles.notData, styles.pdt0]}>
+                      <Text style={styles.notDataText}>등록된 댓글이 없습니다.</Text>
+                    </View>
+                  ) : null}
                   
-                  {memberInfo?.member_type != 1 ? ( <View style={{height:5,}}></View> ) : null}
+                  {commentList.map((item, index) => {
+                    return (
+                      <View key={index} style={[styles.reviewDepth, item.sc_type == 1 && index != 0 ? styles.mgt20 : null, index == 0 ? styles.mgt0 : null,]}>
+                        {item.sc_type == 1 ? ( <View style={styles.subReviewBox}></View> ) : null}        
+                        {item.member_sex == 0 ? (
+                          <ImgDomain fileWidth={28} fileName={'profile_sample.png'}/>
+                        ) : null}                                  
+                        {item.member_sex == 1 ? (
+                          <ImgDomain fileWidth={28} fileName={'profile_sample2.png'}/>
+                        ) : null}                                  
+                        <View style={[styles.reviewInfo, item.sc_type == 1 ? styles.reviewInfo2 : null]}>
+                          <View style={styles.reviewNickDate}>
+                            <Text style={styles.reviewNickText}>{item.sc_social_nick}</Text>
+                            <Text style={styles.reviewDateText}>{item.created_at.replaceAll('-', '.')}</Text>
+                          </View>
+                          <View style={styles.reviewCont}>
+                            {item.delete_yn == 'y' ? (
+                              <Text style={[styles.reviewContText, styles.reviewContText2]}>삭제된 댓글입니다.</Text>
+                            ) : (
+                              <Text style={styles.reviewContText}>{item.sc_content}</Text>
+                            )}                            
+                          </View>
+                          <View style={styles.reviewBtnBox}>
+                            {item.sc_type == 0 ? (
+                              <>
+                              <TouchableOpacity
+                                style={styles.reviewBtn}
+                                activeOpacity={opacityVal}
+                                onPress={()=>{
+                                  setReviewCont('');
+                                  setReviewType(1);
+                                  setSubReivewNick(item.sc_social_nick);
+                                  setSubReviewIdx(item.sc_idx);
+                                  setTimeout(function(){
+                                    scrollRef.current?.scrollTo({y:layout3.y+10});
+                                  }, 100)
+                                }}
+                              >
+                                <Text style={styles.reviewBtnText}>대댓글달기</Text>
+                              </TouchableOpacity>
+                              <View style={styles.reviewBtnLine}></View>
+                              </>
+                            ) : null}                                                          
 
-                  <View style={[styles.reviewDepth, styles.mgt0]}>
-                    <ImgDomain fileWidth={28} fileName={'profile_sample.png'}/>
-                    <View style={[styles.reviewInfo]}>
-                      <View style={styles.reviewNickDate}>
-                        <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
-                        <Text style={styles.reviewDateText}>12.31 22:22</Text>
+                            {item.is_my_comment == 'y' ? (                              
+                              <TouchableOpacity
+                                style={styles.reviewBtn}
+                                activeOpacity={opacityVal}
+                                onPress={()=>deleteComment(item.sc_idx)}
+                              >
+                                <Text style={styles.reviewBtnText}>삭제하기</Text>
+                              </TouchableOpacity>                                                            
+                            ) : (
+                              <TouchableOpacity
+                                style={styles.reviewBtn}
+                                activeOpacity={opacityVal}
+                                onPress={()=>openReportPop('exerciseComment', item.member_idx, item.sc_idx)}
+                              >
+                                <Text style={styles.reviewBtnText}>신고하기</Text>
+                              </TouchableOpacity>
+                            )}
+                          </View>
+                        </View>
                       </View>
-                      <View style={styles.reviewCont}>
-                        <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
-                        {/* <Text style={[styles.reviewContText, styles.reviewContText2]}>삭제된 댓글입니다.</Text> */}
-                      </View>
-                      <View style={styles.reviewBtnBox}>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>{
-                            setReviewCont('');
-                            setReviewType(1);
-                            //setSubReivewNick(item.comment_nick);
-                            //setSubReviewIdx(item.comment_idx);
-                            setTimeout(function(){
-                              scrollRef.current?.scrollTo({y:layout3.y+10});
-                            }, 100)
-                          }}
-                        >
-                          <Text style={styles.reviewBtnText}>대댓글달기</Text>
-                        </TouchableOpacity>
-                        <View style={styles.reviewBtnLine}></View>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>deleteComment(item.comment_idx)}
-                        >
-                          <Text style={styles.reviewBtnText}>삭제하기</Text>
-                        </TouchableOpacity>
-                        <View style={styles.reviewBtnLine}></View>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>openReportPop('commComment', item.member_idx, item.comment_idx)}
-                        >
-                          <Text style={styles.reviewBtnText}>신고하기</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={[styles.reviewDepth, styles.mgt20]}>
-                    <View style={styles.subReviewBox}></View>
-                    <ImgDomain fileWidth={28} fileName={'profile_sample2.png'}/>
-                    <View style={[styles.reviewInfo, styles.reviewInfo2]}>
-                      <View style={styles.reviewNickDate}>
-                        <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
-                        <Text style={styles.reviewDateText}>12.31 22:22</Text>
-                      </View>
-                      <View style={styles.reviewCont}>
-                        <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
-                        {/* <Text style={[styles.reviewContText, styles.reviewContText2]}>삭제된 댓글입니다.</Text> */}
-                      </View>
-                      <View style={styles.reviewBtnBox}>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>deleteComment(item.comment_idx)}
-                        >
-                          <Text style={styles.reviewBtnText}>삭제하기</Text>
-                        </TouchableOpacity>
-                        <View style={styles.reviewBtnLine}></View>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>openReportPop('commComment', item.member_idx, item.comment_idx)}
-                        >
-                          <Text style={styles.reviewBtnText}>신고하기</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={[styles.reviewDepth,]}>
-                    <ImgDomain fileWidth={28} fileName={'profile_sample.png'}/>
-                    <View style={[styles.reviewInfo]}>
-                      <View style={styles.reviewNickDate}>
-                        <Text style={styles.reviewNickText}>자동 생성 닉네임</Text>
-                        <Text style={styles.reviewDateText}>12.31 22:22</Text>
-                      </View>
-                      <View style={styles.reviewCont}>
-                        <Text style={styles.reviewContText}>댓글 내용이 입력됩니다. 내용을 자유롭게 입력해주세요.</Text>
-                        {/* <Text style={[styles.reviewContText, styles.reviewContText2]}>삭제된 댓글입니다.</Text> */}
-                      </View>
-                      <View style={styles.reviewBtnBox}>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>{
-                            setReviewCont('');
-                            setReviewType(1);
-                            //setSubReivewNick(item.comment_nick);
-                            //setSubReviewIdx(item.comment_idx);
-                            setTimeout(function(){
-                              scrollRef.current?.scrollTo({y:layout3.y+10});
-                            }, 100)
-                          }}
-                        >
-                          <Text style={styles.reviewBtnText}>대댓글달기</Text>
-                        </TouchableOpacity>
-                        <View style={styles.reviewBtnLine}></View>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>deleteComment(item.comment_idx)}
-                        >
-                          <Text style={styles.reviewBtnText}>삭제하기</Text>
-                        </TouchableOpacity>
-                        <View style={styles.reviewBtnLine}></View>
-                        <TouchableOpacity
-                          style={styles.reviewBtn}
-                          activeOpacity={opacityVal}
-                          onPress={()=>openReportPop('commComment', item.member_idx, item.comment_idx)}
-                        >
-                          <Text style={styles.reviewBtnText}>신고하기</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </View>
+                    )
+                  })}
                 </View>
 
 							</View>
@@ -593,33 +665,27 @@ const TodayExerciseView = (props) => {
           onPress={()=>{setDotPop(false)}}
         >
         </TouchableOpacity>
-				<View style={styles.dotPop}>          
-          <TouchableOpacity
-            style={styles.dotPopBtn}
-            activeOpacity={opacityVal}
-            onPress={()=>{
-              setDotPop(false);
-              setDeletePop(true);
-            }}
-          >
-            <Text style={styles.dotPopBtnText}>삭제하기</Text>
-          </TouchableOpacity>
-          <View style={styles.dotPopBtnLine}></View>
-          <TouchableOpacity
-            style={styles.dotPopBtn}
-            activeOpacity={opacityVal}
-            onPress={()=>openReportPop('exe', 2, 1)}
-          >
-            <Text style={styles.dotPopBtnText}>신고하기</Text>
-          </TouchableOpacity>    
-          {/* <View style={styles.dotPopBtnLine}></View>
-          <TouchableOpacity
-            style={styles.dotPopBtn}
-            activeOpacity={opacityVal}
-            onPress={()=>{setDotPop(false)}}
-          >
-            <Text style={styles.dotPopBtnText}>취소</Text>
-          </TouchableOpacity> */}
+				<View style={styles.dotPop}>        
+          {contMbIdx == memberIdx ? (
+            <TouchableOpacity
+              style={styles.dotPopBtn}
+              activeOpacity={opacityVal}
+              onPress={()=>{
+                setDotPop(false);
+                setDeletePop(true);
+              }}
+            >
+              <Text style={styles.dotPopBtnText}>삭제하기</Text>
+            </TouchableOpacity>
+          ) : (            
+            <TouchableOpacity
+              style={styles.dotPopBtn}
+              activeOpacity={opacityVal}
+              onPress={()=>openReportPop('exercise', contMbIdx, exe_idx)}
+            >
+              <Text style={styles.dotPopBtnText}>신고하기</Text>
+            </TouchableOpacity> 
+          )}
         </View>
 			</Modal>
 
@@ -635,6 +701,10 @@ const TodayExerciseView = (props) => {
           }}
         >
         </TouchableOpacity>
+        <KeyboardAvoidingView
+					keyboardVerticalOffset={keyboardVerticalOffset}
+					behavior={behavior}
+				>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{...styles.prvPop, top:keyboardHeight}}>
             <TouchableOpacity
@@ -646,10 +716,7 @@ const TodayExerciseView = (props) => {
             <View style={[styles.popTitle]}>
               <Text style={styles.popTitleText}>신고 사유</Text>
             </View>
-            <KeyboardAwareScrollView
-              keyboardVerticalOffset={0}
-              behavior={behavior}
-            >
+            <View>
               <View style={styles.reportRadio}>
                 {reportList.map((item, index) => {
                   return (
@@ -669,7 +736,7 @@ const TodayExerciseView = (props) => {
                   )
                 })}                
               </View>
-              {report == 6 ? (
+              {report == 11 ? (
               <View style={[styles.popIptBox]}>		
                 <TextInput
                   value={reportEtc}
@@ -687,7 +754,7 @@ const TodayExerciseView = (props) => {
                 />
               </View>
               ) : null}
-            </KeyboardAwareScrollView>
+            </View>
             <View style={styles.popBtnBox}>
               <TouchableOpacity 
                 style={[styles.popBtn]}
@@ -699,6 +766,7 @@ const TodayExerciseView = (props) => {
             </View>
           </View>
         </TouchableWithoutFeedback>              
+        </KeyboardAvoidingView>
       </View>
       ) : null}
 
@@ -724,7 +792,7 @@ const TodayExerciseView = (props) => {
 							<Text style={styles.popTitleText}>삭제</Text>							
 						</View>				
 						<View>
-							<Text style={[styles.popTitleDesc, styles.mgt0]}>해당 게시물을 삭제하시겠습니까?</Text>						
+							<Text style={[styles.popTitleDesc, styles.mgt0]}>해당 오운완을 삭제하시겠습니까?</Text>						
 						</View>
 						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
 							<TouchableOpacity 
@@ -856,7 +924,7 @@ const styles = StyleSheet.create({
   reportRadioBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:22,color:'#1e1e1e'},
 
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
-	input2: {width: innerWidth},
+	input2: {width: innerWidth-40},
 
 	boxShadow: {
 		shadowColor: "#000",

@@ -150,7 +150,7 @@ const SocialView = (props) => {
 				setMemberIdx(result);
 			});
 
-      console.log('social_idx :::: ',social_idx);
+      //console.log('social_idx :::: ',social_idx);
       if(memberIdx){
         getSocialDetail();
         getMemberProtain();
@@ -648,7 +648,7 @@ const SocialView = (props) => {
           setLoading2(false);
         }, 200);
       }
-    }    
+    } 
   }
 
   const reportPopClose = () => {
@@ -683,6 +683,7 @@ const SocialView = (props) => {
       return false;
     }
     
+    Keyboard.dismiss();
     setLoading2(true);
     let sData = {
 			basePath: "/api/social/",
@@ -702,7 +703,7 @@ const SocialView = (props) => {
     }
 
 		const response = await APIs.send(sData);
-    //console.log(response);
+    console.log(response);
     if(response.code == 200){
       setCommentCnt(response.data.comment.length);
       setCommentList(response.data.comment);
@@ -1124,7 +1125,7 @@ const SocialView = (props) => {
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
       <KeyboardAvoidingView
-        keyboardVerticalOffset={0}
+        keyboardVerticalOffset={keyboardVerticalOffset+15}
         behavior={behavior}
         style={{flex:1}}
       >
@@ -2185,6 +2186,10 @@ const SocialView = (props) => {
           }}
         >
         </TouchableOpacity>
+        <KeyboardAvoidingView
+          keyboardVerticalOffset={keyboardVerticalOffset}
+          behavior={behavior}
+        >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{...styles.prvPop, top:keyboardHeight}}>
             <TouchableOpacity
@@ -2196,10 +2201,7 @@ const SocialView = (props) => {
             <View style={[styles.popTitle]}>
               <Text style={styles.popTitleText}>신고 사유</Text>
             </View>
-            <KeyboardAwareScrollView
-              keyboardVerticalOffset={0}
-              behavior={behavior}
-            >
+            <View>
               <View style={styles.reportRadio}>
                 {reportList.map((item, index) => {
                   return (
@@ -2237,7 +2239,7 @@ const SocialView = (props) => {
                 />
               </View>
               ) : null}
-            </KeyboardAwareScrollView>
+            </View>
             <View style={styles.popBtnBox}>
               <TouchableOpacity 
                 style={[styles.popBtn]}
@@ -2248,7 +2250,8 @@ const SocialView = (props) => {
               </TouchableOpacity>
             </View>
           </View>
-        </TouchableWithoutFeedback>              
+        </TouchableWithoutFeedback>    
+        </KeyboardAvoidingView>          
       </View>
       ) : null}
       
@@ -2887,7 +2890,7 @@ const styles = StyleSheet.create({
   reqStateContText: {textAlign:'right',fontFamily:Font.NotoSansRegular,fontSize:12,lineHeight:19,color:'#1e1e1e'},
 
   input: { fontFamily: Font.NotoSansRegular, width: innerWidth-40, height: 36, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#DBDBDB', paddingVertical: 0, paddingHorizontal: 5, fontSize: 16, color: '#1e1e1e', },
-	input2: {width: innerWidth},
+	input2: {width: innerWidth-40},
 
   nextFix: {height:112,paddingHorizontal:20,paddingTop:10,backgroundColor:'#fff'},
   nextBtn: { height: 52, backgroundColor: '#243B55', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', },

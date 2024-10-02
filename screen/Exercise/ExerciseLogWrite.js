@@ -427,6 +427,7 @@ const ExerciseLogWrite = (props) => {
 					<TouchableOpacity 
 						style={styles.popBack} 
 						activeOpacity={1} 						
+            onPress={() => setCalendarPop(false)}
 					>
 					</TouchableOpacity>
 					<View style={styles.prvPop}>
@@ -495,6 +496,7 @@ const ExerciseLogWrite = (props) => {
 					<TouchableOpacity 
 						style={styles.popBack} 
 						activeOpacity={1} 						
+            onPress={() => setTimePop(false)}
 					>
 					</TouchableOpacity>
 					<View style={styles.prvPop}>
@@ -580,7 +582,8 @@ const ExerciseLogWrite = (props) => {
 				<View style={styles.cmPop}>
 					<TouchableOpacity 
 						style={styles.popBack} 
-						activeOpacity={1} 						
+						activeOpacity={1} 
+            onPress={() => setTimerPop(false)}					
 					>
 					</TouchableOpacity>
 					<View style={styles.prvPop}>
@@ -681,7 +684,7 @@ const styles = StyleSheet.create({
   startTimeBar: {alignItems:'center',justifyContent:'center',width:20,},
   startTimeBarText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#1e1e1e'},
   timeprInputView: {flexDirection:'row',alignItems:'center',justifyContent:'center'},
-  timeprInput: {width:100,textAlign:'center'},
+  timeprInput: {width:200,textAlign:'center'},
   inputUnit: {width:30,alignItems:'flex-end'},
   inputUnitText: {fontFamily:Font.NotoSansRegular,fontSize:14,color:'#1e1e1e'},
   timerAlert: {marginTop:10,},

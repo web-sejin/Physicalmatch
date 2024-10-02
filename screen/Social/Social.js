@@ -662,14 +662,14 @@ const Social = (props) => {
 						{tabState == 0 ? (<View style={styles.activeLine}></View>) : null}
 					</TouchableOpacity>
 
-					<TouchableOpacity
+					{/* <TouchableOpacity
 						style={styles.headerTab}
 						activeOpacity={opacityVal}
 						onPress={() => {setTabState(1)}}
 					>
 						<Text style={[styles.headerTabText, tabState == 1 ? styles.headerTabTextOn : null]}>미팅</Text>
 						{tabState == 1 ? (<View style={styles.activeLine}></View>) : null}
-					</TouchableOpacity>
+					</TouchableOpacity> */}
 
 					<TouchableOpacity
 						style={styles.headerTab}
@@ -1150,7 +1150,7 @@ const styles = StyleSheet.create({
 	headerLnb: {flexDirection:'row',alignItems:'center',paddingRight:15,},
 	headerLnbBtn: {marginLeft:6,paddingHorizontal:5,},
 	headerBot: {flexDirection:'row',},
-	headerTab: {width:widnowWidth/4,height:60,alignItems:'center',justifyContent:'center',position:'relative',paddingTop:10,},
+	headerTab: {width:widnowWidth/3,height:60,alignItems:'center',justifyContent:'center',position:'relative',paddingTop:10,},
 	headerTabText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:17,color:'#fff'},
 	headerTabTextOn: {fontFamily:Font.NotoSansBold,color:'#FFD194'},
 	activeLine: {width:widnowWidth/4,height:4,backgroundColor:'#FFD194',position:'absolute',left:0,bottom:0,zIndex:10,},

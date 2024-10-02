@@ -157,7 +157,7 @@ const Login = (props) => {
 			firebase_token: firebaseToken,
 			member_pbook: contacts,
 		}
-		console.log('login sData :::: ',sData);
+		//console.log('login sData :::: ',sData);
 		const response = await APIs.send(sData);				
 		//console.log(response);
 		if(response.code == 200){

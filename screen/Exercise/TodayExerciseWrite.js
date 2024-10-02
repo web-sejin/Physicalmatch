@@ -106,7 +106,7 @@ const TodayExerciseWrite = (props) => {
     ImagePicker.openPicker({
       width: 992,
       height: 992,
-      //cropping: true,
+      cropping: true,
     })
 		.then(image => {      
 			let selectObj = {path: image.path, mime: image.mime}			
@@ -125,20 +125,20 @@ const TodayExerciseWrite = (props) => {
     }
 
     Keyboard.dismiss();
-    //setLoading(true);
+    setLoading(true);
 
     let sData = {
-			basePath: "/api/community/",
-			type: "SetCommunity",
+			basePath: "/api/exercise/",
+			type: "setTodayExe",
       member_idx: memberIdx,            
-      comm_content: content,
+      exe_content: content,
 		};
     
     let submitState = false;
     let fileData = [];
     if(phoneImage.path != undefined){
-      fileData[0] = {uri: phoneImage.path, name: 'community_image.png', type: phoneImage.mime};
-      sData.comm_files = fileData;
+      fileData[0] = {uri: phoneImage.path, name: 'today_exercise.png', type: phoneImage.mime};
+      sData.exe_file = fileData;
 
       const formData = APIs.makeFormData(sData)
       const response = await APIs.multipartRequest(formData);
