@@ -69,6 +69,7 @@ const TodayExercise = (props) => {
 	const [pausedElapsedTime, setPausedElapsedTime] = useState(0);
 	const [pickDate, setPickDate] = useState('');
 	const [viewDAte, setViewDate] = useState(new Date());
+	const [exenIdx, setExenIdx] = useState(null);
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -147,7 +148,11 @@ const TodayExercise = (props) => {
 			setLoading(true);
 			getMemInfo();
 			setNowPage(1);
-			getExerList(1);			
+			getExerList(1);
+
+			if(tabState == 2 && !timerRunning){
+				getTodayExerciseLog();
+			}
 		}
 	}, [memberIdx, tabState]);
 
@@ -253,7 +258,29 @@ const TodayExercise = (props) => {
 		}
 	}
 
-	const MAX_TIME = 36000; // 최대 시간 10시간 (36000초)
+	const getTodayExerciseLog = async () => {		
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "GetTodayExerciseLog",
+			member_idx: memberIdx,
+		};		
+		const response = await APIs.send(sData);		
+		if(response.type == 'run'){
+			const now = new Date(response.default_time);
+			console.log('now ::: ',now);
+			setStartTime(now);
+			AsyncStorage.setItem('startTime', now.toString());
+			if(pausedElapsedTime == 0){
+				setElapsedTime(0);
+			}
+			setTimerRunning(true);
+			setIsPaused(false);
+			setPausedElapsedTime(0);
+			setExenIdx(response.data.exen_idx);
+		}
+	}
+
+	const MAX_TIME = 36000; // 최대 시간 10시간 (36,000초)
 
 	useEffect(() => {
     PushNotification.createChannel({
@@ -324,15 +351,38 @@ const TodayExercise = (props) => {
   };
 
   const handleStart = async () => {
-    const now = new Date();
-    setStartTime(now);
-    await AsyncStorage.setItem('startTime', now.toString());
-		if(pausedElapsedTime == 0){
-    	setElapsedTime(0);
-		}
-    setTimerRunning(true);
-		setIsPaused(false);
-		setPausedElapsedTime(0);
+    const now = new Date();						
+    const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+    const formattedTime = koreaTime.toISOString().replace('T', ' ').slice(0, 19);		
+		const spltTime = formattedTime.split(' ');
+		const spltTime2 = spltTime[1].split(':');
+
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "StartTodayExercise",
+			member_idx: memberIdx,
+			exenIdx: exenIdx,
+			exen_start_date: spltTime[0],
+			exen_start_hour: spltTime2[0],
+			exen_start_minute: spltTime2[1],
+			exen_start_sec: spltTime2[2],
+			exen_exercise_name: todayExe,
+			exen_exercise_etc: todayEtc,
+		};		
+		console.log(sData);
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setStartTime(now);
+			AsyncStorage.setItem('startTime', now.toString());
+			if(pausedElapsedTime == 0){
+				setElapsedTime(0);
+			}
+			setTimerRunning(true);
+			setIsPaused(false);
+			setPausedElapsedTime(0);
+			setExenIdx(response.data.exen_idx);
+		}    
   };
 
   const handleStop = async () => {
@@ -342,13 +392,26 @@ const TodayExercise = (props) => {
 		setIsPaused(false);
 		setTodayExe(null);
 		setTodayEtc('');
+		setExenIdx(null);
     await AsyncStorage.removeItem('startTime');
     PushNotification.cancelAllLocalNotifications(); // 타이머가 종료되면 알림 취소
     BackgroundTimer.stopBackgroundTimer(); // 백그라운드 타이머 종료		
   };
 
-	const handleFinish = () => {
+	const handleFinish = async () => {
     // 일시 정지 상태로 전환하고 다이얼로그 표시
+		const floor = Math.floor(parseInt(elapsedTime));
+
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "StopTodayExercise",
+			member_idx: memberIdx,
+			exen_idx: exenIdx,
+			exen_running_time: floor,
+		};
+		const response = await APIs.send(sData);
+		console.log(response);
+
 		setEndPop(true);
     setTimerRunning(false);
     setIsPaused(true);
@@ -441,6 +504,35 @@ const TodayExercise = (props) => {
       scrollViewRef.current?.scrollTo({ y, animated: true });
     });
   };
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//운동 목록 리스트 불러오는 작업부터!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
@@ -1014,6 +1106,9 @@ const styles = StyleSheet.create({
 	exePlanLeftText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
 	exePlanRight: {flexDirection:'row',justifyContent:'flex-end',width:50,},
 	exePlanRightText: {textAlign:'right',fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:20,color:'#888888'},
+
+	notData: {paddingTop:50},
+	notDataText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:13,color:'#666'},
 
 	modalBox: {paddingBottom:20,paddingHorizontal:20,backgroundColor:'#fff',},
 	cmPop: {position:'absolute',left:0,top:0,width:widnowWidth,height:widnowHeight,alignItems:'center',justifyContent:'center',backgroundColor:'rgba(0,0,0,0.7)',},
