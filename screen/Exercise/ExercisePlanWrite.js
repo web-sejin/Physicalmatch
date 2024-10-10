@@ -34,15 +34,6 @@ LocaleConfig.locales['fr'] = {
 };
 LocaleConfig.defaultLocale = 'fr';
 
-const exe_ary = [
-	{exe_idx:1, exe_name:'헬스'},
-	{exe_idx:2, exe_name:'필라테스'},
-	{exe_idx:3, exe_name:'요가'},
-	{exe_idx:4, exe_name:'테니스'},
-	{exe_idx:5, exe_name:'골프'},
-	{exe_idx:99, exe_name:'직접입력'}
-]
-
 const alim_ary = [
   {alim_idx:0, alim_desc:'알림 없음'},
   {alim_idx:1, alim_desc:'정시'},
@@ -56,13 +47,13 @@ const ExercisePlanWrite = (props) => {
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
 	const {params} = route	
-  const ex_idx = params ? params['ex_idx'] : null;
+  const exen_idx = params ? params['exen_idx'] : null;
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
   const [loading, setLoading] = useState(false);
   const [memberIdx, setMemberIdx] = useState();
-  const [exeList, setExeList] = useState(exe_ary);
+  const [exeList, setExeList] = useState([]);
 
   const [content, setContent] = useState('');   
   const [todayExe, setTodayExe] = useState(null);
@@ -71,7 +62,7 @@ const ExercisePlanWrite = (props) => {
   const [logYoil, setLogYoil] = useState('');
   const [logHour, setLogHour] = useState('');
   const [logMin, setLogMin] = useState('');
-  const [radio, setRadio] = useState(0);
+  const [radio, setRadio] = useState(8);
   const [alimIdx, setAlimIdx] = useState(0);
   const [alimDesc, setAlimDesc] = useState('알림 없음');
   const [alimDirectHour, setAlimDirectHour] = useState('');
@@ -157,64 +148,164 @@ const ExercisePlanWrite = (props) => {
   //   }
   // }, [phoneImage]);
   useEffect(() => {
-    if(memberIdx && ex_idx){
-      setLogDate('2024-09-22');
-      setLogYoil('일');
-      setLogHour('11');      
-      setLogMin('32');
-      setRadio(1);
-      setAlimIdx(1);
-      setAlimDesc('정시');
-    }else{
+    getExeSelect();
+    if(!exen_idx){          
       const tempDate = new Date();
       setLogHour(tempDate.getHours());
       setLogMin(tempDate.getMinutes());
     }
-  }, [memberIdx])
+  }, [memberIdx]);
+
+  const getExeSelect = async () => {
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "GetExeSelect",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setExeList(response.data);
+      if(exen_idx){
+        getExeDetail();
+      }      
+		}
+	}
+
+  const getExeDetail = async () => {
+    let sData = {
+			basePath: "/api/exercise/",
+			type: "GetPlanDetail",
+			exen_idx: exen_idx,
+      member_idx: memberIdx
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+      const logDateObj = new Date(response.data.exen_start_date);
+      const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+      const dayOfWeek = daysOfWeek[logDateObj.getDay()];
+
+			setLogDate(response.data.exen_start_date);      
+      setLogYoil(dayOfWeek);      
+      setLogHour(response.data.exen_start_hour);      
+      setLogMin(response.data.exen_start_minute);            
+      setContent(response.data.exen_content);
+      setTodayExe(response.data.exen_exercise_name);
+      if(response.data.exen_exercise_name == '직접입력'){
+        setTodayEtc(response.data.exen_exercise_etc);
+      }      
+      setAlimIdx(response.data.exen_alim);
+      if(response.data.exen_alim == 5){
+        setAlimDirectHour(response.data.exen_alim_hour);
+        setAlimDirectMin(response.data.exen_alim_minute); 
+      }
+      if(response.data.exen_repeat >= 7){
+        setRadio(response.data.exen_repeat);
+      }else{
+        setRadio(0);
+      }
+			setLoading(false);
+		}
+  }
 
   const exePlanUpdate = async () => {
+    if(logDate == ''){
+      ToastMessage('운동 시작 날짜를 선택해 주세요.');
+      return false;
+    }
+
+    if(logHour == ''){
+      ToastMessage('운동 시작 시간을 선택해 주세요.');
+      return false;
+    }
+    
     if(!todayExe){			
 			ToastMessage('운동 종목을 선택해 주세요.');
 			return false;
 		}
 
-		if(todayExe == 99 && todayEtc == ''){
+		if(todayExe == '직접입력' && todayEtc == ''){
 			ToastMessage('운동 종목을 입력해 주세요.');
 			return false;
 		}
 
     Keyboard.dismiss();
-    //setLoading(true);
+    setLoading(true);
 
-    return false;
+    let apiType = 'SetPlan';
+    if(exen_idx){
+      apiType = 'UpdatePlan';
+    }
+
+    let repeat = radio;
+    if(radio == 0){
+      if(logYoil == '일'){
+        repeat = 0;
+      }else if(logYoil == '월'){
+        repeat = 1;
+      }else if(logYoil == '화'){
+        repeat = 2;
+      }else if(logYoil == '수'){
+        repeat = 3;
+      }else if(logYoil == '목'){
+        repeat = 4;
+      }else if(logYoil == '금'){
+        repeat = 5;
+      }else if(logYoil == '토'){
+        repeat = 6;
+      }
+    }
 
     let sData = {
-			basePath: "/api/community/",
-			type: "SetCommunity",
-      member_idx: memberIdx,            
-      comm_content: content,
+			basePath: "/api/exercise/",
+			type: apiType,
+      member_idx: memberIdx,
+      exen_start_date: logDate,
+      exen_start_hour: String(logHour).padStart(2, '0'),
+      exen_start_minute: String(logMin).padStart(2, '0'),      
+      exen_exercise_name: todayExe,
+      exen_exercise_etc: todayEtc,
+      exen_repeat: repeat,
+      exen_alim: alimIdx,
+      exen_alim_hour: alimDirectHour,
+      exen_alim_minute: alimDirectMin,
+      exen_content: content,
+      exen_idx: exen_idx,
 		};
+
+    if(exen_idx){
+      sData.exen_idx = exen_idx;
+    }
     
     let submitState = false;
     const response = await APIs.send(sData);    
-    //console.log('222 ', response);
+    //console.log(response);
     if(response.code == 200){
       submitState = true;
     }
-
       
     if(submitState){      
-      ToastMessage('오운완이 작성되었습니다.');
+      if(exen_idx){
+        ToastMessage('운동계획이 수정되었습니다.');
+      }else{
+        ToastMessage('운동계획이 작성되었습니다.');
+      }      
       setPreventBack(false);
       setTimeout(function(){
-        setLoading(false);
-        navigation.navigate('TabNavigation', {screen:'TodayExercise', params : {reload:true, writeType:1}});
+        setLoading(false);        
+        navigation.navigate('TodayExercise', {reload:true, tab:3});
       }, 200)
+    }else{
+      ToastMessage('잠시후 다시 이용해 주세요.');
+      setLoading(false);
     }
   }
 
   const handleSelect = (v) => {
-		if(v != 99){
+		if(v != '직접입력'){
 			setTodayEtc('');
 		}
 		setTodayExe(v);
@@ -314,7 +405,7 @@ const ExercisePlanWrite = (props) => {
                     }}
                     items={exeList.map(item => ({
                       label: item.exe_name,
-                      value: item.exe_idx,
+                      value: item.exe_name,
                       }))}
                     fixAndroidTouchableBug={true}
                     useNativeAndroidPickerStyle={false}
@@ -331,7 +422,7 @@ const ExercisePlanWrite = (props) => {
                     <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
                   </View>
                 </View>
-                {todayExe == 99 ? (
+                {todayExe == '직접입력' ? (
                 <View style={styles.inputView}>								
                   <TextInput
                     value={todayEtc}
@@ -353,9 +444,9 @@ const ExercisePlanWrite = (props) => {
                     <TouchableOpacity
                       style={styles.planWriteRadioBtn}
                       activeOpacity={opacityVal}
-                      onPress={()=>setRadio(0)}                                         
+                      onPress={()=>setRadio(8)}                                         
                     >
-                      {radio == 0 ? (
+                      {radio == 8 ? (
                         <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
                       ) : (
                         <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -365,9 +456,9 @@ const ExercisePlanWrite = (props) => {
                     <TouchableOpacity
                       style={styles.planWriteRadioBtn}
                       activeOpacity={opacityVal}
-                      onPress={()=>setRadio(1)}                                         
+                      onPress={()=>setRadio(7)}                                         
                     >
-                      {radio == 1 ? (
+                      {radio == 7 ? (
                         <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
                       ) : (
                         <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -377,9 +468,9 @@ const ExercisePlanWrite = (props) => {
                     <TouchableOpacity
                       style={styles.planWriteRadioBtn}
                       activeOpacity={opacityVal}
-                      onPress={()=>setRadio(2)}                                         
+                      onPress={()=>setRadio(0)}                                         
                     >
-                      {radio == 2 ? (
+                      {radio == 0 ? (
                         <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
                       ) : (
                         <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -441,7 +532,11 @@ const ExercisePlanWrite = (props) => {
               exePlanUpdate();
             }}
           >
-            <Text style={styles.nextBtnText}>추가</Text>
+            {exen_idx ? (
+              <Text style={styles.nextBtnText}>수정</Text>
+            ): (
+              <Text style={styles.nextBtnText}>추가</Text>
+            )}            
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

@@ -39,9 +39,9 @@ const Intro = (props) => {
 				authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
 				authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-				console.log('Authorization status1:', authStatus);
+				//console.log('Authorization status1:', authStatus);
 			if (enabled) {
-				console.log('Authorization status2:', authStatus);
+				//console.log('Authorization status2:', authStatus);
 				await get_token();
 			}else{
 				//setAppToken('');

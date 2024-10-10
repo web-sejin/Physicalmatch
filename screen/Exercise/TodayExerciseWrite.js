@@ -142,13 +142,13 @@ const TodayExerciseWrite = (props) => {
 
       const formData = APIs.makeFormData(sData)
       const response = await APIs.multipartRequest(formData);
-      //console.log('111 ', response);
+      console.log('111 ', response);
       if(response.code == 200){
         submitState = true;
       }
     }else{
       const response = await APIs.send(sData);    
-      //console.log('222 ', response);
+      console.log('222 ', response);
       if(response.code == 200){
         submitState = true;
       }

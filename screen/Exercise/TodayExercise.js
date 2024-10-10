@@ -20,6 +20,7 @@ import ImgDomain2 from '../../components/ImgDomain2';
 
 import {connect} from 'react-redux';
 import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
+import { setDate } from 'date-fns';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const widnowWidth = Dimensions.get('window').width;
@@ -59,7 +60,7 @@ const TodayExercise = (props) => {
 	const [alertMsg, setAlertMsg] = useState('');
 	const [startPop, setStartPop] = useState(false);
 	const [endPop, setEndPop] = useState(false);
-	const [exeList, setExeList] = useState(exe_ary);
+	const [exeList, setExeList] = useState([]);
 	const [todayExe, setTodayExe] = useState(null);
 	const [todayEtc, setTodayEtc] = useState('');
 	const [startTime, setStartTime] = useState(null);  // 시작 시간
@@ -70,6 +71,8 @@ const TodayExercise = (props) => {
 	const [pickDate, setPickDate] = useState('');
 	const [viewDAte, setViewDate] = useState(new Date());
 	const [exenIdx, setExenIdx] = useState(null);
+	const [markedDates, setMarkedDates] = useState({});
+	const [dateList, setDateList] = useState([]);
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -99,8 +102,16 @@ const TodayExercise = (props) => {
 
       if(params?.reload){								
 				getMemInfo();
-				getExerList(1);
-				setNowPage(1);
+				if(params?.tab == 3){					
+					setTabState(3);					
+					if(tabState == 3){						
+						getCalendarList();
+					}							
+					delete params?.tab;
+				}else{
+					getExerList(1);
+					setNowPage(1);
+				}
         delete params?.reload;
       }
 		}
@@ -147,11 +158,14 @@ const TodayExercise = (props) => {
 		if (memberIdx && tabState !== undefined) {			
 			setLoading(true);
 			getMemInfo();
-			setNowPage(1);
-			getExerList(1);
-
-			if(tabState == 2 && !timerRunning){
-				getTodayExerciseLog();
+			if(tabState == 1){
+				setNowPage(1);
+				getExerList(1);
+			}else if(tabState == 2){
+				getExeSelect();
+				if(!timerRunning){ getTodayExerciseLog(); }
+			}else if(tabState == 3){
+				getCalendarList();
 			}
 		}
 	}, [memberIdx, tabState]);
@@ -265,9 +279,12 @@ const TodayExercise = (props) => {
 			member_idx: memberIdx,
 		};		
 		const response = await APIs.send(sData);		
+		//console.log(response);
 		if(response.type == 'run'){
+			const responseTime = new Date();
 			const now = new Date(response.default_time);
-			console.log('now ::: ',now);
+			const timeDiff = responseTime - now;	
+			//console.log('now ::: ',response.default_time);
 			setStartTime(now);
 			AsyncStorage.setItem('startTime', now.toString());
 			if(pausedElapsedTime == 0){
@@ -277,6 +294,11 @@ const TodayExercise = (props) => {
 			setIsPaused(false);
 			setPausedElapsedTime(0);
 			setExenIdx(response.data.exen_idx);
+			setTodayExe(response.data.exen_exercise_name);
+			if(response.data.exen_exercise_name == '직접입력'){
+				setTodayEtc(response.data.exen_exercise_etc);				
+			}
+			
 		}
 	}
 
@@ -355,13 +377,12 @@ const TodayExercise = (props) => {
     const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000));
     const formattedTime = koreaTime.toISOString().replace('T', ' ').slice(0, 19);		
 		const spltTime = formattedTime.split(' ');
-		const spltTime2 = spltTime[1].split(':');
+		const spltTime2 = spltTime[1].split(':');		
 
 		let sData = {
 			basePath: "/api/exercise/",
 			type: "StartTodayExercise",
 			member_idx: memberIdx,
-			exenIdx: exenIdx,
 			exen_start_date: spltTime[0],
 			exen_start_hour: spltTime2[0],
 			exen_start_minute: spltTime2[1],
@@ -369,7 +390,10 @@ const TodayExercise = (props) => {
 			exen_exercise_name: todayExe,
 			exen_exercise_etc: todayEtc,
 		};		
-		console.log(sData);
+		if(exenIdx){			
+			sData.exen_idx = exenIdx;
+		}
+		//console.log(sData);
 		const response = await APIs.send(sData);
 		//console.log(response);
 		if(response.code == 200){
@@ -386,36 +410,47 @@ const TodayExercise = (props) => {
   };
 
   const handleStop = async () => {
-    setTimerRunning(false);
-    setElapsedTime(0);
-		setPausedElapsedTime(0);
-		setIsPaused(false);
-		setTodayExe(null);
-		setTodayEtc('');
-		setExenIdx(null);
-    await AsyncStorage.removeItem('startTime');
-    PushNotification.cancelAllLocalNotifications(); // 타이머가 종료되면 알림 취소
-    BackgroundTimer.stopBackgroundTimer(); // 백그라운드 타이머 종료		
+		const floor = Math.floor(parseInt(elapsedTime));
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "EndTodayExercise",
+			member_idx: memberIdx,			
+			exen_idx: exenIdx,
+			exen_work_time: floor,
+		};
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setTimerRunning(false);
+			setElapsedTime(0);
+			setPausedElapsedTime(0);
+			setIsPaused(false);
+			setTodayExe(null);
+			setTodayEtc('');
+			setExenIdx(null);
+			await AsyncStorage.removeItem('startTime');
+			PushNotification.cancelAllLocalNotifications(); // 타이머가 종료되면 알림 취소
+			BackgroundTimer.stopBackgroundTimer(); // 백그라운드 타이머 종료		
+		}    
   };
 
 	const handleFinish = async () => {
     // 일시 정지 상태로 전환하고 다이얼로그 표시
 		const floor = Math.floor(parseInt(elapsedTime));
-
 		let sData = {
 			basePath: "/api/exercise/",
 			type: "StopTodayExercise",
-			member_idx: memberIdx,
-			exen_idx: exenIdx,
-			exen_running_time: floor,
+			member_idx: memberIdx,			
+			exen_idx: exenIdx,		
+			exen_running_time: floor,	
 		};
-		const response = await APIs.send(sData);
-		console.log(response);
-
-		setEndPop(true);
-    setTimerRunning(false);
-    setIsPaused(true);
-		setPausedElapsedTime(elapsedTime);
+		const response = await APIs.send(sData);		
+		if(response.code == 200){
+			setEndPop(true);
+			setTimerRunning(false);
+			setIsPaused(true);
+			setPausedElapsedTime(elapsedTime);
+		}		
   };
 
 	const handleDialogConfirm = () => {    
@@ -447,7 +482,7 @@ const TodayExercise = (props) => {
 	}
 
 	const handleSelect = (v) => {
-		if(v != 99){
+		if(v != '직접입력'){
 			setTodayEtc('');
 		}
 		setTodayExe(v);
@@ -460,7 +495,7 @@ const TodayExercise = (props) => {
 			return false;
 		}
 
-		if(todayExe == 99 && todayEtc == ''){
+		if(todayExe == '직접입력' && todayEtc == ''){
 			setAlertMsg('운동 종목을 입력해 주세요.');
 			setAlertPop(true);
 			return false;
@@ -469,70 +504,90 @@ const TodayExercise = (props) => {
 		setStartPop(true);
 	}	
 
-  const markedDates = {
-    // '2024-09-03': { marked: true, dotColor: '#243B55' },
-    // '2024-09-05': { marked: true, dotColor: '#243B55' },
-    // '2024-09-09': { marked: true, dotColor: '#D1913C' },
-    // '2024-09-12': { marked: true, dotColor: '#243B55' },
-    // '2024-09-16': { marked: true, dotColor: '#D1913C' },
-    // '2024-09-19': { marked: true, dotColor: '#D1913C' },
-		// '2024-10-19': { marked: true, dotColor: '#D1913C' },
-		'2024-09-03': { dots: [{ color: '#243B55' }, { color: '#D1913C' }] },
-		'2024-09-05': { dots: [{ color: '#243B55' }] },
-		'2024-09-09': { dots: [{ color: '#D1913C' }] },
-		'2024-09-12': { dots: [{ color: '#243B55' }] },
-		'2024-09-16': { dots: [{ color: '#D1913C' }] },
-		'2024-09-19': { dots: [{ color: '#D1913C' }] },
-		'2024-10-19': { dots: [{ color: '#D1913C' }] },
+	const getExeSelect = async () => {
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "GetExeSelect",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setExeList(response.data);
+			setLoading(false);
+		}
+	}
+
+	const onDayPress = async (day) => {
+		const newPickDate = day.dateString;		
+
+		const updatedMarkedDates = {...markedDates};
+		Object.keys(updatedMarkedDates).forEach(date => {
+			if (updatedMarkedDates[date].selected) {
+				delete updatedMarkedDates[date].selected;
+				delete updatedMarkedDates[date].selectedColor;
+			}
+		});
+
+		updatedMarkedDates[newPickDate] = {
+			...updatedMarkedDates[newPickDate],
+			selected: true,
+			selectedColor: '#F7B863'
+		};
+		
+		setMarkedDates(updatedMarkedDates);
+		setPickDate(newPickDate);
+
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "GetDateList",
+			member_idx: memberIdx,
+			exen_start_date: newPickDate,
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){			
+			setDateList(response.data);			
+		}else{
+			setDateList([]);
+		}
+
+		exePlanListRef.current?.measureLayout(scrollViewRef.current, (x, y) => {
+			scrollViewRef.current?.scrollTo({ y, animated: true });
+		});
   };
 
-	const selectedDate = {
-		selected: true,
-		dotColor: markedDates[pickDate]?.dots, // 기존 dotColor가 있으면 사용, 없으면 red
-		selectedColor: '#F7B863', // 원하는 배경색
-	};
+	const getCalendarList = async (date) => {			
+		setDateList([]);
 
-	// pickDate를 markedDates에 추가
-	markedDates[pickDate] = {
-		...markedDates[pickDate], // 기존의 markedDates 정보를 유지
-		...selectedDate,          // selectedDate의 새로운 정보 추가
-	};
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "GetCalendarList",
+			member_idx: memberIdx,
+		};
+		if(date){
+			const pick_date = date.substring(0,7);		
+			sData.pick_date = pick_date;
+		}
 
-	const onDayPress = (day) => {
-    setPickDate(day.dateString);
-    exePlanListRef.current?.measureLayout(scrollViewRef.current, (x, y) => {
-      scrollViewRef.current?.scrollTo({ y, animated: true });
-    });
-  };
+		const response = await APIs.send(sData);		
+		//console.log(response);
+		if(response.code == 200){
+			const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+  		setMarkedDates(data);
 
+			if(params?.calDate){				
+				onDayPress(params?.calDate);
+				delete params?.calDate;				
+			}
+		}
 
-
-
-
-
-
-
-
-
-
-
-
-	//운동 목록 리스트 불러오는 작업부터!!!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		setTimeout(function(){
+			setLoading(false);
+		}, 300);
+	}
 
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
@@ -637,7 +692,7 @@ const TodayExercise = (props) => {
 								}}
 								items={exeList.map(item => ({
 									label: item.exe_name,
-									value: item.exe_idx,
+									value: item.exe_name,
 									}))}
 								fixAndroidTouchableBug={true}
 								useNativeAndroidPickerStyle={false}
@@ -655,7 +710,7 @@ const TodayExercise = (props) => {
 								<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
 							</View>
 						</View>
-						{todayExe == 99 ? (
+						{todayExe == '직접입력' ? (
 						<View style={styles.inputView}>								
 							<TextInput
 								value={todayEtc}
@@ -666,13 +721,13 @@ const TodayExercise = (props) => {
 								placeholderTextColor="#DBDBDB"
 								style={[styles.input]}								
 								returnKyeType='done'
-								editable={timerRunning ? false : false}
+								editable={timerRunning ? false : true}
 							/>
 						</View>
 						) : null}
 
 						
-						<View style={[styles.timerView, todayExe == 99 ? styles.timerView2 : null]}>
+						<View style={[styles.timerView, todayExe == '직접입력' ? styles.timerView2 : null]}>
 							<Text style={[styles.timerViewText, timerRunning ? styles.timerViewText2 : null]}>{formatTime(elapsedTime)}</Text>
 						</View>		
 						<View style={styles.timerBtnView}>
@@ -741,6 +796,7 @@ const TodayExercise = (props) => {
 								const firstDayOfWeek = monthStart.getDay(); // 첫날의 요일
 								const offset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // 주의 시작이 월요일일 경우 조정
 								const daysFromStartOfMonth = (newDate.getDate() + firstDayOfWeek); // 해당 날짜까지의 일수
+								const isCurrentMonth = newDate.getMonth() === viewDAte.getMonth();
 
 								let weekNumber = 0;
 								
@@ -755,10 +811,24 @@ const TodayExercise = (props) => {
 								return (
 									<>
 										{weekNumber == 1 ? (<View style={styles.dayLine}></View>) : null}
-										<TouchableOpacity style={[styles.dayContainer]} activeOpacity={opacityVal} onPress={() => onDayPress(date)}>										
-											<View style={[styles.day, state === 'disabled' && styles.disabledDay, marking?.selectedColor ? {backgroundColor:marking?.selectedColor} : null]}>
+										<TouchableOpacity 
+											style={[styles.dayContainer]} 
+											activeOpacity={opacityVal} 
+											onPress={() => isCurrentMonth ? onDayPress(date) : null}
+											disabled={!isCurrentMonth}
+										>										
+											<View 
+												style={[
+													styles.day, 
+													!isCurrentMonth && styles.disabledDay,
+													marking?.selectedColor ? {backgroundColor:marking?.selectedColor} : null													          
+											]}>
 												<View style={styles.dateTextContainer}>
-													<Text style={[styles.dateText, state === 'disabled' && styles.disabledText, marking?.selectedColor ? {color:'#fff'} : null]}>
+													<Text style={[
+														styles.dateText, 
+														!isCurrentMonth && styles.disabledText,
+														marking?.selectedColor ? {color: '#fff'} : null
+													]}>
 														{date.day}
 													</Text>
 												</View>
@@ -777,7 +847,11 @@ const TodayExercise = (props) => {
 							onDayPress={onDayPress} // 날짜 클릭 시 그 날짜 출력                    
 							hideExtraDays={false} // 이전 달, 다음 달 날짜 숨기기                    
 							monthFormat={'yyyy년 M월'} // 달 포맷 지정   
+							minDate={new Date(viewDAte.getFullYear(), viewDAte.getMonth(), 1).toISOString().split('T')[0]}
+  						maxDate={new Date(viewDAte.getFullYear(), viewDAte.getMonth() + 1, 0).toISOString().split('T')[0]}
 							onMonthChange={(month) => {											
+								//console.log(month);
+								getCalendarList(month.dateString);
 								setViewDate(new Date(month.dateString.toString()));
 							}} // 달이 바뀔 때 바뀐 달 출력                 														
 							// 달 이동 화살표 구현 왼쪽이면 왼쪽 화살표 이미지, 아니면 오른쪽 화살표 이미지
@@ -810,7 +884,76 @@ const TodayExercise = (props) => {
 					<View style={[styles.commonLine]}></View>
 					<View style={[styles.cmWrap]}>
 						<View style={styles.exePlanList} ref={exePlanListRef}>
-							<TouchableOpacity
+							{dateList.map((item,index)=> {								
+								const seconds = item.exen_work_time;
+								const minutes = Math.floor(seconds / 60);
+  							const remainingSeconds = seconds % 60;
+								let runningString = '';
+								if(minutes > 0){
+									runningString += minutes+'분';
+									if(remainingSeconds > 0){
+										runningString += ' '+remainingSeconds+'초';
+									}
+								}else{
+									runningString += remainingSeconds+'초';
+								}
+								
+								let sportsName = item.exen_exercise_name;
+								if(item.exen_exercise_name == '직접입력'){
+									sportsName = item.exen_exercise_etc;
+								}
+								
+								if(item.exen_type == 0){
+									return (
+										<TouchableOpacity
+											key={index}
+											style={styles.exePlanBtn}
+											activeOpacity={opacityVal}
+											onPress={()=>{									
+												navigation.navigate('ExerciseLogView', {exen_idx:item.exen_idx});
+											}}
+										>
+											<View style={styles.exePlanLeft}>
+												<View style={[styles.exePlanLeftCir, item.exen_type == 1 ? styles.exePlanLeftCir2 : null]}></View>
+												<View style={styles.exePlanLeftCont}>
+													<Text style={styles.exePlanLeftText}>{sportsName}</Text>
+												</View>
+											</View>
+											<View style={styles.exePlanRight}>
+												<Text style={styles.exePlanRightText}>{runningString}</Text>
+											</View>
+										</TouchableOpacity>
+									)
+								}else if(item.exen_type == 1){
+									return (
+										<TouchableOpacity
+											style={styles.exePlanBtn}
+											activeOpacity={opacityVal}
+											onPress={()=>{									
+												navigation.navigate('ExercisePlanView', {exen_idx:item.exen_idx});
+											}}
+										>
+											<View style={styles.exePlanLeft}>
+												<View style={[styles.exePlanLeftCir, styles.exePlanLeftCir2]}></View>
+												<View style={styles.exePlanLeftCont}>
+													<Text style={styles.exePlanLeftText}>{sportsName}</Text>
+												</View>
+											</View>
+											<View style={styles.exePlanRight}>
+												<Text style={styles.exePlanRightText}>{item.exen_start_hour} : {item.exen_start_minute}</Text>
+											</View>
+										</TouchableOpacity>
+									)
+								}
+							})}
+
+							{dateList.length > 0 ? null : (
+								<View style={styles.notData}>
+									<Text style={styles.notDataText}>등록된 운동이 없습니다.</Text>
+								</View>
+							)}
+
+							{/* <TouchableOpacity
 								style={styles.exePlanBtn}
 								activeOpacity={opacityVal}
 								onPress={()=>{									
@@ -862,7 +1005,7 @@ const TodayExercise = (props) => {
 								<View style={styles.exePlanRight}>
 									<Text style={styles.exePlanRightText}>계획</Text>
 								</View>
-							</TouchableOpacity>
+							</TouchableOpacity> */}
 						</View>
 					</View>
 				</ScrollView>
@@ -1086,10 +1229,10 @@ const styles = StyleSheet.create({
   day: {width:24,height:24,alignItems:'center',justifyContent:'center',borderRadius:50,},
   dateTextContainer: {flex:1,justifyContent:'center',},
   dateText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:24,color:'#1e1e1e'},
-  // disabledDay: {opacity:0.4,},
-  // disabledText: {color:'#ccc',},
-	dotContainer: {position:'absolute',right:-2,top:2,},
-  dot: {width:6,height:6,borderRadius:10,},
+  disabledDay: {opacity:0.4,},
+  disabledText: {color:'#ccc',},
+	dotContainer: {position:'absolute',right:-3,top:2,},
+  dot: {width:5,height:5,borderRadius:10,},
 
 	calendarState: {flexDirection:'row',borderTopWidth:1,borderTopColor:'#EDEDED',marginTop:10,paddingTop:13,},
 	calendarStateView: {flexDirection:'row',alignItems:'center',marginRight:20,},
@@ -1102,9 +1245,9 @@ const styles = StyleSheet.create({
 	exePlanLeft: {flexDirection:'row',alignItems:'center',width:innerWidth-50},
 	exePlanLeftCir: {width:10,height:10,backgroundColor:'#243B55',borderRadius:20,},
 	exePlanLeftCir2: {backgroundColor:'#D1913C'},
-	exePlanLeftCont: {width:innerWidth-60,paddingLeft:8,},
+	exePlanLeftCont: {paddingLeft:8,},
 	exePlanLeftText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
-	exePlanRight: {flexDirection:'row',justifyContent:'flex-end',width:50,},
+	exePlanRight: {flexDirection:'row',justifyContent:'flex-end',},
 	exePlanRightText: {textAlign:'right',fontFamily:Font.NotoSansMedium,fontSize:12,lineHeight:20,color:'#888888'},
 
 	notData: {paddingTop:50},

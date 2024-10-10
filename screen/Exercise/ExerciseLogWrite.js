@@ -15,6 +15,8 @@ import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
+import { DrawerContentScrollView } from '@react-navigation/drawer';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const paddTop = Platform.OS === 'ios' ? 0 : 15;
@@ -34,26 +36,17 @@ LocaleConfig.locales['fr'] = {
 };
 LocaleConfig.defaultLocale = 'fr';
 
-const exe_ary = [
-	{exe_idx:1, exe_name:'헬스'},
-	{exe_idx:2, exe_name:'필라테스'},
-	{exe_idx:3, exe_name:'요가'},
-	{exe_idx:4, exe_name:'테니스'},
-	{exe_idx:5, exe_name:'골프'},
-	{exe_idx:99, exe_name:'직접입력'}
-]
-
 const ExerciseLogWrite = (props) => {
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
 	const {params} = route	
-  const ex_idx = params['ex_idx'];
+  const exen_idx = params['exen_idx'];
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
   const [loading, setLoading] = useState(false);
   const [memberIdx, setMemberIdx] = useState();
-  const [exeList, setExeList] = useState(exe_ary);
+  const [exeList, setExeList] = useState([]);
 
   const [phoneImage, setPhoneImage] = useState({});
   const [content, setContent] = useState('');   
@@ -64,6 +57,8 @@ const ExerciseLogWrite = (props) => {
   const [logHour, setLogHour] = useState('');
   const [logMin, setLogMin] = useState('');
   const [logTimer, setLogTimer] = useState('');
+  const [logTimerSec, setLogTimerSec] = useState('');
+  const [img, setImg] = useState('');
 
   const [logDateTemp, setLogDateTemp] = useState('');
   const [logYoilTemp, setLogYoilTemp] = useState('');
@@ -141,25 +136,68 @@ const ExerciseLogWrite = (props) => {
   //     //setState(false);
   //   }
   // }, [phoneImage]);
+
   useEffect(() => {
-    if(memberIdx && ex_idx){
-      setLogDate('2024-09-22');
-      setLogYoil('일');
-      setLogHour('11');      
-      setLogMin('32');
-      setLogTimer('15');
+    if(memberIdx && exen_idx){
+      setLoading(true);
+      getExeSelect();
     }
-  }, [memberIdx])
+  }, [memberIdx]);
+
+  const getExeSelect = async () => {
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "GetExeSelect",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setExeList(response.data);
+      getExeDetail();
+		}
+	}
+
+  const getExeDetail = async () => {
+    let sData = {
+			basePath: "/api/exercise/",
+			type: "GetLogDetail",
+			exen_idx: exen_idx,
+      member_idx: memberIdx
+		};
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){
+			setLogDate(response.data.exen_start_date);
+      setLogYoil(response.data.yoil);
+      setLogHour(response.data.exen_start_hour);      
+      setLogMin(response.data.exen_start_minute);
+      setLogTimer((response.data.run_min).toString());
+      setLogTimerSec((response.data.run_second).toString());
+      setContent(response.data.exen_content);
+      setTodayExe(response.data.exen_exercise_name);
+      if(response.data.exen_exercise_name == '직접입력'){
+        setTodayEtc(response.data.exen_exercise_etc);
+      }
+
+      if(response.data.exen_img){
+        setImg(response.data.exen_img);
+      }
+			setLoading(false);
+		}
+  }
 
   const chooseImage = () => {
     ImagePicker.openPicker({
       width: 992,
       height: 992,
-      //cropping: true,
+      cropping: true,
     })
 		.then(image => {      
 			let selectObj = {path: image.path, mime: image.mime}			
-      console.log(selectObj);
+      //console.log(selectObj);
       setPhoneImage(selectObj);
 		})
 		.finally(() => {
@@ -168,66 +206,65 @@ const ExerciseLogWrite = (props) => {
   }
 
   const exeLogUpdate = async () => {
-    if(phoneImage.path == '' || phoneImage.path == undefined){
-      ToastMessage('사진을 등록해 주세요.');
-      return false;
-    }
-
     if(!todayExe){			
 			ToastMessage('운동 종목을 선택해 주세요.');
 			return false;
 		}
 
-		if(todayExe == 99 && todayEtc == ''){
+		if(todayExe == '직접입력' && todayEtc == ''){
 			ToastMessage('운동 종목을 입력해 주세요.');
 			return false;
 		}
 
     Keyboard.dismiss();
-    //setLoading(true);
-
-    return false;
+    setLoading(true);
 
     let sData = {
-			basePath: "/api/community/",
-			type: "SetCommunity",
-      member_idx: memberIdx,            
-      comm_content: content,
+			basePath: "/api/exercise/",
+			type: "UpdateLogDetail",
+      member_idx: memberIdx,
+      exen_idx: exen_idx,
+      exen_start_date: logDate,
+      exen_start_hour: String(logHour).padStart(2, '0'),
+      exen_start_minute: String(logMin).padStart(2, '0'),
+      exen_work_time: logTimer,
+      exen_exercise_name: todayExe,
+      exen_exercise_etc: todayEtc,
+      exen_content: content,
 		};
     
     let submitState = false;
     let fileData = [];
     if(phoneImage.path != undefined){
-      fileData[0] = {uri: phoneImage.path, name: 'exercise_log.png', type: phoneImage.mime};
-      sData.comm_files = fileData;
+      fileData[0] = {uri: phoneImage.path, name: 'exercise_log.png', type: phoneImage.mime};      
+      sData.exen_img = fileData;
 
       const formData = APIs.makeFormData(sData)
       const response = await APIs.multipartRequest(formData);
-      //console.log('111 ', response);
       if(response.code == 200){
+        //console.log(response);
         submitState = true;
       }
     }else{
-      const response = await APIs.send(sData);    
-      //console.log('222 ', response);
+      const response = await APIs.send(sData);      
+      //console.log(response);
       if(response.code == 200){
         submitState = true;
       }
     }
-
-      
+    
     if(submitState){      
-      ToastMessage('오운완이 작성되었습니다.');
+      ToastMessage('운동 기록이 수정되었습니다.');
       setPreventBack(false);
       setTimeout(function(){
         setLoading(false);
-        navigation.navigate('TabNavigation', {screen:'TodayExercise', params : {reload:true, writeType:1}});
-      }, 200)
+        navigation.navigate('TodayExercise', {reload:true, tab:3, calDate:{dateString:logDate}});
+      }, 200);
     }
   }
 
   const handleSelect = (v) => {
-		if(v != 99){
+		if(v != '직접입력'){
 			setTodayEtc('');
 		}
 		setTodayExe(v);
@@ -254,6 +291,7 @@ const ExerciseLogWrite = (props) => {
      return false;
    }   
    setLogTimer(logTimerTemp);
+   setLogTimerSec('');
    setTimerPop(false);
   }
 
@@ -280,11 +318,15 @@ const ExerciseLogWrite = (props) => {
                       activeOpacity={opacityVal}
                       onPress={() => chooseImage()}
                     >
-                      {phoneImage.path != '' && phoneImage.path != undefined ? (
-                        <AutoHeightImage width={220} source={{ uri: phoneImage.path }} />
-                      ) : (
-                        <ImgDomain fileWidth={36} fileName={'icon_add_img_back.png'}/>
-                      )}
+                      {img != '' && phoneImage.path == '' ? (
+                        <ImgDomain2 fileWidth={36} fileName={img}/>
+                      ): (
+                        phoneImage.path != '' && phoneImage.path != undefined ? (
+                          <AutoHeightImage width={220} source={{ uri: phoneImage.path }} />
+                        ) : (
+                          <ImgDomain fileWidth={36} fileName={'icon_add_img_back.png'}/>
+                        )
+                      )}                      
                     </TouchableOpacity>
 
                     {phoneImage.path != '' && phoneImage.path != undefined ? (
@@ -326,47 +368,51 @@ const ExerciseLogWrite = (props) => {
                   <TouchableOpacity 
                     style={[styles.logInfoView, styles.logInfoPeri]}
                     activeOpacity={opacityVal}
-                    onPress={()=>{
+                    onPress={()=>{                      
                       setLogTimerTemp(logTimer);
                       setTimerPop(true);
                     }}
                   >
                     <ImgDomain fileWidth={17} fileName={'icon_exe_min.png'} />
-                    <Text style={styles.logInfoText}>{logTimer}분</Text>
+                    {logTimerSec != '' && logTimerSec != '0' ? (
+                      <Text style={styles.logInfoText}>{logTimer}분 {logTimerSec}초</Text>
+                    ) : (
+                      <Text style={styles.logInfoText}>{logTimer}분</Text>
+                    )}                    
                   </TouchableOpacity>
                 </View>                
                 <View style={[styles.selectView, styles.mgt30]}>
-                  <RNPickerSelect
-                    value={todayExe}
-                    onValueChange={(value, index) => {
-                      Keyboard.dismiss();
-                      handleSelect(value);									
-                    }}
-                    placeholder={{
-                      label: '운동 종목 선택', // 여기에 원하는 플레이스홀더 텍스트를 입력합니다
-                      value: null, // 기본값으로 null을 설정합니다
-                      color: '#666' // 플레이스홀더 텍스트 색상
-                    }}
-                    items={exeList.map(item => ({
-                      label: item.exe_name,
-                      value: item.exe_idx,
-                      }))}
-                    fixAndroidTouchableBug={true}
-                    useNativeAndroidPickerStyle={false}
-                    multiline={false}							
-                    style={{
-                      placeholder: {fontFamily:Font.NotoSansRegular,color: '#666'},
-                      inputAndroid: styles.select,
-                      inputAndroidContainer: styles.selectCont,
-                      inputIOS: styles.select,
-                      inputIOSContainer: styles.selectCont,
-                    }}
-                  />
+                <RNPickerSelect
+                  value={todayExe}
+                  onValueChange={(value, index) => {
+                    Keyboard.dismiss();
+                    handleSelect(value);									
+                  }}
+                  placeholder={{
+                    label: '운동 종목 선택', // 여기에 원하는 플레이스홀더 텍스트를 입력합니다
+                    value: null, // 기본값으로 null을 설정합니다
+                    color: '#666' // 플레이스홀더 텍스트 색상
+                  }}
+                  items={exeList.map(item => ({
+                    label: item.exe_name,
+                    value: item.exe_name,
+                    }))}
+                  fixAndroidTouchableBug={true}
+                  useNativeAndroidPickerStyle={false}
+                  multiline={false}							
+                  style={{
+                    placeholder: {fontFamily:Font.NotoSansRegular,color: '#666'},
+                    inputAndroid: styles.select,
+                    inputAndroidContainer: styles.selectCont,
+                    inputIOS: styles.select,
+                    inputIOSContainer: styles.selectCont,
+                  }}
+                />
                   <View style={styles.selectArr}>
                     <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
                   </View>
                 </View>
-                {todayExe == 99 ? (
+                {todayExe == '직접입력' ? (
                 <View style={styles.inputView}>								
                   <TextInput
                     value={todayEtc}

@@ -14,6 +14,7 @@ import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
 import Header from '../../components/Header';
 import ImgDomain from '../../assets/common/ImgDomain';
+import ImgDomain2 from '../../components/ImgDomain2';
 
 const stBarHt = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0;
 const paddTop = Platform.OS === 'ios' ? 0 : 15;
@@ -37,12 +38,15 @@ const ExerciseLogView = (props) => {
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
 	const {params} = route	
+  const exen_idx = params['exen_idx'];
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [memberIdx, setMemberIdx] = useState();
+  const [memberInfo, setMemberInfo] = useState({});
+  const [detailInfo, setDetailInfo] = useState({});
 
   const [dotPop, setDotPop] = useState(false);
   const [deletePop, setDeletePop] = useState(false);
@@ -86,12 +90,59 @@ const ExerciseLogView = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+  useEffect(() => {
+    if(memberIdx){
+      setLoading(true);
+      getMemInfo();
+      getExeDetail();
+    }
+  }, [memberIdx]);
+
+  const getMemInfo = async () => {    
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+      setMemberInfo(response.data);
+    }
+  }
+
+  const getExeDetail = async () => {
+    let sData = {
+			basePath: "/api/exercise/",
+			type: "GetLogDetail",
+			exen_idx: exen_idx,
+      member_idx: memberIdx
+		};
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setDetailInfo(response.data);
+      setLoading(false);
+    }
+  }
+
   const submitDelete = async () => {
     setDeletePop(false);
     setLoading2(true);
+
+    let sData = {
+			basePath: "/api/exercise/",
+			type: "DeleteLogDetail",
+			exen_idx: exen_idx,
+      member_idx: memberIdx
+		};
+    const response = await APIs.send(sData);
+    //console.log(response);
+    
     setTimeout(function(){      
       setLoading2(false);
-    }, 2000);
+      navigation.navigate('TodayExercise', {reload:true, tab:3});
+    }, 500);
   }
 
   const headerHeight = 48;
@@ -121,18 +172,23 @@ const ExerciseLogView = (props) => {
       <ScrollView>
         <View style={styles.cmView}>
           <View style={styles.logImgView}>
-            <View style={[styles.logImg]}>
-            {/* styles.logImg2 */}
-              <ImgDomain fileWidth={220} fileName={'exercise_base.jpg'} />
+            <View style={[styles.logImg, detailInfo?.exen_img ? styles.logImg2 : null]}>            
+              {detailInfo?.exen_img ? (
+                <ImgDomain2 fileWidth={220} fileName={detailInfo?.exen_img} />
+              ) : (
+                <ImgDomain fileWidth={220} fileName={'exercise_base.jpg'} />
+              )}              
             </View>
           </View>
           <View style={styles.logInfoView}>
             <View style={styles.logInfo}>
               <View style={styles.logInfoLeft}>
-                <Text style={styles.logInfoText}>2024-09-04</Text>
+                <Text style={styles.logInfoText}>{detailInfo?.exen_start_date}</Text>
               </View>
               <View style={styles.logInfoRight}>
-                <Text style={[styles.logInfoText, styles.logInfoText2]}>16:08 ~ 16:10 2분</Text>
+                <Text style={[styles.logInfoText, styles.logInfoText2]}>
+                  {detailInfo?.exen_start_hour}:{detailInfo?.exen_start_minute}:{detailInfo?.exen_start_sec} ~ {detailInfo?.end_time} {detailInfo?.run_time}
+                </Text>
               </View>
             </View>
             <View style={[styles.logInfo, styles.mgt10]}>
@@ -140,12 +196,18 @@ const ExerciseLogView = (props) => {
                 <Text style={styles.logInfoText}>운동 종목</Text>
               </View>
               <View style={styles.logInfoRight}>
-                <Text style={[styles.logInfoText, styles.logInfoText2]}>클라이밍</Text>
+                {detailInfo?.exen_exercise_name == '직접입력' ? (
+                  <Text style={[styles.logInfoText, styles.logInfoText2]}>{detailInfo?.exen_exercise_etc}</Text>
+                ) : (
+                  <Text style={[styles.logInfoText, styles.logInfoText2]}>{detailInfo?.exen_exercise_name}</Text>
+                )}  
               </View>
             </View>
+            {detailInfo?.exen_content ? (
             <View style={[styles.logInfo2, styles.mgt10]}>
-              <Text style={styles.logInfo2Text}>내가 남긴 메모 내용이 보여집니다. (없는 경우엔 보여지지 않음.)</Text>
+              <Text style={styles.logInfo2Text}>{detailInfo?.exen_content}</Text>
             </View>
+            ) : null}
           </View>
         </View>
       </ScrollView>
@@ -168,7 +230,7 @@ const ExerciseLogView = (props) => {
             activeOpacity={opacityVal}
             onPress={()=>{
               setDotPop(false);
-              navigation.navigate('ExerciseLogWrite', {exe_idx:1});
+              navigation.navigate('ExerciseLogWrite', {exen_idx:exen_idx});
             }}
           >
             <Text style={styles.dotPopBtnText}>운동 기록 수정</Text>
@@ -256,8 +318,8 @@ const styles = StyleSheet.create({
   logImg2: {borderWidth:0,},
   logInfoView: {marginTop:30,},
   logInfo: {flexDirection:'row',justifyContent:'space-between',padding:15,backgroundColor:'#F9FAFB',borderRadius:5,},
-  logInfoLeft: {width:innerWidth-180},
-  logInfoRight: {width:150,},
+  logInfoLeft: {},
+  logInfoRight: {},
   logInfoText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#1e1e1e'},
   logInfoText2: {textAlign:'right',color:'#888'},
   logInfo2: {minHeight:120,padding:15,backgroundColor:'#F9FAFB',borderRadius:5,},

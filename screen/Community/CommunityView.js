@@ -1067,18 +1067,7 @@ const CommunityView = (props) => {
                         if(memberInfo?.member_type != 1){
                           ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
                         }else{                                                  
-                          if(memberInfo?.member_sex == hostSex){
-                            // ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
-                            // return false;
-                            checkRelation(1, 'comment', item.member_idx, item.comment_nick,item.comment_idx);
-                          }else{
-                            checkRelation(1, 'host', hostMemberIdx, nick);
-                            // setTradeType(1);
-                            // setTradePop(true);
-                            // setTradeSort('host');
-                            // setReceiveMemberIdx(hostMemberIdx);
-                            // setCashPopNick(nick);
-                          }                          
+                          checkRelation(1, 'host', hostMemberIdx, nick);                        
                         }
                       }}
                     >
@@ -1706,20 +1695,12 @@ const CommunityView = (props) => {
                                       if(memberInfo?.member_type != 1){
                                         ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
                                       }else{                                                  
-                                        if(memberInfo?.member_sex == item.member_sex){                                          
-                                          // ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
-                                          // return false;                                        
-                                          checkRelation(1, 'comment', item.member_idx, item.comment_nick,item.comment_idx);
-                                        }
+                                        // if(memberInfo?.member_sex == item.member_sex){                                          
+                                        //   // ToastMessage('성별이 같은 경우 프로필 교환을 할 수 없습니다.');
+                                        //   // return false;
+                                        // }
                                         
                                         checkRelation(1, 'comment', item.member_idx, item.comment_nick,item.comment_idx);
-
-                                        // setTradeType(1);
-                                        // setTradePop(true);
-                                        // setTradeSort('comment');
-                                        // setReceiveMemberIdx(item.member_idx);
-                                        // setTradeCrIdx(item.comment_idx);
-                                        // setCashPopNick(item.comment_nick);
                                       }                                     
                                     }}
                                   >

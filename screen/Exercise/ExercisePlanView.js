@@ -36,13 +36,18 @@ LocaleConfig.defaultLocale = 'fr';
 const ExercisePlanView = (props) => {
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
-	const {params} = route	
+	const {params} = route;
+  const exen_idx = params['exen_idx'];
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);
 	const [preventBack, setPreventBack] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [memberIdx, setMemberIdx] = useState();
+  const [memberInfo, setMemberInfo] = useState({});
+  const [detailInfo, setDetailInfo] = useState({});
+  const [repeat, setRepeat] = useState('');
+  const [alim, setAlim] = useState('');
 
   const [dotPop, setDotPop] = useState(false);
   const [deletePop, setDeletePop] = useState(false);
@@ -86,12 +91,91 @@ const ExercisePlanView = (props) => {
     return unsubscribe;
   }, [navigationUse, preventBack]);
 
+  useEffect(() => {
+    if(memberIdx){
+      setLoading(true);
+      getMemInfo();
+      getExeDetail();
+    }
+  }, [memberIdx]);
+
+  const getMemInfo = async () => {    
+    let sData = {
+			basePath: "/api/member/",
+			type: "GetMyInfo",
+			member_idx: memberIdx,
+		};
+
+		const response = await APIs.send(sData);
+		if(response.code == 200){
+      setMemberInfo(response.data);
+    }
+  }
+
+  const getExeDetail = async () => {
+    let sData = {
+			basePath: "/api/exercise/",
+			type: "GetPlanDetail",
+			exen_idx: exen_idx,
+      member_idx: memberIdx
+		};
+    const response = await APIs.send(sData);
+    //console.log(response);
+    if(response.code == 200){
+      setDetailInfo(response.data);
+
+      if(response.data.exen_repeat == 8){
+        setRepeat('반복 없음');
+      }else if(response.data.exen_repeat == 7){
+        setRepeat('매일');
+      }else{
+        setRepeat('매주');
+      }
+
+      if(response.data.exen_repeat == 8){
+        setRepeat('반복 없음');
+      }else if(response.data.exen_repeat == 7){
+        setRepeat('매일');
+      }else{
+        setRepeat('매주');
+      }
+
+      if(response.data.exen_alim == 0){
+        setAlim('알림 없음');
+      }else if(response.data.exen_alim == 1){
+        setAlim('정시');
+      }else if(response.data.exen_alim == 2){
+        setAlim('30분 전');
+      }else if(response.data.exen_alim == 3){
+        setAlim('1시간 전');
+      }else if(response.data.exen_alim == 4){
+        setAlim('3시간 전');
+      }else if(response.data.exen_alim == 5){
+        const alimString = response.data.exen_alim_hour+'시 '+response.data.exen_alim_minute+'분';
+        setAlim(alimString);
+      }
+
+      setLoading(false);
+    }
+  }
+
   const submitDelete = async () => {
     setDeletePop(false);
     setLoading2(true);
+
+    let sData = {
+			basePath: "/api/exercise/",
+			type: "DeleteLogDetail",
+			exen_idx: exen_idx,
+      member_idx: memberIdx
+		};
+    const response = await APIs.send(sData);
+    //console.log(response);
+
     setTimeout(function(){      
       setLoading2(false);
-    }, 2000);
+      navigation.navigate('TodayExercise', {reload:true, tab:3});
+    }, 500);
   }
 
   const headerHeight = 48;
@@ -126,7 +210,9 @@ const ExercisePlanView = (props) => {
                 <Text style={styles.logInfoText}>날짜</Text>
               </View>
               <View style={styles.logInfoRight}>
-                <Text style={[styles.logInfoText, styles.logInfoText2]}>2024-09-04(수) 16:08</Text>
+                <Text style={[styles.logInfoText, styles.logInfoText2]}>
+                  {detailInfo?.exen_start_date}({detailInfo?.yoil}) {detailInfo?.exen_start_hour}:{detailInfo?.exen_start_minute}
+                </Text>
               </View>
             </View>
             <View style={[styles.logInfo, styles.mgt10]}>
@@ -134,7 +220,11 @@ const ExercisePlanView = (props) => {
                 <Text style={styles.logInfoText}>운동 종목</Text>
               </View>
               <View style={styles.logInfoRight}>
-                <Text style={[styles.logInfoText, styles.logInfoText2]}>클라이밍</Text>
+                {detailInfo?.exen_exercise_name == '직접입력' ? (
+                  <Text style={[styles.logInfoText, styles.logInfoText2]}>{detailInfo?.exen_exercise_etc}</Text>
+                ) : (
+                  <Text style={[styles.logInfoText, styles.logInfoText2]}>{detailInfo?.exen_exercise_name}</Text>
+                )}                
               </View>
             </View>
             <View style={[styles.logInfo, styles.mgt10]}>
@@ -142,7 +232,7 @@ const ExercisePlanView = (props) => {
                 <Text style={styles.logInfoText}>반복 설정</Text>
               </View>
               <View style={styles.logInfoRight}>
-                <Text style={[styles.logInfoText, styles.logInfoText2]}>반복 없음</Text>
+                <Text style={[styles.logInfoText, styles.logInfoText2]}>{repeat}</Text>
               </View>
             </View>
             <View style={[styles.logInfo, styles.mgt10]}>
@@ -150,12 +240,14 @@ const ExercisePlanView = (props) => {
                 <Text style={styles.logInfoText}>알림</Text>
               </View>
               <View style={styles.logInfoRight}>
-                <Text style={[styles.logInfoText, styles.logInfoText2]}>반복 없음</Text>
+                <Text style={[styles.logInfoText, styles.logInfoText2]}>{alim}</Text>
               </View>
             </View>
+            {detailInfo?.exen_content ? (
             <View style={[styles.logInfo2, styles.mgt10]}>
-              <Text style={styles.logInfo2Text}>내가 남긴 메모 내용이 보여집니다. (없는 경우엔 보여지지 않음.)</Text>
+              <Text style={styles.logInfo2Text}>{detailInfo?.exen_content}</Text>
             </View>
+            ) : null}
           </View>
         </View>
       </ScrollView>
@@ -178,7 +270,7 @@ const ExercisePlanView = (props) => {
             activeOpacity={opacityVal}
             onPress={()=>{
               setDotPop(false);
-              navigation.navigate('ExercisePlanWrite', {ex_idx:1});
+              navigation.navigate('ExercisePlanWrite', {exen_idx:exen_idx});
             }}
           >
             <Text style={styles.dotPopBtnText}>운동 계획 수정</Text>

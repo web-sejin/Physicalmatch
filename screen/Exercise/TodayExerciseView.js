@@ -112,6 +112,7 @@ const TodayExerciseView = (props) => {
       // e.preventDefault();를 사용하면 뒤로 가기를 막을 수 있습니다.
       //console.log('preventBack22 ::: ',preventBack);
       if (preventBack) {
+        reportPopClose();
 				setPreventBack(false);
 				e.preventDefault();
       } else {
@@ -124,8 +125,8 @@ const TodayExerciseView = (props) => {
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', (e) => {
-      setKeyboardStatus(true);
-			if(Platform.OS != 'ios'){
+      setKeyboardStatus(true);      
+			if(Platform.OS != 'ios'){        
 				if(currFocus == 'report'){
 					setKeyboardHeight((e.endCoordinates.height/1.6)*-1);
         }else if(currFocus == 'preLike'){	
@@ -213,7 +214,7 @@ const TodayExerciseView = (props) => {
       }else{
         setCommentList([]);
       }
-      setLoading(false);      
+      setLoading(false);
     }
   }
 
