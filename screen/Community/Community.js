@@ -30,10 +30,11 @@ const Community = (props) => {
     {idx:1, imgUrl:'', type:'community_guide'},
     {idx:2, imgUrl:'', type:'social_guide'},
     {idx:3, imgUrl:'', type:'shop_free'},
+		{idx:4, imgUrl:'', type:'exercise_guide'},
   ]
 	const webViews = useRef();
   const webViews2 = useRef();
-
+	const webViews3 = useRef();
 	const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
 	const {params} = route	
@@ -54,8 +55,10 @@ const Community = (props) => {
 	const [resetState, setResetState] = useState(false);
 	const [guideModal, setGuideModal] = useState(false);
 	const [guideModal2, setGuideModal2] = useState(false);
+	const [guideModal3, setGuideModal3] = useState(false);
 	const [guideComm, setGuideComm] = useState('');
   const [guideSocial, setGuideSocial] = useState('');
+	const [guideExercise, setGuideExercise] = useState('');
 
 	const [tabState, setTabState] = useState(0); //자유, 운동, 프교, 셀소
 	const [commSch, setCommSch] = useState('');	
@@ -128,6 +131,7 @@ const Community = (props) => {
 		setSwiperList(swp);
 		getGuide1();
 		getGuide2();
+		getGuide3();
 	}, []);
 
 	useEffect(() => {
@@ -339,6 +343,17 @@ const Community = (props) => {
     setGuideComm(response.data);
   }
 
+	const getGuide3 = async () => {
+    let sData = {      
+      basePath: "/api/etc/",
+			type: "GetGuide",
+      tab: 3,
+		}
+
+		const response = await APIs.send(sData);
+    setGuideExercise(response.data);
+  }
+
 	const moveAlimPage = async () => {
 		console.log('alarm_type ::: ', userInfo?.alarm_type);
 		navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type});
@@ -483,6 +498,8 @@ const Community = (props) => {
 												setGuideModal2(true);
 											}else if(item.type == 'shop_free'){
 												navigation.navigate('Shop', {tab:2});
+											}else if(item.type == 'exercise_guide'){
+												setGuideModal3(true);
 											}
 										}}
 									>
@@ -611,6 +628,43 @@ const Community = (props) => {
 					<WebView
 						ref={webViews2}
 						source={{uri: guideSocial}}
+						useWebKit={false}						
+						javaScriptEnabledAndroid={true}
+						allowFileAccess={true}
+						renderLoading={true}
+						mediaPlaybackRequiresUserAction={false}
+						setJavaScriptEnabled = {false}
+						scalesPageToFit={true}
+						allowsFullscreenVideo={true}
+						allowsInlineMediaPlayback={true}						
+						originWhitelist={['*']}
+						javaScriptEnabled={true}
+						textZoom = {100}
+					/>
+				</View>
+			</Modal>
+
+			{/* 오운완 가이드 */}
+			<Modal
+				visible={guideModal3}
+				animationType={"none"}
+				onRequestClose={() => {setGuideModal3(false)}}
+			>
+				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
+				<View style={styles.modalHeader}>	
+					<Text numberOfLines={1} ellipsizeMode='tail' style={styles.headerTitle}>오운완 이용 가이드</Text>
+					<TouchableOpacity
+						style={styles.headerBackBtn2}
+						activeOpacity={opacityVal}
+						onPress={() => {setGuideModal3(false)}}						
+					>
+						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
+					</TouchableOpacity>
+				</View>
+				<View style={styles.guidePopCont}>
+					<WebView
+						ref={webViews3}
+						source={{uri: guideExercise}}
 						useWebKit={false}						
 						javaScriptEnabledAndroid={true}
 						allowFileAccess={true}

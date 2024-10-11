@@ -352,7 +352,7 @@ const TodayExerciseView = (props) => {
       return false;
     }
 
-    if(report == 11 && (reportEtc == '' || reportEtc.length < 3)){
+    if(report == 10 && (reportEtc == '' || reportEtc.length < 3)){
       ToastMessage('상세 사유를 3자 이상 입력해 주세요.');
       return false;
     }
@@ -737,7 +737,7 @@ const TodayExerciseView = (props) => {
                   )
                 })}                
               </View>
-              {report == 11 ? (
+              {report == 10 ? (
               <View style={[styles.popIptBox]}>		
                 <TextInput
                   value={reportEtc}

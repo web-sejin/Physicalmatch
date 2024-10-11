@@ -363,7 +363,7 @@ const Home = (props) => {
 				}
 				checkWelcom();		
 			}
-			setTodayFree(response.data.free_cnt);
+			setTodayFree(response.data.free_cnt);								
     }
 	}
 
@@ -1850,11 +1850,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender: 0,
+												tempRealGender: 2,
 											}));
 										}}
 									>
-										{realData.tempRealGender == 0 ? (
+										{realData.tempRealGender == 2 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -1867,11 +1867,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender: 1,
+												tempRealGender: 0,
 											}));
 										}}
 									>
-										{realData.tempRealGender == 1 ? (
+										{realData.tempRealGender == 0 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -1884,11 +1884,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender: 2,
+												tempRealGender: 1,
 											}));
 										}}
 									>
-										{realData.tempRealGender == 2 ? (
+										{realData.tempRealGender == 1 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -2162,11 +2162,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender2: 0,
+												tempRealGender2: 2,
 											}));
 										}}
 									>
-										{realData.tempRealGender2 == 0 ? (
+										{realData.tempRealGender2 == 2 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -2179,11 +2179,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender2: 1,
+												tempRealGender2: 0,
 											}));
 										}}
 									>
-										{realData.tempRealGender2 == 1 ? (
+										{realData.tempRealGender2 == 0 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -2196,11 +2196,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender2: 2,
+												tempRealGender2: 1,
 											}));
 										}}
 									>
-										{realData.tempRealGender2 == 2 ? (
+										{realData.tempRealGender2 == 1 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
