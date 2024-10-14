@@ -10,6 +10,7 @@ import BackgroundTimer from 'react-native-background-timer';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import AutoHeightImage from "react-native-auto-height-image";
+import { WebView } from 'react-native-webview';
 
 import APIs from "../../assets/APIs"
 import Font from "../../assets/common/Font";
@@ -30,16 +31,8 @@ const innerHeight = widnowHeight - 40 - stBarHt;
 const opacityVal = 0.8;
 const LabelTop = Platform.OS === "ios" ? 1.5 : 0;
 
-const exe_ary = [
-	{exe_idx:1, exe_name:'헬스'},
-	{exe_idx:2, exe_name:'필라테스'},
-	{exe_idx:3, exe_name:'요가'},
-	{exe_idx:4, exe_name:'테니스'},
-	{exe_idx:5, exe_name:'골프'},
-	{exe_idx:99, exe_name:'직접입력'}
-]
-
 const TodayExercise = (props) => {	
+	const webViews3 = useRef();
   const navigationUse = useNavigation();
 	const {navigation, userInfo, route} = props;
   const {params} = route;	
@@ -60,6 +53,7 @@ const TodayExercise = (props) => {
 	const [alertMsg, setAlertMsg] = useState('');
 	const [startPop, setStartPop] = useState(false);
 	const [endPop, setEndPop] = useState(false);
+	const [exePop, setExePop] = useState(false);	
 	const [exeList, setExeList] = useState([]);
 	const [todayExe, setTodayExe] = useState(null);
 	const [todayEtc, setTodayEtc] = useState('');
@@ -73,6 +67,9 @@ const TodayExercise = (props) => {
 	const [exenIdx, setExenIdx] = useState(null);
 	const [markedDates, setMarkedDates] = useState({});
 	const [dateList, setDateList] = useState([]);
+
+	const [guideModal3, setGuideModal3] = useState(false);
+  const [guideExercise, setGuideExercise] = useState('');
 
 	const headerHeight = 48;
 	const keyboardVerticalOffset = Platform.OS === "ios" ? headerHeight : 0;
@@ -170,6 +167,10 @@ const TodayExercise = (props) => {
 		}
 	}, [memberIdx, tabState]);
 
+	useEffect(()=>{
+		getGuide3();
+	}, [])
+
   const getMemInfo = async () => {
 		let sData = {
 			basePath: "/api/member/",
@@ -230,6 +231,17 @@ const TodayExercise = (props) => {
     setTimeout(function(){
 			setLoading(false);
 		}, 300);
+  }
+
+	const getGuide3 = async () => {
+    let sData = {      
+      basePath: "/api/etc/",
+			type: "GetGuide",
+      tab: 3,
+		}
+
+		const response = await APIs.send(sData);
+    setGuideExercise(response.data);
   }
 
   const getList = ({item, index}) => {
@@ -486,6 +498,7 @@ const TodayExercise = (props) => {
 			setTodayEtc('');
 		}
 		setTodayExe(v);
+		setExePop(false);
 	}
 
 	const handleTimer = async () => {
@@ -666,7 +679,19 @@ const TodayExercise = (props) => {
           onEndReachedThreshold={0.8}
           onEndReached={moreData}
           onRefresh={onRefresh}
-          //ListHeaderComponent={}
+          ListHeaderComponent={
+						<View style={styles.swiperView}>
+							<TouchableOpacity 
+								style={styles.commuBanner}
+								activeOpacity={opacityVal}
+								onPress={()=>{
+									setGuideModal3(true);
+								}}
+							>
+								<ImgDomain fileWidth={widnowWidth} fileName={'slide_banner4.png'} />
+							</TouchableOpacity>
+						</View>
+					}
           ListEmptyComponent={
             <View style={styles.notData}>
               <Text style={styles.notDataText}>등록된 피드가 없습니다.</Text>
@@ -679,7 +704,7 @@ const TodayExercise = (props) => {
 				<ScrollView style={{flex:1}}>
 					<View style={[styles.cmWrap, styles.cmWrap3]}>
 						<View style={styles.selectView}>
-							<RNPickerSelect
+							{/* <RNPickerSelect
 								value={todayExe}
 								onValueChange={(value, index) => {
 									Keyboard.dismiss();
@@ -708,7 +733,24 @@ const TodayExercise = (props) => {
 							/>
 							<View style={styles.selectArr}>
 								<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-							</View>
+							</View> */}
+							<TouchableOpacity
+								style={styles.select}
+								activeOpacity={opacityVal}
+								onPress={()=>{
+									Keyboard.dismiss();
+									setExePop(true);
+								}}
+							>
+								{todayExe ? (
+									<Text style={[styles.selectText, styles.selectText2]}>{todayExe}</Text>
+								) : (
+									<Text style={styles.selectText}>운동 종목 선택</Text>
+								)}                    
+								<View style={styles.selectArr}>
+									<ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+								</View>
+							</TouchableOpacity>
 						</View>
 						{todayExe == '직접입력' ? (
 						<View style={styles.inputView}>								
@@ -771,6 +813,17 @@ const TodayExercise = (props) => {
 
 			{tabState == 3 ? (
 				<ScrollView style={{flex:1}} ref={scrollViewRef}>
+					<View style={styles.swiperView}>
+						<TouchableOpacity 
+							style={styles.commuBanner}
+							activeOpacity={opacityVal}
+							onPress={()=>{
+								setGuideModal3(true);
+							}}
+						>
+							<ImgDomain fileWidth={widnowWidth} fileName={'slide_banner4.png'} />
+						</TouchableOpacity>
+					</View>
 					<View style={[styles.cmWrap, styles.cmWrap4, styles.cmWrap5]}>
 						<Calendar
 							style={styles.calendar}
@@ -851,13 +904,13 @@ const TodayExercise = (props) => {
   						maxDate={new Date(viewDAte.getFullYear(), viewDAte.getMonth() + 1, 0).toISOString().split('T')[0]}
 							onMonthChange={(month) => {											
 								//console.log(month);
+								setMarkedDates({});
 								getCalendarList(month.dateString);
 								setViewDate(new Date(month.dateString.toString()));
-							}} // 달이 바뀔 때 바뀐 달 출력                 														
-							// 달 이동 화살표 구현 왼쪽이면 왼쪽 화살표 이미지, 아니면 오른쪽 화살표 이미지
+							}} // 달이 바뀔 때 바뀐 달 출력                 																					
 							renderArrow={(direction) => direction === "left" ?
 								<AutoHeightImage name="left" width={22} source={require('../../assets/image/cal_prev.png')}/> : <AutoHeightImage name="right" width={22} source={require('../../assets/image/cal_next.png')}/>
-							}
+							} // 달 이동 화살표 구현 왼쪽이면 왼쪽 화살표 이미지, 아니면 오른쪽 화살표 이미지
 						/>   
 						<View style={styles.calendarState}>
 							<View style={styles.calendarStateView}>
@@ -927,6 +980,7 @@ const TodayExercise = (props) => {
 								}else if(item.exen_type == 1){
 									return (
 										<TouchableOpacity
+											key={index}
 											style={styles.exePlanBtn}
 											activeOpacity={opacityVal}
 											onPress={()=>{									
@@ -1153,6 +1207,92 @@ const TodayExercise = (props) => {
 				</View>
 			</Modal>
 
+			{/* 오운완 가이드 */}
+			<Modal
+				visible={guideModal3}
+				animationType={"none"}
+				onRequestClose={() => {setGuideModal3(false)}}
+			>
+				{Platform.OS == 'ios' ? ( <View style={{height:stBarHt}}></View> ) : null}
+				<View style={styles.modalHeader}>	
+					<Text numberOfLines={1} ellipsizeMode='tail' style={styles.headerTitle}>오운완 이용 가이드</Text>
+					<TouchableOpacity
+						style={styles.headerBackBtn2}
+						activeOpacity={opacityVal}
+						onPress={() => {setGuideModal3(false)}}						
+					>
+						<ImgDomain fileWidth={16} fileName={'icon_close2.png'}/>
+					</TouchableOpacity>
+				</View>
+				<View style={styles.guidePopCont}>
+					<WebView
+						ref={webViews3}
+						source={{uri: guideExercise}}
+						useWebKit={false}						
+						javaScriptEnabledAndroid={true}
+						allowFileAccess={true}
+						renderLoading={true}
+						mediaPlaybackRequiresUserAction={false}
+						setJavaScriptEnabled = {false}
+						scalesPageToFit={true}
+						allowsFullscreenVideo={true}
+						allowsInlineMediaPlayback={true}						
+						originWhitelist={['*']}
+						javaScriptEnabled={true}
+						textZoom = {100}
+					/>
+				</View>
+			</Modal>
+
+			<Modal
+				visible={exePop}
+				transparent={true}
+				animationType={"none"}	
+        onRequestClose={() => setExePop(false)}			
+			>      
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 						
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => setExePop(false)}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+						</TouchableOpacity>		
+						<View style={[styles.popTitle]}>
+							<Text style={styles.popTitleText}>운동 종목</Text>							
+						</View>				
+						<View style={styles.exeListView}>
+              <ScrollView>
+                {exeList.map((item, index) => {                  
+                  return (
+                    <TouchableOpacity 
+                      key={index}
+                      style={[styles.alimListBtn, index != 0 ? styles.mgt20 : null]}
+                      activeOpacity={opacityVal}
+                      onPress={()=>{
+                        handleSelect(item.exe_name);
+                      }}
+                    >
+                      <Text style={[styles.alimListBtnText]}>{item.exe_name}</Text>
+                      {todayExe == item.exe_name ? (
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+                      ) : (
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+                      )}                    
+                    </TouchableOpacity>
+                  )
+                })}
+              </ScrollView>
+            </View>
+					</View>
+				</View>
+			</Modal>
+
 			{loading ? (
       <View style={[styles.indicator]}>
         <ActivityIndicator size="large" color="#D1913C" />
@@ -1204,7 +1344,10 @@ const styles = StyleSheet.create({
 	inputView: {marginTop:10,},
 	selectView: {position:'relative',justifyContent:'center'},
 	input: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
-	select: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+	//select: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+	select: {justifyContent:'center',width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e',position:'relative'},
+  selectText: {fontFamily:Font.NotoSansRegular,color: '#666'},
+  selectText2: {color:'#1e1e1e'},
 	selectCont: {},
 	selectArr: {position:'absolute',right:20,},
 	timerView: {alignItems:'center',justifyContent:'center',backgroundColor:'#F9FAFB',height:130,borderRadius:5,marginTop:100,},
@@ -1284,9 +1427,30 @@ const styles = StyleSheet.create({
 	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:19,color:'#fff'},
 	popBtnOffText: {color:'#1e1e1e'},
 
+	modalHeader: {height:48,backgroundColor:'#fff',position:'relative',display:'flex',justifyContent:'center',paddingHorizontal:40},
+	headerBackBtn2: {width:56,height:48,position:'absolute',left:0,top:0,zIndex:10,display:'flex',alignItems:'center',justifyContent:'center',},
+	headerTitle: {textAlign:'center',fontFamily:Font.NotoSansMedium,fontSize:16,lineHeight:48,color:'#000'},
+	headerDot: {width:43,height:48,position:'absolute',top:0,right:0,display:'flex',alignItems:'center',justifyContent:'center'},
+	headerSubmitBtn: {alignItems:'center',justifyContent:'center',width:50,height:48,position:'absolute',right:10,top:0},
+	headerSubmitBtnText: {fontFamily:Font.NotoSansMedium,fontSize:16,color:'#b8b8b8',},
+	headerSubmitBtnTextOn: {color:'#243B55'},
+	filterResetBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',paddingHorizontal:20,height:48,backgroundColor:'#fff',position:'absolute',top:0,right:0,zIndex:10,},
+	filterResetText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#1E1E1E',marginLeft:6,},
+
+	guidePopCont: {flex:1,},
+	guidePopContText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:24,color:'#1e1e1e'},
+
+	exeListView: {maxHeight:innerHeight*0.64},
+  alimListBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
+  alimListBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+  alimInputView: {flexDirection:'row',alignItems:'flex-end',marginTop:10,},
+  alimInput: {width:80,height:34,backgroundColor:'#fff',borderBottomWidth:1,borderBottomColor:'#DBDBDB',textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:16,color:'#1e1e1e',padding:0,},
+  alimInputNext: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:22,color:'#1e1e1e',marginLeft:5,},
+
 	mgt0: {marginTop:0,},
 	mgt2: {marginTop:2,},
 	mgt5: {marginTop:5,},
+	mgt20: {marginTop:20,},
 
 	colorRed: {color:'#EE4245'},
 })

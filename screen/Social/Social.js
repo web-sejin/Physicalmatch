@@ -163,9 +163,9 @@ const Social = (props) => {
 
 	useEffect(() => {
 		getDateInfo();
-		getGuide1();
+		//getGuide1();
 		getGuide2();
-		getGuide3();
+		//getGuide3();
 	}, []);
 
 	useEffect(() => {
@@ -710,37 +710,17 @@ const Social = (props) => {
 				onRefresh={onRefresh}
 				ListHeaderComponent={
 					<>
+					{/* 깃허브에 2024.10.11 자로 스와이퍼 버전 있습니다. */}
 					<View style={styles.swiperView}>
-						<SwiperFlatList
-							ref={swiperRef}
-							index={0}
-							data={swiperList}
-							onChangeIndex={(obj) => {
-								
+						<TouchableOpacity 
+							style={styles.commuBanner}
+							activeOpacity={opacityVal}
+							onPress={()=>{
+								setGuideModal2(true);
 							}}
-							renderItem={({ item, index }) => {
-								return (
-									<TouchableOpacity 
-										key={index}
-										style={styles.commuBanner}
-										activeOpacity={opacityVal}
-										onPress={()=>{
-											if(item.type == 'community_guide'){
-												setGuideModal(true);
-											}else if(item.type == 'social_guide'){
-												setGuideModal2(true);
-											}else if(item.type == 'shop_free'){
-												navigation.navigate('Shop', {tab:2});
-											}else if(item.type == 'exercise_guide'){
-												setGuideModal3(true);
-											}
-										}}
-									>
-										<ImgDomain fileWidth={widnowWidth} fileName={'slide_banner'+(index+1)+'.png'} />
-									</TouchableOpacity>
-								)
-							}}
-						/>
+						>
+							<ImgDomain fileWidth={widnowWidth} fileName={'slide_banner2.png'} />
+						</TouchableOpacity>
 					</View>
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 						<View style={styles.flatListPad}></View>

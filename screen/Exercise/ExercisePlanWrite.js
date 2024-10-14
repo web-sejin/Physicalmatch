@@ -80,6 +80,7 @@ const ExercisePlanWrite = (props) => {
   const [calendarPop, setCalendarPop] = useState(false);
   const [timePop, setTimePop] = useState(false);
   const [alimPop, setAlimPop] = useState(false);
+  const [exePop, setExePop] = useState(false);
 
   const hourItems = [];
   for(let i=1; i<=24; i++){
@@ -309,6 +310,7 @@ const ExercisePlanWrite = (props) => {
 			setTodayEtc('');
 		}
 		setTodayExe(v);
+    setExePop(false);
 	}
 
   const modifyDate = () => {    
@@ -392,7 +394,7 @@ const ExercisePlanWrite = (props) => {
                   </TouchableOpacity>
                 </View>                
                 <View style={[styles.selectView, styles.mgt40]}>
-                  <RNPickerSelect
+                  {/* <RNPickerSelect
                     value={todayExe}
                     onValueChange={(value, index) => {
                       Keyboard.dismiss();
@@ -417,10 +419,25 @@ const ExercisePlanWrite = (props) => {
                       inputIOS: styles.select,
                       inputIOSContainer: styles.selectCont,
                     }}
-                  />
-                  <View style={styles.selectArr}>
-                    <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-                  </View>
+                  /> */}
+
+                  <TouchableOpacity
+                    style={styles.select}
+                    activeOpacity={opacityVal}
+                    onPress={()=>{
+                      Keyboard.dismiss();
+                      setExePop(true);
+                    }}
+                  >
+                    {todayExe ? (
+                      <Text style={[styles.selectText, styles.selectText2]}>{todayExe}</Text>
+                    ) : (
+                      <Text style={styles.selectText}>운동 종목 선택</Text>
+                    )}                    
+                    <View style={styles.selectArr}>
+                      <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+                    </View>
+                  </TouchableOpacity>
                 </View>
                 {todayExe == '직접입력' ? (
                 <View style={styles.inputView}>								
@@ -706,7 +723,105 @@ const ExercisePlanWrite = (props) => {
 				transparent={true}
 				animationType={"none"}	
         onRequestClose={() => setAlimPop(false)}			
-			>
+			>        
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "position"} 
+          style={{ flex: 1 }}
+        >
+          <View style={styles.cmPop}>
+            <TouchableOpacity 
+              style={styles.popBack} 
+              activeOpacity={1} 						
+            >
+            </TouchableOpacity>
+            <View style={styles.prvPop}>
+              <TouchableOpacity
+                style={styles.pop_x}					
+                onPress={() => setAlimPop(false)}
+              >
+                <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+              </TouchableOpacity>		
+              <View style={[styles.popTitle]}>
+                <Text style={styles.popTitleText}>알림</Text>							
+              </View>				
+              <View style={styles.alimListView}>
+                {alim_ary.map((item, index) => {
+                  return (
+                    <TouchableOpacity 
+                      key={index}
+                      style={[styles.alimListBtn, index != 0 ? styles.mgt20 : null]}
+                      activeOpacity={opacityVal}
+                      onPress={()=>{
+                        setAlimIdxTemp(item.alim_idx);
+                        setAlimDescTemp(item.alim_desc);
+                        if(item.alim_idx != 5){
+                          setAlimDirectHourTemp('');
+                          setAlimDirectMinTemp('');
+                        }
+                      }}
+                    >
+                      <Text style={[styles.alimListBtnText]}>{item.alim_desc}</Text>
+                      {alimIdxTemp == item.alim_idx ? (
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+                      ) : (
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+                      )}                    
+                    </TouchableOpacity>
+                  )
+                })}
+                {alimIdxTemp == 5 ? (
+                <View style={styles.alimInputView}>
+                  <TextInput
+                    value={alimDirectHourTemp}
+                    onChangeText={(v) => {
+                      setAlimDirectHourTemp(v);                     
+                    }}
+                    placeholder={'0'}
+                    placeholderTextColor="#DBDBDB"
+                    style={[styles.alimInput]}                    
+                    returnKyeType='done'
+                  />
+                  <Text style={styles.alimInputNext}>시간</Text>
+                  <TextInput
+                    value={alimDirectMinTemp}
+                    onChangeText={(v) => {
+                      setAlimDirectMinTemp(v);                     
+                    }}
+                    placeholder={'0'}
+                    placeholderTextColor="#DBDBDB"
+                    style={[styles.alimInput, styles.mgl20]}                    
+                    returnKyeType='done'
+                    keyboardType="numeric"
+                  />
+                  <Text style={styles.alimInputNext}>분 전</Text>
+                </View>
+                ) : null}
+                {alimIdxTemp == 5 && alimDirectHourTemp == '' && alimDirectMinTemp == '' ? (
+                <View style={styles.timerAlert}>
+                  <Text style={styles.timerAlertText}>시간을 입력해 주세요.</Text>
+                </View>
+                ) : null}
+              </View>
+              <View style={[styles.popBtnBox]}>
+                <TouchableOpacity 
+                  style={[styles.popBtn]}
+                  activeOpacity={opacityVal}
+                  onPress={() => modifyAlim()}
+                >
+                  <Text style={[styles.popBtnText]}>확인</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+			</Modal>
+
+      <Modal
+				visible={exePop}
+				transparent={true}
+				animationType={"none"}	
+        onRequestClose={() => setExePop(false)}			
+			>      
 				<View style={styles.cmPop}>
 					<TouchableOpacity 
 						style={styles.popBack} 
@@ -716,80 +831,36 @@ const ExercisePlanWrite = (props) => {
 					<View style={styles.prvPop}>
 						<TouchableOpacity
 							style={styles.pop_x}					
-							onPress={() => setAlimPop(false)}
+							onPress={() => setExePop(false)}
 						>
               <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
 						</TouchableOpacity>		
 						<View style={[styles.popTitle]}>
-							<Text style={styles.popTitleText}>알림</Text>							
+							<Text style={styles.popTitleText}>운동 종목</Text>							
 						</View>				
-						<View style={styles.alimListView}>
-              {alim_ary.map((item, index) => {
-                return (
-                  <TouchableOpacity 
-                    key={index}
-                    style={[styles.alimListBtn, index != 0 ? styles.mgt20 : null]}
-                    activeOpacity={opacityVal}
-                    onPress={()=>{
-                      setAlimIdxTemp(item.alim_idx);
-                      setAlimDescTemp(item.alim_desc);
-                      if(item.alim_idx != 5){
-                        setAlimDirectHourTemp('');
-                        setAlimDirectMinTemp('');
-                      }
-                    }}
-                  >
-                    <Text style={[styles.alimListBtnText]}>{item.alim_desc}</Text>
-                    {alimIdxTemp == item.alim_idx ? (
-                      <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
-                    ) : (
-                      <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
-                    )}                    
-                  </TouchableOpacity>
-                )
-              })}
-              {alimIdxTemp == 5 ? (
-              <View style={styles.alimInputView}>
-                <TextInput
-                  value={alimDirectHourTemp}
-                  onChangeText={(v) => {
-                    setAlimDirectHourTemp(v);                     
-                  }}
-                  placeholder={'0'}
-                  placeholderTextColor="#DBDBDB"
-                  style={[styles.alimInput]}                    
-                  returnKyeType='done'
-                />
-                <Text style={styles.alimInputNext}>시간</Text>
-                <TextInput
-                  value={alimDirectMinTemp}
-                  onChangeText={(v) => {
-                    setAlimDirectMinTemp(v);                     
-                  }}
-                  placeholder={'0'}
-                  placeholderTextColor="#DBDBDB"
-                  style={[styles.alimInput, styles.mgl20]}                    
-                  returnKyeType='done'
-                  keyboardType="numeric"
-                />
-                <Text style={styles.alimInputNext}>분 전</Text>
-              </View>
-              ) : null}
-              {alimIdxTemp == 5 && alimDirectHourTemp == '' && alimDirectMinTemp == '' ? (
-              <View style={styles.timerAlert}>
-                <Text style={styles.timerAlertText}>시간을 입력해 주세요.</Text>
-              </View>
-              ) : null}
+						<View style={styles.exeListView}>
+              <ScrollView>
+                {exeList.map((item, index) => {                  
+                  return (
+                    <TouchableOpacity 
+                      key={index}
+                      style={[styles.alimListBtn, index != 0 ? styles.mgt20 : null]}
+                      activeOpacity={opacityVal}
+                      onPress={()=>{
+                        handleSelect(item.exe_name);
+                      }}
+                    >
+                      <Text style={[styles.alimListBtnText]}>{item.exe_name}</Text>
+                      {todayExe == item.exe_name ? (
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+                      ) : (
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+                      )}                    
+                    </TouchableOpacity>
+                  )
+                })}
+              </ScrollView>
             </View>
-						<View style={[styles.popBtnBox]}>
-							<TouchableOpacity 
-								style={[styles.popBtn]}
-								activeOpacity={opacityVal}
-								onPress={() => modifyAlim()}
-							>
-								<Text style={[styles.popBtnText]}>확인</Text>
-							</TouchableOpacity>
-						</View>
 					</View>
 				</View>
 			</Modal>
@@ -837,7 +908,10 @@ const styles = StyleSheet.create({
   inputView: {marginTop:10,},
   selectView: {position:'relative',justifyContent:'center'},
 	input: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:15,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},  
-	select: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+	//select: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+  select: {justifyContent:'center',width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e',position:'relative'},
+  selectText: {fontFamily:Font.NotoSansRegular,color: '#666'},
+  selectText2: {color:'#1e1e1e'},
 	selectCont: {},
 	selectArr: {position:'absolute',right:20,},
   startTimeView: {flexDirection:'row',alignItems:'center'},
@@ -861,6 +935,7 @@ const styles = StyleSheet.create({
   alimPopBtn: {flexDirection:'row',alignItems:'center',justifyContent:'center',width:innerWidth,height:52,borderWidth:1,borderColor:'#243B55',borderRadius:5,},
   alimPopBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#243B55',marginRight:10,},
   alimListView: {},
+  exeListView: {maxHeight:innerHeight*0.64},
   alimListBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
   alimListBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
   alimInputView: {flexDirection:'row',alignItems:'flex-end',marginTop:10,},

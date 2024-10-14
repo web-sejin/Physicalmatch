@@ -538,7 +538,7 @@ const TodayExerciseView = (props) => {
                         ) : null}                                  
                         <View style={[styles.reviewInfo, item.sc_type == 1 ? styles.reviewInfo2 : null]}>
                           <View style={styles.reviewNickDate}>
-                            <Text style={styles.reviewNickText}>{item.sc_social_nick}</Text>
+                            <Text style={styles.reviewNickText}>{item.sc_exe_nick}</Text>
                             <Text style={styles.reviewDateText}>{item.created_at.replaceAll('-', '.')}</Text>
                           </View>
                           <View style={styles.reviewCont}>

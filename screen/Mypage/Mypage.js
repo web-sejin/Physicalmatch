@@ -88,9 +88,9 @@ const Mypage = (props) => {
 
 	useEffect(() => {
 		setSwiperList(swp);
-		getGuide1();
-		getGuide2();
-		getGuide3();
+		//getGuide1();
+		//getGuide2();
+		//getGuide3();
 	}, []);
 
 	useEffect(() => {		
@@ -405,36 +405,15 @@ const Mypage = (props) => {
 				</View>
 
 				<View style={styles.swiperView}>
-					<SwiperFlatList
-							ref={swiperRef}
-							index={0}
-							data={swiperList}
-							onChangeIndex={(obj) => {
-								
-							}}
-							renderItem={({ item, index }) => {
-								return (
-									<TouchableOpacity 
-										key={index}
-										style={styles.commuBanner}
-										activeOpacity={opacityVal}
-										onPress={()=>{
-											if(item.type == 'community_guide'){
-												setGuideModal(true);
-											}else if(item.type == 'social_guide'){
-												setGuideModal2(true);
-											}else if(item.type == 'shop_free'){
-												navigation.navigate('Shop', {tab:2});
-											}else if(item.type == 'exercise_guide'){
-												setGuideModal3(true);
-											}
-										}}
-									>
-										<ImgDomain fileWidth={widnowWidth} fileName={'slide_banner'+(index+1)+'.png'} />
-									</TouchableOpacity>
-								)
-							}}
-						/>
+					<TouchableOpacity 
+						style={styles.commuBanner}
+						activeOpacity={opacityVal}
+						onPress={()=>{
+							navigation.navigate('Shop', {tab:2});
+						}}
+					>
+						<ImgDomain fileWidth={widnowWidth} fileName={'slide_banner3.png'} />
+					</TouchableOpacity>
 				</View>
 				<View style={styles.gapBox}></View>
 			</ScrollView>

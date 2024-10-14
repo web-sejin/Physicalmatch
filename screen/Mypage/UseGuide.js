@@ -31,7 +31,7 @@ const UseGuide = (props) => {
 	const [preventBack, setPreventBack] = useState(false);
 	const [loading, setLoading] = useState(false);	
 	const [keyboardStatus, setKeyboardStatus] = useState(0);
-  const [tabSt, setTabSt] = useState(0);
+  const [tabSt, setTabSt] = useState(3);
   const [tabCont, setTabCont] = useState();
 
 	const isFocused = useIsFocused();
@@ -106,9 +106,9 @@ const UseGuide = (props) => {
         <TouchableOpacity
           style={[styles.viewTabBtn, tabSt == 0 ? styles.viewTabBtnOn : null]}
           activeOpacity={opacityVal}
-          onPress={()=>setTabSt(0)}
+          onPress={()=>setTabSt(3)}
         >
-          <Text style={[styles.viewTabBtnText, tabSt == 0 ? styles.viewTabBtnTextOn : null]}>매칭</Text>
+          <Text style={[styles.viewTabBtnText, tabSt == 0 ? styles.viewTabBtnTextOn : null]}>오운완</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.viewTabBtn, tabSt == 1 ? styles.viewTabBtnOn : null]}

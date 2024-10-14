@@ -69,6 +69,7 @@ const ExerciseLogWrite = (props) => {
   const [calendarPop, setCalendarPop] = useState(false);
   const [timePop, setTimePop] = useState(false);
   const [timerPop, setTimerPop] = useState(false);
+  const [exePop, setExePop] = useState(false);
 
   const hourItems = [];
   for(let i=1; i<=24; i++){
@@ -268,6 +269,7 @@ const ExerciseLogWrite = (props) => {
 			setTodayEtc('');
 		}
 		setTodayExe(v);
+    setExePop(false);
 	}
 
   const modifyDate = () => {    
@@ -382,35 +384,52 @@ const ExerciseLogWrite = (props) => {
                   </TouchableOpacity>
                 </View>                
                 <View style={[styles.selectView, styles.mgt30]}>
-                <RNPickerSelect
-                  value={todayExe}
-                  onValueChange={(value, index) => {
-                    Keyboard.dismiss();
-                    handleSelect(value);									
-                  }}
-                  placeholder={{
-                    label: '운동 종목 선택', // 여기에 원하는 플레이스홀더 텍스트를 입력합니다
-                    value: null, // 기본값으로 null을 설정합니다
-                    color: '#666' // 플레이스홀더 텍스트 색상
-                  }}
-                  items={exeList.map(item => ({
-                    label: item.exe_name,
-                    value: item.exe_name,
-                    }))}
-                  fixAndroidTouchableBug={true}
-                  useNativeAndroidPickerStyle={false}
-                  multiline={false}							
-                  style={{
-                    placeholder: {fontFamily:Font.NotoSansRegular,color: '#666'},
-                    inputAndroid: styles.select,
-                    inputAndroidContainer: styles.selectCont,
-                    inputIOS: styles.select,
-                    inputIOSContainer: styles.selectCont,
-                  }}
-                />
+                  {/* <RNPickerSelect
+                    value={todayExe}
+                    onValueChange={(value, index) => {
+                      Keyboard.dismiss();
+                      handleSelect(value);									
+                    }}
+                    placeholder={{
+                      label: '운동 종목 선택', // 여기에 원하는 플레이스홀더 텍스트를 입력합니다
+                      value: null, // 기본값으로 null을 설정합니다
+                      color: '#666' // 플레이스홀더 텍스트 색상
+                    }}
+                    items={exeList.map(item => ({
+                      label: item.exe_name,
+                      value: item.exe_name,
+                      }))}
+                    fixAndroidTouchableBug={true}
+                    useNativeAndroidPickerStyle={false}
+                    multiline={false}							
+                    style={{
+                      placeholder: {fontFamily:Font.NotoSansRegular,color: '#666'},
+                      inputAndroid: styles.select,
+                      inputAndroidContainer: styles.selectCont,
+                      inputIOS: styles.select,
+                      inputIOSContainer: styles.selectCont,
+                    }}
+                  />
                   <View style={styles.selectArr}>
                     <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
-                  </View>
+                  </View> */}
+                  <TouchableOpacity
+                    style={styles.select}
+                    activeOpacity={opacityVal}
+                    onPress={()=>{
+                      Keyboard.dismiss();
+                      setExePop(true);
+                    }}
+                  >
+                    {todayExe ? (
+                      <Text style={[styles.selectText, styles.selectText2]}>{todayExe}</Text>
+                    ) : (
+                      <Text style={styles.selectText}>운동 종목 선택</Text>
+                    )}                    
+                    <View style={styles.selectArr}>
+                      <ImgDomain fileWidth={10} fileName={'icon_arr3.png'}/>
+                    </View>
+                  </TouchableOpacity>
                 </View>
                 {todayExe == '직접입력' ? (
                 <View style={styles.inputView}>								
@@ -675,6 +694,55 @@ const ExerciseLogWrite = (props) => {
 					</View>
 				</View>
 			</Modal>
+
+      <Modal
+				visible={exePop}
+				transparent={true}
+				animationType={"none"}	
+        onRequestClose={() => setExePop(false)}			
+			>      
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 						
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => setExePop(false)}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+						</TouchableOpacity>		
+						<View style={[styles.popTitle]}>
+							<Text style={styles.popTitleText}>운동 종목</Text>							
+						</View>				
+						<View style={styles.exeListView}>
+              <ScrollView>
+                {exeList.map((item, index) => {                  
+                  return (
+                    <TouchableOpacity 
+                      key={index}
+                      style={[styles.alimListBtn, index != 0 ? styles.mgt20 : null]}
+                      activeOpacity={opacityVal}
+                      onPress={()=>{
+                        handleSelect(item.exe_name);
+                      }}
+                    >
+                      <Text style={[styles.alimListBtnText]}>{item.exe_name}</Text>
+                      {todayExe == item.exe_name ? (
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
+                      ) : (
+                        <ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
+                      )}                    
+                    </TouchableOpacity>
+                  )
+                })}
+              </ScrollView>
+            </View>
+					</View>
+				</View>
+			</Modal>
 		</SafeAreaView>
 	)
 }
@@ -722,7 +790,10 @@ const styles = StyleSheet.create({
   inputView: {marginTop:10,},
   selectView: {position:'relative',justifyContent:'center'},
 	input: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:15,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},  
-	select: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+	//select: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+  select: {justifyContent:'center',width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e',position:'relative'},
+  selectText: {fontFamily:Font.NotoSansRegular,color: '#666'},
+  selectText2: {color:'#1e1e1e'},
 	selectCont: {},
 	selectArr: {position:'absolute',right:20,},
   startTimeView: {flexDirection:'row',alignItems:'center'},
@@ -755,6 +826,13 @@ const styles = StyleSheet.create({
 	popBtnOff2: {backgroundColor:'#fff',marginTop:10,},
 	popBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,color:'#fff'},
 	popBtnOffText: {color:'#1e1e1e'},
+
+  exeListView: {maxHeight:innerHeight*0.64},
+  alimListBtn: {flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
+  alimListBtnText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
+  alimInputView: {flexDirection:'row',alignItems:'flex-end',marginTop:10,},
+  alimInput: {width:80,height:34,backgroundColor:'#fff',borderBottomWidth:1,borderBottomColor:'#DBDBDB',textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:16,color:'#1e1e1e',padding:0,},
+  alimInputNext: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:22,color:'#1e1e1e',marginLeft:5,},
 
   red: {color:'#EE4245'},
 	gray: {color:'#B8B8B8'},
