@@ -76,6 +76,7 @@ const MyProfile = (props) => {
 	const [file7Base, setFile7Base] = useState(0);
 	const [file7St, setFile7St] = useState(0);
 	const [file7Idx, setFile7Idx] = useState();
+	const [file7Agree, setFile7Agree] = useState('');
 
 	const [guideModal, setGuideModal] = useState(false);
 	const [guideCont, setGuideCont] = useState();
@@ -176,11 +177,12 @@ const MyProfile = (props) => {
 				}
 			})
 
-			if(response.data.mimg){				
+			if(response.data.mimg){
 				setFile7(response.data.mimg);
 				setFile7Base(1);
 				setFile7St(1);
 				setFile7Idx(response.data.mimg.mti_idx);
+				setFile7Agree(response.data.mimg.agree_yn);
 				if(response.data.mimg.agree_yn == 'n'){
 					setReject(true);
 					setRejectMemo(response.data.info.reject_memo2);
@@ -535,9 +537,16 @@ const MyProfile = (props) => {
                   <View style={styles.reqUserNick}>
                     <Text style={styles.reqUserNickText}>자동생성닉네임</Text>                          
                   </View>
+									{file7Agree == 'i' ? (
                   <View style={styles.reqUserDetail}>
                     <Text style={styles.reqUserDetailText}>수락까지 잠시 기다려주세요!</Text>
                   </View>
+									) : null}
+									{file7Agree == 'n' ? (
+                  <View style={styles.reqUserDetail}>
+                    <Text style={styles.reqUserDetailText}>반려되었어요. 반려사유를 확인해 주세요.</Text>
+                  </View>
+									) : null}
                 </View>
 								{file7.path || file7.mti_img ? (
                 <TouchableOpacity

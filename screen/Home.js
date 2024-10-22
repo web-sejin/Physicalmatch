@@ -467,8 +467,8 @@ const Home = (props) => {
 				tempDistances: distance,
 				tempDistance2s: distance2,
 				tempRecentAccesss: loginedAt,
-				tempRealGender: 0,
-				tempRealGender2: 0,
+				tempRealGender: response.data.ms_sex,
+				tempRealGender2: response.data.ms_open_sex,
 			});
 		}
 	}
@@ -620,6 +620,8 @@ const Home = (props) => {
 			ms_logined_at: realData.tempRecentAccesss,
 			ms_min_open_age: msMaxOpenAge,
 			ms_max_open_age: msMinOpenAge,
+			ms_sex: realData.tempRealGender,
+			ms_open_sex: realData.tempRealGender2
 		};
 
 		if(memberInfo?.member_sub_local != ''){
@@ -1035,6 +1037,7 @@ const Home = (props) => {
   };	
 
 	const moveAlimPage = async () => {
+		//navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type, prevStack:'Home'});
 		navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type});
 	}
 
@@ -1850,11 +1853,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender: 2,
+												tempRealGender: 0,
 											}));
 										}}
 									>
-										{realData.tempRealGender == 2 ? (
+										{realData.tempRealGender == 0 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -1867,11 +1870,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender: 0,
+												tempRealGender: 1,
 											}));
 										}}
 									>
-										{realData.tempRealGender == 0 ? (
+										{realData.tempRealGender == 1 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -1884,11 +1887,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender: 1,
+												tempRealGender: 2,
 											}));
 										}}
 									>
-										{realData.tempRealGender == 1 ? (
+										{realData.tempRealGender == 2 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -2162,11 +2165,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender2: 2,
+												tempRealGender2: 0,
 											}));
 										}}
 									>
-										{realData.tempRealGender2 == 2 ? (
+										{realData.tempRealGender2 == 0 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -2179,11 +2182,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender2: 0,
+												tempRealGender2: 1,
 											}));
 										}}
 									>
-										{realData.tempRealGender2 == 0 ? (
+										{realData.tempRealGender2 == 1 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />
@@ -2196,11 +2199,11 @@ const Home = (props) => {
 										onPress={()=>{
 											setRealData(prevData => ({
 												...prevData,
-												tempRealGender2: 1,
+												tempRealGender2: 2,
 											}));
 										}}
 									>
-										{realData.tempRealGender2 == 1 ? (
+										{realData.tempRealGender2 == 2 ? (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_on.png'} />
 										) : (
 											<ImgDomain fileWidth={20} fileName={'icon_radio_off.png'} />

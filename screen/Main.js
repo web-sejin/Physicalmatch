@@ -183,35 +183,39 @@ const Main = () => {
 
   const navigationRef = useRef(null);
   const toastConfig = {
-		custom_type: (internalState) => (
-			<TouchableOpacity 
-        style={[styles.pushView, internalState.text2 ? styles.pushView2 : null]}
-        activeOpacity={internalState.text2 ? opacityVal : 1}
-        onPress={()=>{
-          // if (internalState.text2 && internalState.props && internalState.props.targetScreen) {
-          //   navigationRef.current?.navigate(internalState.props.targetScreen);
-          //   Toast.hide();
-          // }
-          //console.log("!!!!!!!!!!!!!! ", navigationRef.current);      \
-          
-          if(internalState.text2){
-            if (navigationRef.current && navigationRef.current.navigate) {
-              navigationRef.current?.navigate('Alim');
-              Toast.hide();
-            } else {
-              console.log('Navigation is not available');
+		custom_type: (internalState) => {
+      //console.log('internalState ::: ', internalState);
+      return (
+        <TouchableOpacity 
+          style={[styles.pushView, internalState.text2 ? styles.pushView2 : null]}
+          activeOpacity={internalState.text2 ? opacityVal : 1}
+          onPress={()=>{
+            // if (internalState.text2 && internalState.props && internalState.props.targetScreen) {
+            //   navigationRef.current?.navigate(internalState.props.targetScreen);
+            //   Toast.hide();
+            // }
+            //console.log("!!!!!!!!!!!!!! ", navigationRef.current);         
+            
+            if(internalState.text2){
+              if (navigationRef.current && navigationRef.current.navigate) {                
+                //navigationRef.current?.navigate('Alim', {alarm_type:internalState.props.tabState, prevStack:'Home'});
+                navigationRef.current?.navigate('Alim', {alarm_type:internalState.props.tabState});
+                Toast.hide();
+              } else {
+                console.log('Navigation is not available');
+              }
             }
-          }
-        }}
-      >
-				<Text style={styles.pushSubject}>{internalState.text1}</Text>
-        {internalState.text2 ? (
-          <View style={styles.pushContent}>
-            <Text style={styles.pushContentText}>{internalState.text2}</Text>
-          </View>
-        ) : null}        
-			</TouchableOpacity>
-		),
+          }}
+        >
+          <Text style={styles.pushSubject}>{internalState.text1}</Text>
+          {internalState.text2 ? (
+            <View style={styles.pushContent}>
+              <Text style={styles.pushContentText}>{internalState.text2}</Text>
+            </View>
+          ) : null}        
+        </TouchableOpacity>
+      )
+    },
   };
   
   // useEffect(() => {

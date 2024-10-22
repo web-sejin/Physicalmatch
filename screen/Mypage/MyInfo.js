@@ -587,7 +587,7 @@ const MyInfo = (props) => {
 		};
 
 		const response = await APIs.send(sData);
-		//console.log(response);		
+		console.log(response);		
 		if(response.data.info.member_exercise_yn == 'y'){ 
 			getSportData2(response.data.info.member_exercise);
 		}else{
@@ -685,7 +685,7 @@ const MyInfo = (props) => {
 
 		if(response.data.info.member_smoke_type != '' && response.data.info.member_smoke_type != 'NULL'){
 			setRealSmokeSort(response.data.info.member_smoke_type);			
-			setRealSmokeSortText(smokeSortList[response.data.info.member_smoke_type].txt);
+			//setRealSmokeSortText(smokeSortList[response.data.info.member_smoke_type-1].txt);
 		}
 		if(response.data.info.member_religion){ setRealRel(response.data.info.member_religion); }
 		
@@ -894,6 +894,12 @@ const MyInfo = (props) => {
 
 			if(nick.length < 2 || nick.length > 8){
 				ToastMessage('닉네임은 2~8자리 입력이 가능합니다.');
+				return false;
+			}
+
+			if(/\S/.test(nick) == false){
+				ToastMessage('닉네임을 을 빈 여백으로만 작성할 수 없습니다.');
+				Keyboard.dismiss();
 				return false;
 			}
 

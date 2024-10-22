@@ -273,8 +273,7 @@ const ExercisePlanWrite = (props) => {
       exen_alim: alimIdx,
       exen_alim_hour: alimDirectHour,
       exen_alim_minute: alimDirectMin,
-      exen_content: content,
-      exen_idx: exen_idx,
+      exen_content: content,      
 		};
 
     if(exen_idx){

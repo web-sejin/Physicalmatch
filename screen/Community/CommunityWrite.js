@@ -143,6 +143,12 @@ const CommunityWrite = (props) => {
       return false;
     }
 
+    if(/\S/.test(subject) == false){
+      ToastMessage('제목을 빈 여백으로만 작성할 수 없습니다.');
+      Keyboard.dismiss();
+      return false;
+    }
+
     let contLimitCnt = 0;
     if(cate == 0 || cate == 1){ 
       contLimitCnt = 5;
@@ -151,17 +157,24 @@ const CommunityWrite = (props) => {
     }
 
     if(content == '' || content.length < contLimitCnt || content.length > 1000){
-      ToastMessage('모임 내용을 '+contLimitCnt+'~1000자 입력해 주세요.');
+      ToastMessage('내용을 '+contLimitCnt+'~1000자 입력해 주세요.');
+      return false;
+    }
+
+    if(/\S/.test(content) == false){
+      ToastMessage('내용을 을 빈 여백으로만 작성할 수 없습니다.');
+      Keyboard.dismiss();
       return false;
     }
 
     if(cate == 3 && (phoneImage.path == '' || phoneImage.path == undefined)){
       ToastMessage('사진을 등록해 주세요.');
+      Keyboard.dismiss();
       return false;
     }
 
     Keyboard.dismiss();
-    //setLoading(true);
+    setLoading(true);
 
     let sData = {
 			basePath: "/api/community/",
@@ -377,7 +390,7 @@ const CommunityWrite = (props) => {
             style={[styles.nextBtn, state ? null : styles.nextBtnOff]}
             activeOpacity={opacityVal}
             onPress={() => {
-              socialWriteUpdate();
+              !loading ? socialWriteUpdate() : null
             }}
           >
             <Text style={styles.nextBtnText}>등록하기</Text>

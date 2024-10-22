@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
-import {ActivityIndicator, Alert, AppState, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, PermissionsAndroid, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
+import {ActivityIndicator, Alert, AppState, Button, BackHandler, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, PermissionsAndroid, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -53,6 +53,7 @@ const TodayExercise = (props) => {
 	const [alertMsg, setAlertMsg] = useState('');
 	const [startPop, setStartPop] = useState(false);
 	const [endPop, setEndPop] = useState(false);
+	const [endPop2, setEndPop2] = useState(false);
 	const [exePop, setExePop] = useState(false);	
 	const [exeList, setExeList] = useState([]);
 	const [todayExe, setTodayExe] = useState(null);
@@ -129,10 +130,35 @@ const TodayExercise = (props) => {
       } else {
         //console.log('뒤로 가기 이벤트 발생!');								
       }
+			
     });
 
     return unsubscribe;
   }, [navigationUse, preventBack]);
+
+	// useEffect(() => {
+	// 	const unsubscribe = navigation.addListener('focus', () => {
+	// 		if (route.params?.fromAlim) {
+	// 			// fromAlim 파라미터 제거
+	// 			navigation.setParams({ fromAlim: undefined });
+	// 		}
+	// 	});
+	
+	// 	return unsubscribe;
+	// }, [navigation, route]);
+
+	// useEffect(() => {
+	// 	const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {			
+	// 		if (params?.fromAlim) {	
+	// 			navigation.navigate('Alim', {prevStack:params?.prevStack});
+	// 			delete params?.fromAlim;
+	// 			return true;
+	// 		}
+	// 		return false;
+	// 	});
+	
+	// 	return () => backHandler.remove();
+	// }, [navigation, route]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', (e) => {			
@@ -292,6 +318,13 @@ const TodayExercise = (props) => {
 		};		
 		const response = await APIs.send(sData);		
 		//console.log(response);
+
+		setExenIdx(response.data.exen_idx);
+		setTodayExe(response.data.exen_exercise_name);
+		if(response.data.exen_exercise_name == '직접입력'){
+			setTodayEtc(response.data.exen_exercise_etc);				
+		}
+
 		if(response.type == 'run'){
 			const responseTime = new Date();
 			const now = new Date(response.default_time);
@@ -299,36 +332,42 @@ const TodayExercise = (props) => {
 			//console.log('now ::: ',response.default_time);
 			setStartTime(now);
 			AsyncStorage.setItem('startTime', now.toString());
-			if(pausedElapsedTime == 0){
-				setElapsedTime(0);
-			}
+			setElapsedTime(response.diff_sec+1);
 			setTimerRunning(true);
 			setIsPaused(false);
-			setPausedElapsedTime(0);
-			setExenIdx(response.data.exen_idx);
-			setTodayExe(response.data.exen_exercise_name);
-			if(response.data.exen_exercise_name == '직접입력'){
-				setTodayEtc(response.data.exen_exercise_etc);				
-			}
+			setPausedElapsedTime(0);			
 			
+		}else if(response.type == 'stop'){
+			//console.log('stop !!');
+
+			setEndPop2(true);			
+			setTimerRunning(false);
+			setIsPaused(true);
+			setElapsedTime(response.data.exen_running_time);
+			setPausedElapsedTime(response.data.exen_running_time);
+		}else{
+			setExenIdx(null);
+			setTodayExe(null);
+			setTodayEtc('');
+			setElapsedTime(0);
 		}
 	}
 
 	const MAX_TIME = 36000; // 최대 시간 10시간 (36,000초)
 
-	useEffect(() => {
-    PushNotification.createChannel({
-      channelId: "timer-channel", // 채널 ID
-      channelName: "Timer Channel", // 채널 이름
-      importance: 2, // 중요도 낮춤 (0: 없음, 1: 최소, 2: 낮음, 3: 중간, 4: 높음)
-      vibrate: false, // 진동 비활성화
-    });
-    const subscription = AppState.addEventListener("change", handleAppStateChange);
-    return () => {
-      subscription.remove();
-      BackgroundTimer.stopBackgroundTimer(); // 백그라운드 타이머 종료
-    };
-  }, [startTime, timerRunning]);  
+	// useEffect(() => {
+  //   PushNotification.createChannel({
+  //     channelId: "timer-channel", // 채널 ID
+  //     channelName: "Timer Channel", // 채널 이름
+  //     importance: 2, // 중요도 낮춤 (0: 없음, 1: 최소, 2: 낮음, 3: 중간, 4: 높음)
+  //     vibrate: false, // 진동 비활성화
+  //   });
+  //   const subscription = AppState.addEventListener("change", handleAppStateChange);
+  //   return () => {
+  //     subscription.remove();
+  //     BackgroundTimer.stopBackgroundTimer(); // 백그라운드 타이머 종료
+  //   };
+  // }, [startTime, timerRunning]);
 
   useEffect(() => {
     let interval = null;
@@ -337,10 +376,11 @@ const TodayExercise = (props) => {
       interval = setInterval(() => {
         //setElapsedTime((new Date() - startTime) / 1000);
 				const nowTime = (new Date() - startTime) / 1000 + pausedElapsedTime;
-
+				//console.log('startTime ::: ',startTime);
+				//console.log('nowTime ::: ',nowTime);
 				if (nowTime >= MAX_TIME) {
 					handleStop(); // 10시간이 지나면 타이머 자동 종료
-				} else {
+				} else {					
 					setElapsedTime(nowTime);
 				}
       }, 1000);
@@ -418,7 +458,7 @@ const TodayExercise = (props) => {
 			setIsPaused(false);
 			setPausedElapsedTime(0);
 			setExenIdx(response.data.exen_idx);
-		}    
+		}
   };
 
   const handleStop = async () => {
@@ -490,6 +530,7 @@ const TodayExercise = (props) => {
 	};
 
   const moveAlimPage = async () => {
+		//navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type, prevStack:'TodayExercise'});
 		navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type});
 	}
 
@@ -516,6 +557,34 @@ const TodayExercise = (props) => {
 
 		setStartPop(true);
 	}	
+
+	const handleRestart = async () => {	
+		const now = new Date();
+		let sData = {
+			basePath: "/api/exercise/",
+			type: "StartTodayExercise2",
+			member_idx: memberIdx,
+			exen_idx: exenIdx,
+		};		
+
+		const response = await APIs.send(sData);
+		//console.log(response);
+		if(response.code == 200){			
+			const pausedTime = response.data.exen_running_time || 0;
+			setStartTime(new Date(now.getTime() - pausedTime * 1000));
+			AsyncStorage.setItem('startTime', now.toString());
+			setEndPop2(false);
+			setTimerRunning(true);
+			setIsPaused(false);
+			setElapsedTime(pausedTime);
+			setPausedElapsedTime(pausedTime);
+		}
+	}
+
+	const handleReEnd = () => {
+		setEndPop2(false);
+    handleStop();
+	}
 
 	const getExeSelect = async () => {
 		let sData = {
@@ -739,7 +808,9 @@ const TodayExercise = (props) => {
 								activeOpacity={opacityVal}
 								onPress={()=>{
 									Keyboard.dismiss();
-									setExePop(true);
+									if(!timerRunning){
+										setExePop(true);
+									}
 								}}
 							>
 								{todayExe ? (
@@ -994,7 +1065,7 @@ const TodayExercise = (props) => {
 												</View>
 											</View>
 											<View style={styles.exePlanRight}>
-												<Text style={styles.exePlanRightText}>{item.exen_start_hour} : {item.exen_start_minute}</Text>
+												<Text style={styles.exePlanRightText}>{parseInt(item.exen_start_hour)}시 {parseInt(item.exen_start_minute)}분</Text>
 											</View>
 										</TouchableOpacity>
 									)
@@ -1166,6 +1237,50 @@ const TodayExercise = (props) => {
 								onPress={() => handleDialogConfirm()}
 							>
 								<Text style={styles.popBtnText}>확인</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+			<Modal
+				visible={endPop2}
+				transparent={true}
+				animationType={"none"}				
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 						
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => handleReEnd()}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'} />
+						</TouchableOpacity>		
+						<View style={[styles.popTitle]}>
+							<Text style={styles.popTitleText}>멈춘 운동</Text>							
+						</View>				
+						<View>
+							<Text style={[styles.popTitleDesc, styles.mgt0]}>멈췄던 운동을 다시 시작하시겠습니까?</Text>						
+						</View>
+						<View style={[styles.popBtnBox, styles.popBtnBoxFlex]}>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2, styles.popBtnOff]}
+								activeOpacity={opacityVal}
+								onPress={() => handleReEnd()}
+							>
+								<Text style={[styles.popBtnText, styles.popBtnOffText]}>종료</Text>
+							</TouchableOpacity>
+							<TouchableOpacity 
+								style={[styles.popBtn, styles.popBtn2]}
+								activeOpacity={opacityVal}
+								onPress={() => handleRestart()}
+							>
+								<Text style={styles.popBtnText}>시작</Text>
 							</TouchableOpacity>
 						</View>
 					</View>
@@ -1345,11 +1460,11 @@ const styles = StyleSheet.create({
 	selectView: {position:'relative',justifyContent:'center'},
 	input: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
 	//select: {width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e'},
-	select: {justifyContent:'center',width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#1e1e1e',position:'relative'},
+	select: {justifyContent:'center',width:innerWidth,height:48,backgroundColor:'#fff',borderWidth:1,borderColor:'#DBDBDB',borderRadius:5,paddingLeft:15,paddingRight:40,fontFamily:Font.NotoSansMedium,fontSize:14,color:'#1e1e1e',position:'relative'},
   selectText: {fontFamily:Font.NotoSansRegular,color: '#666'},
   selectText2: {color:'#1e1e1e'},
 	selectCont: {},
-	selectArr: {position:'absolute',right:20,},
+	selectArr: {position:'absolute',right:20,paddingTop:1,},
 	timerView: {alignItems:'center',justifyContent:'center',backgroundColor:'#F9FAFB',height:130,borderRadius:5,marginTop:100,},
 	timerView2: {marginTop:42},
 	timerViewText: {fontFamily:Font.NotoSansBlack,fontSize:38,lineHeight:46,color:'#888'},

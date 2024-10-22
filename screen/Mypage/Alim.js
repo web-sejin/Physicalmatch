@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef,useCallback} from 'react';
-import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
+import {ActivityIndicator, Alert, Button, BackHandler, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -66,6 +66,7 @@ const Alim = (props) => {
 
       if(params?.alarm_type){
         setTabSt(params?.alarm_type);
+        delete params?.alarm_type
       }
 		}
 
@@ -95,11 +96,25 @@ const Alim = (props) => {
     if(memberIdx){     
       setLoading(true);
       getMemInfo();
-      getAlimList(tabSt, 1);
+      getAlimList(tabSt, 1);      
       setNowPage(1);
       memberHandler();
     }
   }, [memberIdx, tabSt]);
+
+  // useEffect(() => {
+	// 	const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {			
+	// 		if (params?.prevStack) {	
+	// 			navigation.navigate(params?.prevStack);
+	// 			delete params?.prevStack;
+	// 			return true;
+	// 		}else{
+  //       navigation.goBack();
+  //     }
+	// 	});
+	
+	// 	return () => backHandler.remove();
+	// }, [navigation, route]);
 
   const memberHandler = async () => {
     const formData = new FormData();
@@ -140,7 +155,7 @@ const Alim = (props) => {
       alarm_type: type,
 		}
 		const response = await APIs.send(sData);
-    //console.log(response);
+    console.log(response);
 		if(response.code == 200){      
       //console.log(memberInfo);
       setOtherTabNew(response.is_new);
@@ -162,26 +177,35 @@ const Alim = (props) => {
     setLoading(false);
   }
 
-  const moveScreen = async (v, alarm_idx, sceenName) => {
+  const moveScreen = async (v, alarm_idx, screenName) => {
     //console.log(alarm_idx);
     //console.log('sceenName ::: ', sceenName);
     let moveState = 0;
-    if((sceenName == 'Home' || sceenName == 'MatchDetail') && memberInfo?.is_match_ban == 'y'){
+    if((screenName == 'Home' || screenName == 'MatchDetail') && memberInfo?.is_match_ban == 'y'){
       moveState = 1;
-    }else if(sceenName == 'SocialView' && memberInfo?.is_social_ban == 'y'){
+    }else if(screenName == 'SocialView' && memberInfo?.is_social_ban == 'y'){
       moveState = 2;
-    }else if(sceenName == 'CommunityView' && memberInfo?.is_comm_ban == 'y'){
+    }else if(screenName == 'CommunityView' && memberInfo?.is_comm_ban == 'y'){
       moveState = 3;
+    }else if(screenName == 'TodayExerciseView' && memberInfo?.is_comm_ban == 'y'){
+      moveState = 4;
     }
 
     if(moveState == 0){          
       if(v){
         const itemParams = v;
         const itemParamsObj = JSON.parse(itemParams);      
-        //console.log(itemParamsObj);
-        navigation.navigate(sceenName, itemParamsObj)
+        console.log('itemParamsObj ::: ',itemParamsObj);
+        navigation.navigate(screenName, itemParamsObj);
       }else{
-        navigation.navigate(sceenName);
+        if(screenName == 'TodayExercise'){          
+          navigation.navigate('TabNavigation', {
+            screen: 'TodayExercise',
+            params: { reload: true, tab: 3, fromAlim: true, prevStack:params?.prevStack }
+          });
+        }else{
+          navigation.navigate(screenName);
+        }
       }
     }else{
       if(moveState == 1){
@@ -190,6 +214,8 @@ const Alim = (props) => {
         ToastMessage('앗! 소셜을 이용할 수 없어요🥲');
       }else if(moveState == 3){
         ToastMessage('앗! 커뮤니티를 이용할 수 없어요🥲');
+      }else if(moveState == 4){
+        ToastMessage('앗! 오운완을 이용할 수 없어요🥲');
       }
     }
   }

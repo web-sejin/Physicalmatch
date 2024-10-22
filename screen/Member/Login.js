@@ -46,7 +46,7 @@ const Login = (props) => {
 			setPageSt(!pageSt);
 
 			AsyncStorage.getItem('appToken', (err, result) => {
-				console.log('login appToken :::: ', result);
+				//console.log('login appToken :::: ', result);
 				if(result){
 					setFirebaseToken(result);
 				}else{

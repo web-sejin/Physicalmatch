@@ -127,8 +127,9 @@ const RegisterResult = (props) => {
     // 백그라운드에서 알림을 탭하여 앱을 열었을 때
     const unsubscribeOnNotificationOpenedApp = messaging().onNotificationOpenedApp(remoteMessage => {
       //console.log('백그라운드에서 알림으로 앱 열림:', remoteMessage);
-      // 필요한 처리 로직 추가
-      navigation.navigate('Alim');
+      // 필요한 처리 로직 추가      
+			//navigation.navigate('Alim', {prevStack:'RegisterResult'});
+			navigation.navigate('Alim');
     });
 
     // 앱이 종료된 상태에서 알림을 탭하여 앱을 열었을 때
@@ -138,7 +139,8 @@ const RegisterResult = (props) => {
         if (remoteMessage) {
           //console.log('종료 상태에서 알림으로 앱 열림:', remoteMessage);          
           // 필요한 처리 로직 추가
-          navigation.navigate('Alim');
+          //navigation.navigate('Alim', {prevStack:'RegisterResult'});
+					navigation.navigate('Alim');
         }
       });
 

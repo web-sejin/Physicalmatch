@@ -299,6 +299,12 @@ const MyIntro = (props) => {
 			ToastMessage('질문에 대한 답변을 5자 이상 입력해 주세요.');
 			return false;
 		}
+
+		if(/\S/.test(ingContent) == false){
+      ToastMessage('질문에 대한 답변을 빈 여백으로만 작성할 수 없습니다.');
+      Keyboard.dismiss();
+      return false;
+    }
 		
 		let chg = false;
 		let offIdx = 0;
@@ -344,6 +350,12 @@ const MyIntro = (props) => {
 			ToastMessage('자기소개를 50자 이상 작성해 주세요.');
 			return false;
 		}
+
+		if(/\S/.test(intro) == false){
+      ToastMessage('자기소개를 빈 여백으로만 작성할 수 없습니다.');
+      Keyboard.dismiss();
+      return false;
+    }
 
 		if(!nextOpen){
 			ToastMessage('1~3번째 질문 작성을 완성해 주세요.');

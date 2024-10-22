@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -53,6 +53,7 @@ const TabBarMenu = (props) => {
   const [matchBan, setMatchBan] = useState();
   const [socialBan, setSocialBan] = useState();
   const [commBan, setCommBan] = useState();
+  const [exeBan, setExeBan] = useState();
   const screenName = state.routes[state.index].name; 
 
   //console.log('screenName : ',screenName);
@@ -81,12 +82,14 @@ const TabBarMenu = (props) => {
 		};
 	
 		const response = await APIs.send(sData);    
+    //console.log('response ::: ',response.data.is_exercise_ban);
     if(response.code == 200){
 		  setMemberType(response.data.member_type);
       //setMatchBan(response.data.is_match_ban);
       setMatchBan(response.data.is_match_ban);
       setSocialBan(response.data.is_social_ban);
       setCommBan(response.data.is_comm_ban);
+      setExeBan(response.data.is_exercise_ban);
     }
   }  
 
@@ -148,7 +151,7 @@ const TabBarMenu = (props) => {
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
         onPress={() => {
-          if(socialBan == 'y'){
+          if(exeBan == 'y'){
             ToastMessage('앗! 오운완을 이용할 수 없어요🥲');  
           }else{
             navigation.navigate('TodayExercise');
@@ -171,7 +174,7 @@ const TabBarMenu = (props) => {
         style={styles.TabBarBtn} 
         activeOpacity={opacityVal}
         onPress={() => {
-          if(socialBan == 'y'){
+          if(commBan == 'y'){
             ToastMessage('앗! 커뮤니티를 이용할 수 없어요🥲');  
           }else{
             navigation.navigate('Community');
@@ -300,8 +303,23 @@ const TabNavigation = (props) => {
   useEffect(() => {
     // 포그라운드 메시지 처리
     const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
-      console.log('포그라운드 메시지:', remoteMessage);
-      ToastMessage(remoteMessage.data.subject, 3500, '1', '', remoteMessage.data.content);
+      //console.log('포그라운드 메시지:', remoteMessage);
+      const rawParams = remoteMessage.data.params;
+      let parsedParams = null;
+      try {
+        // 문자열을 JSON으로 파싱
+        const rawParams2 = JSON.parse(rawParams);
+        if(rawParams2.tabState){
+          parsedParams = rawParams2.tabState;
+        }else{
+          parsedParams = null;
+        }
+      } catch (e) {
+        parsedParams = null;
+        //console.error("Failed to parse params:", e);
+      }      
+
+      ToastMessage(remoteMessage.data.subject, 3500, '1', '', remoteMessage.data.content, parsedParams);
       
       let mb_idx = await AsyncStorage.getItem('member_idx');
       if (mb_idx) {
@@ -313,8 +331,23 @@ const TabNavigation = (props) => {
     // 백그라운드에서 알림을 탭하여 앱을 열었을 때
     const unsubscribeOnNotificationOpenedApp = messaging().onNotificationOpenedApp(remoteMessage => {
       //console.log('백그라운드에서 알림으로 앱 열림:', remoteMessage);
-      // 필요한 처리 로직 추가
-      navigation.navigate('Alim');
+      const rawParams = remoteMessage.data.params;
+      let parsedParams = null;
+      try {
+        // 문자열을 JSON으로 파싱
+        const rawParams2 = JSON.parse(rawParams);
+        if(rawParams2.tabState){
+          parsedParams = rawParams2.tabState;
+        }else{
+          parsedParams = null;
+        }
+      } catch (e) {
+        parsedParams = null;
+        //console.error("Failed to parse params:", e);
+      }      
+      // 필요한 처리 로직 추가      
+      //navigation.navigate('Alim', {alarm_type:parsedParams, prevStack:'Home'});
+      navigation.navigate('Alim', {alarm_type:parsedParams});
     });
 
     // 앱이 종료된 상태에서 알림을 탭하여 앱을 열었을 때
@@ -323,8 +356,23 @@ const TabNavigation = (props) => {
       .then(remoteMessage => {
         if (remoteMessage) {
           //console.log('종료 상태에서 알림으로 앱 열림:', remoteMessage);          
+          const rawParams = remoteMessage.data.params;
+          let parsedParams = null;
+          try {
+            // 문자열을 JSON으로 파싱
+            const rawParams2 = JSON.parse(rawParams);
+            if(rawParams2.tabState){
+              parsedParams = rawParams2.tabState;
+            }else{
+              parsedParams = null;
+            }
+          } catch (e) {
+            parsedParams = null;
+            //console.error("Failed to parse params:", e);
+          }          
           // 필요한 처리 로직 추가
-          navigation.navigate('Alim');
+          //navigation.navigate('Alim', {alarm_type:parsedParams, prevStack:'Home'});
+          navigation.navigate('Alim', {alarm_type:parsedParams});
         }
       });
 

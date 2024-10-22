@@ -70,7 +70,7 @@ const Card2 = (props) => {
     <View style={[styles.cardBtn, styles.cardBtn2, propsSreen == 'SocialView' ? styles.cardBtn3 : null, viewOrder%3 == 0 ? styles.mgr0 : null]}>
       <TouchableOpacity 
         style={[styles.fakeView]} 
-        activeOpacity={opacityVal}
+        activeOpacity={1}
         onPress={()=>{        
           if(propsDday > 0){
             if(spin.value == 0){

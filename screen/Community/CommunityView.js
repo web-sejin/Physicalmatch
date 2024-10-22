@@ -1178,7 +1178,7 @@ const CommunityView = (props) => {
                                 style={styles.reqUser}
                                 activeOpacity={1}
                               >
-                                <ImgDomain2 fileWidth={46} fileName={item.send_profile} />
+                                {/* <ImgDomain2 fileWidth={46} fileName={item.send_profile} /> */}
                               </TouchableOpacity>
                               <View style={styles.reqUserInfo}>
                                 <View style={styles.tradeState}>
@@ -1275,7 +1275,7 @@ const CommunityView = (props) => {
                                       {item.diff_date > 0 ? (
                                       <>
                                         <View style={styles.peopleImg}>
-                                          <ImgDomain2 fileWidth={110} fileName={item.send_profile} />
+                                          {/* <ImgDomain2 fileWidth={110} fileName={item.send_profile} /> */}
                                         </View>
                                         <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                                           <View	View style={styles.cardFrontDday}>

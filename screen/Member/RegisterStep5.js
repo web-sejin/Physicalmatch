@@ -706,6 +706,17 @@ const RegisterStep5 = ({navigation, route}) => {
 				return false;
 			}
 
+			if(nick.length < 2 || nick.length > 8){
+				ToastMessage('닉네임은 2~8자리 입력이 가능합니다.');
+				return false;
+			}
+
+			if(/\S/.test(nick) == false){
+				ToastMessage('닉네임을 을 빈 여백으로만 작성할 수 없습니다.');
+				Keyboard.dismiss();
+				return false;
+			}
+
 			let sData = {      
 				basePath: "/api/member/index.php",
 				type: "IsDuplicationNick",

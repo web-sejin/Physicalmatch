@@ -129,8 +129,8 @@ const Community = (props) => {
 
 	useEffect(() => {
 		setSwiperList(swp);
-		getGuide1();
-		//getGuide2();
+		//getGuide1();
+		getGuide2();
 		//getGuide3();
 	}, []);
 
@@ -355,7 +355,8 @@ const Community = (props) => {
   }
 
 	const moveAlimPage = async () => {
-		console.log('alarm_type ::: ', userInfo?.alarm_type);
+		//console.log('alarm_type ::: ', userInfo?.alarm_type);
+		//navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type, prevStack:'Community'});
 		navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type});
 	}
 

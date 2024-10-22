@@ -357,6 +357,12 @@ const ProfieModify = (props) => {
 				return false;
       }
 
+      if(/\S/.test(nick) == false){
+				ToastMessage('닉네임을 을 빈 여백으로만 작성할 수 없습니다.');
+				Keyboard.dismiss();
+				return false;
+			}
+
 			let sData = {      
 				basePath: "/api/member/",
 				type: "IsDuplicationNick",

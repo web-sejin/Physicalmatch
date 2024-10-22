@@ -108,7 +108,7 @@ const Social = (props) => {
 			setRouteLoad(true);
 			setPageSt(!pageSt);
 
-			console.log('userInfo social :::: ', userInfo.is_new);
+			//console.log('userInfo social :::: ', userInfo.is_new);
 
 			AsyncStorage.getItem('member_idx', (err, result) => {		
 				setMemberIdx(result);
@@ -163,8 +163,8 @@ const Social = (props) => {
 
 	useEffect(() => {
 		getDateInfo();
-		//getGuide1();
-		getGuide2();
+		getGuide1();
+		//getGuide2();
 		//getGuide3();
 	}, []);
 
@@ -265,8 +265,8 @@ const Social = (props) => {
 		setAgeAry(yaerAry);
 		setAgeAryIdx(yaerAryIdx);
 
-		const yearVal = year+4;
-		const yearVal2 = year2-5;
+		const yearVal = year+2;
+		const yearVal2 = year2-2;
 		
 		let yearString = yearVal.toString();
 		setRealAgeMax(yearString);
@@ -278,9 +278,9 @@ const Social = (props) => {
 		
 		setAgeMin((yearString2).toString());
 		setAgeMax((yearString).toString());
-		setAgeMinInt(5);
-		setAgeMaxInt(cnt-5);
-		setNonCollidingMultiSliderValue([5, cnt-5]);
+		setAgeMinInt(2);
+		setAgeMaxInt(cnt-3);
+		setNonCollidingMultiSliderValue([2, cnt-3]);
 	}
 
 	const getSocialList = async (viewPage) => {
@@ -582,7 +582,7 @@ const Social = (props) => {
 			tab: 1,
 		};
 
-		const response = await APIs.send(sData);    		
+		const response = await APIs.send(sData);		
     setGuideSocial(response.data);
   }
 
@@ -608,7 +608,8 @@ const Social = (props) => {
     setGuideExercise(response.data);
   }
 
-	const moveAlimPage = async () => {
+	const moveAlimPage = async () => {	
+		//navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type, prevStack:'Social'});
 		navigation.navigate('Alim', {alarm_type:userInfo?.alarm_type});
 	}
 

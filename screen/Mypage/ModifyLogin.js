@@ -144,17 +144,20 @@ const ModifyLogin = (props) => {
 	const update = async () => {
 		if(pw == '' && pw2 == '' && pw3 == '' && (!newPhone || newPhone == '')){
 			ToastMessage('변경할 정보를 입력해 주세요.');
+			Keyboard.dismiss();
 			return false;
 		}
 		
 		if(pw != '' || pw2 != '' || pw3 != ''){
 			if(!pw || pw == ""){
 				ToastMessage('기존 비밀번호를 입력해 주세요.');
+				Keyboard.dismiss();
 				return false;
 			}		
 
 			if(!pw2 || pw2 == ""){
 				ToastMessage('변경할 비밀번호를 입력해 주세요.');
+				Keyboard.dismiss();
 				return false;
 			}
 
@@ -164,21 +167,25 @@ const ModifyLogin = (props) => {
 
 			if (pw2.length < 6 || pw2.length > 16) {
 				ToastMessage('비밀번호는 영문, 숫자, 특수문자를 활용해 6~16자리 수를 입력해 주세요.');
+				Keyboard.dismiss();
 				return false;
 			}
 
 			if(pw == pw2){
 				ToastMessage('기존 비밀번호와 변경할 비밀번호가 같습니다.\n다시 입력해 주세요.');
+				Keyboard.dismiss();
 				return false;
 			}
 
 			if(!pw3 || pw3 == ""){
 				ToastMessage('변경할 비밀번호를 한 번 더 입력해 주세요.');
+				Keyboard.dismiss();
 				return false;
 			}
 			
 			if(pw2 != pw3){
 				ToastMessage('비밀번호가 일치하지 않습니다. 다시 입력해 주세요.');
+				Keyboard.dismiss();
 				return false;
 			}
 		}
@@ -195,14 +202,13 @@ const ModifyLogin = (props) => {
 		if(pw){
 			sData.member_pw = pw;
 			sData.member_new_pw = pw2;
-			member_new_repw = pw3;
+			sData.member_new_repw = pw3;
 		}
 		if(newPhone){
 			sData.member_phone = phone;
 			sData.member_new_phone = newPhone;
 		}
 		const response = await APIs.send(sData);		
-		//console.log(response);
 		if(response.code == 200){
 			ToastMessage('정보수정이 완료되었습니다.');
 			setPw('');
@@ -210,6 +216,7 @@ const ModifyLogin = (props) => {
 			setPw3('');
 			setNewPhone();
 			setPhone(response.data.member_phone);
+			Keyboard.dismiss();
 		}else{
 			if(response.msg == 'INCORRECT PW'){
 				ToastMessage('현재 비밀번호가 일치하지 않습니다.');
@@ -227,76 +234,84 @@ const ModifyLogin = (props) => {
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'로그인 정보 변경'}/>
 
-			<ScrollView>		
-        <View style={styles.cmWrap}>
-					<View>
-						<View style={styles.title}>
-							<Text style={styles.titleText}>아이디</Text>
-						</View>
-						<View style={styles.input}>
-							<Text style={styles.inputText}>{id}</Text>
-						</View>
-					</View>
+			<KeyboardAvoidingView
+        keyboardVerticalOffset={0}
+        behavior={behavior}
+        style={{flex: 1}}
+      >
+				<ScrollView>		
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View style={styles.cmWrap}>
+							<View>
+								<View style={styles.title}>
+									<Text style={styles.titleText}>아이디</Text>
+								</View>
+								<View style={styles.input}>
+									<Text style={styles.inputText}>{id}</Text>
+								</View>
+							</View>
 
-					<View style={styles.mgt40}>
-						<View style={styles.title}>
-							<Text style={styles.titleText}>비밀번호 변경</Text>
-						</View>
-						<TextInput
-							secureTextEntry={true}
-							value={pw}
-							onChangeText={(v) => setPw(v)}
-							placeholder={'기존 비밀번호'}
-							placeholderTextColor="#DBDBDB"
-							style={[styles.input, styles.input2]}
-							returnKyeType='done'
-						/>
-						<TextInput
-							secureTextEntry={true}
-							value={pw2}
-							onChangeText={(v) => setPw2(v)}
-							placeholder={'영문, 숫자, 특수문자 6~16자'}
-							placeholderTextColor="#DBDBDB"
-							style={[styles.input, styles.input2, styles.mgt15]}
-							maxLength={16}
-							returnKyeType='done'
-						/>
-						<TextInput
-							secureTextEntry={true}
-							value={pw3}
-							onChangeText={(v) => setPw3(v)}
-							placeholder={'비밀번호 확인'}
-							placeholderTextColor="#DBDBDB"
-							style={[styles.input, styles.input2, styles.mgt15]}
-							maxLength={16}
-							returnKyeType='done'
-						/>
-					</View>
+							<View style={styles.mgt40}>
+								<View style={styles.title}>
+									<Text style={styles.titleText}>비밀번호 변경</Text>
+								</View>
+								<TextInput
+									secureTextEntry={true}
+									value={pw}
+									onChangeText={(v) => setPw(v)}
+									placeholder={'기존 비밀번호'}
+									placeholderTextColor="#DBDBDB"
+									style={[styles.input, styles.input2]}
+									returnKyeType='done'
+								/>
+								<TextInput
+									secureTextEntry={true}
+									value={pw2}
+									onChangeText={(v) => setPw2(v)}
+									placeholder={'영문, 숫자, 특수문자 6~16자'}
+									placeholderTextColor="#DBDBDB"
+									style={[styles.input, styles.input2, styles.mgt15]}
+									maxLength={16}
+									returnKyeType='done'
+								/>
+								<TextInput
+									secureTextEntry={true}
+									value={pw3}
+									onChangeText={(v) => setPw3(v)}
+									placeholder={'비밀번호 확인'}
+									placeholderTextColor="#DBDBDB"
+									style={[styles.input, styles.input2, styles.mgt15]}
+									maxLength={16}
+									returnKyeType='done'
+								/>
+							</View>
 
-					<View style={styles.mgt40}>
-						<View style={[styles.title, styles.mgb15]}>
-							<Text style={styles.titleText}>휴대폰 번호 변경</Text>
+							<View style={styles.mgt40}>
+								<View style={[styles.title, styles.mgb15]}>
+									<Text style={styles.titleText}>휴대폰 번호 변경</Text>
+								</View>
+								<TouchableOpacity 
+									style={[styles.nextBtn, styles.nextBtn2]}
+									activeOpacity={opacityVal}
+									onPress={() => fnCert()}
+								>
+									<Text style={[styles.nextBtnText, styles.nextBtnText2]}>휴대폰 번호 인증</Text>
+								</TouchableOpacity>
+							</View>
 						</View>
-						<TouchableOpacity 
-							style={[styles.nextBtn, styles.nextBtn2]}
-							activeOpacity={opacityVal}
-							onPress={() => fnCert()}
-						>
-							<Text style={[styles.nextBtnText, styles.nextBtnText2]}>휴대폰 번호 인증</Text>
-						</TouchableOpacity>
-					</View>
-        </View>			
-			</ScrollView>
+					</TouchableWithoutFeedback>
+				</ScrollView>
 
-			<View style={styles.nextFix}>
-				<TouchableOpacity 
-					style={[styles.nextBtn, state ? null : styles.nextBtnOff]}
-					activeOpacity={opacityVal}
-					onPress={() => {update()}}
-				>
-					<Text style={styles.nextBtnText}>수정하기</Text>
-				</TouchableOpacity>
-			</View>	
+				<View style={styles.nextFix}>
+					<TouchableOpacity 
+						style={[styles.nextBtn, state ? null : styles.nextBtnOff]}
+						activeOpacity={opacityVal}
+						onPress={() => {update()}}
+					>
+						<Text style={styles.nextBtnText}>수정하기</Text>
+					</TouchableOpacity>
+				</View>	
+			</KeyboardAvoidingView>
 
 			{loading ? (
       <View style={[styles.indicator]}>

@@ -68,6 +68,8 @@ const SocialView = (props) => {
   const [socialPop2, setSocialPop2] = useState(false);
   const [blockPop, setBlockPop] = useState(false);
   const [fullPop, setFullPop] = useState(false);
+  const [fullPop2, setFullPop2] = useState(false);
+  const [fullPop3, setFullPop3] = useState(false);
   const [focusState, setFocusState] = useState(false);
   const [reportList, setReportList] = useState([]);
   const [productApiList, setProductApiList] = useState([]);
@@ -108,6 +110,7 @@ const SocialView = (props) => {
   const [bookSt, setBookSt] = useState(false);
   const [profileState, setProfileState] = useState('');
   const [profileImg, setProfileImg] = useState('');
+  const [profileImg2, setProfileImg2] = useState('');
   const [visualImg, setVisualImg] = useState('');
   const [hostGuest, setHostGuest] = useState('');
   const [guestGuest, setGuestGuest] = useState('');
@@ -122,6 +125,7 @@ const SocialView = (props) => {
   const [confirmWomanCnt, setConfirmWomanCnt] = useState(0);
   const [sjIdx, setSjIdx] = useState();
   const [diffDate, setDiffDate] = useState();
+  const [joinAv, setJoinAv] = useState(0);
 
   const [reqList, setReqList] = useState([]);
   const [acceptList, setAcceptList] = useState([]);
@@ -478,6 +482,8 @@ const SocialView = (props) => {
         setVisualImg(response.data.img[0].si_img);
       }
 
+      setProfileImg2(response.data.social.host_profile_img);
+
       if(response.data.social.mini_profile_img){
         setProfileState(1);
         setProfileImg(response.data.social.mini_profile_img);        
@@ -506,7 +512,8 @@ const SocialView = (props) => {
       setDatetime(response.data.social.AgoTime);
       setSubject(response.data.social.social_subject);
       setMeetDate(response.data.social.social_date_text);      
-      setMeetLocal(response.data.social.social_location);
+      setMeetLocal(response.data.social.social_location);      
+      setJoinAv(response.joinAv);
 
       //0=> // 1=>미팅 // 2=>모임
       if(response.data.social.social_type == 0){
@@ -1314,38 +1321,42 @@ const SocialView = (props) => {
                       if(memberInfo?.member_type != 1){
                         ToastMessage('앗! 정회원만 이용할 수 있어요🥲');
                       }else{
-                        let joinAv = false;
-                        if(meetCate == '미팅'){
-                          if(memberInfo?.member_sex == 0){ 
-                            if(meetManCnt > confirmManCnt){
-                              joinAv = true;
-                            }else{
-                              joinAv = false;
-                            }
-                          }else if(memberInfo?.member_sex == 1){
-                            if(meetWomanCnt > confirmWomanCnt){
-                              joinAv = true;
-                            }else{
-                              joinAv = false;
-                            }
-                          }
-                        }else if(meetCate == '모임'){
-                          console.log(meetCate,' ::: ', meetCnt);
-                          if(meetCnt > confirmManCnt+confirmWomanCnt){
-                            joinAv = true;
-                          }else{
-                            joinAv = false;
-                          }
-                        }
-                        
-                        if(!joinAv){
-                          setFullPop(true);
-                        }else{                        
+                        // let joinAv = false;
+                        // if(meetCate == '미팅'){
+                        //   if(memberInfo?.member_sex == 0){ 
+                        //     if(meetManCnt > confirmManCnt){
+                        //       joinAv = true;
+                        //     }else{
+                        //       joinAv = false;
+                        //     }
+                        //   }else if(memberInfo?.member_sex == 1){
+                        //     if(meetWomanCnt > confirmWomanCnt){
+                        //       joinAv = true;
+                        //     }else{
+                        //       joinAv = false;
+                        //     }
+                        //   }
+                        // }else if(meetCate == '모임'){
+                        //   console.log(meetCate,' ::: ', meetCnt);
+                        //   if(meetCnt > confirmManCnt+confirmWomanCnt){
+                        //     joinAv = true;
+                        //   }else{
+                        //     joinAv = false;
+                        //   }
+                        // }
+                        console.log('joinAv :::: ',joinAv);
+                        if(joinAv == 0){
                           if(memberPoint < 5){
                             setCashPop(true);
                           }else{
                             setSocialPop(true);
                           }
+                        }else if(joinAv == 1){
+                          setFullPop3(true);
+                        }else if(joinAv == 2){
+                          setFullPop(true);
+                        }else if(joinAv == 3){
+                          setFullPop2(true);
                         }
                       }                      
                     }}
@@ -1616,6 +1627,7 @@ const SocialView = (props) => {
 													</TouchableOpacity>
 												)
                       }else{
+                        console.log('!!!!!!! ',item);
                         return (
                           <Card2 
                             navigation={navigation}
@@ -1624,7 +1636,8 @@ const SocialView = (props) => {
                             propsAge={item.member_age}													
                             propsHeight={item.member_height}													
                             propsFlip={item.isFlipped}
-                            propsDday={item.dday}
+                            //propsDday={item.dday}
+                            propsDday={item.dateDiff}                            
                             propsSreen={'SocialView'}
                             viewOrder={index+1}
                             propsSjIdx={item.sj_idx}
@@ -1735,6 +1748,7 @@ const SocialView = (props) => {
                   style={styles.reqStateBox}
                   activeOpacity={1}
                   onPress={()=>{
+                    //console.log('dateDiff ::: ',dateDiff);
                     if(dateDiff > 0){
                       navigation.navigate(
                         'MatchDetail', 
@@ -1762,7 +1776,9 @@ const SocialView = (props) => {
                             <View style={styles.peopleImgBack}>
                               <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                             </View>
-                            <AutoHeightImage width={110} source={{uri:'https://physicalmatch.co.kr/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
+                            <View style={styles.peopleImg}>
+                              <ImgDomain2 fileWidth={110} fileName={profileImg2} />
+                            </View>
                             <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                               <View	View style={styles.cardFrontDday}>
                                 <Text style={styles.cardFrontDdayText}>D-{dateDiff}</Text>
@@ -1780,7 +1796,7 @@ const SocialView = (props) => {
                         </View>
                       ) : (
                         <View style={[styles.cardCont, styles.cardCont2, styles.back]}>    
-                          <View style={styles.boxShadow}>
+                          <View style={{...styles.boxShadow, borderTopLeftRadius:80, borderTopRightRadius:80,}}>
                             <ImgDomain fileWidth={(innerWidth/3)-7} fileName={'front2.png'} />     
                           </View>      
                         </View>
@@ -1832,7 +1848,9 @@ const SocialView = (props) => {
                             <View style={styles.peopleImgBack}>
                               <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                             </View>
-                            <AutoHeightImage width={110} source={{uri:'https://physicalmatch.co.kr/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
+                            <View style={styles.peopleImg}>
+                              <ImgDomain2 fileWidth={110} fileName={profileImg2} />
+                            </View>
                             <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                               <View	View style={styles.cardFrontDday}>
                                 <Text style={styles.cardFrontDdayText}>D-{dateDiff}</Text>
@@ -1843,7 +1861,7 @@ const SocialView = (props) => {
                               <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
                                 <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{age}</Text>
                                 <View style={styles.cardFrontContLine}></View>
-                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
+                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{height}cm</Text>
                               </View>
                             </View>
                           </View>
@@ -1902,7 +1920,10 @@ const SocialView = (props) => {
                             <View style={styles.peopleImgBack}>
                               <ImgDomain fileWidth={110} fileName={'front2.png'}/>
                             </View>
-                            <AutoHeightImage width={110} source={{uri:'https://physicalmatch.co.kr/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} />
+                            {/* <AutoHeightImage width={110} source={{uri:'https://physicalmatch.co.kr/appImg/woman2.png'}} resizeMethod='resize' style={styles.peopleImg} /> */}
+                            <View style={styles.peopleImg}>
+                              <ImgDomain2 fileWidth={110} fileName={profileImg2} />
+                            </View>
                             <View style={[styles.cardFrontInfoCont, styles.cardFrontInfoCont3, styles.boxShadow3]}>
                               <View	View style={styles.cardFrontDday}>
                                 <Text style={styles.cardFrontDdayText}>D-{dateDiff}</Text>
@@ -1913,7 +1934,7 @@ const SocialView = (props) => {
                               <View style={[styles.cardFrontContBox, styles.cardFrontContBox2, styles.mgt4]}>
                                 <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{age}</Text>
                                 <View style={styles.cardFrontContLine}></View>
-                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>100cm</Text>
+                                <Text style={[styles.cardFrontContText, styles.cardFrontContText2]}>{height}cm</Text>
                               </View>
                             </View>
                           </View>
@@ -2755,6 +2776,84 @@ const SocialView = (props) => {
 				</View>
 			</Modal>
 
+      <Modal
+				visible={fullPop2}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setFullPop2(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setFullPop2(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setFullPop2(false)}}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+						</TouchableOpacity>		
+						<View style={[styles.popTitle, styles.popTitleFlex]}>							
+							<View style={styles.popTitleFlexWrap}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>성별 제한이 있는 소셜이에요</Text>
+              </View>
+              <ImgDomain fileWidth={18} fileName={'emiticon1.png'}/>
+						</View>
+						<View style={styles.popBtnBox}>
+							<TouchableOpacity 
+								style={[styles.popBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {setFullPop2(false)}}
+							>
+								<Text style={styles.popBtnText}>확인</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+      <Modal
+				visible={fullPop3}
+				transparent={true}
+				animationType={"none"}
+				onRequestClose={() => setFullPop3(false)}
+			>
+				<View style={styles.cmPop}>
+					<TouchableOpacity 
+						style={styles.popBack} 
+						activeOpacity={1} 
+						onPress={()=>{setFullPop3(false)}}
+					>
+					</TouchableOpacity>
+					<View style={styles.prvPop}>
+						<TouchableOpacity
+							style={styles.pop_x}					
+							onPress={() => {setFullPop3(false)}}
+						>
+              <ImgDomain fileWidth={18} fileName={'popup_x.png'}/>
+						</TouchableOpacity>		
+						<View style={[styles.popTitle, styles.popTitleFlex]}>							
+							<View style={styles.popTitleFlexWrap}>
+                <Text style={[styles.popBotTitleText, styles.popTitleFlexText]}>본인의 소셜에는 참여할 수 없어요.</Text>
+              </View>
+              <ImgDomain fileWidth={18} fileName={'emiticon1.png'}/>
+						</View>
+						<View style={styles.popBtnBox}>
+							<TouchableOpacity 
+								style={[styles.popBtn]}
+								activeOpacity={opacityVal}
+								onPress={() => {setFullPop3(false)}}
+							>
+								<Text style={styles.popBtnText}>확인</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
       {loading ? ( <View style={[styles.indicator]}><ActivityIndicator size="large" color="#D1913C" /></View> ) : null}
       {loading2 ? ( <View style={[styles.indicator, styles.indicator2]}><ActivityIndicator size="large" color="#fff" /></View> ) : null}
 		</SafeAreaView>
@@ -2825,7 +2924,7 @@ const styles = StyleSheet.create({
 	cardCont: {width: ((widnowWidth / 2) - 30), backgroundColor:'#fff', backfaceVisibility:'hidden', borderTopLeftRadius:80, borderTopRightRadius:80,},	
 	cardFrontInfo: {width: ((widnowWidth / 2) - 30), position:'absolute', left:0, top:0, zIndex:10,},
 	peopleImgBack: {opacity:0,},
-	peopleImg: {position:'absolute', left:0, top:0, zIndex:9, borderTopLeftRadius:80, borderTopRightRadius:80,},
+	peopleImg: {position:'absolute', left:0, top:0, zIndex:9, borderTopLeftRadius:80, borderTopRightRadius:80, overflow:'hidden'},
 	cardFrontInfoCont: {width: ((widnowWidth / 2) - 30), backgroundColor:'#fff', position:'absolute', left:0, bottom:0, zIndex:10, padding:10, borderRadius:5,},
 	cardFrontNick: {flexDirection:'row', alignItems:'center', justifyContent:'space-between'},
 	cardFrontNickText: {width:(innerWidth/2)-61,fontFamily:Font.NotoSansBold,fontSize:15,lineHeight:19,color:'#1e1e1e',},

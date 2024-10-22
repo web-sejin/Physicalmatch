@@ -376,11 +376,12 @@ const ExerciseLogWrite = (props) => {
                     }}
                   >
                     <ImgDomain fileWidth={17} fileName={'icon_exe_min.png'} />
-                    {logTimerSec != '' && logTimerSec != '0' ? (
+                    {/* {logTimerSec != '' && logTimerSec != '0' ? (
                       <Text style={styles.logInfoText}>{logTimer}분 {logTimerSec}초</Text>
                     ) : (
                       <Text style={styles.logInfoText}>{logTimer}분</Text>
-                    )}                    
+                    )}*/}
+                    <Text style={styles.logInfoText}>{logTimer}분</Text>
                   </TouchableOpacity>
                 </View>                
                 <View style={[styles.selectView, styles.mgt30]}>
@@ -665,7 +666,8 @@ const ExerciseLogWrite = (props) => {
               <TextInput
                 value={logTimerTemp}
                 onChangeText={(v) => {
-                  setLogTimerTemp(v);
+                  const numericValue = v.replace(/[^0-9]/g, '');
+                  setLogTimerTemp(numericValue);
                 }}
                 placeholder={'운동 시간을 입력해 주세요.'}
                 keyboardType="numeric"
@@ -679,7 +681,7 @@ const ExerciseLogWrite = (props) => {
             </View>
             {parseInt(logTimerTemp) < 1 || parseInt(logTimerTemp) > 600 ? (
             <View style={styles.timerAlert}>
-              <Text style={styles.timerAlertText}>운동 시간은 1~600분 사이로 입력해 주세요.</Text>
+              <Text style={styles.timerAlertText}>1~600분 사이의 숫자로 입력해 주세요.</Text>
             </View>
             ) : null}
 						<View style={[styles.popBtnBox]}>

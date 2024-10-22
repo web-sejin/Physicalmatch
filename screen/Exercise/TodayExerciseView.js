@@ -38,7 +38,7 @@ const TodayExerciseView = (props) => {
 	const {navigation, userInfo, route} = props;
 	const {params} = route	
   const exe_idx = params['exe_idx'];
-  const paramsString = JSON.stringify({exe_idx:exe_idx});
+  const paramsString = JSON.stringify({exe_idx:exe_idx, tabState:1});
   const scrollRef = useRef();	
   const etcRef = useRef(null);
   const [keyboardStatus, setKeyboardStatus] = useState(false);
@@ -293,14 +293,14 @@ const TodayExerciseView = (props) => {
 			member_idx: memberIdx,
       sc_type: reviewType,
       sc_content: reviewCont,      
-      params:paramsString,      
+      params:paramsString, 
 		};
 
     if(reviewType == 1){
       sData.sc_org_idx = subReviewIdx;
-      sData.push_idx = 19;
+      sData.push_idx = 33;
     }else{
-      sData.push_idx = 18;
+      sData.push_idx = 32;
     }
     
 		const response = await APIs.send(sData);    
@@ -557,7 +557,7 @@ const TodayExerciseView = (props) => {
                                 onPress={()=>{
                                   setReviewCont('');
                                   setReviewType(1);
-                                  setSubReivewNick(item.sc_social_nick);
+                                  setSubReivewNick(item.sc_exe_nick);
                                   setSubReviewIdx(item.sc_idx);
                                   setTimeout(function(){
                                     scrollRef.current?.scrollTo({y:layout3.y+10});

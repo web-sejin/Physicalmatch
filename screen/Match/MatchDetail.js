@@ -417,13 +417,15 @@ const MatchDetail = (props) => {
 			user_idx: mb_member_idx,
       profile_type: profileType,
 		};
-
+console.log('mb_member_idx ::: ',mb_member_idx);
 		const response = await APIs.send(sData);    
     if(response.code == 200){      
+      //console.log(response.data);
       setDatePopUse(response.date_yn);
       setProfileInfo(response.data);
       setPhoneNumber(response.data.info.member_phone);
       
+      console.log(response.data.img);
       if(response.data.img.length > 0){
         setSwiperList(response.data.img);
         setProfileImg(response.data.img[0].mpi_img);
@@ -2113,8 +2115,8 @@ const MatchDetail = (props) => {
           </>
         ) : null}
          
-        {/* 매칭된 사람에게 또는 평가를 한 사람에게 별점 숨김 처리 */}
-        {reviewState && profileInfo?.info.member_idx != memberIdx ? (
+        {/* 매칭된 사람에게 또는 평가를 한 사람에게 또는 동성에게 별점 숨김 처리 */}        
+        {reviewState && profileInfo?.info.member_idx != memberIdx && profileInfo?.info.member_sex != memberInfo.member_sex ? (
           <>
           <View style={styles.border}></View>
           <View style={[styles.detailInfoCm, styles.detailInfoCm3]}>

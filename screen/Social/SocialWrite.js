@@ -128,22 +128,29 @@ const SocialWrite = (props) => {
       totalReq = 7;
     }
 
+    if(gender == 0 && genderType == 0){
+      totalReq = 8;
+    }
+
+    totalReq
+
     if(subject != '' && subject.length >= 5 && subject.length <= 20){ currReq++; }
     if(meetDate != ''){ currReq++; }
     if(meetLocal != ''){ currReq++; }
     //if(imageType != 0){ currReq++; }
+    if(gender == 0 && genderType == 0 && ManCnt == womanCnt){ currReq++; }
     if(appImage){ currReq++; }
     if(content != '' && content.length >= 10  && content.length <= 300){ currReq++; }
     if(hostFriend != ''){ currReq++; }
     if(guestFriend != ''){ currReq++; }
 
-    console.log(cate+'/'+currReq+'/'+totalReq);
+    //console.log(cate+'/'+currReq+'/'+totalReq);
     if(currReq == totalReq){
       setState(true);
     }else{
       setState(false);
     }
-  }, [subject, meetDate, meetLocal, womanCnt, ManCnt, peopleCnt, imageType, content, hostFriend, guestFriend]);
+  }, [subject, meetDate, meetLocal, womanCnt, ManCnt, peopleCnt, imageType, content, hostFriend, guestFriend, genderType]);
 
   useEffect(() => {
     const date = new Date();		
@@ -248,11 +255,11 @@ const SocialWrite = (props) => {
       // }
 
       if(gender == 0 && genderType == 0){ //상관없음 + 성비 맞추기
-        if(womanCnt > 2){
-          if(womanCnt == ManCnt){
-            setManCnt(ManCnt-1);
-          }else if(womanCnt > ManCnt){
+        if(ManCnt > 2){
+          if(ManCnt == womanCnt){
             setWomanCnt(womanCnt-1);
+          }else if(ManCnt > womanCnt){
+            setManCnt(ManCnt-1);
           }
         }
       }else if(gender == 1 || (gender == 0 && genderType == 1)){ //상관없음 + 성비 무관
@@ -273,9 +280,9 @@ const SocialWrite = (props) => {
       if(gender == 0 && genderType == 0){ //상관없음 + 성비 맞추기
         if(womanCnt < 10 || ManCnt < 10){
           if(womanCnt == ManCnt){
-            setWomanCnt(womanCnt+1);
-          }else{
             setManCnt(ManCnt+1);
+          }else{
+            setWomanCnt(womanCnt+1);
           }  
         }
       }else if(gender == 1 || (gender == 0 && genderType == 1)){ //상관없음 + 성비 무관
@@ -294,7 +301,7 @@ const SocialWrite = (props) => {
     })
 		.then(image => {      
 			let selectObj = {path: image.path, mime: image.mime}			
-      console.log(selectObj);
+      //console.log(selectObj);
       setPhoneImage(selectObj);
       setImageType(2);
       setAppImage();
@@ -313,9 +320,15 @@ const SocialWrite = (props) => {
     setImagePop(false);
   }
 
-  const socialWriteUpdate = async () => {    
+  const socialWriteUpdate = async () => {        
     if(subject == '' || subject.length < 5 || subject.length > 20){
       ToastMessage('모임 제목을 5~20자 입력해 주세요.');
+      Keyboard.dismiss();
+      return false;
+    }
+
+    if(/\S/.test(subject) == false){
+      ToastMessage('모임 제목을 빈 여백으로만 작성할 수 없습니다.');
       Keyboard.dismiss();
       return false;
     }
@@ -332,6 +345,12 @@ const SocialWrite = (props) => {
       return false;
     }
 
+    if(gender == 0 && genderType == 0 && ManCnt != womanCnt){
+      ToastMessage('성비를 맞춰 주세요.');
+      Keyboard.dismiss();
+      return false;
+    }
+
     if(imageType == 0){ 
       ToastMessage('모임을 소개할 수 있는 이미지를 등록해 주세요.');
       Keyboard.dismiss();
@@ -340,6 +359,12 @@ const SocialWrite = (props) => {
 
     if(content == '' || content.length < 10 || content.length > 300){
       ToastMessage('모임 내용을 10~300자 입력해 주세요.');
+      Keyboard.dismiss();
+      return false;
+    }
+
+    if(/\S/.test(content) == false){
+      ToastMessage('모임 내용을 빈 여백으로만 작성할 수 없습니다.');
       Keyboard.dismiss();
       return false;
     }
@@ -371,12 +396,45 @@ const SocialWrite = (props) => {
       host_guest_yn: hostFriend,
       guest_guest_yn: guestFriend,
 		};
-
+    
+    if(cate == 0){
+      sData.social_join_sex = gender;
+    }
+    
     if(cate == 1){ 
       sData.social_mcnt = ManCnt;
       sData.social_wcnt = womanCnt;
     }else if(cate == 2){
-      sData.social_cnt = peopleCnt;
+      if(gender == 0 && genderType == 0){
+        //성별 상관없음 & 성비 맞추기
+        sData.social_type = 1;
+        sData.social_join_sex = gender;
+        sData.social_mcnt = ManCnt;
+        sData.social_wcnt = womanCnt;
+        sData.social_cnt = 0;
+
+      }else if(gender == 0 && genderType == 1){
+        //성별 상관없음 & 성비무관
+        sData.social_join_sex = gender;
+        sData.social_mcnt = 0;
+        sData.social_wcnt = 0;
+        sData.social_cnt = peopleCnt;
+        
+      }else if(gender == 1){
+        if(memberSex == 0){
+          sData.social_join_sex = 1;
+        }else if(memberSex == 1){
+          sData.social_join_sex = 2;
+        }
+        sData.social_cnt = peopleCnt;
+      }
+
+      // if(gender == 0){
+      //   sData.social_type = 1;
+      //   sData.social_join_sex = gender;
+      // }else{
+
+      // }      
     }
 
     if(imageType == 1){
@@ -638,7 +696,7 @@ const SocialWrite = (props) => {
                         <View style={styles.countBoxBtnFlex}>
                           <ImgDomain fileWidth={28} fileName={'icon_gender_man.png'} />
                           <View style={styles.countBoxBtnFlexInner}>
-                            <Text style={styles.countBoxBtnText}>{womanCnt}:{ManCnt}</Text>
+                            <Text style={styles.countBoxBtnText}>{ManCnt}:{womanCnt}</Text>
                           </View>
                           <ImgDomain fileWidth={28} fileName={'icon_gender_woman.png'} />
                         </View>                                                             
